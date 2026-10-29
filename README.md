@@ -20,13 +20,15 @@ Lemuroid Plus installs **next to** the original Lemuroid (app id `com.swordfish.
 - **bsnes for SNES.** Choose between Snes9x (default, fastest) and bsnes (more accurate, much heavier) in **Settings → Core selection**. bsnes is downloaded from the official libretro build server the first time it is selected.
 
 ### Saves and backups
-- **Lemuroid folder.** Saves, save states and state previews are kept in `Lemuroid/` on the main storage (`Lemuroid/saves`, `Lemuroid/states`, `Lemuroid/state-previews`), where any file manager can reach them.
-- **Settings → Backup → Import save files.** Pick one or more `.sav` / `.srm` files from anywhere on the device. Files named like the ROM are matched automatically; for any other file you choose the game from a searchable list. The previous save is kept as `.srm.bak`.
-- **Import .sav files.** To bring an in-game save from another emulator or a flash cart, rename it to match the ROM file (for `Pokemon Emerald (USA).gba`, use `Pokemon Emerald (USA).sav`) and put it in `Lemuroid/saves`. It is used the next time the game starts, then renamed to `.sav.imported` so it only imports once. A `.sav` that is newer than Lemuroid's own save replaces it.
-- **BIOS folder.** Drop BIOS files into `Lemuroid/bios` (one folder for all systems, any file names) and tap **Rescan** in Settings. They are recognized by checksum, the same as BIOS files in the ROM folder, which still works too. **Settings → BIOS** shows what was detected. The app asks for "All files access" on first launch for this. Existing saves are moved there automatically. If you decline, saves stay in the app's private folder as before.
+- **Lemuroid folder.** Saves, save states and state previews are kept in `Lemuroid/` on the main storage (`Lemuroid/saves`, `Lemuroid/states`, `Lemuroid/state-previews`), where any file manager can reach them. The app asks for "All files access" on first launch for this. Existing saves are moved there automatically. If you decline, saves stay in the app's private folder as before.
+- **BIOS folder.** Drop BIOS files into `Lemuroid/bios` (one folder for all systems, any file names) and tap **Rescan** in Settings. They are recognized by checksum, the same as BIOS files in the ROM folder, which still works too. **Settings → BIOS** shows what was detected.
 - **Settings → Backup.**
   - **Export saves** writes all saves and states to one zip file, wherever you choose.
-  - **Import saves** restores them from such a zip. Files in the backup replace ones with the same name; other saves are kept.
+  - **Import saves** takes one or more files from anywhere on the device:
+    - a backup zip made by Export saves restores saves and states (after a confirmation);
+    - `.sav` / `.srm` files from other emulators or flash carts are matched to games by name (`Pokemon Emerald (USA).sav` for `Pokemon Emerald (USA).gba`), and for any other name you pick the game from a searchable list.
+  - Any in-game save that gets replaced is kept as `.srm.bak` in `Lemuroid/saves`, so an import can be undone.
+- **Drop-in .sav files.** A `.sav` named like the ROM and placed in `Lemuroid/saves` is also picked up the next time the game starts (if it is newer than Lemuroid's own save), then renamed to `.sav.imported` so it only imports once.
 
 ## Install
 

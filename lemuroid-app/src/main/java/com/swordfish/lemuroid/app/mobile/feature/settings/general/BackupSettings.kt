@@ -1,6 +1,5 @@
 package com.swordfish.lemuroid.app.mobile.feature.settings.general
 
-import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -43,8 +42,8 @@ import java.util.Date
 import java.util.Locale
 
 /**
- * "Backup" section of the settings: export all saves and states to a zip file, import one,
- * or import single in-game save files (.sav/.srm) from other emulators.
+ * "Backup" section of the settings: export all saves and states to a zip file, and one "Import saves"
+ * entry that accepts backup zips as well as single in-game save files (.sav/.srm) from other emulators.
  */
 @Composable
 fun BackupSettings(retrogradeDb: RetrogradeDatabase) {
@@ -54,14 +53,61 @@ fun BackupSettings(retrogradeDb: RetrogradeDatabase) {
     val saveFileImporter = remember { SaveFileImporter(context.applicationContext, retrogradeDb) }
 
     var busy by remember { mutableStateOf(false) }
-    var pendingImport by remember { mutableStateOf<Uri?>(null) }
+
+    // Backup zips waiting for confirmation, and the save files picked together with them.
+    var pendingZips by remember { mutableStateOf<List<SaveFileImporter.PickedFile>>(emptyList()) }
+    var pendingSaveFiles by remember { mutableStateOf<List<SaveFileImporter.PickedFile>>(emptyList()) }
 
     // Save files that could not be matched to a game by name, waiting for the user to pick one.
     var unmatchedFiles by remember { mutableStateOf<List<SaveFileImporter.PickedFile>>(emptyList()) }
     var allGames by remember { mutableStateOf<List<Game>>(emptyList()) }
-    var importedCount by remember { mutableStateOf(0) }
+    var importedFiles by remember { mutableStateOf(0) }
 
     fun toast(message: String) = Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+
+    fun finishImport() {
+        if (importedFiles > 0) {
+            toast(context.getString(R.string.backup_import_done, importedFiles))
+        }
+        importedFiles = 0
+        busy = false
+    }
+
+    /** Restores the confirmed zips, then imports the save files (asking for unmatched ones). */
+    fun runImport(
+        zips: List<SaveFileImporter.PickedFile>,
+        saveFiles: List<SaveFileImporter.PickedFile>,
+    ) {
+        busy = true
+        scope.launch {
+            zips.forEach { zip ->
+                runCatching { backupManager.import(zip.uri) }
+                    .onSuccess { importedFiles += it.files }
+                    .onFailure {
+                        Timber.e(it, "Backup import failed for ${zip.name}")
+                        toast(context.getString(R.string.backup_import_failed, "${zip.name}: ${it.message ?: ""}"))
+                    }
+            }
+
+            if (saveFiles.isNotEmpty()) {
+                runCatching {
+                    val plan = saveFileImporter.plan(saveFiles)
+                    plan.matched.forEach { (file, game) ->
+                        runCatching { saveFileImporter.import(file, game) }
+                            .onSuccess { importedFiles++ }
+                            .onFailure { Timber.e(it, "Failed to import ${file.name}") }
+                    }
+                    allGames = plan.games
+                    unmatchedFiles = plan.unmatched
+                }.onFailure {
+                    Timber.e(it, "Save files import failed")
+                    toast(context.getString(R.string.backup_import_failed, it.message ?: ""))
+                }
+            }
+
+            if (unmatchedFiles.isEmpty()) finishImport()
+        }
+    }
 
     val exportLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
@@ -79,39 +125,18 @@ fun BackupSettings(retrogradeDb: RetrogradeDatabase) {
         }
 
     val importLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-            pendingImport = uri
-        }
-
-    fun finishSaveFileImport() {
-        if (importedCount > 0) {
-            toast(
-                context.resources.getQuantityString(R.plurals.backup_save_files_imported, importedCount, importedCount),
-            )
-        }
-        importedCount = 0
-        busy = false
-    }
-
-    val saveFilesLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
             if (uris.isEmpty()) return@rememberLauncherForActivityResult
-            busy = true
             scope.launch {
-                runCatching {
-                    val plan = saveFileImporter.plan(uris)
-                    plan.matched.forEach { (file, game) ->
-                        runCatching { saveFileImporter.import(file, game) }
-                            .onSuccess { importedCount++ }
-                            .onFailure { Timber.e(it, "Failed to import ${file.name}") }
-                    }
-                    allGames = plan.games
-                    unmatchedFiles = plan.unmatched
-                }.onFailure {
-                    Timber.e(it, "Save files import failed")
-                    toast(context.getString(R.string.backup_import_failed, it.message ?: ""))
+                val files = saveFileImporter.describe(uris)
+                val (zips, saveFiles) = files.partition { it.isBackupZip }
+                if (zips.isEmpty()) {
+                    runImport(emptyList(), saveFiles)
+                } else {
+                    // Restoring a backup can overwrite many saves, so ask first.
+                    pendingSaveFiles = saveFiles
+                    pendingZips = zips
                 }
-                if (unmatchedFiles.isEmpty()) finishSaveFileImport()
             }
         }
 
@@ -128,13 +153,41 @@ fun BackupSettings(retrogradeDb: RetrogradeDatabase) {
             title = { Text(text = stringResource(id = R.string.settings_title_backup_import)) },
             subtitle = { Text(text = stringResource(id = R.string.settings_description_backup_import)) },
             enabled = !busy,
-            onClick = { importLauncher.launch(BACKUP_MIME_TYPES) },
+            onClick = { importLauncher.launch(arrayOf("*/*")) },
         )
-        LemuroidSettingsMenuLink(
-            title = { Text(text = stringResource(id = R.string.settings_title_backup_import_sav)) },
-            subtitle = { Text(text = stringResource(id = R.string.settings_description_backup_import_sav)) },
-            enabled = !busy,
-            onClick = { saveFilesLauncher.launch(arrayOf("*/*")) },
+    }
+
+    if (pendingZips.isNotEmpty()) {
+        val zips = pendingZips
+        val saveFiles = pendingSaveFiles
+        AlertDialog(
+            onDismissRequest = {
+                pendingZips = emptyList()
+                pendingSaveFiles = emptyList()
+            },
+            title = { Text(text = stringResource(id = R.string.backup_import_confirm_title)) },
+            text = { Text(text = stringResource(id = R.string.backup_import_confirm_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        pendingZips = emptyList()
+                        pendingSaveFiles = emptyList()
+                        runImport(zips, saveFiles)
+                    },
+                ) {
+                    Text(text = stringResource(id = R.string.backup_import_confirm_button))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        pendingZips = emptyList()
+                        pendingSaveFiles = emptyList()
+                    },
+                ) {
+                    Text(text = stringResource(id = android.R.string.cancel))
+                }
+            },
         )
     }
 
@@ -147,50 +200,17 @@ fun BackupSettings(retrogradeDb: RetrogradeDatabase) {
                 unmatchedFiles = unmatchedFiles.drop(1)
                 scope.launch {
                     runCatching { saveFileImporter.import(currentFile, game) }
-                        .onSuccess { importedCount++ }
+                        .onSuccess { importedFiles++ }
                         .onFailure {
                             Timber.e(it, "Failed to import ${currentFile.name}")
                             toast(context.getString(R.string.backup_import_failed, it.message ?: ""))
                         }
-                    if (unmatchedFiles.isEmpty()) finishSaveFileImport()
+                    if (unmatchedFiles.isEmpty()) finishImport()
                 }
             },
             onSkip = {
                 unmatchedFiles = unmatchedFiles.drop(1)
-                if (unmatchedFiles.isEmpty()) finishSaveFileImport()
-            },
-        )
-    }
-
-    val importUri = pendingImport
-    if (importUri != null) {
-        AlertDialog(
-            onDismissRequest = { pendingImport = null },
-            title = { Text(text = stringResource(id = R.string.backup_import_confirm_title)) },
-            text = { Text(text = stringResource(id = R.string.backup_import_confirm_message)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        pendingImport = null
-                        busy = true
-                        scope.launch {
-                            runCatching { backupManager.import(importUri) }
-                                .onSuccess { toast(context.getString(R.string.backup_import_done, it.files)) }
-                                .onFailure {
-                                    Timber.e(it, "Saves import failed")
-                                    toast(context.getString(R.string.backup_import_failed, it.message ?: ""))
-                                }
-                            busy = false
-                        }
-                    },
-                ) {
-                    Text(text = stringResource(id = R.string.backup_import_confirm_button))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { pendingImport = null }) {
-                    Text(text = stringResource(id = android.R.string.cancel))
-                }
+                if (unmatchedFiles.isEmpty()) finishImport()
             },
         )
     }
@@ -259,13 +279,6 @@ private fun GamePickerDialog(
         },
     )
 }
-
-private val BACKUP_MIME_TYPES =
-    arrayOf(
-        "application/zip",
-        "application/x-zip-compressed",
-        "application/octet-stream",
-    )
 
 private fun defaultBackupName(): String {
     val date = SimpleDateFormat("yyyy-MM-dd_HH-mm", Locale.US).format(Date())

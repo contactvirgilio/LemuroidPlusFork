@@ -19,7 +19,10 @@ class SaveFileImporter(
     private val appContext: Context,
     private val retrogradeDb: RetrogradeDatabase,
 ) {
-    data class PickedFile(val uri: Uri, val name: String)
+    data class PickedFile(val uri: Uri, val name: String) {
+        val isBackupZip: Boolean
+            get() = name.endsWith(".zip", ignoreCase = true)
+    }
 
     data class Plan(
         val matched: List<Pair<PickedFile, Game>>,
@@ -29,12 +32,16 @@ class SaveFileImporter(
 
     private val savesManager = SavesManager(DirectoriesManager(appContext))
 
-    suspend fun plan(uris: List<Uri>): Plan =
+    suspend fun describe(uris: List<Uri>): List<PickedFile> =
+        withContext(Dispatchers.IO) {
+            uris.map { PickedFile(it, displayName(it)) }
+        }
+
+    suspend fun plan(files: List<PickedFile>): Plan =
         withContext(Dispatchers.IO) {
             val games = retrogradeDb.gameDao().selectAll()
             val gamesByBaseName = games.groupBy { baseName(it.fileName).lowercase() }
 
-            val files = uris.map { PickedFile(it, displayName(it)) }
             val matched = mutableListOf<Pair<PickedFile, Game>>()
             val unmatched = mutableListOf<PickedFile>()
 

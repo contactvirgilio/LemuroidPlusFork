@@ -66,6 +66,10 @@ class SavesBackupManager(private val appContext: Context) {
                     val target = resolveTarget(entry, folders)
                     if (target != null) {
                         target.parentFile?.mkdirs()
+                        // Keep the in-game save being replaced, like the single save file import does.
+                        if (target.extension.equals("srm", ignoreCase = true) && target.length() > 0) {
+                            target.copyTo(File(target.path + ".bak"), overwrite = true)
+                        }
                         target.outputStream().use { zip.copyTo(it) }
                         if (entry.time > 0) target.setLastModified(entry.time)
                         count++

@@ -248,23 +248,17 @@
     <string name="settings_title_backup_export">Export saves</string>
     <string name="settings_description_backup_export">Save all saves and save states to a single zip file</string>
     <string name="settings_title_backup_import">Import saves</string>
-    <string name="settings_description_backup_import">Restore saves and save states from a backup zip file</string>
+    <string name="settings_description_backup_import">Restore a backup zip, or add .sav / .srm saves from other emulators</string>
     <string name="backup_export_done">Exported %1$d files</string>
     <string name="backup_export_failed">Export failed: %1$s</string>
-    <string name="backup_import_done">Imported %1$d files</string>
+    <string name="backup_import_done">Imported %1$d files. Any replaced in-game saves were kept as .srm.bak</string>
     <string name="backup_import_failed">Import failed: %1$s</string>
-    <string name="settings_title_backup_import_sav">Import save files</string>
-    <string name="settings_description_backup_import_sav">Add .sav or .srm saves from other emulators. Files named like the ROM are matched automatically</string>
     <string name="backup_pick_game_title">Which game is this save for?</string>
     <string name="backup_pick_game_message">No game matches \"%1$s\". Choose the game to use it for:</string>
     <string name="backup_pick_game_search">Search games</string>
     <string name="backup_pick_game_skip">Skip</string>
-    <plurals name="backup_save_files_imported">
-        <item quantity="one">Imported %1$d save. The previous save was kept as .srm.bak</item>
-        <item quantity="other">Imported %1$d saves. Previous saves were kept as .srm.bak</item>
-    </plurals>
     <string name="backup_import_confirm_title">Import saves?</string>
-    <string name="backup_import_confirm_message">Saves and states in the backup will replace any existing ones with the same name. Other saves are kept.</string>
+    <string name="backup_import_confirm_message">Saves and states in the backup zip will replace any existing ones with the same name. Other saves are kept.</string>
     <string name="backup_import_confirm_button">Import</string>
 
     <string name="public_storage_dialog_title">Keep saves in a Lemuroid folder?</string>
