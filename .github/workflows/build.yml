@@ -1,11 +1,12 @@
 name: Build Lemuroid Plus APK
 
 # Builds a downloadable APK on every push to main and when run by hand from the Actions tab.
-# Pushing a tag like v1.0 also creates a GitHub Release with the APK attached.
+# Publishing a GitHub Release (e.g. tag v1.0) builds the APK and attaches it to that release.
 on:
   push:
     branches: [ main ]
-    tags: [ "v*" ]
+  release:
+    types: [ published ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
@@ -50,8 +51,8 @@ jobs:
           if-no-files-found: error
 
       - name: Publish GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.event.release.tag_name }}
           files: dist/*.apk
-          generate_release_notes: true

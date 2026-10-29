@@ -35,12 +35,7 @@ Lemuroid Plus installs **next to** the original Lemuroid (app id `com.swordfish.
 
 Every push to `main` builds the APK on GitHub Actions. To build by hand, open **Actions → Build Lemuroid Plus APK → Run workflow**.
 
-To publish a release with the APK attached, push a tag starting with `v`:
-
-```bash
-git tag v1.0
-git push origin v1.0
-```
+To publish a release with the APK attached: open **Releases → Draft a new release**, create a tag such as `v1.0`, add notes and press **Publish release**. The workflow builds the APK and attaches it to the release a few minutes later.
 
 To build locally (JDK 17 and the Android SDK required):
 
