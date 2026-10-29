@@ -19,7 +19,10 @@ class SavesManager(private val directoriesManager: DirectoriesManager) {
             val result =
                 runCatchingWithRetry(FILE_ACCESS_RETRIES) {
                     val saveFile = getSaveFile(getSaveRAMFileName(game))
-                    if (saveFile.exists() && saveFile.length() > 0) {
+                    val importedSav = importSavFile(game, saveFile)
+                    if (importedSav != null) {
+                        importedSav
+                    } else if (saveFile.exists() && saveFile.length() > 0) {
                         saveFile.readBytes()
                     } else {
                         val savesMigrator = systemCoreConfig.getSavesMigrator()
@@ -63,10 +66,39 @@ class SavesManager(private val directoriesManager: DirectoriesManager) {
         }
     }
 
+    /**
+     * Lets users bring saves from other emulators or flash carts: a "<ROM name>.sav" file (any case)
+     * in the saves folder is used when there is no .srm yet, or when it is newer than the .srm.
+     * It is copied to the .srm and renamed to ".sav.imported" so it is only imported once.
+     */
+    private fun importSavFile(
+        game: Game,
+        srmFile: File,
+    ): ByteArray? {
+        val baseName = game.fileName.substringBeforeLast(".")
+        val savFile =
+            srmFile.parentFile
+                ?.listFiles()
+                ?.firstOrNull { it.isFile && it.name.equals("$baseName.sav", ignoreCase = true) }
+                ?: return null
+
+        val srmIsNewer = srmFile.exists() && srmFile.length() > 0 && srmFile.lastModified() >= savFile.lastModified()
+        if (savFile.length() == 0L || srmIsNewer) return null
+
+        val data = savFile.readBytes()
+        srmFile.writeBytesAtomic(data)
+
+        val importedFile = File(savFile.path + IMPORTED_SUFFIX)
+        importedFile.delete()
+        savFile.renameTo(importedFile)
+        return data
+    }
+
     /** This name should make it compatible with RetroArch so that users can freely sync saves across the two application. */
     private fun getSaveRAMFileName(game: Game) = "${game.fileName.substringBeforeLast(".")}.srm"
 
     companion object {
         private const val FILE_ACCESS_RETRIES = 3
+        private const val IMPORTED_SUFFIX = ".imported"
     }
 }
