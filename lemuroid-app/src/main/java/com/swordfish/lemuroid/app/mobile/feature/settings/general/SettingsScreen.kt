@@ -24,12 +24,14 @@ import com.swordfish.lemuroid.app.utils.android.settings.booleanPreferenceState
 import com.swordfish.lemuroid.app.utils.android.settings.indexPreferenceState
 import com.swordfish.lemuroid.app.utils.android.settings.intPreferenceState
 import com.swordfish.lemuroid.app.utils.android.stringListResource
+import com.swordfish.lemuroid.lib.library.db.RetrogradeDatabase
 
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel,
     navController: NavController,
+    retrogradeDb: RetrogradeDatabase,
 ) {
     val state =
         viewModel.uiState
@@ -55,7 +57,7 @@ fun SettingsScreen(
         )
         GeneralSettings()
         InputSettings(navController = navController)
-        BackupSettings()
+        BackupSettings(retrogradeDb)
         MiscSettings(
             indexingInProgress = indexingInProgress,
             isSaveSyncSupported = state.isSaveSyncSupported,

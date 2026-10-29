@@ -21,6 +21,7 @@ Lemuroid Plus installs **next to** the original Lemuroid (app id `com.swordfish.
 
 ### Saves and backups
 - **Lemuroid folder.** Saves, save states and state previews are kept in `Lemuroid/` on the main storage (`Lemuroid/saves`, `Lemuroid/states`, `Lemuroid/state-previews`), where any file manager can reach them.
+- **Settings → Backup → Import save files.** Pick one or more `.sav` / `.srm` files from anywhere on the device. Files named like the ROM are matched automatically; for any other file you choose the game from a searchable list. The previous save is kept as `.srm.bak`.
 - **Import .sav files.** To bring an in-game save from another emulator or a flash cart, rename it to match the ROM file (for `Pokemon Emerald (USA).gba`, use `Pokemon Emerald (USA).sav`) and put it in `Lemuroid/saves`. It is used the next time the game starts, then renamed to `.sav.imported` so it only imports once. A `.sav` that is newer than Lemuroid's own save replaces it.
 - **BIOS folder.** Drop BIOS files into `Lemuroid/bios` (one folder for all systems, any file names) and tap **Rescan** in Settings. They are recognized by checksum, the same as BIOS files in the ROM folder, which still works too. **Settings → BIOS** shows what was detected. The app asks for "All files access" on first launch for this. Existing saves are moved there automatically. If you decline, saves stay in the app's private folder as before.
 - **Settings → Backup.**

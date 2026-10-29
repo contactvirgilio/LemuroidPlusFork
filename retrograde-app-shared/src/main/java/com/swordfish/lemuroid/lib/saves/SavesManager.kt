@@ -51,6 +51,22 @@ class SavesManager(private val directoriesManager: DirectoriesManager) {
         }
     }
 
+    /**
+     * Replaces the game's in-game save with [data] (e.g. a .sav from another emulator).
+     * The previous save, if any, is kept as ".srm.bak" so the import can be undone.
+     */
+    suspend fun importSaveRAM(
+        game: Game,
+        data: ByteArray,
+    ) {
+        require(data.isNotEmpty()) { "The save file is empty" }
+        withContext(Dispatchers.IO) {
+            val saveFile = getSaveFile(getSaveRAMFileName(game))
+            backUpExistingSave(saveFile)
+            saveFile.writeBytesAtomic(data)
+        }
+    }
+
     suspend fun getSaveRAMInfo(game: Game): SaveInfo {
         return withContext(Dispatchers.IO) {
             val saveFile = getSaveFile(getSaveRAMFileName(game))
@@ -86,6 +102,7 @@ class SavesManager(private val directoriesManager: DirectoriesManager) {
         if (savFile.length() == 0L || srmIsNewer) return null
 
         val data = savFile.readBytes()
+        backUpExistingSave(srmFile)
         srmFile.writeBytesAtomic(data)
 
         val importedFile = File(savFile.path + IMPORTED_SUFFIX)
@@ -94,11 +111,17 @@ class SavesManager(private val directoriesManager: DirectoriesManager) {
         return data
     }
 
+    private fun backUpExistingSave(saveFile: File) {
+        if (!saveFile.exists() || saveFile.length() == 0L) return
+        saveFile.copyTo(File(saveFile.path + BACKUP_SUFFIX), overwrite = true)
+    }
+
     /** This name should make it compatible with RetroArch so that users can freely sync saves across the two application. */
     private fun getSaveRAMFileName(game: Game) = "${game.fileName.substringBeforeLast(".")}.srm"
 
     companion object {
         private const val FILE_ACCESS_RETRIES = 3
         private const val IMPORTED_SUFFIX = ".imported"
+        private const val BACKUP_SUFFIX = ".bak"
     }
 }

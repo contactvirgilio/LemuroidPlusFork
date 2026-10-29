@@ -284,6 +284,7 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
                                         ),
                                 ),
                             navController = navController,
+                            retrogradeDb = retrogradeDb,
                         )
                     }
                     composable(MainRoute.SETTINGS_ADVANCED) {
