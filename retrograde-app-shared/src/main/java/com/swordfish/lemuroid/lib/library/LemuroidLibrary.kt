@@ -57,6 +57,12 @@ class LemuroidLibrary(
             indexProviders(startedAtMs)
         } catch (e: Throwable) {
             Timber.e(e, "Library indexing stopped due to exception")
+        }
+
+        try {
+            biosManager.importFromBiosFolder(startedAtMs)
+        } catch (e: Throwable) {
+            Timber.e(e, "BIOS folder import failed")
         } finally {
             cleanUp(startedAtMs)
         }

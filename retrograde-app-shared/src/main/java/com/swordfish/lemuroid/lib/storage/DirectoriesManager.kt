@@ -69,6 +69,15 @@ class DirectoriesManager(private val appContext: Context) {
             mkdirs()
         }
 
+    /**
+     * Lemuroid/bios on the main storage: a single folder (not per system) where BIOS files can be
+     * dropped. They are picked up on every library scan. Null when the app has no access to it.
+     */
+    fun getPublicBiosDirectory(): File? {
+        if (!hasPublicStorageAccess(appContext)) return null
+        return File(getPublicRootDirectory(), "bios").takeIf { it.isDirectory || it.mkdirs() }
+    }
+
     fun getInternalRomsDirectory(): File =
         File(appContext.getExternalFilesDir(null), "roms").apply {
             mkdirs()
@@ -93,6 +102,7 @@ class DirectoriesManager(private val appContext: Context) {
         }
 
         migrateFromAppPrivateRoot(publicRoot)
+        File(publicRoot, "bios").mkdirs()
         return publicRoot
     }
 

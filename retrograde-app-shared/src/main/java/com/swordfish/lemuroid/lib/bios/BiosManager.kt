@@ -1,7 +1,9 @@
 package com.swordfish.lemuroid.lib.bios
 
+import android.net.Uri
 import com.swordfish.lemuroid.common.files.safeDelete
 import com.swordfish.lemuroid.common.kotlin.associateByNotNull
+import com.swordfish.lemuroid.common.kotlin.calculateCrc32
 import com.swordfish.lemuroid.common.kotlin.writeToFile
 import com.swordfish.lemuroid.lib.library.SystemCoreConfig
 import com.swordfish.lemuroid.lib.library.SystemID
@@ -89,6 +91,34 @@ class BiosManager(private val directoriesManager: DirectoriesManager) {
         return true
     }
 
+    /**
+     * Imports BIOS files from the Lemuroid/bios folder, matched by checksum (or by name) like
+     * BIOS files found in the ROM folder. Returns how many files were recognized.
+     */
+    fun importFromBiosFolder(timestampMs: Long): Int {
+        val biosFolder = directoriesManager.getPublicBiosDirectory() ?: return 0
+        var imported = 0
+        biosFolder.walkTopDown()
+            .filter { it.isFile && it.length() in 1..MAX_BIOS_SIZE }
+            .forEach { file ->
+                runCatching {
+                    val storageFile =
+                        StorageFile(
+                            name = file.name,
+                            size = file.length(),
+                            crc = file.inputStream().calculateCrc32(),
+                            uri = Uri.fromFile(file),
+                            path = file.absolutePath,
+                        )
+                    file.inputStream().use { input ->
+                        if (tryAddBiosAfter(storageFile, input, timestampMs)) imported++
+                    }
+                }.onFailure { Timber.e(it, "Failed to read BIOS file ${file.absolutePath}") }
+            }
+        Timber.i("Imported $imported BIOS files from ${biosFolder.absolutePath}")
+        return imported
+    }
+
     private fun findByCRC(storageFile: StorageFile): Bios? {
         return crcLookup[storageFile.crc]
     }
@@ -102,6 +132,9 @@ class BiosManager(private val directoriesManager: DirectoriesManager) {
     data class BiosInfo(val detected: List<Bios>, val notDetected: List<Bios>)
 
     companion object {
+        // Largest known BIOS files (e.g. Sega CD, 3DS) are well below this; skip anything bigger.
+        private const val MAX_BIOS_SIZE = 64L * 1024 * 1024
+
         private val SUPPORTED_BIOS =
             listOf(
                 Bios(

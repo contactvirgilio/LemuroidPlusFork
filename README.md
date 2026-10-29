@@ -20,7 +20,8 @@ Lemuroid Plus installs **next to** the original Lemuroid (app id `com.swordfish.
 - **bsnes for SNES.** Choose between Snes9x (default, fastest) and bsnes (more accurate, much heavier) in **Settings → Core selection**. bsnes is downloaded from the official libretro build server the first time it is selected.
 
 ### Saves and backups
-- **Lemuroid folder.** Saves, save states and state previews are kept in `Lemuroid/` on the main storage (`Lemuroid/saves`, `Lemuroid/states`, `Lemuroid/state-previews`), where any file manager can reach them. The app asks for "All files access" on first launch for this. Existing saves are moved there automatically. If you decline, saves stay in the app's private folder as before.
+- **Lemuroid folder.** Saves, save states and state previews are kept in `Lemuroid/` on the main storage (`Lemuroid/saves`, `Lemuroid/states`, `Lemuroid/state-previews`), where any file manager can reach them.
+- **BIOS folder.** Drop BIOS files into `Lemuroid/bios` (one folder for all systems, any file names) and tap **Rescan** in Settings. They are recognized by checksum, the same as BIOS files in the ROM folder, which still works too. **Settings → BIOS** shows what was detected. The app asks for "All files access" on first launch for this. Existing saves are moved there automatically. If you decline, saves stay in the app's private folder as before.
 - **Settings → Backup.**
   - **Export saves** writes all saves and states to one zip file, wherever you choose.
   - **Import saves** restores them from such a zip. Files in the backup replace ones with the same name; other saves are kept.

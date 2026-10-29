@@ -57,7 +57,7 @@
     <string name="settings_core_selection_ds_info">DeSmuME is deprecated and will be removed in one of the next updates. Save your progress inside the game, then switch to melonDS. In-game saves will load automatically in melonDS, but save states can only be used with the core that created them.</string>
 
     <string name="settings_title_display_bios_info">BIOS</string>
-    <string name="settings_description_display_bios_info">Display detected and supported BIOS files</string>
+    <string name="settings_description_display_bios_info">Put BIOS files in the Lemuroid/bios folder (or your ROMs folder) and rescan</string>
     <string name="settings_bios_category_detected">Detected</string>
     <string name="settings_bios_category_not_detected">Supported</string>
 
@@ -169,7 +169,7 @@
         \n\nIf none of the above works, it might be possible that this Game/Core is not supported by this device.
     </string>
 
-    <string name="game_loader_error_missing_bios">It looks like you\'re missing the required BIOS, put them in your ROMs directory and rescan. Required files: %1$s</string>
+    <string name="game_loader_error_missing_bios">It looks like you\'re missing the required BIOS, put them in the Lemuroid/bios folder (or your ROMs folder) and rescan. Required files: %1$s</string>
 
     <string name="game_shortcut_error">Something bad happened while loading your game. Please make sure this game still exists in your library.</string>
 
