@@ -37,6 +37,7 @@ import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import timber.log.Timber
 import java.io.File
+import java.util.zip.ZipInputStream
 
 class CoreUpdaterImpl(
     private val directoriesManager: DirectoriesManager,
@@ -45,6 +46,10 @@ class CoreUpdaterImpl(
     // This is the last tagged versions of cores.
     companion object {
         private const val CORES_VERSION = "1.17.0"
+
+        /** Cores not published in LemuroidCores, downloaded from the official libretro build server instead. */
+        private val LIBRETRO_BUILDBOT_CORES = setOf(CoreID.BSNES)
+        private const val LIBRETRO_BUILDBOT_URL = "https://buildbot.libretro.com/nightly/android/latest/"
     }
 
     private val baseUri = Uri.parse("https://github.com/Swordfish90/LemuroidCores/")
@@ -97,6 +102,10 @@ class CoreUpdaterImpl(
             deleteOutdatedCores(mainCoresDirectory, CORES_VERSION)
         }
 
+        if (coreID in LIBRETRO_BUILDBOT_CORES) {
+            return downloadCoreFromLibretroBuildbot(coreID, destFile)
+        }
+
         val uri =
             baseUri.buildUpon()
                 .appendEncodedPath("raw/$CORES_VERSION/lemuroid_core_${coreID.coreName}/src/main/jniLibs/")
@@ -106,6 +115,46 @@ class CoreUpdaterImpl(
 
         try {
             downloadFile(uri, destFile)
+            return destFile
+        } catch (e: Throwable) {
+            destFile.safeDelete()
+            throw e
+        }
+    }
+
+    /**
+     * The buildbot serves each core as a zip ("bsnes_libretro_android.so.zip") holding a single
+     * .so without the "lib" prefix. The .so is extracted to the name Lemuroid expects.
+     */
+    private suspend fun downloadCoreFromLibretroBuildbot(
+        coreID: CoreID,
+        destFile: File,
+    ): File {
+        val buildbotName = coreID.libretroFileName.removePrefix("lib")
+        val uri =
+            Uri.parse(LIBRETRO_BUILDBOT_URL).buildUpon()
+                .appendPath(Build.SUPPORTED_ABIS.first())
+                .appendPath("$buildbotName.zip")
+                .build()
+
+        Timber.i("Downloading core $coreID from libretro buildbot: $uri")
+
+        try {
+            val response = api.downloadFile(uri.toString())
+            if (!response.isSuccessful) {
+                throw Exception(response.errorBody()?.string() ?: "Download error")
+            }
+            val body = response.body() ?: throw Exception("Empty core download")
+            withContext(Dispatchers.IO) {
+                ZipInputStream(body.buffered()).use { zip ->
+                    var entry = zip.nextEntry
+                    while (entry != null && !(entry.name.endsWith(".so") && !entry.isDirectory)) {
+                        entry = zip.nextEntry
+                    }
+                    if (entry == null) throw Exception("No core library found in $uri")
+                    destFile.outputStream().use { zip.copyTo(it) }
+                }
+            }
             return destFile
         } catch (e: Throwable) {
             destFile.safeDelete()

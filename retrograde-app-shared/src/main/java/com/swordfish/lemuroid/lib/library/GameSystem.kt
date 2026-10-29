@@ -136,6 +136,15 @@ data class GameSystem(
                                     1 to arrayListOf(ControllerConfigs.SNES),
                                 ),
                         ),
+                        // More accurate, but much heavier than Snes9x. Selectable in Settings > Core selection.
+                        SystemCoreConfig(
+                            CoreID.BSNES,
+                            controllerConfigs =
+                                hashMapOf(
+                                    0 to arrayListOf(ControllerConfigs.SNES),
+                                    1 to arrayListOf(ControllerConfigs.SNES),
+                                ),
+                        ),
                     ),
                     uniqueExtensions = listOf("smc", "sfc"),
                 ),

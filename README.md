@@ -17,6 +17,7 @@ Lemuroid Plus installs **next to** the original Lemuroid (app id `com.swordfish.
 ### In game
 - **Fast-forward button.** A small round button in the top-right corner of the game screen toggles fast-forward (it turns yellow when on). It has been removed from the in-game menu. The fast-forward gamepad shortcut still works.
 - **No tilt sensor** option in the in-game menu or settings.
+- **bsnes for SNES.** Choose between Snes9x (default, fastest) and bsnes (more accurate, much heavier) in **Settings → Core selection**. bsnes is downloaded from the official libretro build server the first time it is selected.
 
 ### Saves and backups
 - **Lemuroid folder.** Saves, save states and state previews are kept in `Lemuroid/` on the main storage (`Lemuroid/saves`, `Lemuroid/states`, `Lemuroid/state-previews`), where any file manager can reach them. The app asks for "All files access" on first launch for this. Existing saves are moved there automatically. If you decline, saves stay in the app's private folder as before.

@@ -26,6 +26,11 @@ enum class CoreID(
         "Snes9x",
         "libsnes9x_libretro_android.so",
     ),
+    BSNES(
+        "bsnes",
+        "bsnes",
+        "libbsnes_libretro_android.so",
+    ),
     GENESIS_PLUS_GX(
         "genesis_plus_gx",
         "Genesis Plus GX",
