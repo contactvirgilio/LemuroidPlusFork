@@ -9,6 +9,7 @@ import com.swordfish.lemuroid.common.kotlin.extractEntryToFile
 import com.swordfish.lemuroid.common.kotlin.isZipped
 import com.swordfish.lemuroid.common.kotlin.writeToFile
 import com.swordfish.lemuroid.lib.R
+import com.swordfish.lemuroid.lib.library.ArcadeFolders
 import com.swordfish.lemuroid.lib.library.db.entity.DataFile
 import com.swordfish.lemuroid.lib.library.db.entity.Game
 import com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper
@@ -217,6 +218,12 @@ class StorageAccessFrameworkProvider(private val context: Context) : StorageProv
         game: Game,
         originalDocument: DocumentFile,
     ): File {
+        // Arcade cores look for parent sets and BIOS zips (e.g. neogeo.zip) next to the game, so run
+        // arcade games from their own folder when it can be read directly, instead of a lone copy.
+        if (ArcadeFolders.isArcadeSystem(game.systemId)) {
+            ArcadeFolders.directFileFor(originalDocument.uri)?.let { return it }
+        }
+
         val cacheFile = GameCacheUtils.getCacheFileForGame(SAF_CACHE_SUBFOLDER, context, game)
 
         if (cacheFile.exists()) {

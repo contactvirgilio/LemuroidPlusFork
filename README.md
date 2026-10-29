@@ -17,6 +17,7 @@ Lemuroid Plus installs **next to** the original Lemuroid (app id `com.swordfish.
 ### In game
 - **Fast-forward button.** A small round button in the top-right corner of the game screen toggles fast-forward (it turns yellow when on). It has been removed from the in-game menu. The fast-forward gamepad shortcut still works.
 - **No tilt sensor** option in the in-game menu or settings.
+- **Arcade like Cannoli.** Every `.zip` / `.7z` in a folder named like an arcade folder (`Arcade`, `MAME`, `FBNeo`, `FBN`, `FBA`, `Neo Geo`, `CPS1-3`, any capitalization, any depth) is listed as a game, whatever the set type (merged, split, non-merged). Known sets use the libretro database for the title and core (FBNeo by default, MAME 2003-Plus first in a `MAME…` folder); other sets use FBNeo with the title from Cannoli's arcade name list. BIOS sets such as `neogeo.zip` or `pgm.zip` are hidden. With "All files access", arcade games start from their own folder, so parent sets and BIOS zips next to them are found. Tap **Rescan** after updating.
 - **bsnes for SNES.** Choose between Snes9x (default, fastest) and bsnes (more accurate, much heavier) in **Settings → Core selection**. bsnes is downloaded from the official libretro build server the first time it is selected.
 
 ### Saves and backups
@@ -60,5 +61,7 @@ Atari 2600, Atari 7800, Atari Lynx, NES, SNES, Game Boy, Game Boy Color, Game Bo
 ## Credits and license
 
 All the real work is [Lemuroid](https://github.com/Swordfish90/Lemuroid) by Filippo Scognamiglio and its contributors, built on [LibretroDroid](https://github.com/Swordfish90/LibretroDroid) and the [Libretro](https://www.libretro.com/) cores. If you enjoy it, consider supporting the original project.
+
+The arcade title list (`arcade_map.txt`) comes from [Cannoli](https://github.com/CannoliHQ/cannoli), also GPL-3.0.
 
 Lemuroid Plus is distributed under the same license, the GNU General Public License v3.0. See [COPYING](COPYING).

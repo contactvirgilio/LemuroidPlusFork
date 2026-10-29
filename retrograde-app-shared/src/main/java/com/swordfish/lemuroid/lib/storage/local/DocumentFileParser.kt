@@ -3,6 +3,7 @@ package com.swordfish.lemuroid.lib.storage.local
 import android.content.Context
 import com.swordfish.lemuroid.common.kotlin.calculateCrc32
 import com.swordfish.lemuroid.common.kotlin.toStringCRC32
+import com.swordfish.lemuroid.lib.library.ArcadeFolders
 import com.swordfish.lemuroid.lib.storage.BaseStorageFile
 import com.swordfish.lemuroid.lib.storage.StorageFile
 import com.swordfish.lemuroid.lib.storage.scanner.SerialScanner
@@ -19,6 +20,18 @@ object DocumentFileParser {
         context: Context,
         baseStorageFile: BaseStorageFile,
     ): StorageFile {
+        // Arcade romsets are identified by their archive name (e.g. "sf2.zip"), never by the files
+        // inside, and reading them whole is slow. Keep them as-is, like Cannoli does.
+        if (ArcadeFolders.isRomset(baseStorageFile.name) && ArcadeFolders.isInArcadeFolder(baseStorageFile.uri.path)) {
+            Timber.d("Detected arcade romset. ${baseStorageFile.name}")
+            return StorageFile(
+                name = baseStorageFile.name,
+                size = baseStorageFile.size,
+                uri = baseStorageFile.uri,
+                path = baseStorageFile.uri.path,
+            )
+        }
+
         return if (baseStorageFile.extension == "zip") {
             Timber.d("Detected zip file. ${baseStorageFile.name}")
             parseZipFile(context, baseStorageFile)

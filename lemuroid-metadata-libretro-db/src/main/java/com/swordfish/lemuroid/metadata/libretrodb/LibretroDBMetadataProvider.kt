@@ -1,6 +1,7 @@
 package com.swordfish.lemuroid.metadata.libretrodb
 
 import com.swordfish.lemuroid.common.kotlin.filterNullable
+import com.swordfish.lemuroid.lib.library.ArcadeFolders
 import com.swordfish.lemuroid.lib.library.GameSystem
 import com.swordfish.lemuroid.lib.library.SystemID
 import com.swordfish.lemuroid.lib.library.metadata.GameMetadata
@@ -25,9 +26,16 @@ class LibretroDBMetadataProvider(private val ovgdbManager: LibretroDBManager) :
 
         Timber.d("Looking metadata for file: $storageFile")
 
+        // Arcade BIOS/system sets (neogeo.zip, pgm.zip...) in an arcade folder are not games.
+        if (isArcadeBiosInArcadeFolder(storageFile)) {
+            Timber.d("Skipping arcade BIOS set: ${storageFile.name}")
+            return null
+        }
+
         val metadata =
             runCatching {
-                findByCRC(storageFile, db)
+                findArcadeByFolder(storageFile, db)
+                    ?: findByCRC(storageFile, db)
                     ?: findBySerial(storageFile, db)
                     ?: findByFilename(db, storageFile)
                     ?: findByPathAndFilename(db, storageFile)
@@ -66,10 +74,48 @@ class LibretroDBMetadataProvider(private val ovgdbManager: LibretroDBManager) :
         db: LibretroDatabase,
         file: StorageFile,
     ): GameMetadata? {
-        return db.gameDao().findByFileName(file.name)
-            .filterNullable { extractGameSystem(it).scanOptions.scanByPathAndFilename }
-            .filterNullable { parentContainsSystem(file.path, extractGameSystem(it).id.dbname) }
+        // The same romset name can exist for several systems (e.g. FBNeo and MAME 2003-Plus):
+        // check every entry, not just the first one.
+        return db.gameDao().findAllByFileName(file.name)
+            .filter { extractGameSystem(it).scanOptions.scanByPathAndFilename }
+            .firstOrNull { parentContainsSystem(file.path, extractGameSystem(it).id.dbname) }
             ?.let { convertToGameMetadata(it) }
+    }
+
+    private fun isArcadeBiosInArcadeFolder(file: StorageFile): Boolean {
+        if (!ArcadeFolders.isRomset(file.name) || !ArcadeFolders.isInArcadeFolder(file.path)) return false
+        return ovgdbManager.arcadeTitles[file.name.lowercase()]?.startsWith(".") == true
+    }
+
+    /**
+     * Cannoli-style arcade detection: every romset in an arcade folder is a game, whether or not
+     * it is a merged, split or non-merged set. The libretro database decides the core and title
+     * when it knows the set; otherwise FBNeo is used with the title from the arcade map.
+     */
+    private suspend fun findArcadeByFolder(
+        file: StorageFile,
+        db: LibretroDatabase,
+    ): GameMetadata? {
+        if (!ArcadeFolders.isRomset(file.name) || !ArcadeFolders.isInArcadeFolder(file.path)) return null
+
+        val knownSets = db.gameDao().findAllByFileName(file.name)
+        val fbneo = knownSets.firstOrNull { it.system == SystemID.FBNEO.dbname }
+        val mame = knownSets.firstOrNull { it.system == SystemID.MAME2003PLUS.dbname }
+        val preferred =
+            if (ArcadeFolders.prefersMame(file.path)) {
+                mame ?: fbneo
+            } else {
+                fbneo ?: mame
+            }
+
+        if (preferred != null) return convertToGameMetadata(preferred)
+
+        return GameMetadata(
+            name = ovgdbManager.arcadeTitles[file.name.lowercase()] ?: file.extensionlessName,
+            romName = file.name,
+            system = SystemID.FBNEO.dbname,
+            developer = null,
+        )
     }
 
     private fun findByPathAndSupportedExtension(file: StorageFile): GameMetadata? {
