@@ -15,15 +15,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.ViewList
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.CloudSync
+import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.ViewModule
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -45,6 +49,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.swordfish.lemuroid.R
+import com.swordfish.lemuroid.app.mobile.feature.games.GamesViewMode
+import com.swordfish.lemuroid.app.mobile.feature.games.GamesViewModeStore
+import com.swordfish.lemuroid.app.mobile.feature.games.rememberGamesViewMode
 import com.swordfish.lemuroid.app.shared.savesync.SaveSyncWork
 
 @Composable
@@ -135,6 +142,9 @@ fun LemuroidTopBarActions(
     onHelpPressed: () -> Unit,
 ) {
     Row {
+        if (route == MainRoute.SYSTEM_GAMES) {
+            GamesViewModeButtons()
+        }
         IconButton(
             onClick = { onHelpPressed() },
         ) {
@@ -163,6 +173,38 @@ fun LemuroidTopBarActions(
                     stringResource(R.string.settings),
                 )
             }
+        }
+    }
+}
+
+/** List / small grid / large grid switch shown while browsing a system's games. */
+@Composable
+private fun GamesViewModeButtons() {
+    val context = LocalContext.current
+    val currentMode = rememberGamesViewMode()
+
+    val options =
+        listOf(
+            Triple(GamesViewMode.LIST, Icons.AutoMirrored.Outlined.ViewList, R.string.games_view_list),
+            Triple(GamesViewMode.GRID_SMALL, Icons.Outlined.ViewModule, R.string.games_view_grid_small),
+            Triple(GamesViewMode.GRID_LARGE, Icons.Outlined.GridView, R.string.games_view_grid_large),
+        )
+
+    options.forEach { (mode, icon, labelId) ->
+        val selected = mode == currentMode
+        IconButton(onClick = { GamesViewModeStore.set(context, mode) }) {
+            Icon(
+                imageVector = icon,
+                contentDescription = stringResource(labelId),
+                tint =
+                    if (selected) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        LocalContentColor.current.copy(
+                            alpha = 0.6f,
+                        )
+                    },
+            )
         }
     }
 }

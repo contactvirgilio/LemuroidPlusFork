@@ -244,6 +244,9 @@
     <string name="tilt_configuration_buttons_l1_r1">L1 - R1</string>
     <string name="tilt_configuration_buttons_l2_r2">L2 - R2</string>
 
+    <string name="games_view_list">List view</string>
+    <string name="games_view_grid_small">Small grid</string>
+    <string name="games_view_grid_large">Large grid</string>
     <string name="settings_category_backup">Backup</string>
     <string name="settings_title_backup_export">Export saves</string>
     <string name="settings_description_backup_export">Save all saves and save states to a single zip file</string>

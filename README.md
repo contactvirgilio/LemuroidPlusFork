@@ -12,6 +12,7 @@ Lemuroid Plus installs **next to** the original Lemuroid (app id `com.swordfish.
 - **Smaller tiles** (116dp instead of 144dp), so more games fit on small screens.
 - **Just the game name** under each tile, on up to two lines. No system or publisher line.
 - **Clean names.** Tags in brackets such as `(USA)`, `(World)`, `(Rev 1)` or `[!]` are hidden. Custom names you set are shown exactly as typed.
+- **List or grid per console.** Inside a system, three buttons next to info and settings switch between a list, a small grid and a large grid. The choice is remembered.
 - No custom artwork option.
 
 ### In game
