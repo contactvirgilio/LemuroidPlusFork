@@ -54,14 +54,14 @@ jobs:
           cp lemuroid-cores/assets/ppsspp.zip lemuroid-app/src/bundle/assets/ppsspp.zip
           ls -l "$JNI" lemuroid-app/src/bundle/assets
 
-      # Genesis Plus GX with support for Paprium's cartridge chip (BillyTimeGames / RapidEdwin08),
-      # built from a pinned commit. Lemuroid Plus uses it only for Paprium.
+      # Genesis Plus GX PUNCHiUM by pav1388: Genesis Plus GX (July 2025) with support for Paprium's
+      # cartridge chip, built from a pinned commit. Lemuroid Plus uses it only for Paprium.
       - name: Build the Paprium core
         run: |
           set -euo pipefail
           SRC=/tmp/gpgx-paprium
-          git clone --quiet https://github.com/RapidEdwin08/Genesis-Plus-GX-Expanded-Rom-Size "$SRC"
-          git -C "$SRC" checkout --quiet 181e8f93440b11d26e305eb42198fdfae3c8d237
+          git clone --quiet https://github.com/pav1388/Genesis-Plus-GX-PUNCHiUM "$SRC"
+          git -C "$SRC" checkout --quiet 3849f3d3432df1d6320574e73695dd379ecef2b3
           NDK="${ANDROID_NDK_LATEST_HOME:-$ANDROID_NDK_HOME}"
           (cd "$SRC/libretro/jni" && "$NDK/ndk-build" -j"$(nproc)" \
             APP_ABI=arm64-v8a APP_PLATFORM=android-21 \

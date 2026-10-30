@@ -1,5 +1,6 @@
 package com.swordfish.lemuroid.lib.library
 
+import com.swordfish.lemuroid.lib.core.CoreVariable
 import com.swordfish.lemuroid.lib.library.db.entity.Game
 
 /**
@@ -27,6 +28,13 @@ object Paprium {
     val CORE_CONFIG =
         SystemCoreConfig(
             CoreID.GENESIS_PLUS_GX_PAPRIUM,
+            defaultSettings =
+                listOf(
+                    // Look for the soundtrack as MP3 first (WAV and OGG are still found as a fallback).
+                    CoreVariable("punchium_audio_track_format", "mp3"),
+                    // Caches decoded graphics, which makes the game run smoother on handhelds.
+                    CoreVariable("punchium_tile_cache", "enabled"),
+                ),
             controllerConfigs =
                 hashMapOf(
                     0 to arrayListOf(ControllerConfigs.GENESIS_6, ControllerConfigs.GENESIS_3),

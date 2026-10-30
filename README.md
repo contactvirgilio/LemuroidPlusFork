@@ -37,7 +37,7 @@ Lemuroid Plus installs **next to** the original Lemuroid (app id `com.swordfish.
   | PlayStation | PCSX ReARMed | SwanStation (needs a PlayStation BIOS such as `scph5501.bin` in `Lemuroid/bios`) |
 
   Save states only work with the core that made them; in-game saves carry over.
-- **Paprium.** Paprium runs automatically on a special build of Genesis Plus GX that emulates its cartridge chip ([BillyTimeGames](https://github.com/BillyTimeGames) / [RapidEdwin08](https://github.com/RapidEdwin08/Genesis-Plus-GX-Expanded-Rom-Size)); every other Genesis game keeps the core you chose. Put the unzipped ROM (named with "Paprium", e.g. `Paprium.bin`) in your Genesis folder with the soundtrack MP3s in a `paprium` folder right next to it, and allow "All files access" so the game can read its music. The game and its music are not included.
+- **Paprium.** Paprium runs automatically on a special build of Genesis Plus GX that emulates its cartridge chip ([Genesis Plus GX PUNCHiUM](https://github.com/pav1388/Genesis-Plus-GX-PUNCHiUM) by pav1388, based on the "Project Little Man" Paprium work); every other Genesis game keeps the core you chose. Put the unzipped ROM (named with "Paprium", e.g. `Paprium.bin`) in your Genesis folder with the soundtrack (MP3, OGG or WAV) in a `paprium` folder right next to it, and allow "All files access" so the game can read its music. The game and its music are not included.
 - **No DeSmuME notice.** The "switch to melonDS" message is gone; both DS cores stay available.
 
 ### Saves and backups
