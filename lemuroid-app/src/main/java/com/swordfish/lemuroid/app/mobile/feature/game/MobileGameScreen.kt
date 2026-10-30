@@ -1,8 +1,12 @@
 package com.swordfish.lemuroid.app.mobile.feature.game
 
 import android.graphics.RectF
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -21,10 +25,13 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Height
 import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.RotateLeft
+import androidx.compose.material.icons.outlined.Save
+import androidx.compose.material.icons.outlined.Tv
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -36,8 +43,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,7 +63,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -73,6 +84,7 @@ import com.swordfish.touchinput.radial.ui.LemuroidButtonPressFeedback
 import gg.padkit.PadKit
 import gg.padkit.config.HapticFeedbackType
 import gg.padkit.inputstate.InputState
+import kotlinx.coroutines.delay
 
 @Composable
 fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
@@ -221,13 +233,21 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                 .collectAsState(true)
                 .value
 
-        if (!isLoading && viewModel.isFastForwardSupported()) {
-            FastForwardButton(
+        if (!isLoading) {
+            GameOverlayButtons(
                 modifier =
                     Modifier
                         .align(Alignment.TopEnd)
                         .windowInsetsPadding(WindowInsets.safeDrawing)
                         .padding(8.dp),
+                viewModel = viewModel,
+            )
+            GameOverlayMessage(
+                modifier =
+                    Modifier
+                        .align(Alignment.TopCenter)
+                        .windowInsetsPadding(WindowInsets.safeDrawing)
+                        .padding(top = 60.dp),
                 viewModel = viewModel,
             )
         }
@@ -243,33 +263,164 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
     }
 }
 
-/** Small always-visible toggle for fast forward, so it doesn't need to live in the game menu. */
+/** In-game buttons, top right: quick save / load states, screen filter, fast forward. */
 @Composable
-private fun FastForwardButton(
+private fun GameOverlayButtons(
     modifier: Modifier = Modifier,
     viewModel: BaseGameScreenViewModel,
 ) {
-    val enabled = viewModel.isFastForwardEnabled().collectAsState(false).value
-    val label = stringResource(com.swordfish.lemuroid.R.string.game_menu_fast_forward)
+    Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (viewModel.areStatesSupported()) {
+            StatesButton(viewModel)
+        }
+        FilterButton(viewModel)
+        if (viewModel.isFastForwardSupported()) {
+            FastForwardButton(viewModel)
+        }
+    }
+}
 
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun OverlayButton(
+    active: Boolean,
+    label: String,
+    onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null,
+    content: @Composable () -> Unit,
+) {
     Box(
         modifier =
-            modifier
-                .size(36.dp)
+            Modifier
+                .size(40.dp)
                 .clip(CircleShape)
-                .background(Color.Black.copy(alpha = if (enabled) 0.6f else 0.35f))
-                .clickable(onClickLabel = label) { viewModel.toggleFastForward() }
-                .semantics { stateDescription = if (enabled) "On" else "Off" },
+                .background(Color.Black.copy(alpha = if (active) 0.6f else 0.35f))
+                .combinedClickable(
+                    onClickLabel = label,
+                    onClick = onClick,
+                    onLongClick = onLongClick,
+                ),
         contentAlignment = Alignment.Center,
+    ) {
+        content()
+    }
+}
+
+/** Tap: save into an empty slot, or over the oldest one. Hold: open the Load state screen. */
+@Composable
+private fun StatesButton(viewModel: BaseGameScreenViewModel) {
+    val label = stringResource(com.swordfish.lemuroid.R.string.game_button_states)
+    OverlayButton(
+        active = false,
+        label = label,
+        onClick = { viewModel.quickSaveToNextSlot() },
+        onLongClick = { viewModel.openLoadStates() },
     ) {
         Icon(
             modifier = Modifier.size(20.dp),
-            painter = painterResource(com.swordfish.lemuroid.R.drawable.ic_menu_fast_forward),
+            imageVector = Icons.Outlined.Save,
             contentDescription = label,
-            tint = if (enabled) FAST_FORWARD_ACTIVE_COLOR else Color.White.copy(alpha = 0.7f),
+            tint = Color.White.copy(alpha = 0.8f),
         )
     }
 }
+
+/** Switches Sharp / Smooth / CRT / LCD and shows the current one. */
+@Composable
+private fun FilterButton(viewModel: BaseGameScreenViewModel) {
+    val label = stringResource(com.swordfish.lemuroid.R.string.game_button_filter)
+    val filter = viewModel.getCurrentFilter().collectAsState(null).value
+    OverlayButton(active = false, label = label, onClick = { viewModel.cycleFilter() }) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(
+                modifier = Modifier.size(16.dp),
+                imageVector = Icons.Outlined.Tv,
+                contentDescription = label,
+                tint = Color.White.copy(alpha = 0.8f),
+            )
+            Text(
+                text = filter?.let { viewModel.filterDisplayName(it).uppercase() } ?: "HD",
+                fontSize = 8.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White.copy(alpha = 0.85f),
+                maxLines = 1,
+            )
+        }
+    }
+}
+
+/** Steps through off, 2x and 4x; the marks underneath show the current step. */
+@Composable
+private fun FastForwardButton(viewModel: BaseGameScreenViewModel) {
+    val speed = viewModel.getFastForwardSpeed().collectAsState(1).value
+    val enabled = speed > 1
+    val litSteps =
+        when {
+            speed >= 4 -> 3
+            speed >= 2 -> 2
+            else -> 0
+        }
+    val label = stringResource(com.swordfish.lemuroid.R.string.game_menu_fast_forward)
+
+    OverlayButton(active = enabled, label = label, onClick = { viewModel.toggleFastForward() }) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.semantics { stateDescription = if (enabled) "${speed}x" else "Off" },
+        ) {
+            Icon(
+                modifier = Modifier.size(18.dp),
+                painter = painterResource(com.swordfish.lemuroid.R.drawable.ic_menu_fast_forward),
+                contentDescription = label,
+                tint = if (enabled) FAST_FORWARD_ACTIVE_COLOR else Color.White.copy(alpha = 0.7f),
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.padding(top = 2.dp)) {
+                repeat(3) { step ->
+                    Box(
+                        modifier =
+                            Modifier
+                                .size(width = 5.dp, height = 3.dp)
+                                .clip(RoundedCornerShape(2.dp))
+                                .background(
+                                    if (step < litSteps) FAST_FORWARD_ACTIVE_COLOR else Color.White.copy(alpha = 0.25f),
+                                ),
+                    )
+                }
+            }
+        }
+    }
+}
+
+/** Short label over the game ("Fast-forward 2×", "Filter: CRT", "Saved to State 3") for about a second. */
+@Composable
+private fun GameOverlayMessage(
+    modifier: Modifier = Modifier,
+    viewModel: BaseGameScreenViewModel,
+) {
+    val message = viewModel.getOverlayMessages().collectAsState(null).value
+    var visibleText by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(message?.id) {
+        if (message == null) return@LaunchedEffect
+        visibleText = message.text
+        delay(OVERLAY_MESSAGE_MILLIS)
+        visibleText = null
+    }
+
+    AnimatedVisibility(modifier = modifier, visible = visibleText != null, enter = fadeIn(), exit = fadeOut()) {
+        Text(
+            text = visibleText ?: "",
+            color = Color.White,
+            fontSize = 13.sp,
+            modifier =
+                Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color.Black.copy(alpha = 0.7f))
+                    .padding(horizontal = 14.dp, vertical = 6.dp),
+        )
+    }
+}
+
+private const val OVERLAY_MESSAGE_MILLIS = 1200L
 
 private val FAST_FORWARD_ACTIVE_COLOR = Color(0xFFFFC107)
 

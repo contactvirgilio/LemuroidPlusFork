@@ -11,6 +11,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.game.GameService
 import com.swordfish.lemuroid.app.mobile.feature.settings.SettingsManager
 import com.swordfish.lemuroid.app.shared.game.viewmodel.GameViewModelInput
@@ -41,20 +42,21 @@ import gg.padkit.inputstate.InputState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class BaseGameScreenViewModel(
     private val appContext: Context,
-    game: Game,
-    settingsManager: SettingsManager,
+    private val game: Game,
+    private val settingsManager: SettingsManager,
     inputDeviceManager: InputDeviceManager,
     controllerConfigsManager: ControllerConfigsManager,
     private val system: GameSystem,
-    systemCoreConfig: SystemCoreConfig,
+    private val systemCoreConfig: SystemCoreConfig,
     sharedPreferences: SharedPreferences,
     savesManager: SavesManager,
-    statesManager: StatesManager,
+    private val statesManager: StatesManager,
     statesPreviewManager: StatesPreviewManager,
     coreVariablesManager: CoreVariablesManager,
     rumbleManager: RumbleManager,
@@ -267,21 +269,107 @@ class BaseGameScreenViewModel(
         }
     }
 
-    private val fastForwardState = MutableStateFlow(false)
+    /** A short label shown over the game for a moment (speed, filter, "Saved to State 3"). */
+    data class OverlayMessage(val text: String, val id: Long = System.nanoTime())
+
+    private val overlayMessageState = MutableStateFlow<OverlayMessage?>(null)
+
+    fun getOverlayMessages(): Flow<OverlayMessage?> = overlayMessageState
+
+    private fun showOverlayMessage(text: String) {
+        overlayMessageState.value = OverlayMessage(text)
+    }
+
+    // Fast forward steps through off -> 2x -> 4x. LibretroDroid only takes whole speeds.
+    private val fastForwardSpeedState = MutableStateFlow(1)
 
     fun isFastForwardSupported(): Boolean = system.fastForwardSupport
 
-    fun isFastForwardEnabled(): Flow<Boolean> = fastForwardState
+    fun isFastForwardEnabled(): Flow<Boolean> = fastForwardSpeedState.map { it > 1 }
+
+    fun getFastForwardSpeed(): Flow<Int> = fastForwardSpeedState
 
     fun toggleFastForward() {
-        setFastForwardEnabled(!fastForwardState.value)
+        val currentIndex = FAST_FORWARD_SPEEDS.indexOf(fastForwardSpeedState.value)
+        val next = FAST_FORWARD_SPEEDS[(currentIndex + 1) % FAST_FORWARD_SPEEDS.size]
+        setFastForwardSpeed(next)
+        showOverlayMessage(
+            if (next > 1) {
+                appContext.getString(R.string.game_overlay_fast_forward_speed, next)
+            } else {
+                appContext.getString(R.string.game_overlay_fast_forward_off)
+            },
+        )
     }
 
     fun setFastForwardEnabled(enabled: Boolean) {
-        Timber.d("Setting fast forward: $enabled")
+        setFastForwardSpeed(if (enabled) FAST_FORWARD_SPEEDS[1] else 1)
+    }
+
+    private fun setFastForwardSpeed(speed: Int) {
+        Timber.d("Setting fast forward speed: $speed")
         val gameView = retroGameView.retroGameView ?: return
-        gameView.frameSpeed = if (enabled) 2 else 1
-        fastForwardState.value = enabled
+        gameView.frameSpeed = speed
+        fastForwardSpeedState.value = speed
+    }
+
+    // Screen filter currently shown, null while unknown (e.g. HD mode until a filter is picked).
+    private val filterState = MutableStateFlow<String?>(null)
+
+    fun getCurrentFilter(): Flow<String?> = filterState
+
+    init {
+        viewModelScope.launch { filterState.value = initialFilter() }
+    }
+
+    private suspend fun initialFilter(): String? {
+        GameFilters.savedFilter(appContext, game)?.let { return it }
+        if (settingsManager.hdMode()) return null
+        val settingsFilter = settingsManager.screenFilter()
+        return if (settingsFilter in GameFilters.FILTERS) settingsFilter else GameFilters.autoFilterFor(system)
+    }
+
+    /** Switches to the next screen filter (Sharp, Smooth, CRT, LCD) and remembers it for this game. */
+    fun cycleFilter() {
+        val gameView = retroGameView.retroGameView ?: return
+        val next = GameFilters.next(filterState.value)
+        gameView.shader = GameFilters.shaderFor(next)
+        filterState.value = next
+        GameFilters.saveFilter(appContext, game, next)
+        showOverlayMessage(appContext.getString(R.string.game_overlay_filter, filterDisplayName(next)))
+    }
+
+    fun filterDisplayName(filter: String): String =
+        appContext.getString(
+            when (filter) {
+                "crt" -> R.string.shader_filter_names_crt
+                "lcd" -> R.string.shader_filter_names_lcd
+                "smooth" -> R.string.shader_filter_names_smooth
+                else -> R.string.shader_filter_names_sharp
+            },
+        )
+
+    fun areStatesSupported(): Boolean = systemCoreConfig.statesSupported
+
+    /** Saves a state into the first empty slot, or over the oldest one when all four are used. */
+    fun quickSaveToNextSlot() {
+        if (loadingState.value) return
+        viewModelScope.launch {
+            val slots = statesManager.getSavedSlotsInfo(game, systemCoreConfig.coreID)
+            if (slots.isEmpty()) return@launch
+            val index =
+                slots.indexOfFirst { !it.exists }
+                    .takeIf { it >= 0 }
+                    ?: slots.indices.minBy { slots[it].date }
+            saveSlot(index)
+            showOverlayMessage(appContext.getString(R.string.game_overlay_saved_to_slot, index + 1))
+        }
+    }
+
+    /** Opens the game menu directly on the Load state screen. */
+    fun openLoadStates() {
+        if (loadingState.value) return
+        sideEffects.showMenu(tilt, inputs, openLoadStates = true)
     }
 
     suspend fun reset() =
@@ -335,5 +423,9 @@ class BaseGameScreenViewModel(
 
     fun sendMotionEvent(event: MotionEvent): Boolean {
         return inputs.sendMotionEvent(event)
+    }
+
+    companion object {
+        private val FAST_FORWARD_SPEEDS = listOf(1, 2, 4)
     }
 }
