@@ -259,6 +259,7 @@
     <string name="backup_export_done">Exported %1$d files</string>
     <string name="backup_export_failed">Export failed: %1$s</string>
     <string name="backup_import_done">Imported %1$d files. Any replaced in-game saves were kept as .srm.bak</string>
+    <string name="backup_import_done_with_skipped">Imported %1$d saves. %2$d saves were skipped because no game has the same file name (rename the save to match the ROM, or import it on its own to choose the game)</string>
     <string name="backup_import_failed">Import failed: %1$s</string>
     <string name="backup_pick_game_title">Which game is this save for?</string>
     <string name="backup_pick_game_message">No game matches \"%1$s\". Choose the game to use it for:</string>

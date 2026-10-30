@@ -18,7 +18,14 @@ import java.util.zip.ZipOutputStream
  * mirroring the Lemuroid folder. Import only ever writes inside those folders.
  */
 class SavesBackupManager(private val appContext: Context) {
-    data class Result(val files: Int)
+    /**
+     * [files] restored into the backup folders, plus [looseSaves]: in-game save files (.sav/.srm)
+     * found outside those folders, e.g. a zip of saves from another emulator, as (file name, data).
+     */
+    data class Result(
+        val files: Int,
+        val looseSaves: List<Pair<String, ByteArray>> = emptyList(),
+    )
 
     private val directoriesManager = DirectoriesManager(appContext)
 
@@ -64,6 +71,7 @@ class SavesBackupManager(private val appContext: Context) {
         withContext(Dispatchers.IO) {
             val folders = backupFolders()
             var count = 0
+            val looseSaves = mutableListOf<Pair<String, ByteArray>>()
             val input =
                 appContext.contentResolver.openInputStream(source)
                     ?: throw IOException("Cannot open $source for reading")
@@ -81,17 +89,27 @@ class SavesBackupManager(private val appContext: Context) {
                         target.outputStream().use { zip.copyTo(it) }
                         if (entry.time > 0) target.setLastModified(entry.time)
                         count++
+                    } else if (!entry.isDirectory && isLooseSaveFile(entry.name)) {
+                        val fileName = entry.name.replace('\\', '/').substringAfterLast('/')
+                        looseSaves += fileName to zip.readBytes()
                     }
                     zip.closeEntry()
                     entry = zip.nextEntry
                 }
             }
 
-            if (count == 0) {
+            if (count == 0 && looseSaves.isEmpty()) {
                 throw IOException("No saves found in this file")
             }
-            Result(count)
+            Result(count, looseSaves)
         }
+
+    private fun isLooseSaveFile(entryName: String): Boolean {
+        val fileName = entryName.replace('\\', '/').substringAfterLast('/')
+        if (fileName.startsWith(".") || fileName.startsWith("__MACOSX")) return false
+        val extension = fileName.substringAfterLast('.', "").lowercase()
+        return extension in LOOSE_SAVE_EXTENSIONS && entryName.substringBefore('/') !in backupFolders().keys
+    }
 
     /** Maps a zip entry to a file inside one of the backup folders, rejecting anything else. */
     private fun resolveTarget(
@@ -114,5 +132,6 @@ class SavesBackupManager(private val appContext: Context) {
         private const val SAVES = "saves"
         private const val STATES = "states"
         private const val STATE_PREVIEWS = "state-previews"
+        private val LOOSE_SAVE_EXTENSIONS = setOf("sav", "srm")
     }
 }

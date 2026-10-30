@@ -63,8 +63,20 @@ class SavesManager(private val directoriesManager: DirectoriesManager) {
         withContext(Dispatchers.IO) {
             val saveFile = getSaveFile(getSaveRAMFileName(game))
             backUpExistingSave(saveFile)
-            saveFile.writeBytesAtomic(data)
+            saveFile.writeBytesAtomic(withoutExtraFooter(data))
         }
+    }
+
+    /**
+     * Some emulators append a small block after the cartridge RAM (e.g. a real-time clock for
+     * Pokemon Gold/Silver/Crystal), giving sizes like 32,808 instead of 32,768 bytes. Cores expect
+     * the plain RAM, so a few extra bytes after a power-of-two size are dropped.
+     */
+    private fun withoutExtraFooter(data: ByteArray): ByteArray {
+        if (data.size < MIN_SAVE_SIZE) return data
+        val ramSize = Integer.highestOneBit(data.size)
+        val extra = data.size - ramSize
+        return if (extra in 1..MAX_FOOTER_SIZE) data.copyOf(ramSize) else data
     }
 
     suspend fun getSaveRAMInfo(game: Game): SaveInfo {
@@ -101,7 +113,7 @@ class SavesManager(private val directoriesManager: DirectoriesManager) {
         val srmIsNewer = srmFile.exists() && srmFile.length() > 0 && srmFile.lastModified() >= savFile.lastModified()
         if (savFile.length() == 0L || srmIsNewer) return null
 
-        val data = savFile.readBytes()
+        val data = withoutExtraFooter(savFile.readBytes())
         backUpExistingSave(srmFile)
         srmFile.writeBytesAtomic(data)
 
@@ -123,5 +135,7 @@ class SavesManager(private val directoriesManager: DirectoriesManager) {
         private const val FILE_ACCESS_RETRIES = 3
         private const val IMPORTED_SUFFIX = ".imported"
         private const val BACKUP_SUFFIX = ".bak"
+        private const val MIN_SAVE_SIZE = 512
+        private const val MAX_FOOTER_SIZE = 64
     }
 }

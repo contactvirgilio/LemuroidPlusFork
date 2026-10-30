@@ -56,6 +56,29 @@ class SaveFileImporter(
             Plan(matched, unmatched, games)
         }
 
+    /**
+     * Imports save files found inside a zip (not in Lemuroid's backup folders). They are matched to
+     * games by name only; returns (imported, skipped file names).
+     */
+    suspend fun importLooseSaves(saves: List<Pair<String, ByteArray>>): Pair<Int, List<String>> {
+        if (saves.isEmpty()) return 0 to emptyList()
+        val games = withContext(Dispatchers.IO) { retrogradeDb.gameDao().selectAll() }
+        val gamesByBaseName = games.groupBy { baseName(it.fileName).lowercase() }
+
+        var imported = 0
+        val skipped = mutableListOf<String>()
+        saves.forEach { (name, data) ->
+            val game = gamesByBaseName[baseName(name).trim().lowercase()]?.singleOrNull()
+            if (game == null || data.isEmpty()) {
+                skipped += name
+            } else {
+                savesManager.importSaveRAM(game, data)
+                imported++
+            }
+        }
+        return imported to skipped
+    }
+
     suspend fun import(
         file: PickedFile,
         game: Game,

@@ -68,13 +68,19 @@ fun BackupSettings(retrogradeDb: RetrogradeDatabase) {
     var allGames by remember { mutableStateOf<List<Game>>(emptyList()) }
     var importedFiles by remember { mutableStateOf(0) }
 
+    // Saves inside a zip whose names did not match any game (only matched by name, no picker).
+    var skippedFiles by remember { mutableStateOf(0) }
+
     fun toast(message: String) = Toast.makeText(context, message, Toast.LENGTH_LONG).show()
 
     fun finishImport() {
-        if (importedFiles > 0) {
-            toast(context.getString(R.string.backup_import_done, importedFiles))
+        when {
+            skippedFiles > 0 ->
+                toast(context.getString(R.string.backup_import_done_with_skipped, importedFiles, skippedFiles))
+            importedFiles > 0 -> toast(context.getString(R.string.backup_import_done, importedFiles))
         }
         importedFiles = 0
+        skippedFiles = 0
         busy = false
     }
 
@@ -86,8 +92,16 @@ fun BackupSettings(retrogradeDb: RetrogradeDatabase) {
         busy = true
         scope.launch {
             zips.forEach { zip ->
-                runCatching { backupManager.import(zip.uri) }
-                    .onSuccess { importedFiles += it.files }
+                runCatching {
+                    val result = backupManager.import(zip.uri)
+                    val (imported, skipped) = saveFileImporter.importLooseSaves(result.looseSaves)
+                    skipped.forEach { Timber.i("No game matches save file: $it") }
+                    Triple(result.files, imported, skipped.size)
+                }
+                    .onSuccess { (restored, imported, skipped) ->
+                        importedFiles += restored + imported
+                        skippedFiles += skipped
+                    }
                     .onFailure {
                         Timber.e(it, "Backup import failed for ${zip.name}")
                         toast(context.getString(R.string.backup_import_failed, "${zip.name}: ${it.message ?: ""}"))
