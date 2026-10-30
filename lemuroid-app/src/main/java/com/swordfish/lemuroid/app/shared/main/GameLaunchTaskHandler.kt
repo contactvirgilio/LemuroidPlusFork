@@ -17,8 +17,14 @@ class GameLaunchTaskHandler(
     private val reviewManager: ReviewManager,
     private val retrogradeDb: RetrogradeDatabase,
 ) {
-    fun handleGameStart(context: Context) {
+    suspend fun handleGameStart(
+        context: Context,
+        game: Game,
+    ) {
         cancelBackgroundWork(context)
+        // Mark the game as played when it starts, so it shows up in Recents even if the game
+        // doesn't end through Quit (closed from the recent apps screen, killed by Android, crash).
+        runCatching { updateGamePlayedTimestamp(game) }
     }
 
     suspend fun handleGameFinish(

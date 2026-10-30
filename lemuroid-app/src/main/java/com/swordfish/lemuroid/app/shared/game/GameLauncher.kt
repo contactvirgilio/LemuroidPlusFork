@@ -36,7 +36,7 @@ class GameLauncher(
                 } else {
                     coresSelection.getCoreConfigForSystem(system)
                 }
-            gameLaunchTaskHandler.handleGameStart(activity.applicationContext)
+            gameLaunchTaskHandler.handleGameStart(activity.applicationContext, game)
             BaseGameActivity.launchGame(activity, coreConfig, game, loadSave, leanback)
         }
 
