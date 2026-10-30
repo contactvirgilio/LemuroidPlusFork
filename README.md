@@ -23,7 +23,20 @@ Lemuroid Plus installs **next to** the original Lemuroid (app id `com.swordfish.
   - Mute and fast-forward are no longer in the in-game menu.
 - **No tilt sensor** option in the in-game menu or settings.
 - **Arcade by folder.** Every `.zip` / `.7z` in a folder named like an arcade folder (`Arcade`, `MAME`, `FBNeo`, `FBN`, `FBA`, `Neo Geo`, `CPS1-3`, any capitalization, any depth) is listed as a game, whatever the set type (merged, split, non-merged). Known sets use the libretro database for the title and core (FBNeo by default, MAME 2003-Plus first in a `MAME…` folder); other sets use FBNeo with the title from a bundled arcade name list. BIOS sets such as `neogeo.zip` or `pgm.zip` are hidden. With "All files access", arcade games start from their own folder, so parent sets and BIOS zips next to them are found. Tap **Rescan** after updating.
-- **bsnes for SNES.** Choose between Snes9x (default, fastest) and bsnes (more accurate, much heavier) in **Settings → Core selection**. bsnes is downloaded from the official libretro build server the first time it is selected.
+- **All cores built in.** Every emulator core is inside the APK, so games start without an internet connection and nothing is downloaded on first play. The APK is built for 64-bit ARM devices (the Retroid Pocket line and most current handhelds and phones).
+- **Second core for popular systems**, chosen in **Settings → Core selection** (the first one stays the default):
+
+  | System | Default | Alternative |
+  |---|---|---|
+  | NES | FCEUmm | Mesen (most accurate) |
+  | SNES | Snes9x | bsnes (more accurate, much heavier) |
+  | Game Boy / Color | Gambatte | SameBoy |
+  | Game Boy Advance | mGBA | gpSP (much lighter) |
+  | Genesis / Mega Drive | Genesis Plus GX | PicoDrive (faster) |
+  | PlayStation | PCSX ReARMed | SwanStation (needs a PlayStation BIOS such as `scph5501.bin` in `Lemuroid/bios`) |
+
+  Save states only work with the core that made them; in-game saves carry over.
+- **No DeSmuME notice.** The "switch to melonDS" message is gone; both DS cores stay available.
 
 ### Saves and backups
 - **Lemuroid folder.** Saves, save states and state previews are kept in `Lemuroid/` on the main storage (`Lemuroid/saves`, `Lemuroid/states`, `Lemuroid/state-previews`), where any file manager can reach them. The app asks for "All files access" on first launch for this. Existing saves are moved there automatically. If you decline, saves stay in the app's private folder as before.
@@ -41,7 +54,7 @@ Lemuroid Plus installs **next to** the original Lemuroid (app id `com.swordfish.
 1. Open the **Actions** tab, pick the latest green **Build Lemuroid Plus APK** run and download **lemuroid-plus-apk** (a zip with the APK inside). If a release has been published, you can also download the APK from **Releases**.
 2. Copy the APK to the device and open it with a file manager. Allow "install unknown apps" if Android asks.
 3. On first launch, tap **Allow** and turn on "Allow access to manage all files" so saves go to the `Lemuroid` folder.
-4. Pick your ROM folder in **Settings**. Emulator cores download the first time you play each system, so be online for that.
+4. Pick your ROM folder in **Settings**. All emulator cores are already included.
 
 ## Build
 
@@ -54,10 +67,12 @@ To build locally (JDK 17 and the Android SDK required):
 ```bash
 git clone --recurse-submodules https://github.com/contactvirgilio/LemuroidPlusFork
 cd LemuroidPlusFork
-./gradlew assembleFreeDynamicRelease
+./gradlew assembleFreeBundleRelease
 ```
 
-The APK ends up in `lemuroid-app/build/outputs/apk/freeDynamic/release/`. It is signed with `release.jks` if present, otherwise with the debug key included in this repo. Keep using the same key so updates install over the previous version.
+The extra cores (bsnes, Mesen, SameBoy, gpSP, PicoDrive, SwanStation) and the PPSSPP assets are not in the repo: the release workflow downloads them into `lemuroid-app/src/bundle/` before building (see `.github/workflows/build.yml`), so do the same for a local build. `assembleFreeDynamicRelease` still builds the small APK that downloads cores on demand.
+
+The APK ends up in `lemuroid-app/build/outputs/apk/freeBundle/release/`. It is signed with `release.jks` if present, otherwise with the debug key included in this repo. Keep using the same key so updates install over the previous version.
 
 ## Supported systems
 

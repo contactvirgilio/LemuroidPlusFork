@@ -48,7 +48,15 @@ class CoreUpdaterImpl(
         private const val CORES_VERSION = "1.17.0"
 
         /** Cores not published in LemuroidCores, downloaded from the official libretro build server instead. */
-        private val LIBRETRO_BUILDBOT_CORES = setOf(CoreID.BSNES)
+        private val LIBRETRO_BUILDBOT_CORES =
+            setOf(
+                CoreID.BSNES,
+                CoreID.MESEN,
+                CoreID.SAMEBOY,
+                CoreID.GPSP,
+                CoreID.PICODRIVE,
+                CoreID.SWANSTATION,
+            )
         private const val LIBRETRO_BUILDBOT_URL = "https://buildbot.libretro.com/nightly/android/latest/"
     }
 

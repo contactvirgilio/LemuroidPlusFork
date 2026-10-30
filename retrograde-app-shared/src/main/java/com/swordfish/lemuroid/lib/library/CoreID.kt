@@ -21,6 +21,11 @@ enum class CoreID(
         "FCEUmm",
         "libfceumm_libretro_android.so",
     ),
+    MESEN(
+        "mesen",
+        "Mesen",
+        "libmesen_libretro_android.so",
+    ),
     SNES9X(
         "snes9x",
         "Snes9x",
@@ -41,10 +46,25 @@ enum class CoreID(
         "Gambatte",
         "libgambatte_libretro_android.so",
     ),
+    SAMEBOY(
+        "sameboy",
+        "SameBoy",
+        "libsameboy_libretro_android.so",
+    ),
     MGBA(
         "mgba",
         "mGBA",
         "libmgba_libretro_android.so",
+    ),
+    GPSP(
+        "gpsp",
+        "gpSP",
+        "libgpsp_libretro_android.so",
+    ),
+    PICODRIVE(
+        "picodrive",
+        "PicoDrive",
+        "libpicodrive_libretro_android.so",
     ),
     MUPEN64_PLUS_NEXT(
         "mupen64plus_next_gles3",
@@ -55,6 +75,11 @@ enum class CoreID(
         "pcsx_rearmed",
         "PCSXReARMed",
         "libpcsx_rearmed_libretro_android.so",
+    ),
+    SWANSTATION(
+        "swanstation",
+        "SwanStation",
+        "libswanstation_libretro_android.so",
     ),
     PPSSPP(
         "ppsspp",
@@ -73,7 +98,7 @@ enum class CoreID(
     ),
     DESMUME(
         "desmume",
-        "DeSmuME (Deprecated)",
+        "DeSmuME",
         "libdesmume_libretro_android.so",
     ),
     MELONDS(

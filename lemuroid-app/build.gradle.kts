@@ -10,10 +10,10 @@ plugins {
 
 android {
     defaultConfig {
-        versionCode = 252
+        versionCode = 253
         // Lemuroid Plus version. Based on Lemuroid 1.17.0 (cores tag is pinned in CoreUpdaterImpl).
         // Keep versionCode increasing (never lower it) so updates install over existing installs.
-        versionName = "1.0"
+        versionName = "1.1"
         applicationId = "com.swordfish.lemuroid"
     }
     flavorDimensions += listOf("opensource", "cores")
@@ -61,6 +61,11 @@ android {
         // Include cores in the final apk
         create("bundle") {
             dimension = "cores"
+            // Lemuroid Plus: cores are packed for 64-bit ARM only (Retroid and most current handhelds),
+            // which keeps the APK size reasonable.
+            ndk {
+                abiFilters += "arm64-v8a"
+            }
         }
 
         // Download cores on demand (from GooglePlay or GitHub)

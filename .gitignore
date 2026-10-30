@@ -18,3 +18,7 @@ project.properties
 local.properties
 release.jks
 .kotlin/
+
+# Extra cores and core assets fetched by the release workflow
+lemuroid-app/src/bundle/jniLibs/
+lemuroid-app/src/bundle/assets/

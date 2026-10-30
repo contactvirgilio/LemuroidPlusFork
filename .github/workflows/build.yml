@@ -34,13 +34,33 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build Lemuroid Plus release APK (cores download on demand)
-        run: ./gradlew assembleFreeDynamicRelease
+      # Every core is packed into the APK, so nothing is downloaded on the device.
+      # The default Lemuroid cores come from the lemuroid-cores submodule; the extra cores below
+      # are not part of it and are fetched from the official libretro build server.
+      - name: Add extra cores and PPSSPP assets
+        run: |
+          set -euo pipefail
+          JNI=lemuroid-app/src/bundle/jniLibs/arm64-v8a
+          mkdir -p "$JNI" lemuroid-app/src/bundle/assets
+          for core in bsnes mesen sameboy gpsp picodrive swanstation; do
+            url="https://buildbot.libretro.com/nightly/android/latest/arm64-v8a/${core}_libretro_android.so.zip"
+            echo "Downloading $url"
+            curl -fsSL --retry 3 -o "/tmp/${core}.zip" "$url"
+            unzip -o -q "/tmp/${core}.zip" -d "/tmp/${core}"
+            so=$(find "/tmp/${core}" -name '*.so' | head -n 1)
+            test -n "$so"
+            cp "$so" "$JNI/lib${core}_libretro_android.so"
+          done
+          cp lemuroid-cores/assets/ppsspp.zip lemuroid-app/src/bundle/assets/ppsspp.zip
+          ls -l "$JNI" lemuroid-app/src/bundle/assets
+
+      - name: Build Lemuroid Plus release APK (all cores included)
+        run: ./gradlew assembleFreeBundleRelease
 
       - name: Name the APK
         run: |
           mkdir -p dist
-          cp lemuroid-app/build/outputs/apk/freeDynamic/release/*.apk "dist/LemuroidPlus-${GITHUB_REF_NAME//\//-}.apk"
+          cp lemuroid-app/build/outputs/apk/freeBundle/release/*.apk "dist/LemuroidPlus-${GITHUB_REF_NAME//\//-}.apk"
           ls -l dist
 
       - name: Upload APK

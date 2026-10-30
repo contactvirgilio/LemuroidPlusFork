@@ -119,6 +119,14 @@ data class GameSystem(
                                     0 to arrayListOf(ControllerConfigs.NES),
                                 ),
                         ),
+                        // Most accurate NES core. Selectable in Settings > Core selection.
+                        SystemCoreConfig(
+                            CoreID.MESEN,
+                            controllerConfigs =
+                                hashMapOf(
+                                    0 to arrayListOf(ControllerConfigs.NES),
+                                ),
+                        ),
                     ),
                     uniqueExtensions = listOf("nes"),
                 ),
@@ -309,6 +317,29 @@ data class GameSystem(
                                         arrayListOf(
                                             ControllerConfigs.GENESIS_3,
                                             ControllerConfigs.GENESIS_6,
+                                        ),
+                                ),
+                        ),
+                        // Faster than Genesis Plus GX. Selectable in Settings > Core selection.
+                        // PicoDrive picks the pad type from core options, so both pads emulate 6 buttons.
+                        SystemCoreConfig(
+                            CoreID.PICODRIVE,
+                            defaultSettings =
+                                listOf(
+                                    CoreVariable("picodrive_input1", "6 button pad"),
+                                    CoreVariable("picodrive_input2", "6 button pad"),
+                                ),
+                            controllerConfigs =
+                                hashMapOf(
+                                    0 to
+                                        arrayListOf(
+                                            ControllerConfigs.GENESIS_6,
+                                            ControllerConfigs.GENESIS_3,
+                                        ),
+                                    1 to
+                                        arrayListOf(
+                                            ControllerConfigs.GENESIS_6,
+                                            ControllerConfigs.GENESIS_3,
                                         ),
                                 ),
                         ),
@@ -507,6 +538,7 @@ data class GameSystem(
                                     0 to arrayListOf(ControllerConfigs.GB),
                                 ),
                         ),
+                        SAMEBOY_CONFIG,
                     ),
                     uniqueExtensions = listOf("gb"),
                 ),
@@ -571,6 +603,7 @@ data class GameSystem(
                                     0 to arrayListOf(ControllerConfigs.GB),
                                 ),
                         ),
+                        SAMEBOY_CONFIG,
                     ),
                     uniqueExtensions = listOf("gbc"),
                 ),
@@ -637,6 +670,14 @@ data class GameSystem(
                                     ),
                                 ),
                             rumbleSupported = true,
+                            controllerConfigs =
+                                hashMapOf(
+                                    0 to arrayListOf(ControllerConfigs.GBA),
+                                ),
+                        ),
+                        // Much lighter than mGBA. Selectable in Settings > Core selection.
+                        SystemCoreConfig(
+                            CoreID.GPSP,
                             controllerConfigs =
                                 hashMapOf(
                                     0 to arrayListOf(ControllerConfigs.GBA),
@@ -790,6 +831,30 @@ data class GameSystem(
                                 ),
                             rumbleSupported = true,
                             supportsLibretroVFS = true,
+                            skipDuplicateFrames = false,
+                        ),
+                        // Accurate PlayStation core. Needs a PlayStation BIOS (e.g. scph5501.bin) in Lemuroid/bios.
+                        // Selectable in Settings > Core selection.
+                        SystemCoreConfig(
+                            CoreID.SWANSTATION,
+                            controllerConfigs =
+                                hashMapOf(
+                                    0 to
+                                        arrayListOf(
+                                            ControllerConfigs.PSX_STANDARD_SWANSTATION,
+                                            ControllerConfigs.PSX_DUALSHOCK_SWANSTATION,
+                                        ),
+                                    1 to
+                                        arrayListOf(
+                                            ControllerConfigs.PSX_STANDARD_SWANSTATION,
+                                            ControllerConfigs.PSX_DUALSHOCK_SWANSTATION,
+                                        ),
+                                ),
+                            defaultSettings =
+                                listOf(
+                                    CoreVariable("swanstation_GPU_Renderer", "Software"),
+                                ),
+                            rumbleSupported = true,
                             skipDuplicateFrames = false,
                         ),
                     ),
@@ -1343,3 +1408,15 @@ data class GameSystem(
         )
     }
 }
+
+// Game Boy / Game Boy Color alternative to Gambatte, with built-in boot ROMs and better color correction.
+// Selectable in Settings > Core selection.
+private val SAMEBOY_CONFIG =
+    SystemCoreConfig(
+        CoreID.SAMEBOY,
+        rumbleSupported = true,
+        controllerConfigs =
+            hashMapOf(
+                0 to arrayListOf(ControllerConfigs.GB),
+            ),
+    )

@@ -8,8 +8,12 @@ import android.os.Environment
 import androidx.core.content.ContextCompat
 import timber.log.Timber
 import java.io.File
+import java.io.InputStream
 
 class DirectoriesManager(private val appContext: Context) {
+    /** Opens a file packaged in the APK's assets (e.g. core assets bundled in the release build), or null. */
+    fun openBundledAsset(name: String): InputStream? = runCatching { appContext.assets.open(name) }.getOrNull()
+
     companion object {
         /** Folder created in the root of the device's main storage, e.g. /storage/emulated/0/Lemuroid. */
         const val PUBLIC_FOLDER_NAME = "Lemuroid"

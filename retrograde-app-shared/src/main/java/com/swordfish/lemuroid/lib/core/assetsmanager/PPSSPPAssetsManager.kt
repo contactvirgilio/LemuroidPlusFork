@@ -27,6 +27,14 @@ class PPSSPPAssetsManager : CoreID.AssetsManager {
         }
 
         try {
+            // Release builds ship the assets inside the APK, so no download is needed.
+            val bundled = withContext(Dispatchers.IO) { directoriesManager.openBundledAsset(BUNDLED_ASSETS_NAME) }
+            if (bundled != null) {
+                withContext(Dispatchers.IO) {
+                    ZipInputStream(bundled.buffered()).use { extract(directoriesManager, it, sharedPreferences) }
+                }
+                return
+            }
             val response = coreUpdaterApi.downloadZip(PPSSPP_ASSETS_URL.toString())
             handleSuccess(directoriesManager, response, sharedPreferences)
         } catch (e: Throwable) {
@@ -39,24 +47,31 @@ class PPSSPPAssetsManager : CoreID.AssetsManager {
         response: Response<ZipInputStream>,
         sharedPreferences: SharedPreferences,
     ) {
+        response.body()?.use { extract(directoriesManager, it, sharedPreferences) }
+    }
+
+    private suspend fun extract(
+        directoriesManager: DirectoriesManager,
+        zipInputStream: ZipInputStream,
+        sharedPreferences: SharedPreferences,
+    ) {
         val coreAssetsDirectory = getAssetsDirectory(directoriesManager)
         coreAssetsDirectory.deleteRecursively()
         coreAssetsDirectory.mkdirs()
 
-        response.body()?.use { zipInputStream ->
-            while (true) {
-                val entry = zipInputStream.nextEntry ?: break
-                Timber.d("Writing file: ${entry.name}")
-                val destFile =
-                    File(
-                        coreAssetsDirectory,
-                        entry.name,
-                    )
-                if (entry.isDirectory) {
-                    destFile.mkdirs()
-                } else {
-                    zipInputStream.copyTo(destFile.outputStream())
-                }
+        while (true) {
+            val entry = zipInputStream.nextEntry ?: break
+            Timber.d("Writing file: ${entry.name}")
+            val destFile =
+                File(
+                    coreAssetsDirectory,
+                    entry.name,
+                )
+            if (entry.isDirectory) {
+                destFile.mkdirs()
+            } else {
+                destFile.parentFile?.mkdirs()
+                destFile.outputStream().use { zipInputStream.copyTo(it) }
             }
         }
 
@@ -92,6 +107,8 @@ class PPSSPPAssetsManager : CoreID.AssetsManager {
                 .buildUpon()
                 .appendEncodedPath("raw/$PPSSPP_ASSETS_VERSION/assets/ppsspp.zip")
                 .build()
+
+        private const val BUNDLED_ASSETS_NAME = "ppsspp.zip"
 
         const val PPSSPP_ASSETS_VERSION_KEY = "ppsspp_assets_version_key"
 

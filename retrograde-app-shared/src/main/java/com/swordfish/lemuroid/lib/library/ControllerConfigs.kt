@@ -165,6 +165,15 @@ object ControllerConfigs {
                 ),
         )
 
+    // SwanStation names its controllers differently from PCSX ReARMed.
+    val PSX_STANDARD_SWANSTATION by lazy {
+        PSX_STANDARD.copy(libretroDescriptor = "Digital Controller (Gamepad)")
+    }
+
+    val PSX_DUALSHOCK_SWANSTATION by lazy {
+        PSX_DUALSHOCK.copy(libretroDescriptor = "Analog Controller (DualShock)")
+    }
+
     val PSX_DUALSHOCK =
         ControllerConfig(
             "dualshock",

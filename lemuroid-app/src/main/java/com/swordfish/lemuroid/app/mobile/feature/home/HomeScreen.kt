@@ -124,14 +124,6 @@ private fun HomeScreen(
                 onAction = onEnableMicrophoneClicked,
             )
         }
-        AnimatedVisibility(state.showDesmumeDeprecatedCard) {
-            HomeNotification(
-                titleId = R.string.home_notification_desmume_deprecated_title,
-                messageId = R.string.home_notification_desmume_deprecated_message,
-                actionId = R.string.home_notification_desmume_deprecated_action,
-                onAction = onOpenCoreSelection,
-            )
-        }
         HomeRow(
             stringResource(id = R.string.recent),
             state.recentGames,
