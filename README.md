@@ -19,7 +19,7 @@ Lemuroid Plus installs **next to** the original Lemuroid (app id `com.swordfish.
 - **In-game buttons** (top right of the game screen):
   - **Save state:** one tap saves a state into an empty slot, or over the oldest of the four.
   - **Mute:** turns the sound off and on.
-  - **Fast-forward:** steps off → 2× → 4× (marks under the icon show the step); the gamepad shortcut steps the same way.
+  - **Fast-forward:** turns 2× speed on and off (yellow while on); the gamepad shortcut does the same.
   - Mute and fast-forward are no longer in the in-game menu.
 - **No tilt sensor** option in the in-game menu or settings.
 - **Arcade by folder.** Every `.zip` / `.7z` in a folder named like an arcade folder (`Arcade`, `MAME`, `FBNeo`, `FBN`, `FBA`, `Neo Geo`, `CPS1-3`, any capitalization, any depth) is listed as a game, whatever the set type (merged, split, non-merged). Known sets use the libretro database for the title and core (FBNeo by default, MAME 2003-Plus first in a `MAME…` folder); other sets use FBNeo with the title from a bundled arcade name list. BIOS sets such as `neogeo.zip` or `pgm.zip` are hidden. With "All files access", arcade games start from their own folder, so parent sets and BIOS zips next to them are found. Tap **Rescan** after updating.

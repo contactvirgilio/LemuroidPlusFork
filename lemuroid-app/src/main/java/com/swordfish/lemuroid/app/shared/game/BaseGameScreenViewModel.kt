@@ -280,7 +280,7 @@ class BaseGameScreenViewModel(
         overlayMessageState.value = OverlayMessage(text)
     }
 
-    // Fast forward steps through off -> 2x -> 4x. LibretroDroid only takes whole speeds.
+    // Fast forward is either off or 2x.
     private val fastForwardSpeedState = MutableStateFlow(1)
 
     fun isFastForwardSupported(): Boolean = system.fastForwardSupport
@@ -402,6 +402,6 @@ class BaseGameScreenViewModel(
     }
 
     companion object {
-        private val FAST_FORWARD_SPEEDS = listOf(1, 2, 4)
+        private val FAST_FORWARD_SPEEDS = listOf(1, 2)
     }
 }

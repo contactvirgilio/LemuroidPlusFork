@@ -333,44 +333,22 @@ private fun MuteButton(viewModel: BaseGameScreenViewModel) {
     }
 }
 
-/** Steps through off, 2x and 4x; the marks underneath show the current step. */
+/** Turns fast forward (2x) on and off; yellow while on. */
 @Composable
 private fun FastForwardButton(viewModel: BaseGameScreenViewModel) {
-    val speed = viewModel.getFastForwardSpeed().collectAsState(1).value
-    val enabled = speed > 1
-    val litSteps =
-        when {
-            speed >= 4 -> 3
-            speed >= 2 -> 2
-            else -> 0
-        }
+    val enabled = viewModel.isFastForwardEnabled().collectAsState(false).value
     val label = stringResource(com.swordfish.lemuroid.R.string.game_menu_fast_forward)
 
     OverlayButton(active = enabled, label = label, onClick = { viewModel.toggleFastForward() }) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.semantics { stateDescription = if (enabled) "${speed}x" else "Off" },
-        ) {
-            Icon(
-                modifier = Modifier.size(18.dp),
-                painter = painterResource(com.swordfish.lemuroid.R.drawable.ic_menu_fast_forward),
-                contentDescription = label,
-                tint = if (enabled) FAST_FORWARD_ACTIVE_COLOR else Color.White.copy(alpha = 0.7f),
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.padding(top = 2.dp)) {
-                repeat(3) { step ->
-                    Box(
-                        modifier =
-                            Modifier
-                                .size(width = 5.dp, height = 3.dp)
-                                .clip(RoundedCornerShape(2.dp))
-                                .background(
-                                    if (step < litSteps) FAST_FORWARD_ACTIVE_COLOR else Color.White.copy(alpha = 0.25f),
-                                ),
-                    )
-                }
-            }
-        }
+        Icon(
+            modifier =
+                Modifier
+                    .size(20.dp)
+                    .semantics { stateDescription = if (enabled) "On" else "Off" },
+            painter = painterResource(com.swordfish.lemuroid.R.drawable.ic_menu_fast_forward),
+            contentDescription = label,
+            tint = if (enabled) FAST_FORWARD_ACTIVE_COLOR else Color.White.copy(alpha = 0.7f),
+        )
     }
 }
 
