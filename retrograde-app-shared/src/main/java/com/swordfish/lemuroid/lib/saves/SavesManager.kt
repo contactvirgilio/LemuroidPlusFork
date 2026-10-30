@@ -64,7 +64,24 @@ class SavesManager(private val directoriesManager: DirectoriesManager) {
             val saveFile = getSaveFile(getSaveRAMFileName(game))
             backUpExistingSave(saveFile)
             saveFile.writeBytesAtomic(withoutExtraFooter(data))
+            deleteAutoSaveStates(game)
         }
+    }
+
+    /**
+     * An auto-save state holds its own copy of the cartridge RAM and is restored right after the
+     * save file is loaded, which would hide an imported save (and write the old RAM back on exit).
+     * Remove it so the next launch starts fresh from the imported save. Save slots are kept.
+     */
+    private fun deleteAutoSaveStates(game: Game) {
+        val autoSaveName = "${game.fileName}.state"
+        directoriesManager.getStatesDirectory()
+            .listFiles()
+            ?.filter { it.isDirectory }
+            ?.forEach { coreDirectory ->
+                File(coreDirectory, autoSaveName).delete()
+                File(coreDirectory, "$autoSaveName.metadata").delete()
+            }
     }
 
     /**
@@ -116,6 +133,8 @@ class SavesManager(private val directoriesManager: DirectoriesManager) {
         val data = withoutExtraFooter(savFile.readBytes())
         backUpExistingSave(srmFile)
         srmFile.writeBytesAtomic(data)
+        // Loaded before the auto-save state, so removing it here still applies to this launch.
+        deleteAutoSaveStates(game)
 
         val importedFile = File(savFile.path + IMPORTED_SUFFIX)
         importedFile.delete()
