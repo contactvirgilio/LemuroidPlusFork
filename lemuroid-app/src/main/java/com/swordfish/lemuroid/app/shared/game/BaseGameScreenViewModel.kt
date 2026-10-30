@@ -269,7 +269,7 @@ class BaseGameScreenViewModel(
         }
     }
 
-    /** A short label shown over the game for a moment (speed, mute, "Saved to State 3"). */
+    /** A short label shown over the game for a moment ("Saved to State 3"). */
     data class OverlayMessage(val text: String, val id: Long = System.nanoTime())
 
     private val overlayMessageState = MutableStateFlow<OverlayMessage?>(null)
@@ -293,13 +293,6 @@ class BaseGameScreenViewModel(
         val currentIndex = FAST_FORWARD_SPEEDS.indexOf(fastForwardSpeedState.value)
         val next = FAST_FORWARD_SPEEDS[(currentIndex + 1) % FAST_FORWARD_SPEEDS.size]
         setFastForwardSpeed(next)
-        showOverlayMessage(
-            if (next > 1) {
-                appContext.getString(R.string.game_overlay_fast_forward_speed, next)
-            } else {
-                appContext.getString(R.string.game_overlay_fast_forward_off)
-            },
-        )
     }
 
     fun setFastForwardEnabled(enabled: Boolean) {
@@ -324,27 +317,35 @@ class BaseGameScreenViewModel(
     }
 
     fun toggleMute() {
-        val enabled = !audioEnabledState.value
-        setAudioEnabled(enabled)
-        showOverlayMessage(
-            appContext.getString(if (enabled) R.string.game_overlay_sound_on else R.string.game_overlay_muted),
-        )
+        setAudioEnabled(!audioEnabledState.value)
     }
 
     fun areStatesSupported(): Boolean = systemCoreConfig.statesSupported
 
-    /** Saves a state into the first empty slot, or over the oldest one when all four are used. */
+    private var quickSaveInProgress = false
+
+    /**
+     * Saves a state into the first empty slot, or over the oldest one when all four are used.
+     * Runs in the background without the loading state, so the game screen and its buttons stay put.
+     */
     fun quickSaveToNextSlot() {
-        if (loadingState.value) return
+        if (loadingState.value || quickSaveInProgress) return
+        quickSaveInProgress = true
         viewModelScope.launch {
-            val slots = statesManager.getSavedSlotsInfo(game, systemCoreConfig.coreID)
-            if (slots.isEmpty()) return@launch
-            val index =
-                slots.indexOfFirst { !it.exists }
-                    .takeIf { it >= 0 }
-                    ?: slots.indices.minBy { slots[it].date }
-            saveSlot(index)
-            showOverlayMessage(appContext.getString(R.string.game_overlay_saved_to_slot, index + 1))
+            try {
+                val slots = statesManager.getSavedSlotsInfo(game, systemCoreConfig.coreID)
+                if (slots.isEmpty()) return@launch
+                val index =
+                    slots.indexOfFirst { !it.exists }
+                        .takeIf { it >= 0 }
+                        ?: slots.indices.minBy { slots[it].date }
+                saves.saveSlot(index)
+                showOverlayMessage(appContext.getString(R.string.game_overlay_saved_to_slot, index + 1))
+            } catch (e: Throwable) {
+                Timber.e(e, "Quick save failed")
+            } finally {
+                quickSaveInProgress = false
+            }
         }
     }
 

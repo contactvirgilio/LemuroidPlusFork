@@ -246,10 +246,6 @@
     <string name="tilt_configuration_buttons_l1_r1">L1 - R1</string>
     <string name="tilt_configuration_buttons_l2_r2">L2 - R2</string>
 
-    <string name="game_overlay_fast_forward_speed">Fast-forward %1$d×</string>
-    <string name="game_overlay_fast_forward_off">Fast-forward off</string>
-    <string name="game_overlay_muted">Sound off</string>
-    <string name="game_overlay_sound_on">Sound on</string>
     <string name="game_overlay_saved_to_slot">Saved to State %1$d</string>
     <string name="game_button_states">Save state</string>
     <string name="games_view_list">List view</string>

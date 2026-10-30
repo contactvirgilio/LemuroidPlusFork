@@ -352,7 +352,7 @@ private fun FastForwardButton(viewModel: BaseGameScreenViewModel) {
     }
 }
 
-/** Short label over the game ("Fast-forward 2×", "Filter: CRT", "Saved to State 3") for about a second. */
+/** Short label over the game ("Saved to State 3") for about a second. */
 @Composable
 private fun GameOverlayMessage(
     modifier: Modifier = Modifier,
