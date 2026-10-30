@@ -28,6 +28,8 @@ object Paprium {
     val CORE_CONFIG =
         SystemCoreConfig(
             CoreID.GENESIS_PLUS_GX_PAPRIUM,
+            // States from the earlier Paprium core (version 0) can't be loaded by PUNCHiUM.
+            statesVersion = 1,
             defaultSettings =
                 listOf(
                     // Look for the soundtrack as MP3 first (WAV and OGG are still found as a fallback).
