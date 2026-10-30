@@ -153,7 +153,13 @@ class LibretroDBMetadataProvider(private val ovgdbManager: LibretroDBManager) :
         parent: String?,
         dbname: String,
     ): Boolean {
-        return parent?.toLowerCase(Locale.getDefault())?.contains(dbname) == true
+        val path = parent?.lowercase(Locale.ROOT) ?: return false
+        if (path.contains(dbname)) return true
+
+        // Other common folder names for the system, matched as whole folder names only
+        // (a bare "ps" inside "apps" or "psp" must not count).
+        val aliases = SYSTEM_FOLDER_ALIASES[dbname] ?: return false
+        return path.split('/', '\\', ':').any { it.trim() in aliases }
     }
 
     private suspend fun findByCRC(
@@ -207,5 +213,23 @@ class LibretroDBMetadataProvider(private val ovgdbManager: LibretroDBManager) :
 
     private fun extractGameSystem(rom: LibretroRom): GameSystem {
         return GameSystem.findById(rom.system!!)
+    }
+
+    companion object {
+        /** Folder names recognized for systems that are detected by folder ("psx" works anywhere in the path). */
+        private val SYSTEM_FOLDER_ALIASES =
+            mapOf(
+                SystemID.PSX.dbname to
+                    setOf(
+                        "ps",
+                        "ps1",
+                        "psone",
+                        "ps one",
+                        "playstation",
+                        "playstation 1",
+                        "sony playstation",
+                        "sony - playstation",
+                    ),
+            )
     }
 }
