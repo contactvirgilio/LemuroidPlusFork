@@ -17,6 +17,7 @@ Lemuroid Plus installs **next to** the original Lemuroid (app id `com.swordfish.
 
 ### In game
 - **Fast-forward button.** A small round button in the top-right corner of the game screen toggles fast-forward (it turns yellow when on). It has been removed from the in-game menu. The fast-forward gamepad shortcut still works.
+- **Bigger save state previews.** Save and Load state show the four slots as a 2 × 2 grid of large previews that keep the game's screen shape (new previews are also saved at a higher resolution).
 - **No tilt sensor** option in the in-game menu or settings.
 - **Arcade like Cannoli.** Every `.zip` / `.7z` in a folder named like an arcade folder (`Arcade`, `MAME`, `FBNeo`, `FBN`, `FBA`, `Neo Geo`, `CPS1-3`, any capitalization, any depth) is listed as a game, whatever the set type (merged, split, non-merged). Known sets use the libretro database for the title and core (FBNeo by default, MAME 2003-Plus first in a `MAME…` folder); other sets use FBNeo with the title from Cannoli's arcade name list. BIOS sets such as `neogeo.zip` or `pgm.zip` are hidden. With "All files access", arcade games start from their own folder, so parent sets and BIOS zips next to them are found. Tap **Rescan** after updating.
 - **bsnes for SNES.** Choose between Snes9x (default, fastest) and bsnes (more accurate, much heavier) in **Settings → Core selection**. bsnes is downloaded from the official libretro build server the first time it is selected.
@@ -25,7 +26,7 @@ Lemuroid Plus installs **next to** the original Lemuroid (app id `com.swordfish.
 - **Lemuroid folder.** Saves, save states and state previews are kept in `Lemuroid/` on the main storage (`Lemuroid/saves`, `Lemuroid/states`, `Lemuroid/state-previews`), where any file manager can reach them. The app asks for "All files access" on first launch for this. Existing saves are moved there automatically. If you decline, saves stay in the app's private folder as before.
 - **BIOS folder.** Drop BIOS files into `Lemuroid/bios` (one folder for all systems, any file names) and tap **Rescan** in Settings. They are recognized by checksum, the same as BIOS files in the ROM folder, which still works too. **Settings → BIOS** shows what was detected.
 - **Settings → Backup.**
-  - **Export saves** writes all saves and states to one zip file, wherever you choose.
+  - **Export saves** writes all saves and states to one zip file, wherever you choose, with a live progress bar and file count while it runs.
   - **Import saves** takes one or more files from anywhere on the device:
     - a backup zip made by Export saves restores saves and states (after a confirmation);
     - `.sav` / `.srm` files from other emulators or flash carts are matched to games by name (`Pokemon Emerald (USA).sav` for `Pokemon Emerald (USA).gba`), and for any other name you pick the game from a searchable list.

@@ -6,12 +6,14 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -53,6 +55,9 @@ fun BackupSettings(retrogradeDb: RetrogradeDatabase) {
     val saveFileImporter = remember { SaveFileImporter(context.applicationContext, retrogradeDb) }
 
     var busy by remember { mutableStateOf(false) }
+
+    // Export progress as (files done, total files), or null when no export is running.
+    var exportProgress by remember { mutableStateOf<Pair<Int, Int>?>(null) }
 
     // Backup zips waiting for confirmation, and the save files picked together with them.
     var pendingZips by remember { mutableStateOf<List<SaveFileImporter.PickedFile>>(emptyList()) }
@@ -113,13 +118,19 @@ fun BackupSettings(retrogradeDb: RetrogradeDatabase) {
         rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
             if (uri == null) return@rememberLauncherForActivityResult
             busy = true
+            exportProgress = 0 to 0
             scope.launch {
-                runCatching { backupManager.export(uri) }
+                runCatching {
+                    backupManager.export(uri) { done, total ->
+                        scope.launch { if (exportProgress != null) exportProgress = done to total }
+                    }
+                }
                     .onSuccess { toast(context.getString(R.string.backup_export_done, it.files)) }
                     .onFailure {
                         Timber.e(it, "Saves export failed")
                         toast(context.getString(R.string.backup_export_failed, it.message ?: ""))
                     }
+                exportProgress = null
                 busy = false
             }
         }
@@ -143,12 +154,17 @@ fun BackupSettings(retrogradeDb: RetrogradeDatabase) {
     LemuroidCardSettingsGroup(
         title = { Text(text = stringResource(id = R.string.settings_category_backup)) },
     ) {
-        LemuroidSettingsMenuLink(
-            title = { Text(text = stringResource(id = R.string.settings_title_backup_export)) },
-            subtitle = { Text(text = stringResource(id = R.string.settings_description_backup_export)) },
-            enabled = !busy,
-            onClick = { exportLauncher.launch(defaultBackupName()) },
-        )
+        val progress = exportProgress
+        if (progress != null) {
+            ExportProgressRow(done = progress.first, total = progress.second)
+        } else {
+            LemuroidSettingsMenuLink(
+                title = { Text(text = stringResource(id = R.string.settings_title_backup_export)) },
+                subtitle = { Text(text = stringResource(id = R.string.settings_description_backup_export)) },
+                enabled = !busy,
+                onClick = { exportLauncher.launch(defaultBackupName()) },
+            )
+        }
         LemuroidSettingsMenuLink(
             title = { Text(text = stringResource(id = R.string.settings_title_backup_import)) },
             subtitle = { Text(text = stringResource(id = R.string.settings_description_backup_import)) },
@@ -213,6 +229,42 @@ fun BackupSettings(retrogradeDb: RetrogradeDatabase) {
                 if (unmatchedFiles.isEmpty()) finishImport()
             },
         )
+    }
+}
+
+/** Shown in place of "Export saves" while an export runs: a live bar with a file count. */
+@Composable
+private fun ExportProgressRow(
+    done: Int,
+    total: Int,
+) {
+    val fraction = if (total > 0) done.toFloat() / total else 0f
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp)) {
+        Text(
+            text = stringResource(id = R.string.backup_exporting),
+            style = MaterialTheme.typography.bodyLarge,
+        )
+        if (total > 0) {
+            LinearProgressIndicator(
+                progress = { fraction },
+                modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+            )
+        } else {
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth().padding(top = 10.dp))
+        }
+        Row(modifier = Modifier.fillMaxWidth().padding(top = 6.dp)) {
+            Text(
+                text = if (total > 0) stringResource(id = R.string.backup_export_progress, done, total) else "",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f),
+            )
+            Text(
+                text = if (total > 0) "${(fraction * 100).toInt()}%" else "",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }
 

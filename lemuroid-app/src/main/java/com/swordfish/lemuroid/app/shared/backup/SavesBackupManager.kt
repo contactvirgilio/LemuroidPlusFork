@@ -29,27 +29,35 @@ class SavesBackupManager(private val appContext: Context) {
             STATE_PREVIEWS to directoriesManager.getStatesPreviewDirectory(),
         )
 
-    suspend fun export(destination: Uri): Result =
+    /** Exports everything to [destination], reporting (files done, total files) to [onProgress]. */
+    suspend fun export(
+        destination: Uri,
+        onProgress: (done: Int, total: Int) -> Unit = { _, _ -> },
+    ): Result =
         withContext(Dispatchers.IO) {
-            var count = 0
+            // List the files first so progress can be shown as "x of y".
+            val entries =
+                backupFolders().flatMap { (name, folder) ->
+                    folder.walkTopDown()
+                        .filter { it.isFile }
+                        .map { file -> "$name/${file.relativeTo(folder).invariantSeparatorsPath}" to file }
+                        .toList()
+                }
+            onProgress(0, entries.size)
+
             val output =
                 appContext.contentResolver.openOutputStream(destination, "wt")
                     ?: throw IOException("Cannot open $destination for writing")
 
             ZipOutputStream(output.buffered()).use { zip ->
-                backupFolders().forEach { (name, folder) ->
-                    folder.walkTopDown()
-                        .filter { it.isFile }
-                        .forEach { file ->
-                            val entryName = "$name/${file.relativeTo(folder).invariantSeparatorsPath}"
-                            zip.putNextEntry(ZipEntry(entryName).apply { time = file.lastModified() })
-                            file.inputStream().use { it.copyTo(zip) }
-                            zip.closeEntry()
-                            count++
-                        }
+                entries.forEachIndexed { index, (entryName, file) ->
+                    zip.putNextEntry(ZipEntry(entryName).apply { time = file.lastModified() })
+                    file.inputStream().use { it.copyTo(zip) }
+                    zip.closeEntry()
+                    onProgress(index + 1, entries.size)
                 }
             }
-            Result(count)
+            Result(entries.size)
         }
 
     suspend fun import(source: Uri): Result =

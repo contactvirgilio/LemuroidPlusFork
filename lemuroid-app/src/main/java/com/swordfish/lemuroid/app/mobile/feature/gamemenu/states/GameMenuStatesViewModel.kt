@@ -66,6 +66,8 @@ class GameMenuStatesViewModel(
                             gameMenuRequest.game,
                             gameMenuRequest.coreConfig.coreID,
                             index,
+                            sizeDp = StatesPreviewManager.PREVIEW_SIZE_DP,
+                            cropToSquare = false,
                         )
 
                     StateEntry(title, description, isEnabled, preview)

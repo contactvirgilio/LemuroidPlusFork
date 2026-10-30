@@ -17,12 +17,28 @@ class StatesPreviewManager(private val directoriesManager: DirectoriesManager) {
         coreID: CoreID,
         index: Int,
         size: Int,
+        cropToSquare: Boolean = true,
     ): Bitmap? =
         withContext(Dispatchers.IO) {
             val screenshotName = getSlotScreenshotName(game, index)
             val file = getPreviewFile(screenshotName, coreID.coreName)
-            val bitmap = BitmapFactory.decodeFile(file.absolutePath)
-            ThumbnailUtils.extractThumbnail(bitmap, size, size)
+            val bitmap = BitmapFactory.decodeFile(file.absolutePath) ?: return@withContext null
+            if (cropToSquare) {
+                ThumbnailUtils.extractThumbnail(bitmap, size, size)
+            } else {
+                // Keep the whole game screen; only shrink it if it is larger than needed.
+                val scale = size.toFloat() / maxOf(bitmap.width, bitmap.height)
+                if (scale >= 1f) {
+                    bitmap
+                } else {
+                    Bitmap.createScaledBitmap(
+                        bitmap,
+                        (bitmap.width * scale).toInt().coerceAtLeast(1),
+                        (bitmap.height * scale).toInt().coerceAtLeast(1),
+                        true,
+                    )
+                }
+            }
         }
 
     suspend fun setPreviewForSlot(
@@ -53,6 +69,7 @@ class StatesPreviewManager(private val directoriesManager: DirectoriesManager) {
     ) = "${game.fileName}.slot${index + 1}.jpg"
 
     companion object {
-        val PREVIEW_SIZE_DP = 96f
+        // Large enough to stay sharp in the 2 x 2 save state grid.
+        val PREVIEW_SIZE_DP = 240f
     }
 }

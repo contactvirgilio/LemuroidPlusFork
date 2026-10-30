@@ -125,6 +125,8 @@
     <string name="game_menu_quit">Quit</string>
     <string name="game_menu_settings">Settings</string>
     <string name="game_menu_state">State %1$s</string>
+    <string name="game_menu_state_empty">Empty</string>
+    <string name="game_menu_state_no_save">No save yet</string>
     <string name="game_menu_change_disk_button">Change Disk</string>
     <string name="game_menu_edit_touch_controls">Edit Controls</string>
     <string name="game_menu_mute_audio">Mute</string>
@@ -252,6 +254,8 @@
     <string name="settings_description_backup_export">Save all saves and save states to a single zip file</string>
     <string name="settings_title_backup_import">Import saves</string>
     <string name="settings_description_backup_import">Restore a backup zip, or add .sav / .srm saves from other emulators</string>
+    <string name="backup_exporting">Exporting saves…</string>
+    <string name="backup_export_progress">%1$d of %2$d files</string>
     <string name="backup_export_done">Exported %1$d files</string>
     <string name="backup_export_failed">Export failed: %1$s</string>
     <string name="backup_import_done">Imported %1$d files. Any replaced in-game saves were kept as .srm.bak</string>
