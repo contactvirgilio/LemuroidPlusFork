@@ -171,12 +171,7 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                         Modifier
                             .fillMaxSize(),
                     navController = navController,
-                    startDestination =
-                        if (intent.getBooleanExtra(GameMenuContract.EXTRA_OPEN_LOAD_STATES, false)) {
-                            GameMenuRoute.LOAD.route
-                        } else {
-                            GameMenuRoute.HOME.route
-                        },
+                    startDestination = GameMenuRoute.HOME.route,
                     enterTransition = { fadeIn() },
                     exitTransition = { fadeOut() },
                 ) {

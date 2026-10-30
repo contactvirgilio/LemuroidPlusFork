@@ -10,9 +10,6 @@ object GameMenuContract {
     const val EXTRA_AUDIO_ENABLED = "EXTRA_AUDIO_ENABLED"
     const val EXTRA_FAST_FORWARD_SUPPORTED = "EXTRA_FAST_FORWARD_SUPPORTED"
     const val EXTRA_FAST_FORWARD = "EXTRA_FAST_FORWARD"
-
-    /** Open the game menu straight on the Load state screen (from the in-game states button). */
-    const val EXTRA_OPEN_LOAD_STATES = "EXTRA_OPEN_LOAD_STATES"
     const val EXTRA_CURRENT_TILT_CONFIG = "EXTRA_CURRENT_TILT_CONFIG"
     const val EXTRA_TILT_ALL_CONFIGS = "EXTRA_TILT_ALL_CONFIGS"
 

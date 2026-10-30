@@ -176,7 +176,6 @@ abstract class BaseGameActivity : ImmersiveActivity() {
     private fun displayOptionsDialog(
         currentTiltConfiguration: TiltConfiguration,
         tiltConfigurations: List<TiltConfiguration>,
-        openLoadStates: Boolean = false,
     ) {
         if (baseGameScreenViewModel.loadingState.value) {
             return
@@ -195,7 +194,6 @@ abstract class BaseGameActivity : ImmersiveActivity() {
         val intent =
             Intent(this, getDialogClass()).apply {
                 this.putExtra(GameMenuContract.EXTRA_CORE_OPTIONS, options.toTypedArray())
-                this.putExtra(GameMenuContract.EXTRA_OPEN_LOAD_STATES, openLoadStates)
                 this.putExtra(GameMenuContract.EXTRA_ADVANCED_CORE_OPTIONS, advancedOptions.toTypedArray())
                 this.putExtra(
                     GameMenuContract.EXTRA_CURRENT_DISK,
@@ -245,7 +243,6 @@ abstract class BaseGameActivity : ImmersiveActivity() {
                         displayOptionsDialog(
                             it.currentTiltConfiguration,
                             it.tiltConfigurations,
-                            it.openLoadStates,
                         )
                     is GameViewModelSideEffects.UiEffect.ShowToast -> displayToast(it.message)
                     is GameViewModelSideEffects.UiEffect.SuccessfulFinish -> performSuccessfulActivityFinish()
@@ -391,13 +388,10 @@ abstract class BaseGameActivity : ImmersiveActivity() {
                 baseGameScreenViewModel.retroGameView.retroGameView?.changeDisk(index)
             }
             if (data?.hasExtra(GameMenuContract.RESULT_ENABLE_AUDIO) == true) {
-                baseGameScreenViewModel.retroGameView.retroGameView?.apply {
-                    this.audioEnabled =
-                        data.getBooleanExtra(
-                            GameMenuContract.RESULT_ENABLE_AUDIO,
-                            true,
-                        )
-                }
+                // Goes through the view model so the in-game mute button shows the same state.
+                baseGameScreenViewModel.setAudioEnabled(
+                    data.getBooleanExtra(GameMenuContract.RESULT_ENABLE_AUDIO, true),
+                )
             }
             if (data?.hasExtra(GameMenuContract.RESULT_ENABLE_FAST_FORWARD) == true) {
                 baseGameScreenViewModel.setFastForwardEnabled(

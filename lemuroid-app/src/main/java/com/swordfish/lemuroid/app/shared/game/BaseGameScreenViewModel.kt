@@ -49,7 +49,7 @@ import timber.log.Timber
 class BaseGameScreenViewModel(
     private val appContext: Context,
     private val game: Game,
-    private val settingsManager: SettingsManager,
+    settingsManager: SettingsManager,
     inputDeviceManager: InputDeviceManager,
     controllerConfigsManager: ControllerConfigsManager,
     private val system: GameSystem,
@@ -269,7 +269,7 @@ class BaseGameScreenViewModel(
         }
     }
 
-    /** A short label shown over the game for a moment (speed, filter, "Saved to State 3"). */
+    /** A short label shown over the game for a moment (speed, mute, "Saved to State 3"). */
     data class OverlayMessage(val text: String, val id: Long = System.nanoTime())
 
     private val overlayMessageState = MutableStateFlow<OverlayMessage?>(null)
@@ -313,41 +313,23 @@ class BaseGameScreenViewModel(
         fastForwardSpeedState.value = speed
     }
 
-    // Screen filter currently shown, null while unknown (e.g. HD mode until a filter is picked).
-    private val filterState = MutableStateFlow<String?>(null)
+    private val audioEnabledState = MutableStateFlow(true)
 
-    fun getCurrentFilter(): Flow<String?> = filterState
+    fun isAudioEnabled(): Flow<Boolean> = audioEnabledState
 
-    init {
-        viewModelScope.launch { filterState.value = initialFilter() }
-    }
-
-    private suspend fun initialFilter(): String? {
-        GameFilters.savedFilter(appContext, game)?.let { return it }
-        if (settingsManager.hdMode()) return null
-        val settingsFilter = settingsManager.screenFilter()
-        return if (settingsFilter in GameFilters.FILTERS) settingsFilter else GameFilters.autoFilterFor(system)
-    }
-
-    /** Switches to the next screen filter (Sharp, Smooth, CRT, LCD) and remembers it for this game. */
-    fun cycleFilter() {
+    fun setAudioEnabled(enabled: Boolean) {
         val gameView = retroGameView.retroGameView ?: return
-        val next = GameFilters.next(filterState.value)
-        gameView.shader = GameFilters.shaderFor(next)
-        filterState.value = next
-        GameFilters.saveFilter(appContext, game, next)
-        showOverlayMessage(appContext.getString(R.string.game_overlay_filter, filterDisplayName(next)))
+        gameView.audioEnabled = enabled
+        audioEnabledState.value = enabled
     }
 
-    fun filterDisplayName(filter: String): String =
-        appContext.getString(
-            when (filter) {
-                "crt" -> R.string.shader_filter_names_crt
-                "lcd" -> R.string.shader_filter_names_lcd
-                "smooth" -> R.string.shader_filter_names_smooth
-                else -> R.string.shader_filter_names_sharp
-            },
+    fun toggleMute() {
+        val enabled = !audioEnabledState.value
+        setAudioEnabled(enabled)
+        showOverlayMessage(
+            appContext.getString(if (enabled) R.string.game_overlay_sound_on else R.string.game_overlay_muted),
         )
+    }
 
     fun areStatesSupported(): Boolean = systemCoreConfig.statesSupported
 
@@ -364,12 +346,6 @@ class BaseGameScreenViewModel(
             saveSlot(index)
             showOverlayMessage(appContext.getString(R.string.game_overlay_saved_to_slot, index + 1))
         }
-    }
-
-    /** Opens the game menu directly on the Load state screen. */
-    fun openLoadStates() {
-        if (loadingState.value) return
-        sideEffects.showMenu(tilt, inputs, openLoadStates = true)
     }
 
     suspend fun reset() =

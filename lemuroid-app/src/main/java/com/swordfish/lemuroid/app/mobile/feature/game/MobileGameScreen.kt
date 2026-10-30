@@ -4,9 +4,8 @@ import android.graphics.RectF
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -27,11 +26,12 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.VolumeOff
+import androidx.compose.material.icons.automirrored.outlined.VolumeUp
 import androidx.compose.material.icons.filled.Height
 import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.RotateLeft
 import androidx.compose.material.icons.outlined.Save
-import androidx.compose.material.icons.outlined.Tv
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -63,7 +63,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -263,7 +262,7 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
     }
 }
 
-/** In-game buttons, top right: quick save / load states, screen filter, fast forward. */
+/** In-game buttons, top right: quick save state, mute, fast forward. */
 @Composable
 private fun GameOverlayButtons(
     modifier: Modifier = Modifier,
@@ -273,20 +272,18 @@ private fun GameOverlayButtons(
         if (viewModel.areStatesSupported()) {
             StatesButton(viewModel)
         }
-        FilterButton(viewModel)
+        MuteButton(viewModel)
         if (viewModel.isFastForwardSupported()) {
             FastForwardButton(viewModel)
         }
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun OverlayButton(
     active: Boolean,
     label: String,
     onClick: () -> Unit,
-    onLongClick: (() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
     Box(
@@ -295,18 +292,14 @@ private fun OverlayButton(
                 .size(40.dp)
                 .clip(CircleShape)
                 .background(Color.Black.copy(alpha = if (active) 0.6f else 0.35f))
-                .combinedClickable(
-                    onClickLabel = label,
-                    onClick = onClick,
-                    onLongClick = onLongClick,
-                ),
+                .clickable(onClickLabel = label, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         content()
     }
 }
 
-/** Tap: save into an empty slot, or over the oldest one. Hold: open the Load state screen. */
+/** Saves a state into an empty slot, or over the oldest one. */
 @Composable
 private fun StatesButton(viewModel: BaseGameScreenViewModel) {
     val label = stringResource(com.swordfish.lemuroid.R.string.game_button_states)
@@ -314,7 +307,6 @@ private fun StatesButton(viewModel: BaseGameScreenViewModel) {
         active = false,
         label = label,
         onClick = { viewModel.quickSaveToNextSlot() },
-        onLongClick = { viewModel.openLoadStates() },
     ) {
         Icon(
             modifier = Modifier.size(20.dp),
@@ -325,27 +317,19 @@ private fun StatesButton(viewModel: BaseGameScreenViewModel) {
     }
 }
 
-/** Switches Sharp / Smooth / CRT / LCD and shows the current one. */
+/** Mutes and unmutes the game; shown highlighted while muted. */
 @Composable
-private fun FilterButton(viewModel: BaseGameScreenViewModel) {
-    val label = stringResource(com.swordfish.lemuroid.R.string.game_button_filter)
-    val filter = viewModel.getCurrentFilter().collectAsState(null).value
-    OverlayButton(active = false, label = label, onClick = { viewModel.cycleFilter() }) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(
-                modifier = Modifier.size(16.dp),
-                imageVector = Icons.Outlined.Tv,
-                contentDescription = label,
-                tint = Color.White.copy(alpha = 0.8f),
-            )
-            Text(
-                text = filter?.let { viewModel.filterDisplayName(it).uppercase() } ?: "HD",
-                fontSize = 8.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White.copy(alpha = 0.85f),
-                maxLines = 1,
-            )
-        }
+private fun MuteButton(viewModel: BaseGameScreenViewModel) {
+    val audioEnabled = viewModel.isAudioEnabled().collectAsState(true).value
+    val label = stringResource(com.swordfish.lemuroid.R.string.game_menu_mute_audio)
+    OverlayButton(active = !audioEnabled, label = label, onClick = { viewModel.toggleMute() }) {
+        Icon(
+            modifier = Modifier.size(20.dp),
+            imageVector =
+                if (audioEnabled) Icons.AutoMirrored.Outlined.VolumeUp else Icons.AutoMirrored.Outlined.VolumeOff,
+            contentDescription = label,
+            tint = if (audioEnabled) Color.White.copy(alpha = 0.8f) else FAST_FORWARD_ACTIVE_COLOR,
+        )
     }
 }
 

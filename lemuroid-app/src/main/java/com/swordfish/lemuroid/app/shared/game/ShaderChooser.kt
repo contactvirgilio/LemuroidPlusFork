@@ -38,7 +38,7 @@ object ShaderChooser {
         }
     }
 
-    fun getDefaultShaderForSystem(system: GameSystem): ShaderConfig {
+    private fun getDefaultShaderForSystem(system: GameSystem): ShaderConfig {
         return when (system.id) {
             SystemID.GBA -> ShaderConfig.LCD
             SystemID.GBC -> ShaderConfig.LCD

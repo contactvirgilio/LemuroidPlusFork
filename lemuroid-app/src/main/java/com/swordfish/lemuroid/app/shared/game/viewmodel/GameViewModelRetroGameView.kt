@@ -9,7 +9,6 @@ import androidx.lifecycle.LifecycleOwner
 import com.swordfish.lemuroid.BuildConfig
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.settings.SettingsManager
-import com.swordfish.lemuroid.app.shared.game.GameFilters
 import com.swordfish.lemuroid.app.shared.game.ShaderChooser
 import com.swordfish.lemuroid.app.shared.rumble.RumbleManager
 import com.swordfish.lemuroid.app.shared.settings.HDModeQuality
@@ -235,14 +234,12 @@ class GameViewModelRetroGameView(
             savesDirectory = gameData.savesDirectory.absolutePath
             variables = gameData.coreVariables.map { Variable(it.key, it.value) }.toTypedArray()
             saveRAMState = gameData.saveRAMData
-            // A filter picked with the in-game filter button wins over the Settings filter.
-            val gameFilter = GameFilters.savedFilter(appContext, gameData.game)
             shader =
                 ShaderChooser.getShaderForSystem(
                     appContext,
-                    hdMode && gameFilter == null,
+                    hdMode,
                     hdModeQuality,
-                    gameFilter ?: screenFilter,
+                    screenFilter,
                     GameSystem.findById(gameData.game.systemId),
                 )
             viewportAlignment =
