@@ -79,7 +79,10 @@ class CoreUpdaterImpl(
         context: Context,
         coreID: CoreID,
     ) {
-        findBundledLibrary(context, coreID) ?: downloadCoreFromGithub(coreID)
+        if (findBundledLibrary(context, coreID) != null) return
+        // The Paprium core is built from source for the release APK and can't be downloaded.
+        if (coreID == CoreID.GENESIS_PLUS_GX_PAPRIUM) return
+        downloadCoreFromGithub(coreID)
     }
 
     private suspend fun retrieveAssets(

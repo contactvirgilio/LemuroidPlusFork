@@ -3,6 +3,7 @@ package com.swordfish.lemuroid.metadata.libretrodb
 import com.swordfish.lemuroid.common.kotlin.filterNullable
 import com.swordfish.lemuroid.lib.library.ArcadeFolders
 import com.swordfish.lemuroid.lib.library.GameSystem
+import com.swordfish.lemuroid.lib.library.Paprium
 import com.swordfish.lemuroid.lib.library.SystemID
 import com.swordfish.lemuroid.lib.library.metadata.GameMetadata
 import com.swordfish.lemuroid.lib.library.metadata.GameMetadataProvider
@@ -35,6 +36,7 @@ class LibretroDBMetadataProvider(private val ovgdbManager: LibretroDBManager) :
         val metadata =
             runCatching {
                 findArcadeByFolder(storageFile, db)
+                    ?: findPaprium(storageFile)
                     ?: findByCRC(storageFile, db)
                     ?: findBySerial(storageFile, db)
                     ?: findByFilename(db, storageFile)
@@ -50,6 +52,17 @@ class LibretroDBMetadataProvider(private val ovgdbManager: LibretroDBManager) :
         metadata?.let { Timber.d("Metadata retrieved for item: $it") }
 
         return metadata
+    }
+
+    /** Paprium isn't in the libretro database; a ROM named like it is listed as a Genesis game. */
+    private fun findPaprium(file: StorageFile): GameMetadata? {
+        if (!Paprium.isPapriumRom(file.name)) return null
+        return GameMetadata(
+            name = "Paprium",
+            romName = file.name,
+            system = SystemID.GENESIS.dbname,
+            developer = "WaterMelon",
+        )
     }
 
     private fun convertToGameMetadata(rom: LibretroRom): GameMetadata {

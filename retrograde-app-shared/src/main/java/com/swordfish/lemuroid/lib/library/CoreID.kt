@@ -41,6 +41,13 @@ enum class CoreID(
         "Genesis Plus GX",
         "libgenesis_plus_gx_libretro_android.so",
     ),
+
+    // Genesis Plus GX build with support for Paprium's cartridge. Used only for that game (see Paprium).
+    GENESIS_PLUS_GX_PAPRIUM(
+        "genesis_plus_gx_paprium",
+        "Genesis Plus GX (Paprium)",
+        "libgenesis_plus_gx_paprium_libretro_android.so",
+    ),
     GAMBATTE(
         "gambatte",
         "Gambatte",

@@ -54,6 +54,23 @@ jobs:
           cp lemuroid-cores/assets/ppsspp.zip lemuroid-app/src/bundle/assets/ppsspp.zip
           ls -l "$JNI" lemuroid-app/src/bundle/assets
 
+      # Genesis Plus GX with support for Paprium's cartridge chip (BillyTimeGames / RapidEdwin08),
+      # built from a pinned commit. Lemuroid Plus uses it only for Paprium.
+      - name: Build the Paprium core
+        run: |
+          set -euo pipefail
+          SRC=/tmp/gpgx-paprium
+          git clone --quiet https://github.com/RapidEdwin08/Genesis-Plus-GX-Expanded-Rom-Size "$SRC"
+          git -C "$SRC" checkout --quiet 181e8f93440b11d26e305eb42198fdfae3c8d237
+          NDK="${ANDROID_NDK_LATEST_HOME:-$ANDROID_NDK_HOME}"
+          (cd "$SRC/libretro/jni" && "$NDK/ndk-build" -j"$(nproc)" \
+            APP_ABI=arm64-v8a APP_PLATFORM=android-21 \
+            APP_CFLAGS="-Wno-error=implicit-function-declaration -Wno-error=int-conversion -Wno-error=incompatible-function-pointer-types -Wno-error=incompatible-pointer-types")
+          so=$(find "$SRC/libretro" -path '*arm64-v8a*' -name 'libretro.so' -not -path '*/obj/*' | head -n 1)
+          test -n "$so"
+          cp "$so" lemuroid-app/src/bundle/jniLibs/arm64-v8a/libgenesis_plus_gx_paprium_libretro_android.so
+          ls -l lemuroid-app/src/bundle/jniLibs/arm64-v8a/
+
       - name: Build Lemuroid Plus release APK (all cores included)
         run: ./gradlew assembleFreeBundleRelease
 

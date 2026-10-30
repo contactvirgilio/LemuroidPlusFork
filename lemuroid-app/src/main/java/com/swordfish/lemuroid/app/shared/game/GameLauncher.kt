@@ -6,6 +6,7 @@ import com.swordfish.lemuroid.app.shared.main.GameLaunchTaskHandler
 import com.swordfish.lemuroid.common.displayToast
 import com.swordfish.lemuroid.lib.core.CoresSelection
 import com.swordfish.lemuroid.lib.library.GameSystem
+import com.swordfish.lemuroid.lib.library.Paprium
 import com.swordfish.lemuroid.lib.library.db.entity.Game
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -29,7 +30,12 @@ class GameLauncher(
 
         GlobalScope.launch {
             val system = GameSystem.findById(game.systemId)
-            val coreConfig = coresSelection.getCoreConfigForSystem(system)
+            val coreConfig =
+                if (Paprium.isPaprium(game)) {
+                    Paprium.CORE_CONFIG
+                } else {
+                    coresSelection.getCoreConfigForSystem(system)
+                }
             gameLaunchTaskHandler.handleGameStart(activity.applicationContext)
             BaseGameActivity.launchGame(activity, coreConfig, game, loadSave, leanback)
         }
