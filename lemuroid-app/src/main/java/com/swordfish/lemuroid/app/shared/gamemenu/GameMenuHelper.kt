@@ -238,8 +238,10 @@ object GameMenuHelper {
         coreID: CoreID,
         index: Int,
         sizeDp: Float = 96f,
+        fullImage: Boolean = false,
     ): Bitmap? {
         if (!saveStateInfo.exists) return null
+        if (fullImage) return statesPreviewManager.getFullPreviewForSlot(game, coreID, index)
         val imageSize = GraphicsUtils.convertDpToPixel(sizeDp, context).roundToInt()
         return statesPreviewManager.getPreviewForSlot(game, coreID, index, imageSize)
     }

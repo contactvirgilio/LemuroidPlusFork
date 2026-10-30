@@ -32,7 +32,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.swordfish.lemuroid.R
 
-/** Save/load state slots as a 2 x 2 grid of large previews (the same square capture as before, just bigger). */
+/** Save/load state slots as a 2 x 2 grid of large previews showing the whole game picture. */
 @Composable
 fun GameMenuStatesScreen(
     viewModel: GameMenuStatesViewModel,
@@ -92,7 +92,7 @@ private fun StateSlot(
                 Image(
                     modifier = Modifier.fillMaxSize(),
                     bitmap = entry.preview.asImageBitmap(),
-                    contentScale = ContentScale.Crop,
+                    contentScale = ContentScale.Fit,
                     contentDescription = entry.title,
                 )
             } else {

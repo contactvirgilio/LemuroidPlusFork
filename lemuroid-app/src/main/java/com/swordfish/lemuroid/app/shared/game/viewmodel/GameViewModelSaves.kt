@@ -1,6 +1,7 @@
 package com.swordfish.lemuroid.app.shared.game.viewmodel
 
 import android.content.Context
+import android.graphics.Bitmap
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.settings.SettingsManager
 import com.swordfish.lemuroid.common.graphics.GraphicsUtils
@@ -123,12 +124,41 @@ class GameViewModelSaves(
     }
 
     private suspend fun takeScreenshotPreview(index: Int) {
+        val gameView = retroGameView.retroGameView ?: return
         val sizeInDp = StatesPreviewManager.PREVIEW_SIZE_DP
         val previewSize = GraphicsUtils.convertDpToPixel(sizeInDp, appContext).roundToInt()
-        val preview = retroGameView.retroGameView?.takeScreenshot(previewSize, 3)
-        if (preview != null) {
-            statesPreviewManager.setPreviewForSlot(game, preview, systemCoreConfig.coreID, index)
-        }
+
+        // The view covers the whole screen; the game is only a part of it. Capture at a higher
+        // resolution, then keep just the game picture.
+        val viewport = gameView.viewport
+        val viewportFraction = maxOf(viewport.width(), viewport.height()).coerceIn(0.1f, 1f)
+        val captureSize = (previewSize / viewportFraction).roundToInt()
+        val screenshot = gameView.takeScreenshot(captureSize, 3) ?: return
+
+        val preview =
+            withContext(Dispatchers.Default) {
+                val gameOnly =
+                    runCatching {
+                        GamePreviewCropper.crop(
+                            screenshot,
+                            viewport,
+                            gameView.viewportAlignment,
+                            GamePreviewCropper.aspectRatioFor(system.id),
+                        )
+                    }.getOrDefault(screenshot)
+                val scale = previewSize.toFloat() / maxOf(gameOnly.width, gameOnly.height)
+                if (scale < 1f) {
+                    Bitmap.createScaledBitmap(
+                        gameOnly,
+                        (gameOnly.width * scale).roundToInt().coerceAtLeast(1),
+                        (gameOnly.height * scale).roundToInt().coerceAtLeast(1),
+                        true,
+                    )
+                } else {
+                    gameOnly
+                }
+            }
+        statesPreviewManager.setPreviewForSlot(game, preview, systemCoreConfig.coreID, index)
     }
 
     // Now that we wait for the first rendered frame this is probably no longer needed, but we'll keep it just to be sure

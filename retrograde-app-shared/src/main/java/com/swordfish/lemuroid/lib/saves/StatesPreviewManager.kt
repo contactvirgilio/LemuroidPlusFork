@@ -25,6 +25,17 @@ class StatesPreviewManager(private val directoriesManager: DirectoriesManager) {
             ThumbnailUtils.extractThumbnail(bitmap, size, size)
         }
 
+    /** The saved preview as-is (only the game picture), without cropping it to a square. */
+    suspend fun getFullPreviewForSlot(
+        game: Game,
+        coreID: CoreID,
+        index: Int,
+    ): Bitmap? =
+        withContext(Dispatchers.IO) {
+            val file = getPreviewFile(getSlotScreenshotName(game, index), coreID.coreName)
+            if (file.exists()) BitmapFactory.decodeFile(file.absolutePath) else null
+        }
+
     suspend fun setPreviewForSlot(
         game: Game,
         bitmap: Bitmap,
