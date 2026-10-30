@@ -238,11 +238,10 @@ object GameMenuHelper {
         coreID: CoreID,
         index: Int,
         sizeDp: Float = 96f,
-        cropToSquare: Boolean = true,
     ): Bitmap? {
         if (!saveStateInfo.exists) return null
         val imageSize = GraphicsUtils.convertDpToPixel(sizeDp, context).roundToInt()
-        return statesPreviewManager.getPreviewForSlot(game, coreID, index, imageSize, cropToSquare)
+        return statesPreviewManager.getPreviewForSlot(game, coreID, index, imageSize)
     }
 
     const val FAST_FORWARD = "pref_game_fast_forward"

@@ -32,7 +32,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.swordfish.lemuroid.R
 
-/** Save/load state slots as a 2 x 2 grid of large previews that keep the game's screen shape. */
+/** Save/load state slots as a 2 x 2 grid of large previews (the same square capture as before, just bigger). */
 @Composable
 fun GameMenuStatesScreen(
     viewModel: GameMenuStatesViewModel,
@@ -56,7 +56,7 @@ fun GameMenuStatesScreen(
     }
 }
 
-private const val PREVIEW_ASPECT_RATIO = 3f / 2f
+private const val PREVIEW_ASPECT_RATIO = 1f
 
 @Composable
 private fun StateSlot(
@@ -92,7 +92,7 @@ private fun StateSlot(
                 Image(
                     modifier = Modifier.fillMaxSize(),
                     bitmap = entry.preview.asImageBitmap(),
-                    contentScale = ContentScale.Fit,
+                    contentScale = ContentScale.Crop,
                     contentDescription = entry.title,
                 )
             } else {
