@@ -2,6 +2,8 @@ package com.swordfish.lemuroid.app.mobile.feature.game
 
 import android.graphics.RectF
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -44,16 +46,20 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -268,7 +274,35 @@ private fun GameOverlayButtons(
     modifier: Modifier = Modifier,
     viewModel: BaseGameScreenViewModel,
 ) {
-    Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    // The buttons fade back after a while so they don't distract from the game, and come back to
+    // full strength whenever one of them is touched (the tap still does its job).
+    var interactions by remember { mutableIntStateOf(0) }
+    var dimmed by remember { mutableStateOf(false) }
+    LaunchedEffect(interactions) {
+        dimmed = false
+        delay(OVERLAY_BUTTONS_DIM_DELAY_MILLIS)
+        dimmed = true
+    }
+    val alpha by animateFloatAsState(
+        targetValue = if (dimmed) OVERLAY_BUTTONS_DIMMED_ALPHA else 1f,
+        animationSpec = tween(durationMillis = OVERLAY_BUTTONS_FADE_MILLIS),
+        label = "overlayButtonsAlpha",
+    )
+
+    Row(
+        modifier =
+            modifier
+                .alpha(alpha)
+                .pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent(PointerEventPass.Initial)
+                            if (event.changes.any { it.pressed && !it.previousPressed }) interactions++
+                        }
+                    }
+                },
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
         if (viewModel.areStatesSupported()) {
             StatesButton(viewModel)
         }
@@ -382,6 +416,9 @@ private fun GameOverlayMessage(
     }
 }
 
+private const val OVERLAY_BUTTONS_DIM_DELAY_MILLIS = 15_000L
+private const val OVERLAY_BUTTONS_DIMMED_ALPHA = 0.3f
+private const val OVERLAY_BUTTONS_FADE_MILLIS = 600
 private const val OVERLAY_MESSAGE_MILLIS = 1200L
 
 private val FAST_FORWARD_ACTIVE_COLOR = Color(0xFFFFC107)
