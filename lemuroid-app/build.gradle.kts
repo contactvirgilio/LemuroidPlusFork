@@ -11,7 +11,9 @@ plugins {
 android {
     defaultConfig {
         versionCode = 252
-        versionName = "1.17.0" // Always remember to update Cores Tag!
+        // Lemuroid Plus version. Based on Lemuroid 1.17.0 (cores tag is pinned in CoreUpdaterImpl).
+        // Keep versionCode increasing (never lower it) so updates install over existing installs.
+        versionName = "1.0"
         applicationId = "com.swordfish.lemuroid"
     }
     flavorDimensions += listOf("opensource", "cores")
@@ -96,7 +98,6 @@ android {
             isMinifyEnabled = true
             // Lemuroid Plus: separate app id so it installs next to the original Lemuroid.
             applicationIdSuffix = ".plus"
-            versionNameSuffix = "-plus"
             // Sign with release.jks when present, otherwise with the debug key in the repo
             // (fine for sideloading; keep using the same key so updates install over each other).
             signingConfig =
