@@ -45,7 +45,6 @@
     <string name="settings_gamepad_title_game_menu">Valikko</string>
     <string name="settings_title_open_cores_selection">Vaihda Ytimiä</string>
     <string name="settings_description_open_cores_selection">Valitse mikä ydin on liitetty järjestelmään</string>
-    <string name="settings_core_selection_ds_info">DeSmuME on vanhentunut ja se poistetaan pian. Tallenna pelin sisällä, vaihda sitten melonDS:ään: pelinsisäinen tallennus sinne automaattisesti, mutta tallenna valtiot pysyvät ytimessä, joka loi ne.</string>
     <string name="settings_title_display_bios_info">BIOS</string>
     <string name="settings_description_display_bios_info">Näytä havaitut ja tuetut BIOS-tiedostot</string>
     <string name="settings_bios_category_detected">Havaittu</string>

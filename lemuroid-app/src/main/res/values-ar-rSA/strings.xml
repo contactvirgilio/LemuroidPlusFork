@@ -45,7 +45,6 @@
     <string name="settings_gamepad_title_game_menu">القائمة</string>
     <string name="settings_title_open_cores_selection">تغيير النواة</string>
     <string name="settings_description_open_cores_selection">حدد أي نواة مرتبطة بنظام</string>
-    <string name="settings_core_selection_ds_info">DeSmuME مهمل وسيتم إزالته قريباً. حفظ داخل اللعبة، ثم قم بالتبديل إلى melonDS: في اللعبة يحفظ التحميل هناك تلقائيا، ولكن حفظ الدول تبقى في قلب اللعبة الذي أنشأها.</string>
     <string name="settings_title_display_bios_info">BIOS</string>
     <string name="settings_description_display_bios_info">عرض ملفات BIOS المكتشفة والمدعومة</string>
     <string name="settings_bios_category_detected">تم الكشف</string>
