@@ -29,6 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.games.rememberHomeTileSize
@@ -162,7 +163,8 @@ private fun LazyGridScope.homeSection(
     item(key = "$keyPrefix-title", span = { GridItemSpan(maxLineSpan) }) {
         Text(
             text = stringResource(id = titleId),
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleLarge,
+            fontSize = 20.sp,
             fontWeight = FontWeight.SemiBold,
         )
     }
