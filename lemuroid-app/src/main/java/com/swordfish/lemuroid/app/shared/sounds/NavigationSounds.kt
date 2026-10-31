@@ -14,7 +14,7 @@ import com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper
 object NavigationSounds {
     const val ENABLED_KEY = "pref_key_navigation_sounds"
 
-    private const val VOLUME = 0.5f
+    private const val VOLUME = 1f
 
     private var soundPool: SoundPool? = null
     private var clickId = 0
@@ -35,7 +35,9 @@ object NavigationSounds {
                 .setMaxStreams(2)
                 .setAudioAttributes(
                     AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                        // Media volume (USAGE_GAME). Sonification usage follows the system volume,
+                        // which is often low or muted, making the click barely audible.
+                        .setUsage(AudioAttributes.USAGE_GAME)
                         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                         .build(),
                 )
