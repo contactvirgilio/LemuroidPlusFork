@@ -15,6 +15,7 @@ Lemuroid Plus installs **next to** the original Lemuroid (app id `com.swordfish.
 - **Clean names.** Tags in brackets such as `(USA)`, `(World)`, `(Rev 1)` or `[!]` are hidden. Custom names you set are shown exactly as typed.
 - **List or grid per console.** Inside a system, three buttons next to info and settings switch between a list, a small grid and a large grid. The choice is remembered.
 - **Small or large tiles on Home and Favorites.** Two buttons in the top bar switch the tile size on both screens; the choice is remembered.
+- **Search as you type.** Search matches the start of any word in a game's name, so `zel` finds The Legend of Zelda games and `zel link` narrows it down. Results are sorted by name.
 - No custom artwork option.
 - **Home screen mode.** **Settings → Home screen → Use Lemuroid Plus as home screen** lets the app open whenever you press Home, like a frontend. It is off until you choose it, and the same option lets you switch back. While it is the home screen, pressing Home during a game closes the game (with its auto save, like Quit) and shows the library.
 - **Apps tab.** A tab next to Home, Favorites, Systems and Search lists the device's Android apps. By default it only appears while Lemuroid Plus is the home screen; **Settings → Home screen → Apps tab** (Automatic, Always show or Hide) changes that. Press and hold an app to hide it, and pick which apps appear in **Settings → Home screen → Hidden apps**.

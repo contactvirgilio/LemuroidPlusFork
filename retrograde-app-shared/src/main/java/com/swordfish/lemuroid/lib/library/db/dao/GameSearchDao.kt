@@ -112,6 +112,10 @@ class GameSearchDao(private val internalDao: Internal) {
         }
     }
 
+    /**
+     * Finds games whose name has words starting with each typed word, so "zel" finds
+     * "Legend of Zelda, The - A Link to the Past" and "zel link" narrows it down.
+     */
     fun search(query: String): PagingSource<Int, Game> =
         internalDao.rawSearch(
             SimpleSQLiteQuery(
@@ -120,10 +124,21 @@ class GameSearchDao(private val internalDao: Internal) {
                     FROM fts_games
                     JOIN games ON games.id = fts_games.docid
                     WHERE fts_games MATCH ?
+                    ORDER BY COALESCE(games.customName, games.title) COLLATE NOCASE
                 """,
-                arrayOf(query),
+                arrayOf(toPrefixQuery(query)),
             ),
         )
+
+    /** "zel link" -> "zel* link*": every word must match the start of a word in the title. */
+    private fun toPrefixQuery(query: String): String {
+        val words =
+            query
+                .split(Regex("[^\\p{L}\\p{N}]+"))
+                .filter { it.isNotBlank() }
+        if (words.isEmpty()) return "\"\""
+        return words.joinToString(" ") { "$it*" }
+    }
 
     @Dao
     interface Internal {
