@@ -29,7 +29,7 @@ fun LemuroidGameListRow(
         modifier =
             modifier
                 .wrapContentHeight()
-                .focusHighlight(shape = RectangleShape, zoom = 1f)
+                .focusHighlight(shape = RectangleShape, zoom = 1f, color = gameFocusColor(game))
                 .combinedClickable(
                     onClick = onClick,
                     onLongClick = onLongClick,
