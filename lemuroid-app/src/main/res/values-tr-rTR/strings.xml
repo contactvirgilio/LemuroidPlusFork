@@ -155,12 +155,6 @@
     <string name="game_interactory_busy">çalışmakta olan işlemlerin bitmesini bekleyin!</string>
     <string name="mobile_settings_help">Yardım</string>
     <string name="mobile_settings_support">Destek</string>
-    <string name="lemuroid_help_content"><![CDATA[        <b>&#8226;Lemuroid\'i nasıl kullanırım?</b><br/>
-        Tüm ROMları bir klasör içinde kopyalayın ve Lemuroid içerisinden seçin. Bu klasörün, yalnızca alt klasör olmasına izin verilir. Tarama tamamlandıktan sonra oyunlarınızı görmelisiniz.<br/><br/>
-        <b>&#8226; Neden oyunlarım tespit edilmedi?</b><br/>
-        Eğer oyunlarınız sıkıştırılmış ise (zip - rar - 7z vb.) sıkıştırılmış dosyadan çıkartmayı deneyin. Eğer bu çalışmıyorsa ROMları farklı bir klasöre taşıyın, aşağıdaki adlara sahip her sistem için bir tane:
-$SYSTEMS.
-    ]]></string>
     <string name="lemuroid_crash_disclamer">Görünüşe göre Libretro çekirdeği beklenmedik bir sorunla karşılaştı. Eğer kalıcıysa şunları deneyin:\n
         \n\u2022 Otomatik kayıtı devre dışı bırakın ve oyunu yeniden çalıştırın
         \n\u2022 Android ayarlarına gidin ve uygulama önbelleğini temizleyin

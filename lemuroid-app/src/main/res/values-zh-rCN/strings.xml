@@ -155,11 +155,6 @@
     <string name="game_interactory_busy">等待进行中的操作完成</string>
     <string name="mobile_settings_help">帮助</string>
     <string name="mobile_settings_support">支持</string>
-    <string name="lemuroid_help_content"><![CDATA[        <b>&#8226;我如何使用 Lemuroid？</b><br/>
-        将您所有的 ROM 文件复制到您设备上的一个目录里，并在 Lemuroid 中选择它。这个目录允许具有子目录。扫描完成后，您应该会看到自己的游戏。<br/><br/>
-        <b>&#8226;为什么检测不到我的游戏？</b><br/>
-        如果您的游戏是被压缩过的，请尝试将其解压缩。 如果这样做不起作用，请尝试将 ROM 放入单独的目录里，每个系统都有一个目录，其名称如下：$SYSTEMS。
-    ]]></string>
     <string name="lemuroid_crash_disclamer">Libretro 核心似乎出现了异常。 如果该问题持续出现，请尝试以下方法：\n
         \n\u2022 禁用自动存档并重新运行游戏
         \n\u2022 进入 Android 设置并清除应用缓存

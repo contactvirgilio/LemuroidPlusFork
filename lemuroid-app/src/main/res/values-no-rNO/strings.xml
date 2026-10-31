@@ -155,11 +155,6 @@
     <string name="game_interactory_busy">Vent på at pågående operasjoner fullføres</string>
     <string name="mobile_settings_help">Hjelp</string>
     <string name="mobile_settings_support">Brukerstøtte</string>
-    <string name="lemuroid_help_content"><![CDATA[        <b>&#8226;Hvordan bruker jeg Lemuroid?</b><br/>
-        Kopier alle ROM-filene dine til en mappe på enheten din og velg denne mappen i Lemuroid. Undermapper i denne mappen støttes også. Etter at skanningen er fullført, skal du se spillene dine.<br/><br/>
-        <b>&#8226;Hvorfor blir ikke spillene mine oppdaget?</b><br/>
-        Hvis spillene dine er komprimerte, kan du prøve å pakke de ut. Hvis dette ikke fungerer, kan du prøve å legge ROM-filene i separate mapper, en for hvert system, med følgende navn: $SYSTEMS.
-    ]]></string>
     <string name="lemuroid_crash_disclamer">Det ser ut til at Libretro-kjernen har støtt på et uventet problem. Hvis dette vedvarer, kan du prøve følgende:\n
         \n\u2022 Deaktiver automatisk lagring og start spillet på nytt
         \n\u2022 Gå til Android-innstillinger og tøm appbufferen

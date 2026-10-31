@@ -149,11 +149,6 @@
     <string name="game_interactory_busy">Așteptați ca operațiunile în așteptare să se finalizeze</string>
     <string name="mobile_settings_help">Ajutor</string>
     <string name="mobile_settings_support">Asistență</string>
-    <string name="lemuroid_help_content"><![CDATA[        <b>&#8226;Cum folosesc Lemuroid?</b><br/>
-        Copiază toate fișierele ROM-uri într-un director de pe dispozitivul tău și selectează-le în Lemuroid. Acest director are permisiunea de a avea subdirectoare. După ce scanarea se finalizează ar trebui să vezi jocurile tale.<br/><br/>
-        <b>&#8226;De ce nu sunt detectate jocurile mele?</b><br/>
-        Dacă jocurile sunt comprimate, încercaţi să le comprimaţi. Dacă nu funcționează, încercați să puneți ROM-urile în directoare separate, câte una pentru fiecare sistem cu următoarele nume: $SYSTEMS.
-    ]]></string>
     <string name="error_message_incompatible_state">Această stare de salvare nu este compatibilă cu versiunea de bază curentă. Vă rugăm să încărcați ultima salvare din joc sau să folosiți o versiune Lemuroid anterioară.</string>
     <string name="shader_filter_names_auto">Auto</string>
     <string name="shader_filter_names_sharp">Ascuţit</string>

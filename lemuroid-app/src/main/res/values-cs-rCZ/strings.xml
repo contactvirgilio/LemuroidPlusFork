@@ -155,11 +155,6 @@
     <string name="game_interactory_busy">Vyčkejte pro dokončení zbývajících operací</string>
     <string name="mobile_settings_help">Nápověda</string>
     <string name="mobile_settings_support">Podpora</string>
-    <string name="lemuroid_help_content"><![CDATA[        <b>&#8226;Jak se používá Lemuroid</b><br/>
-        Zkopírujte veškeré vaše ROM soubory do složky na vašem zařízení a vyberte ji v Lemuroidu. Tahle složka může mít podsložky. Až sken zkončí, měli by jste vidět vaše hry.<br/><br/>
-        <b>&#8226;Proč to nenašlo žádné hry?</b><br/>
-        Pokud jsou vaše ROMky komprimované, zkuste je rozbalit. Pokud to nepomůže, zkuste vložit ROMky každé do složek zvlášť podle systému. Názvy systémů jsou: $SYSTEMS.
-    ]]></string>
     <string name="lemuroid_crash_disclamer">Vypadá to, že jádro od Libretro narazylo na nečekaný problém. Pokud přetrvává zkuste následující:\n
         \n\u2022 Vypněte automatické ukládání a znovu spusťte hru
         \n\u2022 Přejděte do nastavení Androidu a vyčistěte mezipaměť aplikace

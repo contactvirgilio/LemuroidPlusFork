@@ -157,11 +157,6 @@
     <string name="game_process_another_game_running">다른 게임을 시작하려면 먼저 실행중인 게임을 종료해주세요</string>
     <string name="mobile_settings_help">도움말</string>
     <string name="mobile_settings_support">지원</string>
-    <string name="lemuroid_help_content"><![CDATA[        <b>&#8226;Lemuroid는 어떻게 사용하나요?</b><br/>
-        ROM 파일들을 장치 내 디렉토리에 복사한 뒤 Lemuroid에서 해당 디렉토리를 선택합니다. 디렉토리 안에 디렉토리가 있어도 괜찮습니다. 검색이 끝나면 게임들을 보실 수 있습니다.<br/><br/>
-        <b>&#8226;왜 제 게임이 감지되지 않는건가요?</b><br/>
-        게임 파일이 압축되어 있다면, 압축을 해제해보세요. 그래도 안 된다면 ROM들을 아래와 같은 이름의 디렉토리를 만들어서 시스템별로 따로따로 배치해보세요: $SYSTEMS.
-    ]]></string>
     <string name="lemuroid_crash_disclamer">Libretro 코어에서 예기치 못한 문제가 발생했습니다. 문제가 지속된다면 다음 조치를 취해보세요:\n
         \n\u2022 자동 저장을 비활성화하고 게임 다시 실행
         \n\u2022 안드로이드 설정에서 앱 캐시 초기화

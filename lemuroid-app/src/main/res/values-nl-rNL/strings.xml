@@ -157,11 +157,6 @@
     <string name="game_process_another_game_running">Sluit het huidige spel voor je een andere begint</string>
     <string name="mobile_settings_help">Help</string>
     <string name="mobile_settings_support">Ondersteuning</string>
-    <string name="lemuroid_help_content"><![CDATA[        <b>&#8226;Hoe gebruik ik Lemuroid?</b><br/>
-        Kopieer al je ROM-bestanden in een map op je apparaat en selecteer ze in Lemuroid. Deze map kan submappen hebben. Nadat de scan voltooid is zou je je spellen moeten zien.<br/><br/>
-        <b>&#8226;Waarom zijn mijn spellen niet gedetecteerd?</b><br/>
-        Als je spellen zijn gecomprimeerd, probeer ze te decomprimeren. Als dit niet werkt, probeer dan ROMs in aparte mappen te plaatsen, één voor elk systeem met de volgende namen: $SYSTEMS.
-    ]]></string>
     <string name="lemuroid_crash_disclamer">Er is iets misgegaan. Probeer het volgende:\n
         \n\u2022 Schakel automatisch opslaan uit en herstart het spel
         \n\u2022 Ga naar Android instellingen en wis de app cache

@@ -155,11 +155,6 @@
     <string name="game_interactory_busy">Warte, bis der Vorgang abgeschlossen ist</string>
     <string name="mobile_settings_help">Hilfe</string>
     <string name="mobile_settings_support">Unterstützung</string>
-    <string name="lemuroid_help_content"><![CDATA[        <b>&#8226;Wie verwende ich Lemuroid?</b><br/>
-        Kopiere alle ROMs in ein Verzeichnis auf deinem Gerät und wähle es in Lemuroid aus. Dieses Verzeichnis darf Unterverzeichnisse haben. Nach dem Scan solltest du deine Spiele sehen.<br/><br/>
-        <b>&#8226;Warum werden meine Spiele nicht erkannt?</b><br/>
-        Wenn deine Spiele komprimiert sind, versuche sie zu entpacken. Wenn dies nicht funktioniert, versuche die ROMs in separate Verzeichnisse zu packen, eines für jedes System mit den folgenden Namen: $SYSTEMS.
-    ]]></string>
     <string name="lemuroid_crash_disclamer">Es sieht so aus, als hätte der Libretro Core ein unerwartetes Problem gehabt. Wenn dies permanent auftritt, versuche bitte folgendes:\n
         \n\u2022 Auto-Speichern deaktivieren und das Spiel erneut starten
         \n\u2022 Gehe in die Android-Einstellungen und lösche den App-Cache

@@ -156,11 +156,6 @@
     <string name="game_interactory_busy">保留中の操作が完了するまで待ちます</string>
     <string name="mobile_settings_help">ヘルプ</string>
     <string name="mobile_settings_support">サポート</string>
-    <string name="lemuroid_help_content"><![CDATA[        <b>&#8226;Lemuroidの使い方は？</b><br/>
-        すべてのROMファイルをお使いのデバイス内のディレクトリにコピーし、Lemuroidでそのディレクトリを選択してください。このディレクトリ内にサブディレクトリがあっても問題ありません。スキャンが完了すると、ゲームが表示されるはずです。<br/><br/>
-        <b>&#8226;・ゲームが認識されないのはなぜ？</b><br/>
-      ゲームが圧縮されている場合は、まず解凍してみてください。それでも認識されない場合は、各システムごとにROMを別々のディレクトリに分けて配置してみてください。ディレクトリ名は次のようにしてください: $SYSTEMS.
-    ]]></string>
     <string name="lemuroid_crash_disclamer">Libretroコアで予期しない問題が発生したようです。問題が続く場合は、以下をお試しください：\n
         \n\u2022 オートセーブを無効にしてゲームを再起動する
         \n\u2022 Androidの設定からアプリのキャッシュを削除する

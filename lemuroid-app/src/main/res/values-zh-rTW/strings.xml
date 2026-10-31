@@ -144,11 +144,6 @@
     <string name="game_interactory_busy">操作處理中，請稍待片刻。</string>
     <string name="mobile_settings_help">幫助</string>
     <string name="mobile_settings_support">支援</string>
-    <string name="lemuroid_help_content"><![CDATA[        <b>&#8226;如何使用Lemuroid？</ b> <br/>
-         將所有 ROM 複製到設備上的資料夾中，然後在 Lemuroid 中選擇該資料夾。 這個資料夾允許有子資料夾。 掃描完成後，您應該會看到您的遊戲。<br/><br/>
-         <b>&#8226;為什麼我的遊戲沒有被偵測到？</b><br/>
-         如果您的遊戲已壓縮，請嘗試解壓縮。 如果這不起作用，請嘗試將 ROM 放入單獨的資料夾中，每個遊戲主機對應一個資料夾，其名稱如下：$SYSTEMS。
-    ]]></string>
     <string name="lemuroid_crash_disclamer">Libretro 核心遇到了意外的問題。如果問題持續存在，請嘗試以下操作：\n
          \n\u2022 關閉自動保存並重新運行遊戲
          \n\u2022 進入安卓系統設定，應用程式清除快取

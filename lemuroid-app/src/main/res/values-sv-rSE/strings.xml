@@ -156,11 +156,6 @@
     <string name="game_interactor_notification_permission_required">Aktivera aviseringar från Hem för att fortsätta</string>
     <string name="mobile_settings_help">Hjälp</string>
     <string name="mobile_settings_support">Support</string>
-    <string name="lemuroid_help_content"><![CDATA[        <b>&#8226;Hur använder jag Lemuroid?</b><br/>
-        Kopiera alla dina ROM-filer till en katalog på din enhet och välj den i Lemuroid. Denna katalog tillåts att ha underkataloger. Efter genomsökningen är färdig bör du se dina spel.<br/><br/>
-        <b>&#8226;Varför hittas inte mina spel?</b><br/>
-        Om dina spel är komprimerade, prova att packa upp dem. Om detta inte fungerar så prova att lägga ROM-filer i separata kataloger, en för varje system med följande namn: $SYSTEMS.
-    ]]></string>
     <string name="lemuroid_crash_disclamer">Det ser ut som om Libretro kärnan har upplevt ett oväntat problem. Om det är ihållande, vänligen prova följande:\n
         \n\u2022 Inaktivera automatisk sparning och åter köra spelet
         \n\u2022 Gå till Android-inställningar och rensa app-cachen

@@ -155,11 +155,6 @@
     <string name="game_interactory_busy">Attendez que l\'opération se termine</string>
     <string name="mobile_settings_help">Aide</string>
     <string name="mobile_settings_support">Soutien</string>
-    <string name="lemuroid_help_content"><![CDATA[        <b>&#8226;Comment utiliser Lemuroid?</b><br/>
-        Copiez tous vos fichiers ROMs dans un dossier de votre appareil et sélectionnez-le dans l\'onglet \'paramètres\'. Ce dossier peut avoir des sous-dossiers. Une fois l\'analyse terminée, vous verrez vos jeux apparaître dans le menu.<br/><br/>
-        <b>&#8226;Pourquoi mes jeux ne sont-ils pas détectés?</b><br/>
-        Si vos jeux sont compressés, essayez de les décompresser. Si cela n\'aide pas, essayez de mettre les ROMs dans des dossiers séparés, un pour chaque console avec les noms suivants: $SYSTEMS.
-    ]]></string>
     <string name="lemuroid_crash_disclamer">Il semble que le cœur de Libretro ait connu un problème inattendu. Si le problème persiste, essayez ce qui suit :\n
         \n\u2022 Désactivez la sauvegarde automatique et relancez le jeu
         \n\u2022 Allez dans les paramètres Android et videz le cache de l\'application

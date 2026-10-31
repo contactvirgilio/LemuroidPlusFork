@@ -155,11 +155,6 @@
     <string name="game_interactory_busy">Aguarde pela conclusão das operações pendentes</string>
     <string name="mobile_settings_help">Ajuda</string>
     <string name="mobile_settings_support">Suporte</string>
-    <string name="lemuroid_help_content"><![CDATA[        <b>&#8226;Como usar o Lemuroid?</b><br/>
-        Copie todas as suas ROMs para um directório no seu dispositivo e seleccione-o dentro do Lemuroid. Esse directório pode ter subdirectórios. Após a conclusão do scan, você deve ver os seus jogos.<br/><br/>
-        <b>&#8226;Porque é que os meus jogos não são detectados?</b><br/>
-        Se seus jogos estiverem comprimidos, tente descompactá-los. Se isso não funcionar, tente colocar as ROMs em directórios separados, um para cada sistema com os seguintes nomes: $SYSTEMS.
-    ]]></string>
     <string name="lemuroid_crash_disclamer">Parece que o núcleo Libretro sofreu um erro inesperado. Se persistir, tente o seguinte por favor:\n
         \n\u2022 Desabilite a auto-gravação e corra o jogo de novo
         \n\u2022 Vá às configurações do Android e apague a cache da app

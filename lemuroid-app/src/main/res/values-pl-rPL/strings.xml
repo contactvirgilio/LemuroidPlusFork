@@ -155,11 +155,6 @@
     <string name="game_interactory_busy">Poczekaj na zakończenie trwających operacji</string>
     <string name="mobile_settings_help">Pomoc</string>
     <string name="mobile_settings_support">Wsparcie</string>
-    <string name="lemuroid_help_content"><![CDATA[        <b>&#8226;Jak korzystać z Lemuroid?</b><br/>
-        Skopiuj wszystkie pliki ROM do katalogu na swoim urządzeniu i wybierz go w Lemuroid. Katalog ten może mieć podkatalogi. Po zakończeniu skanowania powinieneś/powinnaś zobaczyć swoje gry.<br/><br/>
-        <b>&#8226;Dlaczego moje gry nie są wykrywane?</b><br/>
-        Jeśli gry są skompresowane, spróbuj je rozpakować. Jeśli to nie zadziała, spróbuj umieścić pliki ROM w oddzielnych katalogach, po jednym dla każdego systemu, o następujących nazwach: $SYSTEMS.
-    ]]></string>
     <string name="lemuroid_crash_disclamer">Wygląda na to, że rdzeń Libretro napotkał nieoczekiwany problem. Jeśli nie ustąpi, spróbuj wykonać następujące czynności:\n
         \n\u2022 Wyłącz auto-zapis i uruchom grę ponownie.
         \n\u2022 Przejdź do ustawień Androida i wyczyść pamięć podręczną aplikacji.

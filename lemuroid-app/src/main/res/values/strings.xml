@@ -209,10 +209,22 @@
     <string name="mobile_settings_help">Help</string>
     <string name="mobile_settings_support">Support</string>
     <string name="lemuroid_help_content"><![CDATA[
-        <b>&#8226;How do I use Lemuroid?</b><br/>
-        Copy all your ROMs files into a directory on your device and select it within Lemuroid. This directory is allowed to have subdirectories. After the scan completes you should see your games.<br/><br/>
-        <b>&#8226;Why aren\'t my games detected?</b><br/>
-        If your games are compressed, try uncompressing them. If this doesn\'t work try putting ROMs into separate directories, one for each system with the following names: $SYSTEMS.
+        <b>Getting started</b><br/>
+        Pick your ROM folder in Settings and allow "All files access". Every emulator is built in, so no internet is needed. After adding games, tap <b>Rescan</b>.<br/><br/>
+        <b>The Lemuroid folder</b><br/>
+        On your main storage, <i>Lemuroid/</i> holds <i>saves</i>, <i>states</i>, <i>bios</i> (all BIOS files together) and <i>artwork</i> (one image per game, named like the ROM; turn it on in Settings &#8594; Show artwork).<br/><br/>
+        <b>Games not showing up?</b><br/>
+        Unzip them, or put each system in its own folder named like: $SYSTEMS.<br/>
+        &#8226; PlayStation also works with <i>PS</i>, <i>PS1</i> or <i>PlayStation</i> folders.<br/>
+        &#8226; Arcade zips go in an <i>Arcade</i>, <i>MAME</i>, <i>FBNeo</i> or <i>Neo Geo</i> folder.<br/><br/>
+        <b>In-game buttons (top right)</b><br/>
+        Save state &#183; Mute &#183; 2&#215; speed &#183; Filter (1&#8211;4) &#183; Scaling (1&#8211;3) &#183; Menu. They fade after 15 seconds; touch to bring them back.<br/><br/>
+        <b>Multi-disc games</b><br/>
+        Make an <i>.m3u</i> file listing the discs, then use <b>Menu &#8594; Change Disk</b>.<br/><br/>
+        <b>Home screen mode</b><br/>
+        Settings &#8594; Home screen makes Lemuroid Plus your launcher. Your Android apps are in the Apps tab.<br/><br/>
+        <b>Backups</b><br/>
+        Settings &#8594; Backup exports everything to one zip, and imports saves from other emulators (.sav / .srm).
     ]]></string>
 
     <string name="lemuroid_crash_disclamer">It looks like the Libretro core has experienced an unexpected issue. If it\'s persistent please try the following:\n
