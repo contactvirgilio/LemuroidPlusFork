@@ -15,7 +15,7 @@ Lemuroid Plus installs **next to** the original Lemuroid (app id `com.swordfish.
 - **List or grid per console.** Inside a system, three buttons next to info and settings switch between a list, a small grid and a large grid. The choice is remembered.
 - No custom artwork option.
 - **Home screen mode.** **Settings → Home screen → Use Lemuroid Plus as home screen** lets the app open whenever you press Home, like a frontend. It is off until you choose it, and the same option lets you switch back.
-- **Apps tab.** A tab next to Home, Favorites, Systems and Search lists the device's Android apps. By default it only appears while Lemuroid Plus is the home screen; **Settings → Home screen → Apps tab** can also always show it or hide it. Press and hold an app to hide it, and pick which apps appear in **Settings → Home screen → Hidden apps**.
+- **Apps tab.** A tab next to Home, Favorites, Systems and Search lists the device's Android apps. By default it only appears while Lemuroid Plus is the home screen; **Settings → Home screen → Apps tab** (Automatic, Always show or Hide) changes that. Press and hold an app to hide it, and pick which apps appear in **Settings → Home screen → Hidden apps**.
 - **PlayStation folders.** PlayStation games are found in a folder named `PSX`, `PS`, `PS1`, `PSOne` or `PlayStation` (any capitalization). Tap **Rescan** after renaming a folder.
 
 ### In game

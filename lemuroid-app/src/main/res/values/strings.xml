@@ -252,7 +252,7 @@
     <string name="settings_description_home_screen_off">Off. Tap to make Lemuroid Plus open when you press Home. Your Android apps are in the Apps tab.</string>
     <string name="settings_description_home_screen_on">On. Lemuroid Plus opens when you press Home. Tap to choose a different home screen.</string>
     <string name="settings_title_apps_tab">Apps tab</string>
-    <string name="settings_value_apps_tab_auto">Automatic (only when Lemuroid Plus is the home screen)</string>
+    <string name="settings_value_apps_tab_auto">Automatic</string>
     <string name="settings_value_apps_tab_on">Always show</string>
     <string name="settings_value_apps_tab_off">Hide</string>
     <string name="settings_title_hidden_apps">Hidden apps</string>
