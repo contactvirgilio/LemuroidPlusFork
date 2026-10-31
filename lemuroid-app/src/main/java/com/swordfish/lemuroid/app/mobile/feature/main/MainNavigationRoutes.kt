@@ -97,6 +97,12 @@ enum class MainRoute(
         parent = SETTINGS,
         showBottomNavigation = false,
     ),
+    SETTINGS_HIDDEN_APPS(
+        route = "settings/hiddenapps",
+        titleId = R.string.settings_title_hidden_apps,
+        parent = SETTINGS,
+        showBottomNavigation = false,
+    ),
     SETTINGS_SAVE_SYNC(
         route = "settings/savesync",
         titleId = R.string.settings_title_save_sync,

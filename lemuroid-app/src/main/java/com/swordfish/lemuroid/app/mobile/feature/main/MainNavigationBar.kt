@@ -9,10 +9,12 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import com.swordfish.lemuroid.app.mobile.feature.apps.rememberAppsTabVisible
 
 @Composable
 fun MainNavigationBar(
@@ -33,36 +35,50 @@ private fun LemuroidNavigationBar(
     currentRoute: MainRoute?,
     navController: NavHostController,
 ) {
-    NavigationBar(modifier = Modifier.fillMaxWidth()) {
-        MainNavigationRoutes.values().forEach { destination ->
-            val isSelected = currentRoute?.root == destination.route
-            val iconDrawable = if (isSelected) destination.selectedIcon else destination.unselectedIcon
+    val appsTabVisible = rememberAppsTabVisible()
 
-            NavigationBarItem(
-                icon = {
-                    Icon(
-                        imageVector = iconDrawable,
-                        contentDescription = stringResource(destination.titleId),
-                    )
-                },
-                label = { Text(stringResource(destination.titleId)) },
-                selected = isSelected,
-                onClick = {
-                    navController.navigate(destination.route.route) {
-                        // Pop up to the start destination of the graph to
-                        // avoid building up a large stack of destinations
-                        // on the back stack as users select items
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = false
-                        }
-                        // Avoid multiple copies of the same destination when
-                        // reselecting the same item
-                        launchSingleTop = true
-                        // Restore state when reselecting a previously selected item
-                        restoreState = false
-                    }
-                },
-            )
+    // Leave the Apps tab if it gets hidden while open.
+    LaunchedEffect(appsTabVisible, currentRoute) {
+        if (!appsTabVisible && currentRoute == MainRoute.APPS) {
+            navController.navigate(MainRoute.HOME.route) {
+                popUpTo(navController.graph.findStartDestination().id)
+                launchSingleTop = true
+            }
         }
+    }
+
+    NavigationBar(modifier = Modifier.fillMaxWidth()) {
+        MainNavigationRoutes.values()
+            .filter { it != MainNavigationRoutes.APPS || appsTabVisible }
+            .forEach { destination ->
+                val isSelected = currentRoute?.root == destination.route
+                val iconDrawable = if (isSelected) destination.selectedIcon else destination.unselectedIcon
+
+                NavigationBarItem(
+                    icon = {
+                        Icon(
+                            imageVector = iconDrawable,
+                            contentDescription = stringResource(destination.titleId),
+                        )
+                    },
+                    label = { Text(stringResource(destination.titleId)) },
+                    selected = isSelected,
+                    onClick = {
+                        navController.navigate(destination.route.route) {
+                            // Pop up to the start destination of the graph to
+                            // avoid building up a large stack of destinations
+                            // on the back stack as users select items
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = false
+                            }
+                            // Avoid multiple copies of the same destination when
+                            // reselecting the same item
+                            launchSingleTop = true
+                            // Restore state when reselecting a previously selected item
+                            restoreState = false
+                        }
+                    },
+                )
+            }
     }
 }

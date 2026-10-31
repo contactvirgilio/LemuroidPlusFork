@@ -28,6 +28,7 @@ import androidx.navigation.compose.rememberNavController
 import com.fredporciuncula.flow.preferences.FlowSharedPreferences
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.apps.AppsScreen
+import com.swordfish.lemuroid.app.mobile.feature.apps.HiddenAppsScreen
 import com.swordfish.lemuroid.app.mobile.feature.favorites.FavoritesScreen
 import com.swordfish.lemuroid.app.mobile.feature.favorites.FavoritesViewModel
 import com.swordfish.lemuroid.app.mobile.feature.games.GamesScreen
@@ -355,6 +356,9 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
                                         ),
                                 ),
                         )
+                    }
+                    composable(MainRoute.SETTINGS_HIDDEN_APPS) {
+                        HiddenAppsScreen(modifier = Modifier.padding(padding))
                     }
                     composable(MainRoute.SETTINGS_SAVE_SYNC) {
                         SaveSyncSettingsScreen(

@@ -19,6 +19,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.swordfish.lemuroid.R
+import com.swordfish.lemuroid.app.mobile.feature.apps.AppsTabSettings
 import com.swordfish.lemuroid.app.mobile.feature.main.MainRoute
 import com.swordfish.lemuroid.app.mobile.feature.main.navigateToRoute
 import com.swordfish.lemuroid.app.shared.launcher.HomeLauncher
@@ -65,7 +66,7 @@ fun SettingsScreen(
             scanInProgress = scanInProgress,
         )
         GeneralSettings()
-        HomeScreenSettings()
+        HomeScreenSettings(navController = navController)
         InputSettings(navController = navController)
         BackupSettings(retrogradeDb)
         MiscSettings(
@@ -78,7 +79,7 @@ fun SettingsScreen(
 
 /** Lemuroid Plus: use the app as the device's home screen (launcher). */
 @Composable
-private fun HomeScreenSettings() {
+private fun HomeScreenSettings(navController: NavController) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     var isHome by remember { mutableStateOf(HomeLauncher.isDefaultHome(context)) }
@@ -110,6 +111,21 @@ private fun HomeScreenSettings() {
                 )
             },
             onClick = { (context as? Activity)?.let { HomeLauncher.openHomeScreenChooser(it) } },
+        )
+        LemuroidSettingsList(
+            state = indexPreferenceState(AppsTabSettings.MODE_KEY, AppsTabSettings.MODE_AUTO, AppsTabSettings.MODES),
+            title = { Text(text = stringResource(id = R.string.settings_title_apps_tab)) },
+            items =
+                listOf(
+                    stringResource(R.string.settings_value_apps_tab_auto),
+                    stringResource(R.string.settings_value_apps_tab_on),
+                    stringResource(R.string.settings_value_apps_tab_off),
+                ),
+        )
+        LemuroidSettingsMenuLink(
+            title = { Text(text = stringResource(id = R.string.settings_title_hidden_apps)) },
+            subtitle = { Text(text = stringResource(id = R.string.settings_description_hidden_apps)) },
+            onClick = { navController.navigateToRoute(MainRoute.SETTINGS_HIDDEN_APPS) },
         )
     }
 }

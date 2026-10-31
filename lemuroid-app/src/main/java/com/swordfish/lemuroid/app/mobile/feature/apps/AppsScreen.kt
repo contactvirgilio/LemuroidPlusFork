@@ -3,8 +3,10 @@ package com.swordfish.lemuroid.app.mobile.feature.apps
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.widget.Toast
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,6 +43,7 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.swordfish.lemuroid.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -51,7 +54,10 @@ data class LauncherApp(
     val packageName: String,
     val activityName: String,
     val icon: ImageBitmap,
-)
+) {
+    val id: String
+        get() = "$packageName/$activityName"
+}
 
 /** Grid of the device's Android apps, so Lemuroid Plus can work as the home screen. */
 @Composable
@@ -72,7 +78,11 @@ fun AppsScreen(modifier: Modifier = Modifier) {
     }
 
     LaunchedEffect(reloadKey) {
-        apps = withContext(Dispatchers.IO) { loadApps(context) }
+        apps =
+            withContext(Dispatchers.IO) {
+                val hidden = AppsTabSettings.hiddenApps(context)
+                loadApps(context).filter { it.id !in hidden }
+            }
     }
 
     val current = apps
@@ -90,23 +100,38 @@ fun AppsScreen(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(14.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        items(current, key = { "${it.packageName}/${it.activityName}" }) { app ->
-            AppTile(app = app, onClick = { openApp(context, app) })
+        items(current, key = { it.id }) { app ->
+            AppTile(
+                app = app,
+                onClick = { openApp(context, app) },
+                onLongClick = {
+                    // Long press hides the app; it can be shown again in Settings > Home screen.
+                    AppsTabSettings.setHidden(context, app, true)
+                    apps = apps?.filter { it.id != app.id }
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.apps_hidden_toast, app.label),
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                },
+            )
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun AppTile(
     app: LauncherApp,
     onClick: () -> Unit,
+    onLongClick: () -> Unit,
 ) {
     Column(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(12.dp))
-                .clickable(onClick = onClick)
+                .combinedClickable(onClick = onClick, onLongClick = onLongClick)
                 .padding(vertical = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -126,7 +151,7 @@ private fun AppTile(
     }
 }
 
-private fun loadApps(context: Context): List<LauncherApp> {
+internal fun loadApps(context: Context): List<LauncherApp> {
     val packageManager = context.packageManager
     val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
     val iconSize = (52 * context.resources.displayMetrics.density).toInt()
@@ -142,7 +167,7 @@ private fun loadApps(context: Context): List<LauncherApp> {
                 )
             }.getOrNull()
         }
-        .distinctBy { "${it.packageName}/${it.activityName}" }
+        .distinctBy { it.id }
         .sortedBy { it.label.lowercase() }
 }
 
