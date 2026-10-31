@@ -261,6 +261,7 @@
     <string name="apps_hidden_toast">%1$s hidden. Show it again in Settings → Home screen → Hidden apps.</string>
     <string name="settings_title_show_artwork">Show artwork</string>
     <string name="settings_description_show_artwork">Use images from the Lemuroid/artwork folder as game tiles. Name each image like its ROM, e.g. Super Mario World (USA).png.</string>
+    <string name="game_process_closing_previous_game">Closing and saving previous game…</string>
     <string name="game_button_filter">Filter</string>
     <string name="game_button_scaling">Scaling</string>
     <string name="game_overlay_filter_title">Filter %1$d</string>

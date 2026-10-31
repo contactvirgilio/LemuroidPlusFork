@@ -40,6 +40,10 @@ class GameLauncher(
         if (launchInProgress) return true
         launchInProgress = true
 
+        if (gameStillClosing) {
+            activity.displayToast(R.string.game_process_closing_previous_game)
+        }
+
         GlobalScope.launch {
             try {
                 if (gameStillClosing && !waitForPreviousGameToClose(appContext)) {
