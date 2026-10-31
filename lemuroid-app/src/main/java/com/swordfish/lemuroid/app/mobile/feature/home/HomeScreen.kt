@@ -15,16 +15,19 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import com.swordfish.lemuroid.R
@@ -94,10 +97,18 @@ private fun HomeScreen(
     onSetDirectoryClicked: () -> Unit,
 ) {
     val tileSize = rememberHomeTileSize().size
+    val gridState = rememberLazyGridState()
+
+    // Sections load separately; when one appears above what's on screen the grid would keep its
+    // position and hide the "Recents" title. Stay at the top while the user hasn't scrolled.
+    LaunchedEffect(state.recentGames.map { it.id }, state.discoveryGames.map { it.id }) {
+        if (gridState.firstVisibleItemIndex <= 3) gridState.scrollToItem(0)
+    }
 
     // Home scrolls only up and down: each section is a title followed by a grid of tiles.
     LazyVerticalGrid(
         modifier = modifier.fillMaxSize(),
+        state = gridState,
         columns = GridCells.Adaptive(tileSize),
         contentPadding = PaddingValues(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -151,7 +162,8 @@ private fun LazyGridScope.homeSection(
     item(key = "$keyPrefix-title", span = { GridItemSpan(maxLineSpan) }) {
         Text(
             text = stringResource(id = titleId),
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
         )
     }
     items(games, key = { "$keyPrefix-${it.id}" }) { game ->
