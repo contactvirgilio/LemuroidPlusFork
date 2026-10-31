@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -55,8 +57,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
@@ -69,6 +76,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -161,18 +169,26 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
 
             val fullPos = fullScreenPosition.value
             val viewPos = viewportPosition.value
+            val scaling = viewModel.getScaling().collectAsState().value
 
-            LaunchedEffect(fullPos, viewPos) {
+            LaunchedEffect(fullPos, viewPos, scaling) {
                 val gameView = viewModel.retroGameView.retroGameViewFlow()
                 if (fullPos == null || viewPos == null) return@LaunchedEffect
-                val viewport =
+                val area =
                     RectF(
-                        (viewPos.left - fullPos.left) / fullPos.width,
-                        (viewPos.top - fullPos.top) / fullPos.height,
-                        (viewPos.right - fullPos.left) / fullPos.width,
-                        (viewPos.bottom - fullPos.top) / fullPos.height,
+                        viewPos.left - fullPos.left,
+                        viewPos.top - fullPos.top,
+                        viewPos.right - fullPos.left,
+                        viewPos.bottom - fullPos.top,
                     )
-                gameView.viewport = viewport
+                gameView.viewport =
+                    viewModel.computeScaledViewport(
+                        scaling,
+                        gameView.viewportAlignment,
+                        fullPos.width,
+                        fullPos.height,
+                        area,
+                    )
             }
 
             ConstraintLayout(
@@ -255,6 +271,10 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                         .padding(top = 60.dp),
                 viewModel = viewModel,
             )
+            GameOverlayCard(
+                modifier = Modifier.align(Alignment.Center),
+                viewModel = viewModel,
+            )
         }
 
         if (isLoading) {
@@ -309,6 +329,151 @@ private fun GameOverlayButtons(
         MuteButton(viewModel)
         if (viewModel.isFastForwardSupported()) {
             FastForwardButton(viewModel)
+        }
+        FilterButton(viewModel)
+        if (viewModel.isScalingSupported()) {
+            ScalingButton(viewModel)
+        }
+    }
+}
+
+/** Switches to the next filter; the tiny screen shows its number (1 Sharp, 2 Smooth, 3 CRT, 4 LCD). */
+@Composable
+private fun FilterButton(viewModel: BaseGameScreenViewModel) {
+    val filter = viewModel.getFilter().collectAsState(null).value
+    val label = stringResource(com.swordfish.lemuroid.R.string.game_button_filter)
+    OverlayButton(active = false, label = label, onClick = { viewModel.cycleFilter() }) {
+        MiniScreenIcon(text = filter?.let { "${it.ordinal + 1}" } ?: "HD", stand = true)
+    }
+}
+
+/** Switches to the next scaling mode; the tiny screen shows its number (1 Fit, 2 Integer, 3 Integer -1). */
+@Composable
+private fun ScalingButton(viewModel: BaseGameScreenViewModel) {
+    val scaling = viewModel.getScaling().collectAsState().value
+    val label = stringResource(com.swordfish.lemuroid.R.string.game_button_scaling)
+    OverlayButton(active = false, label = label, onClick = { viewModel.cycleScaling() }) {
+        MiniScreenIcon(text = "${scaling.ordinal + 1}", stand = false)
+    }
+}
+
+/**
+ * A tiny screen with a number inside. With [stand] it has a small foot (filter); without it has
+ * two corner marks (scaling).
+ */
+@Composable
+private fun MiniScreenIcon(
+    text: String,
+    stand: Boolean,
+) {
+    val color = Color.White.copy(alpha = 0.85f)
+    Canvas(modifier = Modifier.size(24.dp)) {
+        val stroke = 1.6.dp.toPx()
+        val screenWidth = 17.dp.toPx()
+        val screenHeight = 13.dp.toPx()
+        val left = (size.width - screenWidth) / 2f
+        val top = (size.height - screenHeight) / 2f - if (stand) 1.5.dp.toPx() else 0f
+        drawRoundRect(
+            color = color,
+            topLeft = Offset(left, top),
+            size = Size(screenWidth, screenHeight),
+            cornerRadius = CornerRadius(2.5.dp.toPx()),
+            style = Stroke(width = stroke),
+        )
+        if (stand) {
+            val footWidth = 6.dp.toPx()
+            val footY = top + screenHeight + 2.5.dp.toPx()
+            drawLine(
+                color = color,
+                start = Offset((size.width - footWidth) / 2f, footY),
+                end = Offset((size.width + footWidth) / 2f, footY),
+                strokeWidth = stroke,
+                cap = StrokeCap.Round,
+            )
+        } else {
+            val arm = 3.5.dp.toPx()
+            val gap = 2.dp.toPx()
+            val x0 = left - gap
+            val y0 = top - gap
+            val x1 = left + screenWidth + gap
+            val y1 = top + screenHeight + gap
+            drawLine(color, Offset(x0, y0), Offset(x0 + arm, y0), stroke, StrokeCap.Round)
+            drawLine(color, Offset(x0, y0), Offset(x0, y0 + arm), stroke, StrokeCap.Round)
+            drawLine(color, Offset(x1, y1), Offset(x1 - arm, y1), stroke, StrokeCap.Round)
+            drawLine(color, Offset(x1, y1), Offset(x1, y1 - arm), stroke, StrokeCap.Round)
+        }
+    }
+    Text(
+        text = text,
+        color = Color.White,
+        fontSize = if (text.length > 1) 7.sp else 9.sp,
+        fontWeight = FontWeight.ExtraBold,
+        modifier = Modifier.offset(y = if (stand) (-1.5).dp else 0.dp),
+    )
+}
+
+/** Card in the middle of the game after changing filter or scaling: number, name and position. */
+@Composable
+private fun GameOverlayCard(
+    modifier: Modifier = Modifier,
+    viewModel: BaseGameScreenViewModel,
+) {
+    val card = viewModel.getOverlayCards().collectAsState(null).value
+    var visibleCard by remember { mutableStateOf<BaseGameScreenViewModel.OverlayCard?>(null) }
+
+    LaunchedEffect(card?.id) {
+        if (card == null) return@LaunchedEffect
+        visibleCard = card
+        delay(OVERLAY_CARD_MILLIS)
+        visibleCard = null
+    }
+
+    var lastCard by remember { mutableStateOf<BaseGameScreenViewModel.OverlayCard?>(null) }
+    if (visibleCard != null) lastCard = visibleCard
+    val shown = lastCard
+
+    AnimatedVisibility(modifier = modifier, visible = visibleCard != null, enter = fadeIn(), exit = fadeOut()) {
+        if (shown == null) return@AnimatedVisibility
+        Column(
+            modifier =
+                Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color(0xFF0A0C0E).copy(alpha = 0.82f))
+                    .padding(horizontal = 22.dp, vertical = 12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = shown.title.uppercase(),
+                color = Color(0xFF9AA4AD),
+                fontSize = 11.sp,
+                letterSpacing = 1.2.sp,
+            )
+            Text(
+                text = shown.value,
+                color = Color.White,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+            )
+            Row(
+                modifier = Modifier.padding(top = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                repeat(shown.count) { index ->
+                    Box(
+                        modifier =
+                            Modifier
+                                .size(width = 20.dp, height = 5.dp)
+                                .clip(RoundedCornerShape(3.dp))
+                                .background(
+                                    if (index == shown.index) {
+                                        FAST_FORWARD_ACTIVE_COLOR
+                                    } else {
+                                        Color.White.copy(alpha = 0.22f)
+                                    },
+                                ),
+                    )
+                }
+            }
         }
     }
 }
@@ -420,6 +585,7 @@ private const val OVERLAY_BUTTONS_DIM_DELAY_MILLIS = 15_000L
 private const val OVERLAY_BUTTONS_DIMMED_ALPHA = 0.3f
 private const val OVERLAY_BUTTONS_FADE_MILLIS = 600
 private const val OVERLAY_MESSAGE_MILLIS = 1200L
+private const val OVERLAY_CARD_MILLIS = 1200L
 
 private val FAST_FORWARD_ACTIVE_COLOR = Color(0xFFFFC107)
 

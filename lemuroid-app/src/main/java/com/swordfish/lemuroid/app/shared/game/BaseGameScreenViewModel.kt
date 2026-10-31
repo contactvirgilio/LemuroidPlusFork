@@ -42,6 +42,7 @@ import gg.padkit.inputstate.InputState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -321,6 +322,96 @@ class BaseGameScreenViewModel(
     }
 
     fun areStatesSupported(): Boolean = systemCoreConfig.statesSupported
+
+    /** A card in the middle of the game ("Filter 3 · CRT") with the position in the list. */
+    data class OverlayCard(
+        val title: String,
+        val value: String,
+        val index: Int,
+        val count: Int,
+        val id: Long = System.nanoTime(),
+    )
+
+    private val overlayCardState = MutableStateFlow<OverlayCard?>(null)
+
+    fun getOverlayCards(): Flow<OverlayCard?> = overlayCardState
+
+    private val displayOptions = GameDisplayOptions(sharedPreferences, system.id)
+
+    // Null until the game view exists, or when an HD mode shader (not in the list) is active.
+    private val filterState = MutableStateFlow<GameDisplayOptions.Filter?>(null)
+
+    fun getFilter(): Flow<GameDisplayOptions.Filter?> = filterState
+
+    fun cycleFilter() {
+        val gameView = retroGameView.retroGameView ?: return
+        val filters = GameDisplayOptions.Filter.values()
+        val next = filters[((filterState.value?.ordinal ?: -1) + 1) % filters.size]
+        gameView.shader = next.shader
+        filterState.value = next
+        displayOptions.saveFilter(next)
+        overlayCardState.value =
+            OverlayCard(
+                appContext.getString(R.string.game_overlay_filter_title, next.ordinal + 1),
+                appContext.getString(next.labelRes),
+                next.ordinal,
+                filters.size,
+            )
+    }
+
+    fun isScalingSupported(): Boolean = GameDisplayOptions.isScalingSupported(system.id)
+
+    private val scalingState = MutableStateFlow(displayOptions.savedScaling())
+
+    fun getScaling(): StateFlow<GameDisplayOptions.Scaling> = scalingState
+
+    fun cycleScaling() {
+        val modes = GameDisplayOptions.Scaling.values()
+        val next = modes[(scalingState.value.ordinal + 1) % modes.size]
+        scalingState.value = next
+        displayOptions.saveScaling(next)
+        overlayCardState.value =
+            OverlayCard(
+                appContext.getString(R.string.game_overlay_scaling_title, next.ordinal + 1),
+                appContext.getString(next.labelRes),
+                next.ordinal,
+                modes.size,
+            )
+    }
+
+    /** Viewport for the current scaling, from the area the layout gives the game (in pixels). */
+    fun computeScaledViewport(
+        scaling: GameDisplayOptions.Scaling,
+        alignment: com.swordfish.libretrodroid.ViewportAlignment,
+        viewWidth: Float,
+        viewHeight: Float,
+        area: android.graphics.RectF,
+    ) = GameDisplayOptions.computeViewport(
+        scaling,
+        system.id,
+        alignment,
+        viewWidth,
+        viewHeight,
+        area.left,
+        area.top,
+        area.right,
+        area.bottom,
+    )
+
+    init {
+        // Applies the filter remembered for this system (or reads the one from Settings) once the
+        // game view exists.
+        viewModelScope.launch {
+            val gameView = retroGameView.retroGameViewFlow()
+            val saved = displayOptions.savedFilter()
+            if (saved != null) {
+                gameView.shader = saved.shader
+                filterState.value = saved
+            } else {
+                filterState.value = GameDisplayOptions.Filter.fromShader(gameView.shader)
+            }
+        }
+    }
 
     private var quickSaveInProgress = false
 

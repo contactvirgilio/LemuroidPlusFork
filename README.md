@@ -21,6 +21,9 @@ Lemuroid Plus installs **next to** the original Lemuroid (app id `com.swordfish.
   - **Save state:** one tap saves a state into an empty slot, or over the oldest of the four.
   - **Mute:** turns the sound off and on.
   - **Fast-forward:** turns 2× speed on and off (yellow while on); the gamepad shortcut does the same.
+  - **Filter:** a tiny screen with a number: 1 Sharp, 2 Smooth, 3 CRT, 4 LCD. Each tap switches to the next one and a card in the middle of the game shows the choice.
+  - **Scaling:** a tiny screen with corner marks: 1 Fit (as large as fits), 2 Integer (every pixel the same size), 3 Integer −1 (one size smaller). Not shown for arcade and DOS.
+  - Filter and scaling are remembered per system.
   - After 15 seconds the buttons fade to a faint outline so they don't distract; touching any of them brings them back (the tap still works).
   - Mute and fast-forward are no longer in the in-game menu.
 - **No tilt sensor** option in the in-game menu or settings.
