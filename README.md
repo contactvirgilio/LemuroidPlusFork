@@ -66,7 +66,7 @@ Lemuroid Plus installs **next to** the original Lemuroid (app id `com.swordfish.
 
 ## Install
 
-1. Open the **Actions** tab, pick the latest green **Build Lemuroid Plus APK** run and download **lemuroid-plus-apk** (a zip with the APK inside). If a release has been published, you can also download the APK from **Releases**.
+1. Download **LemuroidPlus-latest.apk** from the **Latest test build** pre-release under **Releases** (updated on every change), or the APK attached to a published release. Each **Actions** run also has a **lemuroid-plus-apk** zip.
 2. Copy the APK to the device and open it with a file manager. Allow "install unknown apps" if Android asks.
 3. On first launch, tap **Allow** and turn on "Allow access to manage all files" so saves go to the `Lemuroid` folder.
 4. Pick your ROM folder in **Settings**. All emulator cores are already included.
