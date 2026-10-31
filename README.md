@@ -7,14 +7,15 @@ Lemuroid Plus installs **next to** the original Lemuroid (app id `com.swordfish.
 ## What's different from Lemuroid
 
 ### Library
-- **No box art.** Box art is never searched for or downloaded. Every game shows a clean tile with its initials.
+- **No box art downloads.** Box art is never searched for or downloaded. Every game shows a clean tile with its initials.
+- **Your own artwork (optional).** Turn on **Settings → Show artwork** and put one image per game (PNG, JPG or WEBP) in `Lemuroid/artwork`, named like the ROM: `Super Mario World (USA).png` for `Super Mario World (USA).sfc` (the title without tags, e.g. `Super Mario World.png`, also works). Images fill the tile, cropped evenly to keep their proportions; games without an image keep their colored tile.
 - **Tiles match their system.** Each game tile is a solid block in the same color as its system on the Systems screen. Systems that share a card (Genesis/Sega CD, Neo Geo Pocket/Color, WonderSwan/Color, FBNeo/MAME) use a slightly darker shade for the second one.
 - **Smaller tiles** (116dp instead of 144dp), so more games fit on small screens.
 - **Just the game name** under each tile, on up to two lines. No system or publisher line.
 - **Clean names.** Tags in brackets such as `(USA)`, `(World)`, `(Rev 1)` or `[!]` are hidden. Custom names you set are shown exactly as typed.
 - **List or grid per console.** Inside a system, three buttons next to info and settings switch between a list, a small grid and a large grid. The choice is remembered.
 - No custom artwork option.
-- **Home screen mode.** **Settings → Home screen → Use Lemuroid Plus as home screen** lets the app open whenever you press Home, like a frontend. It is off until you choose it, and the same option lets you switch back.
+- **Home screen mode.** **Settings → Home screen → Use Lemuroid Plus as home screen** lets the app open whenever you press Home, like a frontend. It is off until you choose it, and the same option lets you switch back. While it is the home screen, pressing Home during a game closes the game (with its auto save, like Quit) and shows the library.
 - **Apps tab.** A tab next to Home, Favorites, Systems and Search lists the device's Android apps. By default it only appears while Lemuroid Plus is the home screen; **Settings → Home screen → Apps tab** (Automatic, Always show or Hide) changes that. Press and hold an app to hide it, and pick which apps appear in **Settings → Home screen → Hidden apps**.
 - **PlayStation folders.** PlayStation games are found in a folder named `PSX`, `PS`, `PS1`, `PSOne` or `PlayStation` (any capitalization). Tap **Rescan** after renaming a folder.
 

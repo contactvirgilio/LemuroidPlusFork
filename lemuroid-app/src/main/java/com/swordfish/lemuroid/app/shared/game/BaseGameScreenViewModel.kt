@@ -473,6 +473,21 @@ class BaseGameScreenViewModel(
         }
     }
 
+    /**
+     * Closes the game after it was left with Home (home screen mode). The game view is already
+     * paused, so the save is captured without the emulation thread, like a background save.
+     */
+    fun requestFinishFromBackground() {
+        if (loadingState.value) return
+        viewModelScope.launch {
+            runCatching {
+                val snapshot = saves.captureSaveSnapshot(false)
+                saves.writeSaveSnapshot(snapshot)
+            }.onFailure { Timber.e(it, "Save before closing the game failed") }
+            sideEffects.requestSuccessfulFinish()
+        }
+    }
+
     fun requestBackgroundSave() {
         if (loadingState.value) return
         GameService.schedule {

@@ -107,6 +107,7 @@ class DirectoriesManager(private val appContext: Context) {
 
         migrateFromAppPrivateRoot(publicRoot)
         File(publicRoot, "bios").mkdirs()
+        File(publicRoot, "artwork").mkdirs()
         return publicRoot
     }
 

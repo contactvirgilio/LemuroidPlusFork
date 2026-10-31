@@ -57,7 +57,7 @@ class GameLaunchTaskHandler(
         CacheCleanerWork.cancelCleanCacheLRU(context)
     }
 
-    private fun rescheduleBackgroundWork(context: Context) {
+    fun rescheduleBackgroundWork(context: Context) {
         // Let's slightly delay the sync. Maybe the user wants to play another game.
         SaveSyncWork.enqueueAutoWork(context, 5)
         CacheCleanerWork.enqueueCleanCacheLRU(context)

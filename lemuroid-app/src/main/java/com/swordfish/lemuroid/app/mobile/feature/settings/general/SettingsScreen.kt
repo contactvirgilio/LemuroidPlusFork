@@ -22,6 +22,7 @@ import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.apps.AppsTabSettings
 import com.swordfish.lemuroid.app.mobile.feature.main.MainRoute
 import com.swordfish.lemuroid.app.mobile.feature.main.navigateToRoute
+import com.swordfish.lemuroid.app.shared.artwork.ArtworkManager
 import com.swordfish.lemuroid.app.shared.launcher.HomeLauncher
 import com.swordfish.lemuroid.app.shared.library.LibraryIndexScheduler
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidCardSettingsGroup
@@ -245,6 +246,11 @@ private fun GeneralSettings() {
                 ),
             title = { Text(text = stringResource(id = R.string.display_filter)) },
             items = stringListResource(R.array.pref_key_shader_filter_display_names),
+        )
+        LemuroidSettingsSwitch(
+            state = booleanPreferenceState(ArtworkManager.SHOW_ARTWORK_KEY, false),
+            title = { Text(text = stringResource(id = R.string.settings_title_show_artwork)) },
+            subtitle = { Text(text = stringResource(id = R.string.settings_description_show_artwork)) },
         )
         LemuroidSettingsList(
             state =

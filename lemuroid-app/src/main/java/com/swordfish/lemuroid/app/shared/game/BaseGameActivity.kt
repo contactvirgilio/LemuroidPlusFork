@@ -12,6 +12,7 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.game.GameActivity
 import com.swordfish.lemuroid.app.mobile.feature.game.GameService
 import com.swordfish.lemuroid.app.mobile.feature.settings.SettingsManager
@@ -21,6 +22,7 @@ import com.swordfish.lemuroid.app.shared.ImmersiveActivity
 import com.swordfish.lemuroid.app.shared.coreoptions.CoreOption
 import com.swordfish.lemuroid.app.shared.coreoptions.LemuroidCoreOption
 import com.swordfish.lemuroid.app.shared.game.viewmodel.GameViewModelSideEffects
+import com.swordfish.lemuroid.app.shared.gamecrash.GameCrashActivity
 import com.swordfish.lemuroid.app.shared.input.InputDeviceManager
 import com.swordfish.lemuroid.app.shared.rumble.RumbleManager
 import com.swordfish.lemuroid.app.shared.settings.ControllerConfigsManager
@@ -308,8 +310,37 @@ abstract class BaseGameActivity : ImmersiveActivity() {
         finishAndExitProcess()
     }
 
+    private val runsInOwnTask: Boolean
+        get() = intent.getBooleanExtra(EXTRA_OWN_TASK, false)
+
+    // Set when the user leaves the game with Home or Recents (not when the game opens its menu).
+    private var leftByUser = false
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        if (runsInOwnTask && !finishTriggered) leftByUser = true
+    }
+
+    override fun onResume() {
+        super.onResume()
+        leftByUser = false
+    }
+
+    // The game's own screens (menu, pad binding...) must not count as leaving the game.
+    override fun startActivityForResult(
+        intent: Intent,
+        requestCode: Int,
+        options: Bundle?,
+    ) {
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_USER_ACTION)
+        super.startActivityForResult(intent, requestCode, options)
+    }
+
     private fun performUnexpectedErrorFinish(exception: Throwable) {
         Timber.e(exception, "Handling java exception in BaseGameActivity")
+        if (runsInOwnTask) {
+            GameCrashActivity.launch(this, getString(R.string.lemuroid_crash_disclamer), exception.message)
+        }
         val resultIntent =
             Intent().apply {
                 putExtra(PLAY_GAME_RESULT_ERROR, exception.message)
@@ -320,6 +351,9 @@ abstract class BaseGameActivity : ImmersiveActivity() {
     }
 
     private fun performErrorFinish(message: String) {
+        if (runsInOwnTask) {
+            GameCrashActivity.launch(this, message, null)
+        }
         val resultIntent =
             Intent().apply {
                 putExtra(PLAY_GAME_RESULT_ERROR, message)
@@ -345,7 +379,12 @@ abstract class BaseGameActivity : ImmersiveActivity() {
 
     override fun onStop() {
         if (!finishTriggered && !isFinishing && !isChangingConfigurations) {
-            baseGameScreenViewModel.requestBackgroundSave()
+            if (leftByUser) {
+                // Home screen mode: Home leaves the game. Close it like Quit does (auto save included).
+                baseGameScreenViewModel.requestFinishFromBackground()
+            } else {
+                baseGameScreenViewModel.requestBackgroundSave()
+            }
         }
         super.onStop()
     }
@@ -419,18 +458,25 @@ abstract class BaseGameActivity : ImmersiveActivity() {
         const val REQUEST_PLAY_GAME = 1001
         const val PLAY_GAME_RESULT_SESSION_DURATION = "PLAY_GAME_RESULT_SESSION_DURATION"
         const val PLAY_GAME_RESULT_GAME = "PLAY_GAME_RESULT_GAME"
+        const val EXTRA_OWN_TASK = "EXTRA_OWN_TASK"
         const val PLAY_GAME_RESULT_LEANBACK = "PLAY_GAME_RESULT_LEANBACK"
         const val PLAY_GAME_RESULT_ERROR = "PLAY_GAME_RESULT_ERROR"
 
         const val RESULT_ERROR = Activity.RESULT_FIRST_USER + 2
         const val RESULT_UNEXPECTED_ERROR = Activity.RESULT_FIRST_USER + 3
 
+        /**
+         * With [ownTask] (Lemuroid Plus as home screen) the game runs in its own task, so the Home
+         * button leaves it and shows the library; the game then closes after writing its auto save.
+         * In that mode no result comes back to the library: errors open the crash screen directly.
+         */
         fun launchGame(
             activity: Activity,
             systemCoreConfig: SystemCoreConfig,
             game: Game,
             loadSave: Boolean,
             useLeanback: Boolean,
+            ownTask: Boolean = false,
         ) {
             val gameActivity =
                 if (useLeanback) {
@@ -438,15 +484,20 @@ abstract class BaseGameActivity : ImmersiveActivity() {
                 } else {
                     GameActivity::class.java
                 }
-            activity.startActivityForResult(
+            val intent =
                 Intent(activity, gameActivity).apply {
                     putExtra(EXTRA_GAME, game)
                     putExtra(EXTRA_LOAD_SAVE, loadSave)
                     putExtra(EXTRA_LEANBACK, useLeanback)
                     putExtra(EXTRA_SYSTEM_CORE_CONFIG, systemCoreConfig)
-                },
-                REQUEST_PLAY_GAME,
-            )
+                    putExtra(EXTRA_OWN_TASK, ownTask)
+                }
+            if (ownTask) {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                activity.startActivity(intent)
+            } else {
+                activity.startActivityForResult(intent, REQUEST_PLAY_GAME)
+            }
             activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         }
     }

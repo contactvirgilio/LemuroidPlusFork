@@ -148,6 +148,15 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Games started in their own task (home screen mode) don't report back when they end.
+        if (GameLauncher.pendingBackgroundWork) {
+            GameLauncher.pendingBackgroundWork = false
+            gameLaunchTaskHandler.rescheduleBackgroundWork(applicationContext)
+        }
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun MainScreen(navController: NavHostController) {

@@ -2,6 +2,7 @@ package com.swordfish.lemuroid.app.shared.game
 
 import android.app.Activity
 import com.swordfish.lemuroid.R
+import com.swordfish.lemuroid.app.shared.launcher.HomeLauncher
 import com.swordfish.lemuroid.app.shared.main.GameLaunchTaskHandler
 import com.swordfish.lemuroid.common.displayToast
 import com.swordfish.lemuroid.lib.core.CoresSelection
@@ -37,9 +38,18 @@ class GameLauncher(
                     coresSelection.getCoreConfigForSystem(system)
                 }
             gameLaunchTaskHandler.handleGameStart(activity.applicationContext, game)
-            BaseGameActivity.launchGame(activity, coreConfig, game, loadSave, leanback)
+            // As home screen, games run in their own task so Home goes back to the library.
+            val ownTask = !leanback && HomeLauncher.isDefaultHome(activity)
+            if (ownTask) pendingBackgroundWork = true
+            BaseGameActivity.launchGame(activity, coreConfig, game, loadSave, leanback, ownTask)
         }
 
         return true
+    }
+
+    companion object {
+        /** A game was started in its own task; background work is rescheduled when the library returns. */
+        @Volatile
+        var pendingBackgroundWork = false
     }
 }
