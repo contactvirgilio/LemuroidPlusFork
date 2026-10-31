@@ -14,6 +14,8 @@ Lemuroid Plus installs **next to** the original Lemuroid (app id `com.swordfish.
 - **Clean names.** Tags in brackets such as `(USA)`, `(World)`, `(Rev 1)` or `[!]` are hidden. Custom names you set are shown exactly as typed.
 - **List or grid per console.** Inside a system, three buttons next to info and settings switch between a list, a small grid and a large grid. The choice is remembered.
 - No custom artwork option.
+- **Home screen mode.** **Settings → Home screen → Use Lemuroid Plus as home screen** lets the app open whenever you press Home, like a frontend. It is off until you choose it, and the same option lets you switch back.
+- **Apps tab.** A new tab next to Home, Favorites, Systems and Search lists the device's Android apps, so you can open them without leaving Lemuroid Plus.
 - **PlayStation folders.** PlayStation games are found in a folder named `PSX`, `PS`, `PS1`, `PSOne` or `PlayStation` (any capitalization). Tap **Rescan** after renaming a folder.
 
 ### In game

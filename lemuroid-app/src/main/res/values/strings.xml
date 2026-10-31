@@ -246,6 +246,11 @@
     <string name="tilt_configuration_buttons_l1_r1">L1 - R1</string>
     <string name="tilt_configuration_buttons_l2_r2">L2 - R2</string>
 
+    <string name="title_apps">Apps</string>
+    <string name="settings_category_home_screen">Home screen</string>
+    <string name="settings_title_use_as_home_screen">Use Lemuroid Plus as home screen</string>
+    <string name="settings_description_home_screen_off">Off. Tap to make Lemuroid Plus open when you press Home. Your Android apps are in the Apps tab.</string>
+    <string name="settings_description_home_screen_on">On. Lemuroid Plus opens when you press Home. Tap to choose a different home screen.</string>
     <string name="game_button_filter">Filter</string>
     <string name="game_button_scaling">Scaling</string>
     <string name="game_overlay_filter_title">Filter %1$d</string>

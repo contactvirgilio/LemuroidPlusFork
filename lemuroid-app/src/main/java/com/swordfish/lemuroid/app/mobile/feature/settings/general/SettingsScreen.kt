@@ -1,18 +1,27 @@
 package com.swordfish.lemuroid.app.mobile.feature.settings.general
 
+import android.app.Activity
 import android.net.Uri
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.documentfile.provider.DocumentFile
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.main.MainRoute
 import com.swordfish.lemuroid.app.mobile.feature.main.navigateToRoute
+import com.swordfish.lemuroid.app.shared.launcher.HomeLauncher
 import com.swordfish.lemuroid.app.shared.library.LibraryIndexScheduler
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidCardSettingsGroup
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsList
@@ -56,12 +65,51 @@ fun SettingsScreen(
             scanInProgress = scanInProgress,
         )
         GeneralSettings()
+        HomeScreenSettings()
         InputSettings(navController = navController)
         BackupSettings(retrogradeDb)
         MiscSettings(
             indexingInProgress = indexingInProgress,
             isSaveSyncSupported = state.isSaveSyncSupported,
             navController = navController,
+        )
+    }
+}
+
+/** Lemuroid Plus: use the app as the device's home screen (launcher). */
+@Composable
+private fun HomeScreenSettings() {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var isHome by remember { mutableStateOf(HomeLauncher.isDefaultHome(context)) }
+
+    // Android shows its own screen to pick the home app; refresh when coming back from it.
+    DisposableEffect(lifecycleOwner) {
+        val observer =
+            LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) isHome = HomeLauncher.isDefaultHome(context)
+            }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    LemuroidCardSettingsGroup(title = { Text(text = stringResource(id = R.string.settings_category_home_screen)) }) {
+        LemuroidSettingsMenuLink(
+            title = { Text(text = stringResource(id = R.string.settings_title_use_as_home_screen)) },
+            subtitle = {
+                Text(
+                    text =
+                        stringResource(
+                            id =
+                                if (isHome) {
+                                    R.string.settings_description_home_screen_on
+                                } else {
+                                    R.string.settings_description_home_screen_off
+                                },
+                        ),
+                )
+            },
+            onClick = { (context as? Activity)?.let { HomeLauncher.openHomeScreenChooser(it) } },
         )
     }
 }
