@@ -281,6 +281,18 @@ class BaseGameScreenViewModel(
         overlayMessageState.value = OverlayMessage(text)
     }
 
+    /**
+     * Called once a message or card has been displayed, so it isn't shown again when the overlay
+     * comes back (e.g. after the loading screen of a save made from the menu).
+     */
+    fun onOverlayMessageShown(id: Long) {
+        if (overlayMessageState.value?.id == id) overlayMessageState.value = null
+    }
+
+    fun onOverlayCardShown(id: Long) {
+        if (overlayCardState.value?.id == id) overlayCardState.value = null
+    }
+
     // Fast forward is either off or 2x.
     private val fastForwardSpeedState = MutableStateFlow(1)
 

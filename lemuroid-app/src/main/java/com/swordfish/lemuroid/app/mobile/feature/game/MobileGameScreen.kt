@@ -98,6 +98,8 @@ import gg.padkit.PadKit
 import gg.padkit.config.HapticFeedbackType
 import gg.padkit.inputstate.InputState
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
 
 @Composable
 fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
@@ -418,14 +420,15 @@ private fun GameOverlayCard(
     modifier: Modifier = Modifier,
     viewModel: BaseGameScreenViewModel,
 ) {
-    val card = viewModel.getOverlayCards().collectAsState(null).value
     var visibleCard by remember { mutableStateOf<BaseGameScreenViewModel.OverlayCard?>(null) }
 
-    LaunchedEffect(card?.id) {
-        if (card == null) return@LaunchedEffect
-        visibleCard = card
-        delay(OVERLAY_CARD_MILLIS)
-        visibleCard = null
+    LaunchedEffect(Unit) {
+        viewModel.getOverlayCards().filterNotNull().collectLatest { card ->
+            viewModel.onOverlayCardShown(card.id)
+            visibleCard = card
+            delay(OVERLAY_CARD_MILLIS)
+            visibleCard = null
+        }
     }
 
     var lastCard by remember { mutableStateOf<BaseGameScreenViewModel.OverlayCard?>(null) }
@@ -557,14 +560,17 @@ private fun GameOverlayMessage(
     modifier: Modifier = Modifier,
     viewModel: BaseGameScreenViewModel,
 ) {
-    val message = viewModel.getOverlayMessages().collectAsState(null).value
     var visibleText by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(message?.id) {
-        if (message == null) return@LaunchedEffect
-        visibleText = message.text
-        delay(OVERLAY_MESSAGE_MILLIS)
-        visibleText = null
+    // Each message is shown once: it's cleared in the view model as soon as it appears, so it
+    // doesn't come back when the overlay is recreated (e.g. after a save from the menu).
+    LaunchedEffect(Unit) {
+        viewModel.getOverlayMessages().filterNotNull().collectLatest { message ->
+            viewModel.onOverlayMessageShown(message.id)
+            visibleText = message.text
+            delay(OVERLAY_MESSAGE_MILLIS)
+            visibleText = null
+        }
     }
 
     AnimatedVisibility(modifier = modifier, visible = visibleText != null, enter = fadeIn(), exit = fadeOut()) {
