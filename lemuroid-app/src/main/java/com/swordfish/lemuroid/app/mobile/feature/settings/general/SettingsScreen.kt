@@ -25,6 +25,7 @@ import com.swordfish.lemuroid.app.mobile.feature.main.navigateToRoute
 import com.swordfish.lemuroid.app.shared.artwork.ArtworkManager
 import com.swordfish.lemuroid.app.shared.launcher.HomeLauncher
 import com.swordfish.lemuroid.app.shared.library.LibraryIndexScheduler
+import com.swordfish.lemuroid.app.shared.sounds.NavigationSounds
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidCardSettingsGroup
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsList
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsMenuLink
@@ -246,6 +247,11 @@ private fun GeneralSettings() {
                 ),
             title = { Text(text = stringResource(id = R.string.display_filter)) },
             items = stringListResource(R.array.pref_key_shader_filter_display_names),
+        )
+        LemuroidSettingsSwitch(
+            state = booleanPreferenceState(NavigationSounds.ENABLED_KEY, true),
+            title = { Text(text = stringResource(id = R.string.settings_title_navigation_sounds)) },
+            subtitle = { Text(text = stringResource(id = R.string.settings_description_navigation_sounds)) },
         )
         LemuroidSettingsSwitch(
             state = booleanPreferenceState(ArtworkManager.SHOW_ARTWORK_KEY, false),

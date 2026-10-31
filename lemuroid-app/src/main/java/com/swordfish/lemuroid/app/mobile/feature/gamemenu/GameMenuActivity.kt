@@ -5,6 +5,7 @@ package com.swordfish.lemuroid.app.mobile.feature.gamemenu
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.view.KeyEvent
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -50,6 +51,7 @@ import com.swordfish.lemuroid.app.mobile.shared.compose.ui.AppTheme
 import com.swordfish.lemuroid.app.shared.GameMenuContract
 import com.swordfish.lemuroid.app.shared.coreoptions.LemuroidCoreOption
 import com.swordfish.lemuroid.app.shared.input.InputDeviceManager
+import com.swordfish.lemuroid.app.shared.sounds.NavigationSounds
 import com.swordfish.lemuroid.common.kotlin.serializable
 import com.swordfish.lemuroid.lib.android.RetrogradeComponentActivity
 import com.swordfish.lemuroid.lib.library.SystemCoreConfig
@@ -61,6 +63,12 @@ import java.security.InvalidParameterException
 import javax.inject.Inject
 
 class GameMenuActivity : RetrogradeComponentActivity() {
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        val handled = super.dispatchKeyEvent(event)
+        NavigationSounds.onKeyEvent(this, event, handled)
+        return handled
+    }
+
     @Inject
     lateinit var inputDeviceManager: InputDeviceManager
 

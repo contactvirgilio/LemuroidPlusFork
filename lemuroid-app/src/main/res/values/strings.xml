@@ -274,6 +274,8 @@
     <string name="activity_by_system">By system</string>
     <string name="activity_week_days">Mon,Tue,Wed,Thu,Fri,Sat,Sun</string>
     <string name="activity_game_details">%1$s · %2$d sessions</string>
+    <string name="settings_title_navigation_sounds">Navigation sounds</string>
+    <string name="settings_description_navigation_sounds">A short click when moving the selection with the D-pad or a controller.</string>
     <string name="game_button_filter">Filter</string>
     <string name="game_button_scaling">Scaling</string>
     <string name="game_overlay_filter_title">Filter %1$d</string>
