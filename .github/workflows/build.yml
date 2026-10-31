@@ -42,7 +42,7 @@ jobs:
           set -euo pipefail
           JNI=lemuroid-app/src/bundle/jniLibs/arm64-v8a
           mkdir -p "$JNI" lemuroid-app/src/bundle/assets
-          for core in bsnes mesen gpsp picodrive; do
+          for core in bsnes gpsp picodrive; do
             url="https://buildbot.libretro.com/nightly/android/latest/arm64-v8a/${core}_libretro_android.so.zip"
             echo "Downloading $url"
             curl -fsSL --retry 3 -o "/tmp/${core}.zip" "$url"
@@ -53,6 +53,22 @@ jobs:
           done
           cp lemuroid-cores/assets/ppsspp.zip lemuroid-app/src/bundle/assets/ppsspp.zip
           ls -l "$JNI" lemuroid-app/src/bundle/assets
+
+      # Mesen is built from source: it uses its emulator object in the callback setters, which
+      # LibretroDroid calls before retro_init, so the game crashed as soon as it loaded.
+      # patches/mesen-callback-order.patch keeps the callbacks until retro_init has run.
+      - name: Build the Mesen core
+        run: |
+          set -euo pipefail
+          SRC=/tmp/mesen
+          git clone --quiet https://github.com/libretro/Mesen "$SRC"
+          git -C "$SRC" checkout --quiet 0102910c39ad1a62bc3f784466f3f67ca9eae335
+          git -C "$SRC" apply "$GITHUB_WORKSPACE/patches/mesen-callback-order.patch"
+          NDK="${ANDROID_NDK_LATEST_HOME:-$ANDROID_NDK_HOME}"
+          (cd "$SRC/Libretro/jni" && "$NDK/ndk-build" -j"$(nproc)" APP_ABI=arm64-v8a APP_PLATFORM=android-21)
+          so=$(find "$SRC/Libretro" -path '*arm64-v8a*' -name 'libretro.so' -not -path '*/obj/*' | head -n 1)
+          test -n "$so"
+          cp "$so" lemuroid-app/src/bundle/jniLibs/arm64-v8a/libmesen_libretro_android.so
 
       # SwanStation is built from source: it registers its disk control callbacks from a local
       # variable, and LibretroDroid keeps that pointer, so asking for the current disc (state saves,

@@ -1,0 +1,65 @@
+diff --git a/Libretro/libretro.cpp b/Libretro/libretro.cpp
+index 48fa641..97e73ae 100644
+--- a/Libretro/libretro.cpp
++++ b/Libretro/libretro.cpp
+@@ -106,6 +106,13 @@ extern "C" {
+ 		return RETRO_API_VERSION;
+ 	}
+ 
++	// Lemuroid Plus: frontends may set the callbacks before retro_init (LibretroDroid does), when
++	// the console doesn't exist yet. Keep them and apply them once it does.
++	static retro_video_refresh_t pendingVideoRefresh = nullptr;
++	static retro_audio_sample_batch_t pendingAudioBatch = nullptr;
++	static retro_input_poll_t pendingInputPoll = nullptr;
++	static retro_input_state_t pendingInputState = nullptr;
++
+ 	RETRO_API void retro_init()
+ 	{
+ 		struct retro_log_callback log;
+@@ -130,6 +137,11 @@ extern "C" {
+ 
+ 		if (env_cb(RETRO_ENVIRONMENT_GET_INPUT_BITMASKS, NULL))
+ 			_keyManager->SetSupportsInputBitmasks(true);
++
++		if(pendingVideoRefresh) _console->GetVideoRenderer()->SetVideoCallback(pendingVideoRefresh);
++		if(pendingAudioBatch) _console->GetSoundMixer()->SetSendAudioSample(pendingAudioBatch);
++		if(pendingInputPoll) _keyManager->SetPollInput(pendingInputPoll);
++		if(pendingInputState) _keyManager->SetGetInputState(pendingInputState);
+ 	}
+ 
+ 	RETRO_API void retro_deinit()
+@@ -227,7 +239,8 @@ extern "C" {
+ 
+ 	RETRO_API void retro_set_video_refresh(retro_video_refresh_t sendFrame)
+ 	{
+-		_console->GetVideoRenderer()->SetVideoCallback(sendFrame);
++		pendingVideoRefresh = sendFrame;
++		if(_console) _console->GetVideoRenderer()->SetVideoCallback(sendFrame);
+ 	}
+ 
+ 	RETRO_API void retro_set_audio_sample(retro_audio_sample_t sendAudioSample)
+@@ -236,17 +249,20 @@ extern "C" {
+ 
+ 	RETRO_API void retro_set_audio_sample_batch(retro_audio_sample_batch_t audioSampleBatch)
+ 	{
+-		_console->GetSoundMixer()->SetSendAudioSample(audioSampleBatch);
++		pendingAudioBatch = audioSampleBatch;
++		if(_console) _console->GetSoundMixer()->SetSendAudioSample(audioSampleBatch);
+ 	}
+ 
+ 	RETRO_API void retro_set_input_poll(retro_input_poll_t pollInput)
+-	{	
+-		_keyManager->SetPollInput(pollInput);
++	{
++		pendingInputPoll = pollInput;
++		if(_keyManager) _keyManager->SetPollInput(pollInput);
+ 	}
+ 
+ 	RETRO_API void retro_set_input_state(retro_input_state_t getInputState)
+ 	{
+-		_keyManager->SetGetInputState(getInputState);
++		pendingInputState = getInputState;
++		if(_keyManager) _keyManager->SetGetInputState(getInputState);
+ 	}
+ 
+ 	RETRO_API void retro_reset()
