@@ -19,12 +19,14 @@ import com.swordfish.lemuroid.lib.library.db.entity.Game
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -37,7 +39,7 @@ class HomeViewModel(
     private val coresSelection: CoresSelection,
 ) : ViewModel() {
     companion object {
-        const val CAROUSEL_MAX_ITEMS = 10
+        const val CAROUSEL_MAX_ITEMS = 12
         const val DEBOUNCE_TIME = 100L
     }
 
@@ -126,11 +128,15 @@ class HomeViewModel(
         )
     }
 
+    // Declared before init: the Discover flow uses it as soon as Home starts collecting.
+    private val discoverPicker = DiscoverPicker(appContext)
+
     init {
         viewModelScope.launch {
             val uiStatesFlow =
                 combine(
-                    favoritesGames(retrogradeDb),
+                    // Favorites have their own tab, so Home only shows Recent and Discover.
+                    flowOf(emptyList<Game>()),
                     recentGames(retrogradeDb),
                     discoveryGames(retrogradeDb),
                     indexingInProgress(appContext),
@@ -150,14 +156,28 @@ class HomeViewModel(
     private fun indexingInProgress(appContext: Context) =
         PendingOperationsMonitor(appContext).anyLibraryOperationInProgress()
 
-    private fun discoveryGames(retrogradeDb: RetrogradeDatabase) =
-        retrogradeDb.gameDao().selectFirstNotPlayed(CAROUSEL_MAX_ITEMS)
+    /** Emits the current local day once a minute, so Discover changes at midnight while the app is open. */
+    private fun currentDay(): Flow<Long> =
+        flow {
+            while (true) {
+                emit(DiscoverPicker.currentLocalDay())
+                delay(60_000)
+            }
+        }.distinctUntilChanged()
+
+    private fun discoveryGames(retrogradeDb: RetrogradeDatabase): Flow<List<Game>> =
+        combine(retrogradeDb.gameDao().selectDiscoveryCandidates(), currentDay()) { candidates, day ->
+            candidates to day
+        }.map { (candidates, day) ->
+            val ids = discoverPicker.pick(candidates, CAROUSEL_MAX_ITEMS, day)
+            val games = retrogradeDb.gameDao().selectByIds(ids).associateBy { it.id }
+            ids.mapNotNull { games[it] }
+        }
 
     private fun recentGames(retrogradeDb: RetrogradeDatabase) =
-        retrogradeDb.gameDao().selectFirstUnfavoriteRecents(CAROUSEL_MAX_ITEMS)
-
-    private fun favoritesGames(retrogradeDb: RetrogradeDatabase) =
-        retrogradeDb.gameDao().selectFirstFavorites(CAROUSEL_MAX_ITEMS)
+        retrogradeDb.gameDao().selectFirstRecents(
+            CAROUSEL_MAX_ITEMS,
+        )
 
     private fun dsGamesCount(retrogradeDb: RetrogradeDatabase): Flow<Int> {
         return retrogradeDb.gameDao().selectSystemsWithCount()

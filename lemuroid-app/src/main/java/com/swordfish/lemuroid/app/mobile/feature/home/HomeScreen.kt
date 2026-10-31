@@ -4,17 +4,17 @@ import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridScope
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -93,99 +93,73 @@ private fun HomeScreen(
     onEnableMicrophoneClicked: () -> Unit,
     onSetDirectoryClicked: () -> Unit,
 ) {
-    Column(
-        modifier =
-            modifier
-                .verticalScroll(rememberScrollState())
-                .padding(top = 16.dp, bottom = 16.dp),
+    val tileSize = rememberHomeTileSize().size
+
+    // Home scrolls only up and down: each section is a title followed by a grid of tiles.
+    LazyVerticalGrid(
+        modifier = modifier.fillMaxSize(),
+        columns = GridCells.Adaptive(tileSize),
+        contentPadding = PaddingValues(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        AnimatedVisibility(state.showNoNotificationPermissionCard) {
-            HomeNotification(
-                titleId = R.string.home_notification_title,
-                messageId = R.string.home_notification_message,
-                actionId = R.string.home_notification_action,
-                onAction = onEnableNotificationsClicked,
-            )
+        if (state.showNoNotificationPermissionCard) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                HomeNotification(
+                    titleId = R.string.home_notification_title,
+                    messageId = R.string.home_notification_message,
+                    actionId = R.string.home_notification_action,
+                    onAction = onEnableNotificationsClicked,
+                )
+            }
         }
-        AnimatedVisibility(state.showNoGamesCard) {
-            HomeNotification(
-                titleId = R.string.home_empty_title,
-                messageId = R.string.home_empty_message,
-                actionId = R.string.home_empty_action,
-                onAction = onSetDirectoryClicked,
-                enabled = !state.indexInProgress,
-            )
+        if (state.showNoGamesCard) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                HomeNotification(
+                    titleId = R.string.home_empty_title,
+                    messageId = R.string.home_empty_message,
+                    actionId = R.string.home_empty_action,
+                    onAction = onSetDirectoryClicked,
+                    enabled = !state.indexInProgress,
+                )
+            }
         }
-        AnimatedVisibility(state.showNoMicrophonePermissionCard) {
-            HomeNotification(
-                titleId = R.string.home_microphone_title,
-                messageId = R.string.home_microphone_message,
-                actionId = R.string.home_microphone_action,
-                onAction = onEnableMicrophoneClicked,
-            )
+        if (state.showNoMicrophonePermissionCard) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                HomeNotification(
+                    titleId = R.string.home_microphone_title,
+                    messageId = R.string.home_microphone_message,
+                    actionId = R.string.home_microphone_action,
+                    onAction = onEnableMicrophoneClicked,
+                )
+            }
         }
-        HomeRow(
-            stringResource(id = R.string.recent),
-            state.recentGames,
-            onGameClicked,
-            onGameLongClick,
-        )
-        HomeRow(
-            stringResource(id = R.string.favorites),
-            state.favoritesGames,
-            onGameClicked,
-            onGameLongClick,
-        )
-        HomeRow(
-            stringResource(id = R.string.discover),
-            state.discoveryGames,
-            onGameClicked,
-            onGameLongClick,
-        )
+        homeSection(R.string.recent, "recent", state.recentGames, onGameClicked, onGameLongClick)
+        homeSection(R.string.discover, "discover", state.discoveryGames, onGameClicked, onGameLongClick)
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun HomeRow(
-    title: String,
+private fun LazyGridScope.homeSection(
+    titleId: Int,
+    keyPrefix: String,
     games: List<Game>,
     onGameClicked: (Game) -> Unit,
     onGameLongClick: (Game) -> Unit,
 ) {
-    if (games.isEmpty()) {
-        return
-    }
+    if (games.isEmpty()) return
 
-    val tileSize = rememberHomeTileSize().size
-
-    Column(modifier = Modifier.fillMaxWidth()) {
+    item(key = "$keyPrefix-title", span = { GridItemSpan(maxLineSpan) }) {
         Text(
-            text = title,
+            text = stringResource(id = titleId),
             style = MaterialTheme.typography.labelMedium,
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp),
         )
-        LazyRow(
-            modifier =
-                Modifier
-                    .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(16.dp),
-        ) {
-            items(games.size, key = { games[it].id }) { index ->
-                val game = games[index]
-                LemuroidGameCard(
-                    modifier =
-                        Modifier
-                            .width(tileSize)
-                            .animateItem(),
-                    game = game,
-                    onClick = { onGameClicked(game) },
-                    onLongClick = { onGameLongClick(game) },
-                )
-            }
-        }
+    }
+    items(games, key = { "$keyPrefix-${it.id}" }) { game ->
+        LemuroidGameCard(
+            game = game,
+            onClick = { onGameClicked(game) },
+            onLongClick = { onGameLongClick(game) },
+        )
     }
 }
 

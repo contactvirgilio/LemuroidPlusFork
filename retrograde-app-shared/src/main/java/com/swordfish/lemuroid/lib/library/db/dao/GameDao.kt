@@ -61,6 +61,16 @@ interface GameDao {
     @Query("SELECT * FROM games WHERE lastPlayedAt IS NULL LIMIT :limit")
     fun selectFirstNotPlayed(limit: Int): Flow<List<Game>>
 
+    @Query("SELECT * FROM games WHERE lastPlayedAt IS NOT NULL ORDER BY lastPlayedAt DESC LIMIT :limit")
+    fun selectFirstRecents(limit: Int): Flow<List<Game>>
+
+    /** Every game reduced to what Discover needs to pick from; re-emitted when the library changes. */
+    @Query("SELECT id, systemId, lastPlayedAt IS NOT NULL AS played FROM games")
+    fun selectDiscoveryCandidates(): Flow<List<DiscoveryCandidate>>
+
+    @Query("SELECT * FROM games WHERE id IN (:ids)")
+    suspend fun selectByIds(ids: List<Int>): List<Game>
+
     @Query("SELECT * FROM games WHERE systemId = :systemId ORDER BY COALESCE(customName, title) ASC, id DESC")
     fun selectBySystem(systemId: String): PagingSource<Int, Game>
 
