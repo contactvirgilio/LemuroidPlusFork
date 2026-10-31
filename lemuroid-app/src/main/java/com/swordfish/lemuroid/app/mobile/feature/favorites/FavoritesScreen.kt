@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.swordfish.lemuroid.app.mobile.feature.games.rememberHomeTileSize
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LemuroidEmptyView
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LemuroidGameCard
 import com.swordfish.lemuroid.lib.library.db.entity.Game
@@ -32,7 +33,7 @@ fun FavoritesScreen(
     LazyVerticalGrid(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
-        columns = GridCells.Adaptive(116.dp),
+        columns = GridCells.Adaptive(rememberHomeTileSize().size),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {

@@ -51,7 +51,10 @@ import androidx.navigation.NavHostController
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.games.GamesViewMode
 import com.swordfish.lemuroid.app.mobile.feature.games.GamesViewModeStore
+import com.swordfish.lemuroid.app.mobile.feature.games.HomeTileSize
+import com.swordfish.lemuroid.app.mobile.feature.games.HomeTileSizeStore
 import com.swordfish.lemuroid.app.mobile.feature.games.rememberGamesViewMode
+import com.swordfish.lemuroid.app.mobile.feature.games.rememberHomeTileSize
 import com.swordfish.lemuroid.app.shared.savesync.SaveSyncWork
 
 @Composable
@@ -145,6 +148,9 @@ fun LemuroidTopBarActions(
         if (route == MainRoute.SYSTEM_GAMES) {
             GamesViewModeButtons()
         }
+        if (route == MainRoute.HOME || route == MainRoute.FAVORITES) {
+            HomeTileSizeButtons()
+        }
         IconButton(
             onClick = { onHelpPressed() },
         ) {
@@ -173,6 +179,37 @@ fun LemuroidTopBarActions(
                     stringResource(R.string.settings),
                 )
             }
+        }
+    }
+}
+
+/** Small / large tiles switch on Home and Favorites. */
+@Composable
+private fun HomeTileSizeButtons() {
+    val context = LocalContext.current
+    val currentSize = rememberHomeTileSize()
+
+    val options =
+        listOf(
+            Triple(HomeTileSize.SMALL, Icons.Outlined.ViewModule, R.string.games_view_grid_small),
+            Triple(HomeTileSize.LARGE, Icons.Outlined.GridView, R.string.games_view_grid_large),
+        )
+
+    options.forEach { (size, icon, labelId) ->
+        val selected = size == currentSize
+        IconButton(onClick = { HomeTileSizeStore.set(context, size) }) {
+            Icon(
+                imageVector = icon,
+                contentDescription = stringResource(labelId),
+                tint =
+                    if (selected) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        LocalContentColor.current.copy(
+                            alpha = 0.6f,
+                        )
+                    },
+            )
         }
     }
 }
