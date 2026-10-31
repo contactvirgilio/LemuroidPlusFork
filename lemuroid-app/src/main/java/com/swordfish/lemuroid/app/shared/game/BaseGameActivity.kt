@@ -19,6 +19,7 @@ import com.swordfish.lemuroid.app.mobile.feature.settings.SettingsManager
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.AppTheme
 import com.swordfish.lemuroid.app.shared.GameMenuContract
 import com.swordfish.lemuroid.app.shared.ImmersiveActivity
+import com.swordfish.lemuroid.app.shared.activity.PlayTimeTracker
 import com.swordfish.lemuroid.app.shared.coreoptions.CoreOption
 import com.swordfish.lemuroid.app.shared.coreoptions.LemuroidCoreOption
 import com.swordfish.lemuroid.app.shared.game.viewmodel.GameViewModelSideEffects
@@ -321,9 +322,18 @@ abstract class BaseGameActivity : ImmersiveActivity() {
         if (runsInOwnTask && !finishTriggered) leftByUser = true
     }
 
+    // Play time for the Activity tab: counted only while the game is on screen.
+    private val playTimeTracker by lazy { PlayTimeTracker(applicationContext, game.id, game.systemId) }
+
     override fun onResume() {
         super.onResume()
         leftByUser = false
+        playTimeTracker.onGameVisible()
+    }
+
+    override fun onPause() {
+        playTimeTracker.onGameHidden()
+        super.onPause()
     }
 
     // The game's own screens (menu, pad binding...) must not count as leaving the game.

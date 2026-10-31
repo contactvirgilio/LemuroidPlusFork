@@ -1,0 +1,116 @@
+package com.swordfish.lemuroid.app.mobile.feature.activity
+
+import android.content.Context
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import com.swordfish.lemuroid.app.shared.activity.PlayActivityLog
+import com.swordfish.lemuroid.lib.library.db.RetrogradeDatabase
+import com.swordfish.lemuroid.lib.library.db.entity.Game
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Calendar
+
+class ActivityViewModel(
+    private val appContext: Context,
+    private val retrogradeDb: RetrogradeDatabase,
+) : ViewModel() {
+    class Factory(
+        private val appContext: Context,
+        private val retrogradeDb: RetrogradeDatabase,
+    ) : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            @Suppress("UNCHECKED_CAST")
+            return ActivityViewModel(appContext, retrogradeDb) as T
+        }
+    }
+
+    data class GameStat(val game: Game, val duration: Long, val sessions: Int)
+
+    data class SystemStat(val systemId: String, val duration: Long)
+
+    data class State(
+        val loaded: Boolean = false,
+        val weekTotal: Long = 0,
+        val weekGames: Int = 0,
+        val allTimeTotal: Long = 0,
+        // Monday to Sunday of the current week.
+        val days: List<Long> = List(7) { 0L },
+        val todayIndex: Int = 0,
+        val topGames: List<GameStat> = emptyList(),
+        val systems: List<SystemStat> = emptyList(),
+    )
+
+    private val state = MutableStateFlow(State())
+
+    fun getState(): StateFlow<State> = state
+
+    fun refresh() {
+        viewModelScope.launch {
+            state.value = withContext(Dispatchers.IO) { computeState() }
+        }
+    }
+
+    private suspend fun computeState(): State {
+        val entries = PlayActivityLog.readAll(appContext)
+
+        val weekStart = startOfWeek()
+        val dayLength = 24L * 60 * 60 * 1000
+        val days = LongArray(7)
+        val thisWeek = entries.filter { it.endTime >= weekStart }
+        thisWeek.forEach { entry ->
+            val day = ((entry.endTime - weekStart) / dayLength).toInt().coerceIn(0, 6)
+            days[day] += entry.duration
+        }
+
+        val byGame = entries.groupBy { it.gameId }
+        val topIds =
+            byGame.entries
+                .sortedByDescending { (_, list) -> list.sumOf { it.duration } }
+                .take(TOP_GAMES * 2)
+                .map { it.key }
+        val games = retrogradeDb.gameDao().selectByIds(topIds).associateBy { it.id }
+        val topGames =
+            topIds.mapNotNull { id ->
+                val game = games[id] ?: return@mapNotNull null
+                val list = byGame.getValue(id)
+                GameStat(game, list.sumOf { it.duration }, list.map { it.sessionId }.distinct().size)
+            }.take(TOP_GAMES)
+
+        val systems =
+            entries.groupBy { it.systemId }
+                .map { (systemId, list) -> SystemStat(systemId, list.sumOf { it.duration }) }
+                .sortedByDescending { it.duration }
+
+        val now = System.currentTimeMillis()
+        return State(
+            loaded = true,
+            weekTotal = thisWeek.sumOf { it.duration },
+            weekGames = thisWeek.map { it.gameId }.distinct().size,
+            allTimeTotal = entries.sumOf { it.duration },
+            days = days.toList(),
+            todayIndex = ((now - weekStart) / dayLength).toInt().coerceIn(0, 6),
+            topGames = topGames,
+            systems = systems,
+        )
+    }
+
+    /** Monday 00:00 of the current week, in local time. */
+    private fun startOfWeek(): Long {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        val daysSinceMonday = (calendar.get(Calendar.DAY_OF_WEEK) + 5) % 7
+        calendar.add(Calendar.DAY_OF_YEAR, -daysSinceMonday)
+        return calendar.timeInMillis
+    }
+
+    companion object {
+        private const val TOP_GAMES = 5
+    }
+}

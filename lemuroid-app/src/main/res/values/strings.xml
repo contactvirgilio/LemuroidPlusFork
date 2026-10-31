@@ -265,6 +265,15 @@
     <string name="game_overlay_saved_title">Saved to</string>
     <string name="game_overlay_state_number">State %1$d</string>
     <string name="game_button_menu">Menu</string>
+    <string name="title_activity">Activity</string>
+    <string name="activity_empty">Play a game and your activity shows up here.</string>
+    <string name="activity_this_week">This week</string>
+    <string name="activity_games_this_week">Games this week</string>
+    <string name="activity_all_time">All time</string>
+    <string name="activity_most_played">Most played</string>
+    <string name="activity_by_system">By system</string>
+    <string name="activity_week_days">Mon,Tue,Wed,Thu,Fri,Sat,Sun</string>
+    <string name="activity_game_details">%1$s · %2$d sessions</string>
     <string name="game_button_filter">Filter</string>
     <string name="game_button_scaling">Scaling</string>
     <string name="game_overlay_filter_title">Filter %1$d</string>

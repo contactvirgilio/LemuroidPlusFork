@@ -4,12 +4,14 @@ import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.VideogameAsset
 import androidx.compose.material.icons.outlined.Apps
+import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.VideogameAsset
@@ -63,6 +65,10 @@ enum class MainRoute(
         titleId = R.string.title_games,
         parent = SYSTEMS,
         listOf(navArgument("metaSystemId") { type = NavType.StringType }),
+    ),
+    ACTIVITY(
+        route = "activity",
+        titleId = R.string.title_activity,
     ),
     APPS(
         route = "apps",
@@ -134,5 +140,6 @@ enum class MainNavigationRoutes(
     FAVORITES(MainRoute.FAVORITES, R.string.favorites, Icons.Filled.Favorite, Icons.Filled.FavoriteBorder),
     SYSTEMS(MainRoute.SYSTEMS, R.string.title_systems, Icons.Filled.VideogameAsset, Icons.Outlined.VideogameAsset),
     SEARCH(MainRoute.SEARCH, R.string.title_search, Icons.Filled.Search, Icons.Outlined.Search),
+    ACTIVITY(MainRoute.ACTIVITY, R.string.title_activity, Icons.Filled.BarChart, Icons.Outlined.BarChart),
     APPS(MainRoute.APPS, R.string.title_apps, Icons.Filled.Apps, Icons.Outlined.Apps),
 }

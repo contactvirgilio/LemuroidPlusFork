@@ -16,6 +16,7 @@ Lemuroid Plus installs **next to** the original Lemuroid (app id `com.swordfish.
 - **List or grid per console.** Inside a system, three buttons next to info and settings switch between a list, a small grid and a large grid. The choice is remembered.
 - **Small or large tiles on Home and Favorites.** Two buttons in the top bar switch the tile size on both screens; the choice is remembered.
 - **Home: Recent and Discover.** Home scrolls only up and down, with up to 12 recently played games and 12 Discover games (favorites live in their own tab). Discover picks a new set every day, the same all day: unplayed games first, one from as many different systems as possible, then played games once everything has been played.
+- **Activity tab.** A simple play tracker: this week's play time, games played this week, the all-time total, a bar per day, the 5 most played games and time per system. Time only counts while a game is on screen, and it stays on the device. It starts counting from this version.
 - **Search as you type.** Search matches the start of any word in a game's name, so `zel` finds The Legend of Zelda games and `zel link` narrows it down. Results are sorted by name.
 - No custom artwork option.
 - **Home screen mode.** **Settings → Home screen → Use Lemuroid Plus as home screen** lets the app open whenever you press Home, like a frontend. It is off until you choose it, and the same option lets you switch back. While it is the home screen, pressing Home during a game closes the game (with its auto save, like Quit) and shows the library.

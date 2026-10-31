@@ -27,6 +27,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.fredporciuncula.flow.preferences.FlowSharedPreferences
 import com.swordfish.lemuroid.R
+import com.swordfish.lemuroid.app.mobile.feature.activity.ActivityScreen
+import com.swordfish.lemuroid.app.mobile.feature.activity.ActivityViewModel
 import com.swordfish.lemuroid.app.mobile.feature.apps.AppsScreen
 import com.swordfish.lemuroid.app.mobile.feature.apps.HiddenAppsScreen
 import com.swordfish.lemuroid.app.mobile.feature.favorites.FavoritesScreen
@@ -246,6 +248,15 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
                                 ),
                             onGameClick = onGameClick,
                             onGameLongClick = onGameLongClick,
+                        )
+                    }
+                    composable(MainRoute.ACTIVITY) {
+                        ActivityScreen(
+                            modifier = Modifier.padding(padding),
+                            viewModel =
+                                viewModel(
+                                    factory = ActivityViewModel.Factory(applicationContext, retrogradeDb),
+                                ),
                         )
                     }
                     composable(MainRoute.APPS) {
