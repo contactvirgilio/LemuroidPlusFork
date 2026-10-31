@@ -270,25 +270,10 @@ class BaseGameScreenViewModel(
         }
     }
 
-    /** A short label shown over the game for a moment ("Saved to State 3"). */
-    data class OverlayMessage(val text: String, val id: Long = System.nanoTime())
-
-    private val overlayMessageState = MutableStateFlow<OverlayMessage?>(null)
-
-    fun getOverlayMessages(): Flow<OverlayMessage?> = overlayMessageState
-
-    private fun showOverlayMessage(text: String) {
-        overlayMessageState.value = OverlayMessage(text)
-    }
-
     /**
-     * Called once a message or card has been displayed, so it isn't shown again when the overlay
-     * comes back (e.g. after the loading screen of a save made from the menu).
+     * Called once a card has been displayed, so it isn't shown again when the overlay comes back
+     * (e.g. after the loading screen of a save made from the menu).
      */
-    fun onOverlayMessageShown(id: Long) {
-        if (overlayMessageState.value?.id == id) overlayMessageState.value = null
-    }
-
     fun onOverlayCardShown(id: Long) {
         if (overlayCardState.value?.id == id) overlayCardState.value = null
     }
@@ -334,6 +319,12 @@ class BaseGameScreenViewModel(
     }
 
     fun areStatesSupported(): Boolean = systemCoreConfig.statesSupported
+
+    /** Opens the in-game menu, the same one as the L1+R1 / menu shortcut. */
+    fun openMenu() {
+        if (loadingState.value) return
+        sideEffects.showMenu(tilt, inputs)
+    }
 
     /** A card in the middle of the game ("Filter 3 · CRT") with the position in the list. */
     data class OverlayCard(
@@ -443,7 +434,14 @@ class BaseGameScreenViewModel(
                         .takeIf { it >= 0 }
                         ?: slots.indices.minBy { slots[it].date }
                 saves.saveSlot(index)
-                showOverlayMessage(appContext.getString(R.string.game_overlay_saved_to_slot, index + 1))
+                // Same card as filter/scaling: "Saved to" / "State 3", with the slot highlighted.
+                overlayCardState.value =
+                    OverlayCard(
+                        appContext.getString(R.string.game_overlay_saved_title),
+                        appContext.getString(R.string.game_overlay_state_number, index + 1),
+                        index,
+                        slots.size,
+                    )
             } catch (e: Throwable) {
                 Timber.e(e, "Quick save failed")
             } finally {

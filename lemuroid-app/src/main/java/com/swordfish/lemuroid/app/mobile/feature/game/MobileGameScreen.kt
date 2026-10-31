@@ -33,6 +33,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.VolumeOff
 import androidx.compose.material.icons.automirrored.outlined.VolumeUp
 import androidx.compose.material.icons.filled.Height
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.RotateLeft
 import androidx.compose.material.icons.outlined.Save
@@ -265,14 +266,6 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                         .padding(8.dp),
                 viewModel = viewModel,
             )
-            GameOverlayMessage(
-                modifier =
-                    Modifier
-                        .align(Alignment.TopCenter)
-                        .windowInsetsPadding(WindowInsets.safeDrawing)
-                        .padding(top = 60.dp),
-                viewModel = viewModel,
-            )
             GameOverlayCard(
                 modifier = Modifier.align(Alignment.Center),
                 viewModel = viewModel,
@@ -336,6 +329,21 @@ private fun GameOverlayButtons(
         if (viewModel.isScalingSupported()) {
             ScalingButton(viewModel)
         }
+        MenuButton(viewModel)
+    }
+}
+
+/** Opens the in-game menu (same as the L1+R1 / menu shortcut). */
+@Composable
+private fun MenuButton(viewModel: BaseGameScreenViewModel) {
+    val label = stringResource(com.swordfish.lemuroid.R.string.game_button_menu)
+    OverlayButton(active = false, label = label, onClick = { viewModel.openMenu() }) {
+        Icon(
+            modifier = Modifier.size(OVERLAY_ICON_SIZE),
+            imageVector = Icons.Filled.Menu,
+            contentDescription = label,
+            tint = Color.White.copy(alpha = 0.8f),
+        )
     }
 }
 
@@ -369,10 +377,10 @@ private fun MiniScreenIcon(
     stand: Boolean,
 ) {
     val color = Color.White.copy(alpha = 0.85f)
-    Canvas(modifier = Modifier.size(24.dp)) {
-        val stroke = 1.6.dp.toPx()
-        val screenWidth = 17.dp.toPx()
-        val screenHeight = 13.dp.toPx()
+    Canvas(modifier = Modifier.size(28.dp)) {
+        val stroke = 1.8.dp.toPx()
+        val screenWidth = 20.dp.toPx()
+        val screenHeight = 15.dp.toPx()
         val left = (size.width - screenWidth) / 2f
         val top = (size.height - screenHeight) / 2f - if (stand) 1.5.dp.toPx() else 0f
         drawRoundRect(
@@ -408,7 +416,7 @@ private fun MiniScreenIcon(
     Text(
         text = text,
         color = Color.White,
-        fontSize = if (text.length > 1) 7.sp else 9.sp,
+        fontSize = if (text.length > 1) 8.sp else 10.sp,
         fontWeight = FontWeight.ExtraBold,
         modifier = Modifier.offset(y = if (stand) (-1.5).dp else 0.dp),
     )
@@ -491,7 +499,7 @@ private fun OverlayButton(
     Box(
         modifier =
             Modifier
-                .size(40.dp)
+                .size(OVERLAY_BUTTON_SIZE)
                 .clip(CircleShape)
                 .background(Color.Black.copy(alpha = if (active) 0.6f else 0.35f))
                 .clickable(onClickLabel = label, onClick = onClick),
@@ -511,7 +519,7 @@ private fun StatesButton(viewModel: BaseGameScreenViewModel) {
         onClick = { viewModel.quickSaveToNextSlot() },
     ) {
         Icon(
-            modifier = Modifier.size(20.dp),
+            modifier = Modifier.size(OVERLAY_ICON_SIZE),
             imageVector = Icons.Outlined.Save,
             contentDescription = label,
             tint = Color.White.copy(alpha = 0.8f),
@@ -526,7 +534,7 @@ private fun MuteButton(viewModel: BaseGameScreenViewModel) {
     val label = stringResource(com.swordfish.lemuroid.R.string.game_menu_mute_audio)
     OverlayButton(active = !audioEnabled, label = label, onClick = { viewModel.toggleMute() }) {
         Icon(
-            modifier = Modifier.size(20.dp),
+            modifier = Modifier.size(OVERLAY_ICON_SIZE),
             imageVector =
                 if (audioEnabled) Icons.AutoMirrored.Outlined.VolumeUp else Icons.AutoMirrored.Outlined.VolumeOff,
             contentDescription = label,
@@ -545,7 +553,7 @@ private fun FastForwardButton(viewModel: BaseGameScreenViewModel) {
         Icon(
             modifier =
                 Modifier
-                    .size(20.dp)
+                    .size(OVERLAY_ICON_SIZE)
                     .semantics { stateDescription = if (enabled) "On" else "Off" },
             painter = painterResource(com.swordfish.lemuroid.R.drawable.ic_menu_fast_forward),
             contentDescription = label,
@@ -554,43 +562,11 @@ private fun FastForwardButton(viewModel: BaseGameScreenViewModel) {
     }
 }
 
-/** Short label over the game ("Saved to State 3") for about a second. */
-@Composable
-private fun GameOverlayMessage(
-    modifier: Modifier = Modifier,
-    viewModel: BaseGameScreenViewModel,
-) {
-    var visibleText by remember { mutableStateOf<String?>(null) }
-
-    // Each message is shown once: it's cleared in the view model as soon as it appears, so it
-    // doesn't come back when the overlay is recreated (e.g. after a save from the menu).
-    LaunchedEffect(Unit) {
-        viewModel.getOverlayMessages().filterNotNull().collectLatest { message ->
-            viewModel.onOverlayMessageShown(message.id)
-            visibleText = message.text
-            delay(OVERLAY_MESSAGE_MILLIS)
-            visibleText = null
-        }
-    }
-
-    AnimatedVisibility(modifier = modifier, visible = visibleText != null, enter = fadeIn(), exit = fadeOut()) {
-        Text(
-            text = visibleText ?: "",
-            color = Color.White,
-            fontSize = 13.sp,
-            modifier =
-                Modifier
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color.Black.copy(alpha = 0.7f))
-                    .padding(horizontal = 14.dp, vertical = 6.dp),
-        )
-    }
-}
-
 private const val OVERLAY_BUTTONS_DIM_DELAY_MILLIS = 15_000L
 private const val OVERLAY_BUTTONS_DIMMED_ALPHA = 0.3f
 private const val OVERLAY_BUTTONS_FADE_MILLIS = 600
-private const val OVERLAY_MESSAGE_MILLIS = 1200L
+private val OVERLAY_BUTTON_SIZE = 46.dp
+private val OVERLAY_ICON_SIZE = 23.dp
 private const val OVERLAY_CARD_MILLIS = 1200L
 
 private val FAST_FORWARD_ACTIVE_COLOR = Color(0xFFFFC107)

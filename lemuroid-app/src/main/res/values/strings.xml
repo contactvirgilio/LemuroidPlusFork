@@ -262,6 +262,9 @@
     <string name="settings_title_show_artwork">Show artwork</string>
     <string name="settings_description_show_artwork">Use images from the Lemuroid/artwork folder as game tiles. Name each image like its ROM, e.g. Super Mario World (USA).png.</string>
     <string name="game_process_closing_previous_game">Closing and saving previous game…</string>
+    <string name="game_overlay_saved_title">Saved to</string>
+    <string name="game_overlay_state_number">State %1$d</string>
+    <string name="game_button_menu">Menu</string>
     <string name="game_button_filter">Filter</string>
     <string name="game_button_scaling">Scaling</string>
     <string name="game_overlay_filter_title">Filter %1$d</string>
@@ -273,7 +276,6 @@
     <string name="game_scaling_fit">Fit</string>
     <string name="game_scaling_integer">Integer</string>
     <string name="game_scaling_integer_smaller">Integer −1</string>
-    <string name="game_overlay_saved_to_slot">Saved to State %1$d</string>
     <string name="game_button_states">Save state</string>
     <string name="games_view_list">List view</string>
     <string name="games_view_grid_small">Small grid</string>
