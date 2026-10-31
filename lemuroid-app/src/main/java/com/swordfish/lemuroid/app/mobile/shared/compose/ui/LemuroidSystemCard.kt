@@ -32,7 +32,7 @@ fun LemuroidSystemCard(
         }
 
     ElevatedCard(
-        modifier = modifier,
+        modifier = modifier.focusHighlight(),
         onClick = onClick,
     ) {
         Column(

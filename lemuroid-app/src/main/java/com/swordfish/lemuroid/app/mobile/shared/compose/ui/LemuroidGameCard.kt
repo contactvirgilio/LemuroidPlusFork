@@ -18,7 +18,7 @@ fun LemuroidGameCard(
     onLongClick: () -> Unit = { },
 ) {
     ElevatedCard(
-        modifier = modifier,
+        modifier = modifier.focusHighlight(),
     ) {
         Column(
             modifier =

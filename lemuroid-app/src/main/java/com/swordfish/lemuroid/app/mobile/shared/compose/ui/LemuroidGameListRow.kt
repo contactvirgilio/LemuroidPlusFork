@@ -12,6 +12,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import com.swordfish.lemuroid.lib.library.db.entity.Game
 
@@ -28,6 +29,7 @@ fun LemuroidGameListRow(
         modifier =
             modifier
                 .wrapContentHeight()
+                .focusHighlight(shape = RectangleShape, zoom = 1f)
                 .combinedClickable(
                     onClick = onClick,
                     onLongClick = onLongClick,

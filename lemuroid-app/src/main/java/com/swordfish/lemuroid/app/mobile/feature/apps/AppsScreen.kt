@@ -44,6 +44,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.swordfish.lemuroid.R
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.focusHighlight
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -130,6 +131,7 @@ private fun AppTile(
         modifier =
             Modifier
                 .fillMaxWidth()
+                .focusHighlight()
                 .clip(RoundedCornerShape(12.dp))
                 .combinedClickable(onClick = onClick, onLongClick = onLongClick)
                 .padding(vertical = 6.dp),

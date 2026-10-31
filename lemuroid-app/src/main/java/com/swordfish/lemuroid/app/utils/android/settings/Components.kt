@@ -18,11 +18,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import com.alorma.compose.settings.storage.base.SettingValueState
 import com.alorma.compose.settings.ui.SettingsMenuLink
 import com.alorma.compose.settings.ui.SettingsSlider
 import com.alorma.compose.settings.ui.SettingsSwitch
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.focusHighlight
 import kotlin.math.roundToInt
 
 @Composable
@@ -52,6 +54,7 @@ fun LemuroidSettingsSwitch(
     onCheckedChange: (Boolean) -> Unit = {},
 ) {
     SettingsSwitch(
+        modifier = Modifier.focusHighlight(shape = RectangleShape, zoom = 1f),
         enabled = enabled,
         state = state.value,
         icon = icon,
@@ -75,6 +78,7 @@ fun LemuroidSettingsMenuLink(
     onClick: () -> Unit,
 ) {
     SettingsMenuLink(
+        modifier = Modifier.focusHighlight(shape = RectangleShape, zoom = 1f),
         enabled = enabled,
         icon = icon,
         title = title,
@@ -146,7 +150,7 @@ fun LemuroidSettingsSlider(
         )
 
     SettingsSlider(
-        modifier = modifier,
+        modifier = modifier.focusHighlight(shape = RectangleShape, zoom = 1f),
         steps = steps,
         value = state.value.toFloat(),
         onValueChange = { state.value = it.roundToInt() },

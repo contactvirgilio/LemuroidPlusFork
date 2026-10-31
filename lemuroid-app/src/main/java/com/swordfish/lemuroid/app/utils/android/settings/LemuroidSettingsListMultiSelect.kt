@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
@@ -25,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.alorma.compose.settings.storage.base.SettingValueState
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.focusHighlight
 
 @Composable
 fun LemuroidSettingsListMultiSelect(
@@ -87,6 +89,7 @@ fun LemuroidSettingsListMultiSelect(
                             Modifier
                                 .fillMaxWidth()
                                 .height(56.dp)
+                                .focusHighlight(shape = RoundedCornerShape(8.dp), zoom = 1f)
                                 .toggleable(
                                     role = Role.Checkbox,
                                     value = isSelected,
