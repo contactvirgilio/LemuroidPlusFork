@@ -1,6 +1,7 @@
 package com.swordfish.lemuroid.app.shared.activity
 
 import android.content.Context
+import com.swordfish.lemuroid.lib.storage.DirectoriesManager
 import timber.log.Timber
 import java.io.File
 
@@ -25,7 +26,27 @@ object PlayActivityLog {
         val duration: Long,
     )
 
-    private fun file(context: Context) = File(context.applicationContext.filesDir, FILE_NAME)
+    /**
+     * Lemuroid/settings/play_activity.csv when the app can write there (kept after uninstalling),
+     * otherwise the app's private folder. History recorded in the private folder is moved over
+     * the first time the public folder is available.
+     */
+    private fun file(context: Context): File {
+        val privateFile = File(context.applicationContext.filesDir, FILE_NAME)
+        if (!DirectoriesManager.hasPublicStorageAccess(context)) return privateFile
+
+        val folder = File(DirectoriesManager.getPublicRootDirectory(), "settings")
+        if (!folder.isDirectory && !folder.mkdirs()) return privateFile
+        val publicFile = File(folder, FILE_NAME)
+
+        if (privateFile.isFile) {
+            runCatching {
+                publicFile.appendText(privateFile.readText())
+                privateFile.delete()
+            }.onFailure { Timber.e(it, "Cannot move play history") }
+        }
+        return publicFile
+    }
 
     fun append(
         context: Context,

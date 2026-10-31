@@ -55,6 +55,7 @@ Lemuroid Plus installs **next to** the original Lemuroid (app id `com.swordfish.
 
 ### Saves and backups
 - **Lemuroid folder.** Saves, save states and state previews are kept in `Lemuroid/` on the main storage (`Lemuroid/saves`, `Lemuroid/states`, `Lemuroid/state-previews`), where any file manager can reach them. The app asks for "All files access" on first launch for this. Existing saves are moved there automatically. If you decline, saves stay in the app's private folder as before.
+- **Settings kept after uninstalling.** `Lemuroid/settings` holds a copy of the app's settings (updated whenever you leave the library) and the Activity tab history. After a reinstall, the settings come back automatically as soon as "All files access" is allowed again; only the ROM folder has to be picked again.
 - **BIOS folder.** Drop BIOS files into `Lemuroid/bios` (one folder for all systems, any file names) and tap **Rescan** in Settings. They are recognized by checksum, the same as BIOS files in the ROM folder, which still works too. **Settings → BIOS** shows what was detected.
 - **Settings → Backup.**
   - **Export saves** writes all saves and states to one zip file, wherever you choose, with a live progress bar and file count while it runs.

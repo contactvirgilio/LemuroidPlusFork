@@ -67,6 +67,7 @@ import com.swordfish.lemuroid.app.shared.launcher.HomeLauncher
 import com.swordfish.lemuroid.app.shared.main.BusyActivity
 import com.swordfish.lemuroid.app.shared.main.GameLaunchTaskHandler
 import com.swordfish.lemuroid.app.shared.settings.SettingsInteractor
+import com.swordfish.lemuroid.app.shared.settings.SettingsSnapshot
 import com.swordfish.lemuroid.app.shared.sounds.NavigationSounds
 import com.swordfish.lemuroid.app.shared.storage.PublicStorageAccess
 import com.swordfish.lemuroid.common.coroutines.safeLaunch
@@ -163,8 +164,21 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+        // Keep the copy of the settings in Lemuroid/settings up to date.
+        val context = applicationContext
+        GlobalScope.safeLaunch { SettingsSnapshot.save(context) }
+    }
+
     override fun onResume() {
         super.onResume()
+        // First launch after a reinstall: bring back the settings kept in Lemuroid/settings as soon
+        // as "All files access" is allowed, then reload so they take effect.
+        if (SettingsSnapshot.restoreIfNeeded(applicationContext)) {
+            recreate()
+            return
+        }
         // Games started in their own task (home screen mode) don't report back when they end.
         if (GameLauncher.pendingBackgroundWork) {
             GameLauncher.pendingBackgroundWork = false
