@@ -42,8 +42,10 @@ import gg.padkit.inputstate.InputState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -227,6 +229,14 @@ class BaseGameScreenViewModel(
     fun isTouchControllerVisible(): Flow<Boolean> {
         return touchControls.isTouchControllerVisible()
     }
+
+    // Current value, for the menu: "Edit touch controls" only makes sense when they're on screen
+    // (they're hidden while a gamepad, like the Retroid's own buttons, is in use).
+    private val touchControlsVisibleState =
+        touchControls.isTouchControllerVisible()
+            .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    fun areTouchControlsVisible(): Boolean = touchControlsVisibleState.value
 
     fun getTouchControllerConfig(): Flow<ControllerConfig> {
         return touchControls.getTouchControllerConfig()
@@ -414,6 +424,19 @@ class BaseGameScreenViewModel(
                 filterState.value = GameDisplayOptions.Filter.fromShader(gameView.shader)
             }
         }
+    }
+
+    /** Save from the menu: same as before, plus the "Saved to State N" card. */
+    suspend fun saveSlotFromMenu(index: Int) {
+        saveSlot(index)
+        val slots = runCatching { statesManager.getSavedSlotsInfo(game, systemCoreConfig.coreID).size }.getOrDefault(4)
+        overlayCardState.value =
+            OverlayCard(
+                appContext.getString(R.string.game_overlay_saved_title),
+                appContext.getString(R.string.game_overlay_state_number, index + 1),
+                index,
+                slots,
+            )
     }
 
     private var quickSaveInProgress = false

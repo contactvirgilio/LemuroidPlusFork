@@ -214,6 +214,10 @@ abstract class BaseGameActivity : ImmersiveActivity() {
                 )
                 this.putExtra(GameMenuContract.EXTRA_FAST_FORWARD_SUPPORTED, system.fastForwardSupport)
                 this.putExtra(
+                    GameMenuContract.EXTRA_TOUCH_CONTROLS_VISIBLE,
+                    baseGameScreenViewModel.areTouchControlsVisible(),
+                )
+                this.putExtra(
                     GameMenuContract.EXTRA_FAST_FORWARD,
                     (baseGameScreenViewModel.retroGameView.retroGameView?.frameSpeed ?: 1) > 1,
                 )
@@ -421,7 +425,7 @@ abstract class BaseGameActivity : ImmersiveActivity() {
             }
             if (data?.hasExtra(GameMenuContract.RESULT_SAVE) == true) {
                 GlobalScope.launch {
-                    baseGameScreenViewModel.saveSlot(data.getIntExtra(GameMenuContract.RESULT_SAVE, 0))
+                    baseGameScreenViewModel.saveSlotFromMenu(data.getIntExtra(GameMenuContract.RESULT_SAVE, 0))
                 }
             }
             if (data?.hasExtra(GameMenuContract.RESULT_LOAD) == true) {
