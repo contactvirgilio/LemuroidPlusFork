@@ -1,6 +1,7 @@
 package com.swordfish.lemuroid.app.mobile.feature.activity
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,11 +22,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -61,6 +66,11 @@ fun ActivityScreen(
 
     val state = viewModel.getState().collectAsState().value
     if (!state.loaded) return
+
+    val context = LocalContext.current
+    var showAllTime by remember { mutableStateOf(ActivityRange.isAllTime(context)) }
+    val topGames = if (showAllTime) state.allTimeTopGames else state.monthTopGames
+    val systems = if (showAllTime) state.allTimeSystems else state.monthSystems
 
     if (state.allTimeTotal == 0L) {
         Box(modifier = modifier.fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
@@ -100,15 +110,74 @@ fun ActivityScreen(
         }
         item { SectionTitle(stringResource(R.string.activity_this_week)) }
         item { WeekChart(state.days, state.todayIndex) }
-        if (state.topGames.isNotEmpty()) {
-            item { SectionTitle(stringResource(R.string.activity_most_played)) }
-            items(state.topGames, key = { "game-${it.game.id}" }) { stat -> GameRow(stat) }
+        item {
+            RangeSwitch(
+                allTime = showAllTime,
+                onChange = {
+                    showAllTime = it
+                    ActivityRange.setAllTime(context, it)
+                },
+            )
         }
-        if (state.systems.isNotEmpty()) {
+        item { SectionTitle(stringResource(R.string.activity_most_played)) }
+        if (topGames.isEmpty()) {
+            item {
+                Text(
+                    text = stringResource(R.string.activity_nothing_this_month),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        items(topGames, key = { "game-${it.game.id}" }) { stat -> GameRow(stat) }
+        if (systems.isNotEmpty()) {
             item { SectionTitle(stringResource(R.string.activity_by_system)) }
-            val longest = state.systems.first().duration.coerceAtLeast(1)
-            items(state.systems, key = { "system-${it.systemId}" }) { stat -> SystemRow(stat, longest) }
+            val longest = systems.first().duration.coerceAtLeast(1)
+            items(systems, key = { "system-${it.systemId}" }) { stat -> SystemRow(stat, longest) }
         }
+    }
+}
+
+/** "This month / All time" pills; changes Most played and By system. */
+@Composable
+private fun RangeSwitch(
+    allTime: Boolean,
+    onChange: (Boolean) -> Unit,
+) {
+    Row(
+        modifier =
+            Modifier
+                .padding(top = 6.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .padding(3.dp),
+    ) {
+        RangePill(stringResource(R.string.activity_this_month), selected = !allTime) { onChange(false) }
+        RangePill(stringResource(R.string.activity_all_time), selected = allTime) { onChange(true) }
+    }
+}
+
+@Composable
+private fun RangePill(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier =
+            Modifier
+                .focusHighlight(shape = RoundedCornerShape(17.dp), zoom = 1f)
+                .clip(RoundedCornerShape(17.dp))
+                .background(if (selected) FocusHighlightColor else Color.Transparent)
+                .clickable(onClick = onClick)
+                .padding(horizontal = 14.dp, vertical = 6.dp),
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+            color = if (selected) Color(0xFF062A25) else MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 

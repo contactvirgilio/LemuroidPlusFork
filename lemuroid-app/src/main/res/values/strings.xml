@@ -284,6 +284,8 @@
     <string name="activity_all_time">All time</string>
     <string name="activity_most_played">Most played</string>
     <string name="activity_by_system">By system</string>
+    <string name="activity_this_month">This month</string>
+    <string name="activity_nothing_this_month">Nothing played yet this month.</string>
     <string name="activity_week_days">Mon,Tue,Wed,Thu,Fri,Sat,Sun</string>
     <string name="activity_game_details">%1$s · %2$d sessions</string>
     <string name="settings_title_navigation_sounds">Navigation sounds</string>

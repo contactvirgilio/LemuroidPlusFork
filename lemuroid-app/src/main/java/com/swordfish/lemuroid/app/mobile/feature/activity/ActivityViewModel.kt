@@ -40,8 +40,10 @@ class ActivityViewModel(
         // Monday to Sunday of the current week.
         val days: List<Long> = List(7) { 0L },
         val todayIndex: Int = 0,
-        val topGames: List<GameStat> = emptyList(),
-        val systems: List<SystemStat> = emptyList(),
+        val monthTopGames: List<GameStat> = emptyList(),
+        val monthSystems: List<SystemStat> = emptyList(),
+        val allTimeTopGames: List<GameStat> = emptyList(),
+        val allTimeSystems: List<SystemStat> = emptyList(),
     )
 
     private val state = MutableStateFlow(State())
@@ -66,24 +68,7 @@ class ActivityViewModel(
             days[day] += entry.duration
         }
 
-        val byGame = entries.groupBy { it.gameId }
-        val topIds =
-            byGame.entries
-                .sortedByDescending { (_, list) -> list.sumOf { it.duration } }
-                .take(TOP_GAMES * 2)
-                .map { it.key }
-        val games = retrogradeDb.gameDao().selectByIds(topIds).associateBy { it.id }
-        val topGames =
-            topIds.mapNotNull { id ->
-                val game = games[id] ?: return@mapNotNull null
-                val list = byGame.getValue(id)
-                GameStat(game, list.sumOf { it.duration }, list.map { it.sessionId }.distinct().size)
-            }.take(TOP_GAMES)
-
-        val systems =
-            entries.groupBy { it.systemId }
-                .map { (systemId, list) -> SystemStat(systemId, list.sumOf { it.duration }) }
-                .sortedByDescending { it.duration }
+        val thisMonth = entries.filter { it.endTime >= startOfMonth() }
 
         val now = System.currentTimeMillis()
         return State(
@@ -93,9 +78,49 @@ class ActivityViewModel(
             allTimeTotal = entries.sumOf { it.duration },
             days = days.toList(),
             todayIndex = ((now - weekStart) / dayLength).toInt().coerceIn(0, 6),
-            topGames = topGames,
-            systems = systems,
+            monthTopGames = topGames(thisMonth),
+            monthSystems = systems(thisMonth),
+            allTimeTopGames = topGames(entries),
+            allTimeSystems = systems(entries),
         )
+    }
+
+    private suspend fun topGames(entries: List<PlayActivityLog.Entry>): List<GameStat> {
+        val byGame = entries.groupBy { it.gameId }
+        val topIds =
+            byGame.entries
+                .sortedByDescending { (_, list) -> list.sumOf { it.duration } }
+                .take(TOP_GAMES * 2)
+                .map { it.key }
+        val games = retrogradeDb.gameDao().selectByIds(topIds).associateBy { it.id }
+        return topIds.mapNotNull { id ->
+            val game = games[id] ?: return@mapNotNull null
+            val list = byGame.getValue(id)
+            GameStat(game, list.sumOf { it.duration }, countSessions(list))
+        }.take(TOP_GAMES)
+    }
+
+    /** A session (one time the game was opened) only counts once it reached 5 minutes of play. */
+    private fun countSessions(entries: List<PlayActivityLog.Entry>): Int {
+        return entries.groupBy { it.sessionId }
+            .count { (_, list) -> list.sumOf { it.duration } >= MIN_SESSION_MS }
+    }
+
+    private fun systems(entries: List<PlayActivityLog.Entry>): List<SystemStat> {
+        return entries.groupBy { it.systemId }
+            .map { (systemId, list) -> SystemStat(systemId, list.sumOf { it.duration }) }
+            .sortedByDescending { it.duration }
+    }
+
+    /** The 1st of the current month at 00:00, in local time. */
+    private fun startOfMonth(): Long {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.DAY_OF_MONTH, 1)
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        return calendar.timeInMillis
     }
 
     /** Monday 00:00 of the current week, in local time. */
@@ -111,6 +136,7 @@ class ActivityViewModel(
     }
 
     companion object {
-        private const val TOP_GAMES = 5
+        private const val TOP_GAMES = 10
+        private const val MIN_SESSION_MS = 5 * 60 * 1000L
     }
 }
