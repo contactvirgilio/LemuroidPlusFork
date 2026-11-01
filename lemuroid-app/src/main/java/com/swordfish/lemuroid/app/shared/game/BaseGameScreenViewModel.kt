@@ -312,6 +312,7 @@ class BaseGameScreenViewModel(
         val gameView = retroGameView.retroGameView ?: return
         gameView.frameSpeed = speed
         fastForwardSpeedState.value = speed
+        applyAudio()
     }
 
     private val audioEnabledState = MutableStateFlow(true)
@@ -319,9 +320,17 @@ class BaseGameScreenViewModel(
     fun isAudioEnabled(): Flow<Boolean> = audioEnabledState
 
     fun setAudioEnabled(enabled: Boolean) {
-        val gameView = retroGameView.retroGameView ?: return
-        gameView.audioEnabled = enabled
         audioEnabledState.value = enabled
+        applyAudio()
+    }
+
+    /**
+     * Sound plays only when it isn't muted and fast forward is off. Fast forward silences the game
+     * without touching the mute choice, so stopping it brings the sound back only if it was on.
+     */
+    private fun applyAudio() {
+        val gameView = retroGameView.retroGameView ?: return
+        gameView.audioEnabled = audioEnabledState.value && fastForwardSpeedState.value <= 1
     }
 
     fun toggleMute() {
