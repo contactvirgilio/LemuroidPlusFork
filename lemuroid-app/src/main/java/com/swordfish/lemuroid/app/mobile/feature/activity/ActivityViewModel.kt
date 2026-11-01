@@ -78,26 +78,30 @@ class ActivityViewModel(
             allTimeTotal = entries.sumOf { it.duration },
             days = days.toList(),
             todayIndex = ((now - weekStart) / dayLength).toInt().coerceIn(0, 6),
-            monthTopGames = topGames(thisMonth),
+            monthTopGames = topGames(thisMonth, MONTH_TOP_GAMES),
             monthSystems = systems(thisMonth),
-            allTimeTopGames = topGames(entries),
+            allTimeTopGames = topGames(entries, ALL_TIME_TOP_GAMES),
             allTimeSystems = systems(entries),
         )
     }
 
-    private suspend fun topGames(entries: List<PlayActivityLog.Entry>): List<GameStat> {
-        val byGame = entries.groupBy { it.gameId }
+    /** Most played games; games without a full session (5 minutes) aren't listed. */
+    private suspend fun topGames(
+        entries: List<PlayActivityLog.Entry>,
+        count: Int,
+    ): List<GameStat> {
+        val byGame = entries.groupBy { it.gameId }.filterValues { countSessions(it) > 0 }
         val topIds =
             byGame.entries
                 .sortedByDescending { (_, list) -> list.sumOf { it.duration } }
-                .take(TOP_GAMES * 2)
+                .take(count * 2)
                 .map { it.key }
         val games = retrogradeDb.gameDao().selectByIds(topIds).associateBy { it.id }
         return topIds.mapNotNull { id ->
             val game = games[id] ?: return@mapNotNull null
             val list = byGame.getValue(id)
             GameStat(game, list.sumOf { it.duration }, countSessions(list))
-        }.take(TOP_GAMES)
+        }.take(count)
     }
 
     /** A session (one time the game was opened) only counts once it reached 5 minutes of play. */
@@ -136,7 +140,8 @@ class ActivityViewModel(
     }
 
     companion object {
-        private const val TOP_GAMES = 10
+        private const val MONTH_TOP_GAMES = 5
+        private const val ALL_TIME_TOP_GAMES = 10
         private const val MIN_SESSION_MS = 5 * 60 * 1000L
     }
 }
