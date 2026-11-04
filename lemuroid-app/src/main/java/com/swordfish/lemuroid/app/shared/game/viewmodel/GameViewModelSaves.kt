@@ -58,16 +58,22 @@ class GameViewModelSaves(
                     }
 
                 if (!loaded) {
-                    sideEffects.showToast(appContext.getString(R.string.game_toast_load_state_failed))
+                    sideEffects.showCard(
+                        appContext.getString(R.string.game_card_load_title),
+                        appContext.getString(R.string.game_card_load_failed),
+                    )
                 }
             }
         } catch (e: Throwable) {
             val errorMessageId =
                 when (e) {
-                    is IncompatibleStateException -> R.string.error_message_incompatible_state
-                    else -> R.string.game_toast_load_state_failed
+                    is IncompatibleStateException -> R.string.game_card_load_incompatible
+                    else -> R.string.game_card_load_failed
                 }
-            sideEffects.showToast(appContext.getString(errorMessageId))
+            sideEffects.showCard(
+                appContext.getString(R.string.game_card_load_title),
+                appContext.getString(errorMessageId),
+            )
         }
     }
 
@@ -99,7 +105,12 @@ class GameViewModelSaves(
 
         try {
             retroGameView.waitGLEvent<GLRetroView.GLRetroEvents.FrameRendered>()
-            restoreQuickSave(saveState)
+            if (restoreQuickSave(saveState)) {
+                sideEffects.showCard(
+                    appContext.getString(R.string.game_card_auto_save_title),
+                    appContext.getString(R.string.game_card_auto_save_resumed),
+                )
+            }
         } catch (e: Throwable) {
             Timber.e(e, "Error while loading auto-save")
         }
@@ -162,13 +173,14 @@ class GameViewModelSaves(
     }
 
     // Now that we wait for the first rendered frame this is probably no longer needed, but we'll keep it just to be sure
-    private suspend fun restoreQuickSave(saveState: SaveState) {
+    private suspend fun restoreQuickSave(saveState: SaveState): Boolean {
         var times = 10
 
         while (!loadSaveState(saveState) && times > 0) {
             delay(200)
             times--
         }
+        return times > 0
     }
 
     private fun loadSaveState(saveState: SaveState): Boolean {
@@ -190,11 +202,17 @@ class GameViewModelSaves(
 
     fun saveQuickSave() {
         currentQuickSave = getCurrentSaveState()
-        sideEffects.showToast(appContext.getString(R.string.game_toast_quick_save_saved))
+        sideEffects.showCard(
+            appContext.getString(R.string.game_card_quick_save_title),
+            appContext.getString(R.string.game_card_quick_save_saved),
+        )
     }
 
     fun loadQuickSave() {
         loadSaveState(currentQuickSave ?: return)
-        sideEffects.showToast(appContext.getString(R.string.game_toast_quick_save_loaded))
+        sideEffects.showCard(
+            appContext.getString(R.string.game_card_quick_save_title),
+            appContext.getString(R.string.game_card_quick_save_loaded),
+        )
     }
 }

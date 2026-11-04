@@ -16,7 +16,7 @@ class GameViewModelSideEffects(private val scope: CoroutineScope) {
             val tiltConfigurations: List<TiltConfiguration>,
         ) : UiEffect
 
-        data class ShowToast(val message: String) : UiEffect
+        data class ShowCard(val title: String, val value: String) : UiEffect
 
         data object SuccessfulFinish : UiEffect
 
@@ -35,10 +35,13 @@ class GameViewModelSideEffects(private val scope: CoroutineScope) {
         return uiEffects
     }
 
-    fun showToast(message: String) {
+    fun showCard(
+        title: String,
+        value: String,
+    ) {
         scope.launch {
             withContext(Dispatchers.Main) {
-                uiEffects.emit(UiEffect.ShowToast(message))
+                uiEffects.emit(UiEffect.ShowCard(title, value))
             }
         }
     }

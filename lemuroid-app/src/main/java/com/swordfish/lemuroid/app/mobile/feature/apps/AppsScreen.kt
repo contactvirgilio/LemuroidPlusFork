@@ -3,7 +3,6 @@ package com.swordfish.lemuroid.app.mobile.feature.apps
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
@@ -44,6 +43,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.swordfish.lemuroid.R
+import com.swordfish.lemuroid.app.shared.ui.CenterCards
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.focusHighlight
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -109,11 +109,7 @@ fun AppsScreen(modifier: Modifier = Modifier) {
                     // Long press hides the app; it can be shown again in Settings > Home screen.
                     AppsTabSettings.setHidden(context, app, true)
                     apps = apps?.filter { it.id != app.id }
-                    Toast.makeText(
-                        context,
-                        context.getString(R.string.apps_hidden_toast, app.label),
-                        Toast.LENGTH_SHORT,
-                    ).show()
+                    CenterCards.show(context.getString(R.string.apps_card_hidden_title), app.label.toString())
                 },
             )
         }

@@ -22,6 +22,9 @@ import com.swordfish.lemuroid.lib.library.db.entity.Game
 /** Outline for the selected item (system cards, tabs, search, settings, apps). */
 val FocusHighlightColor = Color(0xFF2DD4BF)
 
+/** The outline color of the screen being shown; the game menu uses gold like the DKC / Tetris menus. */
+val LocalFocusHighlightColor = androidx.compose.runtime.compositionLocalOf { FocusHighlightColor }
+
 /**
  * Outline for a selected game: a lighter shade of its system's colour, so it still shows on the
  * tile, which is filled with that same colour.
@@ -38,11 +41,12 @@ fun gameFocusColor(game: Game): Color {
  */
 fun Modifier.focusHighlight(
     shape: Shape = RoundedCornerShape(12.dp),
-    color: Color = FocusHighlightColor,
+    color: Color? = null,
     zoom: Float = 1.06f,
     width: Dp = 3.dp,
 ): Modifier =
     composed {
+        val outline = color ?: LocalFocusHighlightColor.current
         var focused by remember { mutableStateOf(false) }
         val scale by animateFloatAsState(
             targetValue = if (focused) zoom else 1f,
@@ -54,5 +58,5 @@ fun Modifier.focusHighlight(
                 scaleX = scale
                 scaleY = scale
             }
-            .then(if (focused) Modifier.border(width, color, shape) else Modifier)
+            .then(if (focused) Modifier.border(width, outline, shape) else Modifier)
     }

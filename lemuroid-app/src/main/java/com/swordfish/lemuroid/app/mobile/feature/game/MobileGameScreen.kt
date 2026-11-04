@@ -84,6 +84,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.CenterCard
 import com.swordfish.lemuroid.app.shared.game.BaseGameScreenViewModel
 import com.swordfish.lemuroid.app.shared.game.viewmodel.GameViewModelTouchControls.Companion.MENU_LOADING_ANIMATION_MILLIS
 import com.swordfish.lemuroid.app.shared.settings.HapticFeedbackMode
@@ -445,47 +446,7 @@ private fun GameOverlayCard(
 
     AnimatedVisibility(modifier = modifier, visible = visibleCard != null, enter = fadeIn(), exit = fadeOut()) {
         if (shown == null) return@AnimatedVisibility
-        Column(
-            modifier =
-                Modifier
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFF0A0C0E).copy(alpha = 0.82f))
-                    .padding(horizontal = 22.dp, vertical = 12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                text = shown.title.uppercase(),
-                color = Color(0xFF9AA4AD),
-                fontSize = 11.sp,
-                letterSpacing = 1.2.sp,
-            )
-            Text(
-                text = shown.value,
-                color = Color.White,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-            )
-            Row(
-                modifier = Modifier.padding(top = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                repeat(shown.count) { index ->
-                    Box(
-                        modifier =
-                            Modifier
-                                .size(width = 20.dp, height = 5.dp)
-                                .clip(RoundedCornerShape(3.dp))
-                                .background(
-                                    if (index == shown.index) {
-                                        FAST_FORWARD_ACTIVE_COLOR
-                                    } else {
-                                        Color.White.copy(alpha = 0.22f)
-                                    },
-                                ),
-                    )
-                }
-            }
-        }
+        CenterCard(title = shown.title, value = shown.value, index = shown.index, count = shown.count)
     }
 }
 

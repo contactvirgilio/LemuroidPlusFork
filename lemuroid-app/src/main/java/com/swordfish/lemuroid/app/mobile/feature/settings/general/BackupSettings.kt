@@ -1,6 +1,5 @@
 package com.swordfish.lemuroid.app.mobile.feature.settings.general
 
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -30,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.swordfish.lemuroid.R
+import com.swordfish.lemuroid.app.shared.ui.CenterCards
 import com.swordfish.lemuroid.app.shared.backup.SaveFileImporter
 import com.swordfish.lemuroid.app.shared.backup.SavesBackupManager
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidCardSettingsGroup
@@ -71,13 +71,23 @@ fun BackupSettings(retrogradeDb: RetrogradeDatabase) {
     // Saves inside a zip whose names did not match any game (only matched by name, no picker).
     var skippedFiles by remember { mutableStateOf(0) }
 
-    fun toast(message: String) = Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    fun toast(
+        title: String,
+        value: String,
+    ) = CenterCards.show(title, value.take(120), 2200L)
 
     fun finishImport() {
         when {
             skippedFiles > 0 ->
-                toast(context.getString(R.string.backup_import_done_with_skipped, importedFiles, skippedFiles))
-            importedFiles > 0 -> toast(context.getString(R.string.backup_import_done, importedFiles))
+                toast(
+                    context.getString(R.string.backup_card_import_title),
+                    context.getString(R.string.backup_card_import_skipped, importedFiles, skippedFiles),
+                )
+            importedFiles > 0 ->
+                toast(
+                    context.getString(R.string.backup_card_import_title),
+                    context.getString(R.string.backup_card_imported, importedFiles),
+                )
         }
         importedFiles = 0
         skippedFiles = 0
@@ -104,7 +114,7 @@ fun BackupSettings(retrogradeDb: RetrogradeDatabase) {
                     }
                     .onFailure {
                         Timber.e(it, "Backup import failed for ${zip.name}")
-                        toast(context.getString(R.string.backup_import_failed, "${zip.name}: ${it.message ?: ""}"))
+                        toast(context.getString(R.string.backup_card_import_failed_title), "${zip.name}: ${it.message ?: ""}")
                     }
             }
 
@@ -120,7 +130,7 @@ fun BackupSettings(retrogradeDb: RetrogradeDatabase) {
                     unmatchedFiles = plan.unmatched
                 }.onFailure {
                     Timber.e(it, "Save files import failed")
-                    toast(context.getString(R.string.backup_import_failed, it.message ?: ""))
+                    toast(context.getString(R.string.backup_card_import_failed_title), it.message ?: "")
                 }
             }
 
@@ -139,10 +149,13 @@ fun BackupSettings(retrogradeDb: RetrogradeDatabase) {
                         scope.launch { if (exportProgress != null) exportProgress = done to total }
                     }
                 }
-                    .onSuccess { toast(context.getString(R.string.backup_export_done, it.files)) }
+                    .onSuccess { toast(
+                            context.getString(R.string.backup_card_export_title),
+                            context.getString(R.string.backup_card_exported, it.files),
+                        ) }
                     .onFailure {
                         Timber.e(it, "Saves export failed")
-                        toast(context.getString(R.string.backup_export_failed, it.message ?: ""))
+                        toast(context.getString(R.string.backup_card_export_failed_title), it.message ?: "")
                     }
                 exportProgress = null
                 busy = false
@@ -233,7 +246,7 @@ fun BackupSettings(retrogradeDb: RetrogradeDatabase) {
                         .onSuccess { importedFiles++ }
                         .onFailure {
                             Timber.e(it, "Failed to import ${currentFile.name}")
-                            toast(context.getString(R.string.backup_import_failed, it.message ?: ""))
+                            toast(context.getString(R.string.backup_card_import_failed_title), it.message ?: "")
                         }
                     if (unmatchedFiles.isEmpty()) finishImport()
                 }

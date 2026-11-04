@@ -1,178 +1,182 @@
 package com.swordfish.lemuroid.app.mobile.feature.gamemenu
 
 import android.content.Intent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.BlurOn
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.alorma.compose.settings.storage.memory.rememberMemoryIntSettingState
-import com.alorma.compose.settings.storage.base.SettingValueState
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.shared.GameMenuContract
-import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsList
-import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsMenuLink
-import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsSwitch
 import kotlin.reflect.KFunction1
 
+private class MenuEntry(
+    val label: String,
+    val sublabel: String? = null,
+    val active: Boolean = false,
+    val icon: @Composable (Color) -> Unit,
+    val onClick: () -> Unit,
+)
+
+private fun drawableIcon(
+    id: Int,
+    description: String,
+): @Composable (Color) -> Unit =
+    { tint ->
+        Icon(
+            painterResource(id),
+            contentDescription = description,
+            tint = tint,
+            modifier = Modifier.size(28.dp),
+        )
+    }
+
+/** The menu home: one tile per action, in the same style as the Tetris DX / DKC menus. */
 @Composable
 fun GameMenuHomeScreen(
     navController: NavController,
     gameMenuRequest: GameMenuActivity.GameMenuRequest,
     onResult: KFunction1<Intent.() -> Unit, Unit>,
 ) {
-    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-        if (gameMenuRequest.coreConfig.statesSupported) {
-            LemuroidSettingsMenuLink(
-                title = { Text(text = stringResource(id = R.string.game_menu_save)) },
-                icon = {
-                    Icon(
-                        painterResource(R.drawable.ic_menu_save),
-                        contentDescription = stringResource(id = R.string.game_menu_save),
-                    )
-                },
+    val entries = mutableListOf<MenuEntry>()
+
+    if (gameMenuRequest.coreConfig.statesSupported) {
+        val save = stringResource(id = R.string.game_menu_save)
+        entries +=
+            MenuEntry(
+                label = save,
+                icon = drawableIcon(R.drawable.ic_menu_save, save),
                 onClick = { navController.navigateToRoute(GameMenuRoute.SAVE) },
             )
-
-            LemuroidSettingsMenuLink(
-                title = { Text(text = stringResource(id = R.string.game_menu_load)) },
-                icon = {
-                    Icon(
-                        painterResource(R.drawable.ic_menu_load),
-                        contentDescription = stringResource(id = R.string.game_menu_load),
-                    )
-                },
+        val load = stringResource(id = R.string.game_menu_load)
+        entries +=
+            MenuEntry(
+                label = load,
+                icon = drawableIcon(R.drawable.ic_menu_load, load),
                 onClick = { navController.navigateToRoute(GameMenuRoute.LOAD) },
             )
-        }
+    }
 
-        LemuroidSettingsMenuLink(
-            title = { Text(text = stringResource(id = R.string.game_menu_quit)) },
-            icon = {
-                Icon(
-                    painterResource(R.drawable.ic_menu_quit),
-                    contentDescription = stringResource(id = R.string.game_menu_quit),
-                )
-            },
-            onClick = {
-                onResult { putExtra(GameMenuContract.RESULT_QUIT, true) }
-            },
+    val restart = stringResource(id = R.string.game_menu_restart)
+    entries +=
+        MenuEntry(
+            label = restart,
+            icon = drawableIcon(R.drawable.ic_menu_restart, restart),
+            onClick = { onResult { putExtra(GameMenuContract.RESULT_RESET, true) } },
         )
 
-        LemuroidSettingsMenuLink(
-            title = { Text(text = stringResource(id = R.string.game_menu_restart)) },
-            icon = {
-                Icon(
-                    painterResource(R.drawable.ic_menu_restart),
-                    contentDescription = stringResource(id = R.string.game_menu_restart),
-                )
-            },
-            onClick = {
-                onResult { putExtra(GameMenuContract.RESULT_RESET, true) }
-            },
+    val quit = stringResource(id = R.string.game_menu_quit)
+    entries +=
+        MenuEntry(
+            label = quit,
+            icon = drawableIcon(R.drawable.ic_menu_quit, quit),
+            onClick = { onResult { putExtra(GameMenuContract.RESULT_QUIT, true) } },
         )
 
-        if (gameMenuRequest.numDisks > 1) {
-            LemuroidSettingsList(
-                title = { Text(text = stringResource(id = R.string.game_menu_change_disk_button)) },
-                items = (1..gameMenuRequest.numDisks).map { stringResource(R.string.game_menu_change_disk_disk, it) },
-                useSelectedValueAsSubtitle = false,
-                icon = {
-                    Icon(
-                        painterResource(R.drawable.ic_menu_disk),
-                        contentDescription = stringResource(id = R.string.game_menu_change_disk_button),
-                    )
-                },
-                state = rememberMemoryIntSettingState(gameMenuRequest.currentDisk),
-                onItemSelected = { index, _ ->
-                    onResult { putExtra(GameMenuContract.RESULT_CHANGE_DISK, index) }
-                },
+    if (gameMenuRequest.numDisks > 1) {
+        // Each tap on the tile goes to the next disk.
+        val nextDisk = (gameMenuRequest.currentDisk + 1) % gameMenuRequest.numDisks
+        val disk = stringResource(id = R.string.game_menu_change_disk_button)
+        entries +=
+            MenuEntry(
+                label = stringResource(R.string.game_menu_change_disk_disk, gameMenuRequest.currentDisk + 1),
+                sublabel = disk,
+                icon = drawableIcon(R.drawable.ic_menu_disk, disk),
+                onClick = { onResult { putExtra(GameMenuContract.RESULT_CHANGE_DISK, nextDisk) } },
             )
-        }
+    }
 
-        // Touch controls are hidden while a gamepad (e.g. the device's own buttons) is in use, so
-        // there would be nothing to edit.
-        if (gameMenuRequest.touchControlsVisible) {
-            LemuroidSettingsMenuLink(
-                title = { Text(text = stringResource(id = R.string.game_menu_edit_touch_controls)) },
-                icon = {
-                    Icon(
-                        painterResource(R.drawable.ic_menu_controls),
-                        contentDescription = stringResource(id = R.string.game_menu_edit_touch_controls),
-                    )
-                },
-                onClick = {
-                    onResult { putExtra(GameMenuContract.RESULT_EDIT_TOUCH_CONTROLS, true) }
-                },
+    // Touch controls are hidden while a gamepad (e.g. the device's own buttons) is in use, so
+    // there would be nothing to edit.
+    if (gameMenuRequest.touchControlsVisible) {
+        val edit = stringResource(id = R.string.game_menu_edit_touch_controls)
+        entries +=
+            MenuEntry(
+                label = edit,
+                icon = drawableIcon(R.drawable.ic_menu_controls, edit),
+                onClick = { onResult { putExtra(GameMenuContract.RESULT_EDIT_TOUCH_CONTROLS, true) } },
             )
-        }
+    }
 
-        if (gameMenuRequest.colorCorrection >= 0) {
-            LemuroidSettingsSwitch(
-                state = rememberBooleanSettingState(gameMenuRequest.colorCorrection == 1),
-                title = { Text(text = stringResource(id = R.string.game_menu_color_correction)) },
-                icon = {
+    if (gameMenuRequest.colorCorrection >= 0) {
+        val colorCorrection = stringResource(id = R.string.game_menu_color_correction)
+        val isOn = gameMenuRequest.colorCorrection == 1
+        entries +=
+            MenuEntry(
+                label = colorCorrection,
+                sublabel = stringResource(if (isOn) R.string.game_menu_on else R.string.game_menu_off),
+                active = isOn,
+                icon = { tint ->
                     Icon(
                         Icons.Outlined.Palette,
-                        contentDescription = stringResource(id = R.string.game_menu_color_correction),
+                        contentDescription = colorCorrection,
+                        tint = tint,
+                        modifier = Modifier.size(28.dp),
                     )
                 },
-                onCheckedChange = { enabled ->
-                    onResult { putExtra(GameMenuContract.RESULT_COLOR_CORRECTION, enabled) }
-                },
+                onClick = { onResult { putExtra(GameMenuContract.RESULT_COLOR_CORRECTION, !isOn) } },
             )
-        }
+    }
 
-        LemuroidSettingsSwitch(
-            state = rememberBooleanSettingState(gameMenuRequest.immersiveMode),
-            title = { Text(text = stringResource(id = R.string.game_menu_immersive_mode)) },
-            subtitle = { Text(text = stringResource(id = R.string.game_menu_immersive_mode_hint)) },
-            icon = {
-                Icon(
-                    Icons.Outlined.BlurOn,
-                    contentDescription = stringResource(id = R.string.game_menu_immersive_mode),
-                )
-            },
-            onCheckedChange = { enabled ->
-                onResult { putExtra(GameMenuContract.RESULT_IMMERSIVE_MODE, enabled) }
-            },
-        )
-
-        if (gameMenuRequest.advancedCoreOptions.isNotEmpty() || gameMenuRequest.coreOptions.isNotEmpty()) {
-            LemuroidSettingsMenuLink(
-                title = { Text(text = stringResource(id = R.string.game_menu_settings)) },
-                icon = {
-                    Icon(
-                        painterResource(R.drawable.ic_menu_settings),
-                        contentDescription = stringResource(id = R.string.game_menu_settings),
-                    )
-                },
+    if (gameMenuRequest.advancedCoreOptions.isNotEmpty() || gameMenuRequest.coreOptions.isNotEmpty()) {
+        val settings = stringResource(id = R.string.game_menu_settings)
+        entries +=
+            MenuEntry(
+                label = settings,
+                icon = drawableIcon(R.drawable.ic_menu_settings, settings),
                 onClick = { navController.navigateToRoute(GameMenuRoute.OPTIONS) },
             )
+    }
+
+    val firstTile = remember { FocusRequester() }
+    val hasGamepad = LocalMenuHasGamepad.current
+    LaunchedEffect(hasGamepad) {
+        // With a gamepad the first tile starts selected; with touch nothing is outlined.
+        if (hasGamepad) runCatching { firstTile.requestFocus() }
+    }
+
+    LazyVerticalGrid(
+        modifier = Modifier.fillMaxWidth(),
+        columns = GridCells.Adaptive(minSize = 128.dp),
+        contentPadding = PaddingValues(start = 22.dp, end = 22.dp, top = 8.dp, bottom = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        entries.forEachIndexed { index, entry ->
+            item(key = entry.label) {
+                MenuTile(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(96.dp)
+                            .then(if (index == 0) Modifier.focusRequester(firstTile) else Modifier),
+                    onClick = entry.onClick,
+                ) { focused ->
+                    MenuTileLabel(
+                        icon = entry.icon,
+                        label = entry.label,
+                        focused = focused,
+                        sublabel = entry.sublabel,
+                        active = entry.active,
+                    )
+                }
+            }
         }
     }
 }
-
-/** A switch state that lives only while the menu is open; the choice is sent back as a result. */
-private class MenuSwitchState(private val initial: Boolean) : SettingValueState<Boolean> {
-    override var value: Boolean by mutableStateOf(initial)
-
-    override fun reset() {
-        value = initial
-    }
-}
-
-@Composable
-private fun rememberBooleanSettingState(initial: Boolean): SettingValueState<Boolean> = remember { MenuSwitchState(initial) }

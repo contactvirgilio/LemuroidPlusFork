@@ -360,6 +360,14 @@ class BaseGameScreenViewModel(
 
     private val overlayCardState = MutableStateFlow<OverlayCard?>(null)
 
+    /** A message in the same card ("Auto save · State resumed"), with no position bars. */
+    fun showCard(
+        title: String,
+        value: String,
+    ) {
+        overlayCardState.value = OverlayCard(title, value, 0, 0)
+    }
+
     fun getOverlayCards(): Flow<OverlayCard?> = overlayCardState
 
     private val displayOptions = GameDisplayOptions(sharedPreferences, system.id)

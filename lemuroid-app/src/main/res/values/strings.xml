@@ -136,10 +136,6 @@
 
     <string name="game_loading_preparing_game">Preparing game…</string>
 
-    <string name="game_toast_settings_button_using_gamepad">Gamepad detected. Access settings menu with %1$s.</string>
-    <string name="game_toast_load_state_failed">Cannot load this state</string>
-    <string name="game_toast_quick_save_loaded">Quick loaded</string>
-    <string name="game_toast_quick_save_saved">Quick saved</string>
 
     <string name="empty_view_default">No Items</string>
 
@@ -204,7 +200,6 @@
     <string name="game_interactory_busy">Wait for the pending operations to complete</string>
     <string name="game_interactor_notification_permission_required">Please enable notifications from Home to continue</string>
 
-    <string name="game_process_another_game_running">Please close the current game before starting another</string>
 
     <string name="mobile_settings_help">Help</string>
     <string name="mobile_settings_support">Support</string>
@@ -270,10 +265,8 @@
     <string name="settings_title_hidden_apps">Hidden apps</string>
     <string name="settings_description_hidden_apps">Choose which apps appear in the Apps tab. You can also hide an app by pressing and holding it.</string>
     <string name="settings_description_hidden_apps_screen">Apps that are switched off don\'t appear in the Apps tab. They stay installed.</string>
-    <string name="apps_hidden_toast">%1$s hidden. Show it again in Settings → Home screen → Hidden apps.</string>
     <string name="settings_title_show_artwork">Show artwork</string>
     <string name="settings_description_show_artwork">Use images from the Lemuroid/artwork folder as game tiles. Name each image like its ROM, e.g. Super Mario World (USA).png.</string>
-    <string name="game_process_closing_previous_game">Closing and saving previous game…</string>
     <string name="game_overlay_saved_title">Saved to</string>
     <string name="game_overlay_state_number">State %1$d</string>
     <string name="game_button_menu">Menu</string>
@@ -311,11 +304,6 @@
     <string name="settings_description_backup_import">Restore a backup zip, or add .sav / .srm saves from other emulators</string>
     <string name="backup_exporting">Exporting saves…</string>
     <string name="backup_export_progress">%1$d of %2$d files</string>
-    <string name="backup_export_done">Exported %1$d files</string>
-    <string name="backup_export_failed">Export failed: %1$s</string>
-    <string name="backup_import_done">Imported %1$d files. Any replaced in-game saves were kept as .srm.bak</string>
-    <string name="backup_import_done_with_skipped">Imported %1$d saves. %2$d saves were skipped because no game has the same file name (rename the save to match the ROM, or import it on its own to choose the game)</string>
-    <string name="backup_import_failed">Import failed: %1$s</string>
     <string name="backup_pick_game_title">Which game is this save for?</string>
     <string name="backup_pick_game_message">No game matches \"%1$s\". Choose the game to use it for:</string>
     <string name="backup_pick_game_search">Search games</string>
@@ -331,8 +319,28 @@
     <string name="public_storage_dialog_dont_ask">Don\'t ask again</string>
 
     <string name="game_menu_color_correction">Color correction</string>
-    <string name="game_menu_immersive_mode">Immersive mode</string>
-    <string name="game_menu_immersive_mode_hint">Applies the next time the game starts</string>
+    <string name="game_menu_on">On</string>
+    <string name="game_menu_off">Off</string>
     <string name="settings_title_pastel_tiles">Soft tile colors</string>
     <string name="settings_description_pastel_tiles">Lighter colors for system cards and game tiles</string>
+    <string name="game_card_load_title">Load</string>
+    <string name="game_card_load_failed">Can\'t load this state</string>
+    <string name="game_card_load_incompatible">State not compatible with this core</string>
+    <string name="game_card_quick_save_title">Quick save</string>
+    <string name="game_card_quick_save_saved">Saved</string>
+    <string name="game_card_quick_save_loaded">Loaded</string>
+    <string name="game_card_auto_save_title">Auto save</string>
+    <string name="game_card_auto_save_resumed">State resumed</string>
+    <string name="game_card_wait_title">Please wait</string>
+    <string name="game_card_closing_previous">Closing and saving previous game…</string>
+    <string name="game_card_running_title">Game running</string>
+    <string name="game_card_running_value">Close the current game first</string>
+    <string name="apps_card_hidden_title">Hidden</string>
+    <string name="backup_card_import_title">Import</string>
+    <string name="backup_card_imported">%1$d files imported</string>
+    <string name="backup_card_import_skipped">%1$d imported · %2$d skipped</string>
+    <string name="backup_card_import_failed_title">Import failed</string>
+    <string name="backup_card_export_title">Export</string>
+    <string name="backup_card_exported">%1$d files saved</string>
+    <string name="backup_card_export_failed_title">Export failed</string>
 </resources>

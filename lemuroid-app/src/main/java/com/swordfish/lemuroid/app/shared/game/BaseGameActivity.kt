@@ -226,10 +226,6 @@ abstract class BaseGameActivity : ImmersiveActivity() {
                     },
                 )
                 this.putExtra(
-                    GameMenuContract.EXTRA_IMMERSIVE_MODE,
-                    sharedPreferences.get().getBoolean(getString(R.string.pref_key_enable_immersive_mode), false),
-                )
-                this.putExtra(
                     GameMenuContract.EXTRA_TOUCH_CONTROLS_VISIBLE,
                     baseGameScreenViewModel.areTouchControlsVisible(),
                 )
@@ -267,7 +263,7 @@ abstract class BaseGameActivity : ImmersiveActivity() {
                             it.currentTiltConfiguration,
                             it.tiltConfigurations,
                         )
-                    is GameViewModelSideEffects.UiEffect.ShowToast -> displayToast(it.message)
+                    is GameViewModelSideEffects.UiEffect.ShowCard -> baseGameScreenViewModel.showCard(it.title, it.value)
                     is GameViewModelSideEffects.UiEffect.SuccessfulFinish -> performSuccessfulActivityFinish()
                     is GameViewModelSideEffects.UiEffect.FailureFinish -> performErrorFinish(it.message)
                     is GameViewModelSideEffects.UiEffect.SaveQuickSave -> performSaveQuickSave()
@@ -470,14 +466,6 @@ abstract class BaseGameActivity : ImmersiveActivity() {
                     systemCoreConfig,
                     data.getBooleanExtra(GameMenuContract.RESULT_COLOR_CORRECTION, false),
                 )
-            }
-            if (data?.hasExtra(GameMenuContract.RESULT_IMMERSIVE_MODE) == true) {
-                sharedPreferences.get().edit()
-                    .putBoolean(
-                        getString(R.string.pref_key_enable_immersive_mode),
-                        data.getBooleanExtra(GameMenuContract.RESULT_IMMERSIVE_MODE, false),
-                    )
-                    .apply()
             }
             if (data?.hasExtra(GameMenuContract.RESULT_ENABLE_FAST_FORWARD) == true) {
                 baseGameScreenViewModel.setFastForwardEnabled(

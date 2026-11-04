@@ -32,6 +32,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import kotlinx.coroutines.flow.map
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -90,7 +94,6 @@ class GameMenuActivity : RetrogradeComponentActivity() {
         val allTiltConfigurations: List<TiltConfiguration>,
         val touchControlsVisible: Boolean,
         val colorCorrection: Int,
-        val immersiveMode: Boolean,
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -136,8 +139,6 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                     extras?.getBoolean(GameMenuContract.EXTRA_TOUCH_CONTROLS_VISIBLE, true) ?: true,
                 colorCorrection =
                     extras?.getInt(GameMenuContract.EXTRA_COLOR_CORRECTION, -1) ?: -1,
-                immersiveMode =
-                    extras?.getBoolean(GameMenuContract.EXTRA_IMMERSIVE_MODE, false) ?: false,
             )
 
         setContent {
@@ -158,35 +159,20 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                     ?.let { GameMenuRoute.findByRoute(it) }
                     ?: GameMenuRoute.HOME
 
-            SideMenu {
-                TopAppBar(
-                    title = { Text(stringResource(currentRoute.titleId)) },
-                    windowInsets = WindowInsets(0.dp),
-                    navigationIcon = {
-                        AnimatedContent(targetState = currentRoute.canGoBack(), label = "Back") { canGoBack ->
-                            if (canGoBack) {
-                                IconButton(onClick = { navController.popBackStack() }) {
-                                    Icon(
-                                        Icons.AutoMirrored.Filled.ArrowBack,
-                                        stringResource(R.string.back),
-                                    )
-                                }
-                            } else {
-                                IconButton(onClick = { onResult { } }) {
-                                    Icon(
-                                        Icons.Filled.Close,
-                                        stringResource(R.string.close),
-                                    )
-                                }
-                            }
-                        }
-                    },
-                )
-                Divider(modifier = Modifier.fillMaxWidth())
+            val hasGamepad by
+                remember { inputDeviceManager.getGamePadsObservable().map { it.isNotEmpty() } }
+                    .collectAsState(false)
+
+            CompositionLocalProvider(LocalMenuHasGamepad provides hasGamepad) {
+              MenuTheme {
+                MenuCard(
+                    title = stringResource(currentRoute.titleId),
+                    canGoBack = currentRoute.canGoBack(),
+                    onBack = { navController.popBackStack() },
+                    onClose = { onResult { } },
+                ) {
                 NavHost(
-                    modifier =
-                        Modifier
-                            .fillMaxSize(),
+                    modifier = Modifier.fillMaxSize(),
                     navController = navController,
                     startDestination = GameMenuRoute.HOME.route,
                     enterTransition = { fadeIn() },
@@ -238,32 +224,8 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                         )
                     }
                 }
-            }
-        }
-    }
-
-    @Composable
-    private fun SideMenu(content: @Composable () -> Unit) {
-        BoxWithConstraints(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.CenterEnd,
-        ) {
-            val panelWidth =
-                remember(maxWidth) {
-                    minOf(maxWidth * 0.8f, 400f.dp)
                 }
-
-            Surface(
-                modifier =
-                    Modifier
-                        .padding()
-                        .fillMaxHeight()
-                        .width(panelWidth)
-                        .clip(MaterialTheme.shapes.large),
-            ) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    content()
-                }
+              }
             }
         }
     }

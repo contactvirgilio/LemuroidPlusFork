@@ -5,7 +5,7 @@ import android.content.Context
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.shared.launcher.HomeLauncher
 import com.swordfish.lemuroid.app.shared.main.GameLaunchTaskHandler
-import com.swordfish.lemuroid.common.displayToast
+import com.swordfish.lemuroid.app.shared.ui.CenterCards
 import com.swordfish.lemuroid.lib.core.CoresSelection
 import com.swordfish.lemuroid.lib.library.GameSystem
 import com.swordfish.lemuroid.lib.library.Paprium
@@ -34,24 +34,30 @@ class GameLauncher(
         // As home screen, a game left with Home closes in the background (saving first), which takes
         // a moment. Wait for it instead of asking to close it. Otherwise keep the usual message.
         if (gameStillClosing && !HomeLauncher.isDefaultHome(activity)) {
-            activity.displayToast(R.string.game_process_another_game_running)
+            showAnotherGameRunning(activity)
             return false
         }
         if (launchInProgress) return true
         launchInProgress = true
 
         if (gameStillClosing) {
-            activity.displayToast(R.string.game_process_closing_previous_game)
+            CenterCards.showOrToast(
+                activity,
+                activity.getString(R.string.game_card_wait_title),
+                activity.getString(R.string.game_card_closing_previous),
+                CLOSING_CARD_MILLIS,
+            )
         }
 
         GlobalScope.launch {
             try {
                 if (gameStillClosing && !waitForPreviousGameToClose(appContext)) {
                     withContext(Dispatchers.Main) {
-                        activity.displayToast(R.string.game_process_another_game_running)
+                        showAnotherGameRunning(activity)
                     }
                     return@launch
                 }
+                CenterCards.dismiss()
                 startGame(activity, game, loadSave, leanback)
             } finally {
                 launchInProgress = false
@@ -59,6 +65,14 @@ class GameLauncher(
         }
 
         return true
+    }
+
+    private fun showAnotherGameRunning(activity: Activity) {
+        CenterCards.showOrToast(
+            activity,
+            activity.getString(R.string.game_card_running_title),
+            activity.getString(R.string.game_card_running_value),
+        )
     }
 
     private suspend fun waitForPreviousGameToClose(appContext: Context): Boolean {
@@ -100,5 +114,6 @@ class GameLauncher(
 
         private const val PREVIOUS_GAME_CLOSE_TIMEOUT_MS = 8_000L
         private const val PREVIOUS_GAME_POLL_MS = 150L
+        private const val CLOSING_CARD_MILLIS = 9_000L
     }
 }

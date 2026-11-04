@@ -232,7 +232,6 @@ class GameViewModelInput(
         }
 
         owner.launchOnState(Lifecycle.State.CREATED) {
-            initializeGamePadShortcutsFlow()
         }
 
         owner.launchOnState(Lifecycle.State.CREATED) {
@@ -257,25 +256,6 @@ class GameViewModelInput(
         controllerConfigsState.safeCollect {
             updateControllers(it)
         }
-    }
-
-    private suspend fun initializeGamePadShortcutsFlow() {
-        inputDeviceManager.getGameShortcutsObservable()
-            .distinctUntilChanged()
-            .safeCollect { allShortcuts ->
-                allShortcuts.values
-                    .firstNotNullOfOrNull { shortcuts ->
-                        shortcuts.firstOrNull { it.type == GameShortcutType.MENU }
-                    }
-                    ?.let {
-                        val message =
-                            appContext.resources.getString(
-                                R.string.game_toast_settings_button_using_gamepad,
-                                it.name,
-                            )
-                        sideEffects.showToast(message)
-                    }
-            }
     }
 
     private suspend fun initializeGamePadKeysFlow() {
