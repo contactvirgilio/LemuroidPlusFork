@@ -287,7 +287,6 @@
     <string name="activity_this_month">This month</string>
     <string name="activity_nothing_this_month">Nothing played yet this month.</string>
     <string name="activity_week_days">Mon,Tue,Wed,Thu,Fri,Sat,Sun</string>
-    <string name="activity_game_details">%1$s · %2$d sessions</string>
     <string name="settings_title_navigation_sounds">Navigation sounds</string>
     <string name="settings_description_navigation_sounds">A short click when moving the selection with the D-pad or a controller.</string>
     <string name="game_button_filter">Filter</string>
@@ -331,4 +330,9 @@
     <string name="public_storage_dialog_not_now">Not now</string>
     <string name="public_storage_dialog_dont_ask">Don\'t ask again</string>
 
+    <string name="game_menu_color_correction">Color correction</string>
+    <string name="game_menu_immersive_mode">Immersive mode</string>
+    <string name="game_menu_immersive_mode_hint">Applies the next time the game starts</string>
+    <string name="settings_title_pastel_tiles">Soft tile colors</string>
+    <string name="settings_description_pastel_tiles">Lighter colors for system cards and game tiles</string>
 </resources>

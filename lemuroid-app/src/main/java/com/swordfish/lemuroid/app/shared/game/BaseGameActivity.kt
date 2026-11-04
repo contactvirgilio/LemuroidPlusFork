@@ -22,6 +22,7 @@ import com.swordfish.lemuroid.app.shared.ImmersiveActivity
 import com.swordfish.lemuroid.app.shared.activity.PlayTimeTracker
 import com.swordfish.lemuroid.app.shared.coreoptions.CoreOption
 import com.swordfish.lemuroid.app.shared.coreoptions.LemuroidCoreOption
+import com.swordfish.lemuroid.app.shared.gamemenu.ColorCorrection
 import com.swordfish.lemuroid.app.shared.game.viewmodel.GameViewModelSideEffects
 import com.swordfish.lemuroid.app.shared.gamecrash.GameCrashActivity
 import com.swordfish.lemuroid.app.shared.input.InputDeviceManager
@@ -186,8 +187,11 @@ abstract class BaseGameActivity : ImmersiveActivity() {
 
         val coreOptions = getCoreOptions()
 
+        // Color correction has its own switch in the menu, so it isn't listed with the core options.
+        val colorCorrectionKey = ColorCorrection.specFor(system.id, systemCoreConfig)?.key
         val options =
             systemCoreConfig.exposedSettings
+                .filter { it.key != colorCorrectionKey }
                 .mapNotNull { transformExposedSetting(it, coreOptions) }
 
         val advancedOptions =
@@ -213,6 +217,18 @@ abstract class BaseGameActivity : ImmersiveActivity() {
                     baseGameScreenViewModel.retroGameView.retroGameView?.audioEnabled,
                 )
                 this.putExtra(GameMenuContract.EXTRA_FAST_FORWARD_SUPPORTED, system.fastForwardSupport)
+                this.putExtra(
+                    GameMenuContract.EXTRA_COLOR_CORRECTION,
+                    when {
+                        ColorCorrection.specFor(system.id, systemCoreConfig) == null -> -1
+                        ColorCorrection.isEnabled(sharedPreferences.get(), system.id, systemCoreConfig) -> 1
+                        else -> 0
+                    },
+                )
+                this.putExtra(
+                    GameMenuContract.EXTRA_IMMERSIVE_MODE,
+                    sharedPreferences.get().getBoolean(getString(R.string.pref_key_enable_immersive_mode), false),
+                )
                 this.putExtra(
                     GameMenuContract.EXTRA_TOUCH_CONTROLS_VISIBLE,
                     baseGameScreenViewModel.areTouchControlsVisible(),
@@ -445,6 +461,23 @@ abstract class BaseGameActivity : ImmersiveActivity() {
                 baseGameScreenViewModel.setAudioEnabled(
                     data.getBooleanExtra(GameMenuContract.RESULT_ENABLE_AUDIO, true),
                 )
+            }
+            if (data?.hasExtra(GameMenuContract.RESULT_COLOR_CORRECTION) == true) {
+                // The core variables are read again as soon as the game is back on screen.
+                ColorCorrection.save(
+                    sharedPreferences.get(),
+                    system.id,
+                    systemCoreConfig,
+                    data.getBooleanExtra(GameMenuContract.RESULT_COLOR_CORRECTION, false),
+                )
+            }
+            if (data?.hasExtra(GameMenuContract.RESULT_IMMERSIVE_MODE) == true) {
+                sharedPreferences.get().edit()
+                    .putBoolean(
+                        getString(R.string.pref_key_enable_immersive_mode),
+                        data.getBooleanExtra(GameMenuContract.RESULT_IMMERSIVE_MODE, false),
+                    )
+                    .apply()
             }
             if (data?.hasExtra(GameMenuContract.RESULT_ENABLE_FAST_FORWARD) == true) {
                 baseGameScreenViewModel.setFastForwardEnabled(

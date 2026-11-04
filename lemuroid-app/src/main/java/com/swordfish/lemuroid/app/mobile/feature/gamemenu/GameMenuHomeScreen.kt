@@ -4,6 +4,9 @@ import android.content.Intent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.BlurOn
+import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,10 +15,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import com.alorma.compose.settings.storage.memory.rememberMemoryIntSettingState
+import com.alorma.compose.settings.storage.base.rememberBooleanSettingState
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.shared.GameMenuContract
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsList
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsMenuLink
+import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsSwitch
 import kotlin.reflect.KFunction1
 
 @Composable
@@ -109,6 +114,37 @@ fun GameMenuHomeScreen(
                 },
             )
         }
+
+        if (gameMenuRequest.colorCorrection >= 0) {
+            LemuroidSettingsSwitch(
+                state = rememberBooleanSettingState(gameMenuRequest.colorCorrection == 1),
+                title = { Text(text = stringResource(id = R.string.game_menu_color_correction)) },
+                icon = {
+                    Icon(
+                        Icons.Outlined.Palette,
+                        contentDescription = stringResource(id = R.string.game_menu_color_correction),
+                    )
+                },
+                onCheckedChange = { enabled ->
+                    onResult { putExtra(GameMenuContract.RESULT_COLOR_CORRECTION, enabled) }
+                },
+            )
+        }
+
+        LemuroidSettingsSwitch(
+            state = rememberBooleanSettingState(gameMenuRequest.immersiveMode),
+            title = { Text(text = stringResource(id = R.string.game_menu_immersive_mode)) },
+            subtitle = { Text(text = stringResource(id = R.string.game_menu_immersive_mode_hint)) },
+            icon = {
+                Icon(
+                    Icons.Outlined.BlurOn,
+                    contentDescription = stringResource(id = R.string.game_menu_immersive_mode),
+                )
+            },
+            onCheckedChange = { enabled ->
+                onResult { putExtra(GameMenuContract.RESULT_IMMERSIVE_MODE, enabled) }
+            },
+        )
 
         if (gameMenuRequest.advancedCoreOptions.isNotEmpty() || gameMenuRequest.coreOptions.isNotEmpty()) {
             LemuroidSettingsMenuLink(

@@ -10,6 +10,10 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import com.swordfish.lemuroid.app.shared.tiles.SystemTileColors
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -133,6 +137,7 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
             SystemBarStyle.dark(Color.TRANSPARENT),
         )
         super.onCreate(savedInstanceState)
+        SystemTileColors.refresh(SharedPreferencesHelper.getSharedPreferences(applicationContext))
 
         GlobalScope.safeLaunch {
             reviewManager.initialize(applicationContext)
@@ -171,8 +176,22 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
         GlobalScope.safeLaunch { SettingsSnapshot.save(context) }
     }
 
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) hideStatusBar()
+    }
+
+    /** The status bar stays out of the way, as in games; swiping down from the top shows it briefly. */
+    private fun hideStatusBar() {
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            hide(WindowInsetsCompat.Type.statusBars())
+        }
+    }
+
     override fun onResume() {
         super.onResume()
+        SystemTileColors.refresh(SharedPreferencesHelper.getSharedPreferences(applicationContext))
         // First launch after a reinstall: bring back the settings kept in Lemuroid/settings as soon
         // as "All files access" is allowed, then reload so they take effect.
         if (SettingsSnapshot.restoreIfNeeded(applicationContext)) {

@@ -10,9 +10,13 @@ import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.swordfish.lemuroid.R
+
+/** Pinkish red for a favorited game. */
+private val FAVORITE_HEART_COLOR = Color(0xFFFF4D6D)
 
 @Composable
 fun FavoriteToggle(
@@ -33,7 +37,7 @@ fun FavoriteToggle(
         Icon(
             image,
             contentDescription = stringResource(R.string.favorites),
-            tint = MaterialTheme.colorScheme.onBackground,
+            tint = if (isToggled) FAVORITE_HEART_COLOR else MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.size(24.dp),
         )
     }

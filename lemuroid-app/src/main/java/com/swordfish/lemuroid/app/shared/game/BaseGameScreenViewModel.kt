@@ -57,7 +57,7 @@ class BaseGameScreenViewModel(
     controllerConfigsManager: ControllerConfigsManager,
     private val system: GameSystem,
     private val systemCoreConfig: SystemCoreConfig,
-    sharedPreferences: SharedPreferences,
+    private val sharedPreferences: SharedPreferences,
     savesManager: SavesManager,
     private val statesManager: StatesManager,
     statesPreviewManager: StatesPreviewManager,
@@ -315,12 +315,16 @@ class BaseGameScreenViewModel(
         applyAudio()
     }
 
-    private val audioEnabledState = MutableStateFlow(true)
+    // The mute choice is remembered per game, so a game muted once starts muted next time.
+    private fun muteKey() = "pref_key_game_muted_${game.id}"
+
+    private val audioEnabledState = MutableStateFlow(!sharedPreferences.getBoolean(muteKey(), false))
 
     fun isAudioEnabled(): Flow<Boolean> = audioEnabledState
 
     fun setAudioEnabled(enabled: Boolean) {
         audioEnabledState.value = enabled
+        sharedPreferences.edit().putBoolean(muteKey(), !enabled).apply()
         applyAudio()
     }
 
@@ -432,6 +436,8 @@ class BaseGameScreenViewModel(
             } else {
                 filterState.value = GameDisplayOptions.Filter.fromShader(gameView.shader)
             }
+            // Starts muted if this game was left muted last time.
+            applyAudio()
         }
     }
 

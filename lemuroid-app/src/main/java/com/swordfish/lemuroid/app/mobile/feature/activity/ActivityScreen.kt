@@ -278,7 +278,7 @@ private fun GameRow(stat: ActivityViewModel.GameStat) {
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = stringResource(R.string.activity_game_details, systemName, stat.sessions),
+                text = systemName,
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,

@@ -95,10 +95,13 @@ fun SecondaryButtonStart(position: Int = 0) {
 context(PadKitScope, LayoutRadialSecondaryDialsScope)
 @Composable
 fun SecondaryButtonMenu(settings: TouchControllerSettingsManager.Settings) {
-    LemuroidControlButton(
-        modifier = Modifier.radialPosition(-60f + 2f * settings.rotation * TouchControllerSettingsManager.MAX_ROTATION),
-        id = Id.Key(KeyEvent.KEYCODE_BUTTON_MODE),
-        icon = R.drawable.button_menu,
+    // The three-line menu button is gone from the touch controls (the in-game button row has a menu
+    // button). The empty slot keeps the other buttons where they were.
+    Box(
+        modifier =
+            Modifier.radialPosition(
+                -60f + 2f * settings.rotation * TouchControllerSettingsManager.MAX_ROTATION,
+            ),
     )
 }
 

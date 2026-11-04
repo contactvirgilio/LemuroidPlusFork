@@ -89,6 +89,8 @@ class GameMenuActivity : RetrogradeComponentActivity() {
         val currentTiltConfiguration: TiltConfiguration,
         val allTiltConfigurations: List<TiltConfiguration>,
         val touchControlsVisible: Boolean,
+        val colorCorrection: Int,
+        val immersiveMode: Boolean,
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -132,6 +134,10 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                         ?: emptyList(),
                 touchControlsVisible =
                     extras?.getBoolean(GameMenuContract.EXTRA_TOUCH_CONTROLS_VISIBLE, true) ?: true,
+                colorCorrection =
+                    extras?.getInt(GameMenuContract.EXTRA_COLOR_CORRECTION, -1) ?: -1,
+                immersiveMode =
+                    extras?.getBoolean(GameMenuContract.EXTRA_IMMERSIVE_MODE, false) ?: false,
             )
 
         setContent {
