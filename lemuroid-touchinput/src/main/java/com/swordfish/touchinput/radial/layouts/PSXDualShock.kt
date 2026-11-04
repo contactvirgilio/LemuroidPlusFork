@@ -4,6 +4,7 @@ import android.view.KeyEvent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import com.swordfish.touchinput.controller.R
 import com.swordfish.touchinput.radial.controls.LemuroidControlCross
 import com.swordfish.touchinput.radial.controls.LemuroidControlFaceButtons
@@ -67,24 +68,28 @@ fun PadKitScope.PSXDualShockRight(
                             LemuroidButtonForeground(
                                 pressed = it,
                                 icon = R.drawable.psx_circle,
+                                pressedColor = Color(0xFFD6403F),
                             )
                         },
                         Id.Key(KeyEvent.KEYCODE_BUTTON_B) to {
                             LemuroidButtonForeground(
                                 pressed = it,
                                 icon = R.drawable.psx_cross,
+                                pressedColor = Color(0xFF4C7BE0),
                             )
                         },
                         Id.Key(KeyEvent.KEYCODE_BUTTON_Y) to {
                             LemuroidButtonForeground(
                                 pressed = it,
                                 icon = R.drawable.psx_square,
+                                pressedColor = Color(0xFFD66FA8),
                             )
                         },
                         Id.Key(KeyEvent.KEYCODE_BUTTON_X) to {
                             LemuroidButtonForeground(
                                 pressed = it,
                                 icon = R.drawable.psx_triangle,
+                                pressedColor = Color(0xFF2FB57A),
                             )
                         },
                     ),

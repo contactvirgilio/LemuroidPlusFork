@@ -10,6 +10,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -20,6 +22,7 @@ import com.swordfish.touchinput.radial.LocalLemuroidPadTheme
 fun LemuroidButtonForeground(
     modifier: Modifier = Modifier,
     pressed: State<Boolean>,
+    pressedColor: Color? = null,
     label: (@Composable BoxWithConstraintsScope.() -> Unit),
     icon: (@Composable BoxWithConstraintsScope.() -> Unit),
 ) {
@@ -27,7 +30,12 @@ fun LemuroidButtonForeground(
 
     GlassSurface(
         modifier = modifier.fillMaxSize().padding(theme.foregroundPadding),
-        fillColor = theme.foregroundFill(pressed.value),
+        fillColor =
+            if (pressed.value && pressedColor != null) {
+                pressedColor.copy(alpha = 0.9f)
+            } else {
+                theme.foregroundFill(pressed.value)
+            },
         shadowColor = theme.level3Shadow,
         shadowWidth = theme.level3ShadowWidth,
         content = {
@@ -45,12 +53,16 @@ fun LemuroidButtonForeground(
     icon: Int? = null,
     iconScale: Float = 0.5f,
     labelScale: Float = 1.0f,
+    pressedColor: Color? = null,
 ) {
+    // Light colors (yellow) get dark lettering, the others white.
+    val pressedTint = pressedColor?.let { if (it.luminance() > 0.5f) Color(0xFF1E1804) else Color.White }
     LemuroidButtonForeground(
         modifier = modifier,
         pressed = pressed,
-        label = { LemuroidButtonForegroundLabel(label, labelScale, pressed) },
-        icon = { LemuroidButtonForegroundIcon(icon, iconScale, pressed) },
+        pressedColor = pressedColor,
+        label = { LemuroidButtonForegroundLabel(label, labelScale, pressed, pressedTint) },
+        icon = { LemuroidButtonForegroundIcon(icon, iconScale, pressed, pressedTint) },
     )
 }
 
@@ -59,6 +71,7 @@ private fun BoxWithConstraintsScope.LemuroidButtonForegroundIcon(
     icon: Int?,
     scale: Float,
     pressedState: State<Boolean>,
+    pressedTint: Color? = null,
 ) {
     if (icon == null) return
 
@@ -66,7 +79,12 @@ private fun BoxWithConstraintsScope.LemuroidButtonForegroundIcon(
         modifier = Modifier.size(maxWidth * scale, maxHeight * scale),
         painter = painterResource(icon),
         contentDescription = "",
-        tint = LocalLemuroidPadTheme.current.icons(pressedState.value),
+        tint =
+            if (pressedState.value && pressedTint != null) {
+                pressedTint
+            } else {
+                LocalLemuroidPadTheme.current.icons(pressedState.value)
+            },
     )
 }
 
@@ -75,6 +93,7 @@ private fun BoxWithConstraintsScope.LemuroidButtonForegroundLabel(
     label: String?,
     scale: Float,
     pressedState: State<Boolean>,
+    pressedTint: Color? = null,
 ) {
     if (label == null) return
     val fontSize = minOf(maxHeight * 0.5f * scale, maxWidth / label.length * scale)
@@ -83,7 +102,12 @@ private fun BoxWithConstraintsScope.LemuroidButtonForegroundLabel(
         textAlign = TextAlign.Center,
         fontWeight = FontWeight.Bold,
         text = label,
-        color = LocalLemuroidPadTheme.current.icons(pressedState.value),
+        color =
+            if (pressedState.value && pressedTint != null) {
+                pressedTint
+            } else {
+                LocalLemuroidPadTheme.current.icons(pressedState.value)
+            },
         fontSize = fontSize.textUnit(),
     )
 }

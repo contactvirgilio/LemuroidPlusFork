@@ -99,8 +99,23 @@ class GameDisplayOptions(
                 SystemID.FBNEO, SystemID.MAME2003PLUS, SystemID.DOS -> null
             }
 
-        fun isScalingSupported(systemId: SystemID): Boolean {
-            return baseHeight(systemId) != null && GamePreviewCropper.aspectRatioFor(systemId) != null
+        /** Height of the picture and its shape, used to work out whole-number sizes. */
+        class Profile(val baseHeight: Int, val aspectRatio: Float)
+
+        /**
+         * Null when the game has no fixed picture size (most of Arcade), so there is nothing to
+         * scale. Neo Geo games inside Arcade are the exception: they all draw 320 x 224.
+         */
+        fun profileFor(
+            systemId: SystemID,
+            romFileName: String,
+        ): Profile? {
+            if (systemId == SystemID.FBNEO && NeoGeoSets.isNeoGeo(romFileName)) {
+                return Profile(224, 4f / 3f)
+            }
+            val height = baseHeight(systemId) ?: return null
+            val aspectRatio = GamePreviewCropper.aspectRatioFor(systemId) ?: return null
+            return Profile(height, aspectRatio)
         }
 
         /**
@@ -109,7 +124,7 @@ class GameDisplayOptions(
          */
         fun computeViewport(
             scaling: Scaling,
-            systemId: SystemID,
+            profile: Profile?,
             alignment: ViewportAlignment,
             viewWidth: Float,
             viewHeight: Float,
@@ -127,8 +142,8 @@ class GameDisplayOptions(
                 )
             if (scaling == Scaling.FIT) return fit
 
-            val baseHeight = baseHeight(systemId) ?: return fit
-            val aspectRatio = GamePreviewCropper.aspectRatioFor(systemId) ?: return fit
+            val baseHeight = profile?.baseHeight ?: return fit
+            val aspectRatio = profile.aspectRatio
 
             val areaWidth = areaRight - areaLeft
             val areaHeight = areaBottom - areaTop

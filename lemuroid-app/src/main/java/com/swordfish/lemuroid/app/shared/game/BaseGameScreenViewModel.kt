@@ -393,7 +393,9 @@ class BaseGameScreenViewModel(
             )
     }
 
-    fun isScalingSupported(): Boolean = GameDisplayOptions.isScalingSupported(system.id)
+    private val scalingProfile = GameDisplayOptions.profileFor(system.id, game.fileName)
+
+    fun isScalingSupported(): Boolean = scalingProfile != null
 
     private val scalingState = MutableStateFlow(displayOptions.savedScaling())
 
@@ -422,7 +424,7 @@ class BaseGameScreenViewModel(
         area: android.graphics.RectF,
     ) = GameDisplayOptions.computeViewport(
         scaling,
-        system.id,
+        scalingProfile,
         alignment,
         viewWidth,
         viewHeight,
