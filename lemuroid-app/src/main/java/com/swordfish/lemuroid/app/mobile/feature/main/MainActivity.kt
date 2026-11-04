@@ -16,6 +16,8 @@ import androidx.core.view.WindowInsetsControllerCompat
 import com.swordfish.lemuroid.app.shared.tiles.SystemTileColors
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -256,18 +258,35 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
                     .collectAsState(MainViewModel.UiState())
                     .value
 
+            // Vertical layout: one bar on the left for the main pages. The top bar stays on Search (it
+            // holds the search box) and on the inner pages (title and back button).
+            val railVisible = rememberVerticalBar() && currentRoute.showBottomNavigation
+
             Scaffold(
                 topBar = {
-                    MainTopBar(
-                        currentRoute = currentRoute,
-                        navController = navController,
-                        onHelpPressed = onHelpPressed,
-                        mainUIState = mainUIState,
-                        onUpdateQueryString = { mainViewModel.changeQueryString(it) },
-                    )
+                    if (!railVisible || currentRoute == MainRoute.SEARCH) {
+                        MainTopBar(
+                            currentRoute = currentRoute,
+                            navController = navController,
+                            onHelpPressed = onHelpPressed,
+                            mainUIState = mainUIState,
+                            onUpdateQueryString = { mainViewModel.changeQueryString(it) },
+                        )
+                    }
                 },
-                bottomBar = { MainNavigationBar(currentRoute, navController) },
+                bottomBar = { if (!railVisible) MainNavigationBar(currentRoute, navController) },
             ) { padding ->
+                Row(modifier = Modifier.fillMaxSize()) {
+                    if (railVisible) {
+                        MainNavigationRail(
+                            currentRoute = currentRoute,
+                            navController = navController,
+                            onHelpPressed = onHelpPressed,
+                            saveSyncEnabled = mainUIState.saveSyncEnabled,
+                            operationsInProgress = mainUIState.operationInProgress,
+                        )
+                    }
+                    Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
                 NavHost(
                     modifier = Modifier.fillMaxSize(),
                     navController = navController,
@@ -443,6 +462,8 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
                                         ),
                                 ),
                         )
+                    }
+                }
                     }
                 }
             }

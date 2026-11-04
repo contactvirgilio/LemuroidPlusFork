@@ -185,7 +185,7 @@ fun LemuroidTopBarActions(
 
 /** Small / large tiles switch on Home and Favorites. */
 @Composable
-private fun HomeTileSizeButtons() {
+internal fun HomeTileSizeButtons() {
     val context = LocalContext.current
     val currentSize = rememberHomeTileSize()
 
