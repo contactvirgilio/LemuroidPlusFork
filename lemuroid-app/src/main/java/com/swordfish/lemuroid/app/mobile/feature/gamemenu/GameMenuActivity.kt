@@ -5,6 +5,7 @@ package com.swordfish.lemuroid.app.mobile.feature.gamemenu
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import com.swordfish.lemuroid.app.shared.game.BaseGameActivity
 import android.view.KeyEvent
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -95,6 +96,20 @@ class GameMenuActivity : RetrogradeComponentActivity() {
         val touchControlsVisible: Boolean,
         val colorCorrection: Int,
     )
+
+    private var leftByUser = false
+
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        leftByUser = true
+        BaseGameActivity.menuLeftByUser = true
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // The game closes in the background; do not leave the menu behind it.
+        if (leftByUser && !isFinishing) finish()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

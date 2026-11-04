@@ -344,6 +344,7 @@ abstract class BaseGameActivity : ImmersiveActivity() {
     override fun onResume() {
         super.onResume()
         leftByUser = false
+        menuLeftByUser = false
         playTimeTracker.onGameVisible()
     }
 
@@ -405,7 +406,7 @@ abstract class BaseGameActivity : ImmersiveActivity() {
 
     override fun onStop() {
         if (!finishTriggered && !isFinishing && !isChangingConfigurations) {
-            if (leftByUser) {
+            if (leftByUser || (runsInOwnTask && menuLeftByUser)) {
                 // Home screen mode: Home leaves the game. Close it like Quit does (auto save included).
                 baseGameScreenViewModel.requestFinishFromBackground()
             } else {
@@ -483,6 +484,10 @@ abstract class BaseGameActivity : ImmersiveActivity() {
     }
 
     companion object {
+        /** Home or Recents was pressed while the game's menu was on top of the game. */
+        @Volatile
+        var menuLeftByUser = false
+
         const val DIALOG_REQUEST = 100
 
         private const val EXTRA_GAME = "GAME"
