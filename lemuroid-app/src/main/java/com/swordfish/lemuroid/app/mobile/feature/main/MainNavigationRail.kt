@@ -126,9 +126,6 @@ fun MainNavigationRail(
 
         Divider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
 
-        if (currentRoute == MainRoute.HOME || currentRoute == MainRoute.FAVORITES) {
-            HomeTileSizeButtons()
-        }
         if (saveSyncEnabled) {
             IconButton(
                 onClick = { SaveSyncWork.enqueueManualWork(context.applicationContext) },

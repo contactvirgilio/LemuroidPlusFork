@@ -6,6 +6,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.Modifier
 import com.swordfish.lemuroid.lib.library.db.entity.Game
 
@@ -17,6 +22,7 @@ fun LemuroidGameCard(
     onClick: () -> Unit = { },
     onLongClick: () -> Unit = { },
 ) {
+    var focused by remember { mutableStateOf(false) }
     ElevatedCard(
         modifier = modifier.focusHighlight(color = gameFocusColor(game)),
     ) {
@@ -24,13 +30,14 @@ fun LemuroidGameCard(
             modifier =
                 Modifier
                     .fillMaxWidth()
+                    .onFocusChanged { focused = it.hasFocus }
                     .combinedClickable(
                         onClick = onClick,
                         onLongClick = onLongClick,
                     ),
         ) {
             LemuroidGameImage(game = game)
-            LemuroidGameTexts(game = game, lines = 2)
+            LemuroidGameTexts(game = game, lines = 2, focused = focused)
         }
     }
 }

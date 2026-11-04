@@ -145,7 +145,7 @@ fun LemuroidTopBarActions(
     onHelpPressed: () -> Unit,
 ) {
     Row {
-        if (route == MainRoute.SYSTEM_GAMES) {
+        if (route == MainRoute.SYSTEM_GAMES && !rememberVerticalBar()) {
             GamesViewModeButtons()
         }
         if (route == MainRoute.HOME || route == MainRoute.FAVORITES) {

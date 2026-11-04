@@ -110,7 +110,9 @@ class GameDisplayOptions(
             systemId: SystemID,
             romFileName: String,
         ): Profile? {
-            if (systemId == SystemID.FBNEO && NeoGeoSets.isNeoGeo(romFileName)) {
+            val isArcade = systemId == SystemID.FBNEO || systemId == SystemID.MAME2003PLUS
+            // Neo Geo (320 x 224) and Capcom CPS1/CPS2 (384 x 224) games, all shown at 4:3.
+            if (isArcade && (NeoGeoSets.isNeoGeo(romFileName) || CpsSets.isCps(romFileName))) {
                 return Profile(224, 4f / 3f)
             }
             val height = baseHeight(systemId) ?: return null

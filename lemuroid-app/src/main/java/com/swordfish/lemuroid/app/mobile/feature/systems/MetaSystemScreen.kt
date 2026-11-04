@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.grid.GridCells
+import com.swordfish.lemuroid.app.mobile.feature.main.rememberVerticalBar
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -39,12 +40,14 @@ private fun MetaSystemsScreen(
         return
     }
 
+    // The vertical layout shows small system tiles, so more fit on the RPC's 4:3 screen.
+    val vertical = rememberVerticalBar()
     LazyVerticalGrid(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        columns = GridCells.Adaptive(116.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(if (vertical) 12.dp else 16.dp),
+        columns = GridCells.Adaptive(if (vertical) 88.dp else 116.dp),
+        horizontalArrangement = Arrangement.spacedBy(if (vertical) 12.dp else 16.dp),
+        verticalArrangement = Arrangement.spacedBy(if (vertical) 12.dp else 16.dp),
     ) {
         items(metaSystems.size, key = { metaSystems[it].metaSystem }) { index ->
             val system = metaSystems[index]

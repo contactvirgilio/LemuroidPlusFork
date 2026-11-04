@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.swordfish.lemuroid.app.mobile.feature.main.rememberVerticalBar
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -50,5 +51,6 @@ object HomeTileSizeStore {
 fun rememberHomeTileSize(): HomeTileSize {
     val context = LocalContext.current
     val size by HomeTileSizeStore.get(context).collectAsState()
-    return size
+    // The vertical layout has only the small tiles, with no buttons to change them.
+    return if (rememberVerticalBar()) HomeTileSize.SMALL else size
 }

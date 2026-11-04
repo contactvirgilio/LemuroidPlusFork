@@ -79,7 +79,7 @@ fun MenuCard(
         contentAlignment = Alignment.Center,
     ) {
         val cardWidth = minOf(maxWidth * 0.94f, 640.dp)
-        val cardHeight = minOf(maxHeight * 0.94f, 440.dp)
+        val cardHeight = minOf(maxHeight * 0.94f, 640.dp)
         Column(
             modifier =
                 Modifier
