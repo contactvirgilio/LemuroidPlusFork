@@ -10,12 +10,16 @@ import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import com.alorma.compose.settings.storage.memory.rememberMemoryIntSettingState
-import com.alorma.compose.settings.storage.base.rememberBooleanSettingState
+import com.alorma.compose.settings.storage.base.SettingValueState
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.shared.GameMenuContract
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsList
@@ -160,3 +164,15 @@ fun GameMenuHomeScreen(
         }
     }
 }
+
+/** A switch state that lives only while the menu is open; the choice is sent back as a result. */
+private class MenuSwitchState(private val initial: Boolean) : SettingValueState<Boolean> {
+    override var value: Boolean by mutableStateOf(initial)
+
+    override fun reset() {
+        value = initial
+    }
+}
+
+@Composable
+private fun rememberBooleanSettingState(initial: Boolean): SettingValueState<Boolean> = remember { MenuSwitchState(initial) }
