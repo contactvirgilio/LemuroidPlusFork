@@ -46,6 +46,7 @@ import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LemuroidSmallGameImag
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.focusHighlight
 import com.swordfish.lemuroid.app.shared.tiles.SystemTileColors
 import com.swordfish.lemuroid.lib.library.GameSystem
+import com.swordfish.lemuroid.lib.library.MetaSystemID
 
 /** Simple play tracker: this week, a bar per day, most played games and time per system. */
 @Composable
@@ -259,7 +260,13 @@ private fun WeekChart(
 @Composable
 private fun GameRow(stat: ActivityViewModel.GameStat) {
     val systemTitleId =
-        remember(stat.game.systemId) { runCatching { GameSystem.findById(stat.game.systemId).titleResId }.getOrNull() }
+        remember(stat.game.systemId) {
+            if (isArcadeId(stat.game.systemId)) {
+                MetaSystemID.ARCADE.titleResId
+            } else {
+                runCatching { GameSystem.findById(stat.game.systemId).titleResId }.getOrNull()
+            }
+        }
     val systemName = systemTitleId?.let { stringResource(it) } ?: ""
     Row(
         modifier = Modifier.fillMaxWidth().focusHighlight(zoom = 1f),
@@ -294,7 +301,13 @@ private fun SystemRow(
     longest: Long,
 ) {
     val shortTitleId =
-        remember(stat.systemId) { runCatching { GameSystem.findById(stat.systemId).shortTitleResId }.getOrNull() }
+        remember(stat.systemId) {
+            if (isArcadeId(stat.systemId)) {
+                MetaSystemID.ARCADE.titleResId
+            } else {
+                runCatching { GameSystem.findById(stat.systemId).shortTitleResId }.getOrNull()
+            }
+        }
     val name = shortTitleId?.let { stringResource(it) } ?: stat.systemId
     val color = Color(SystemTileColors.forSystemId(stat.systemId).base)
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -337,3 +350,6 @@ private fun formatDuration(millis: Long): String {
 }
 
 private val TODAY_COLOR = Color(0xFF5EEAD4)
+
+/** FBNeo and MAME are both called "Arcade" in the library, so Activity uses that name too. */
+private fun isArcadeId(systemId: String) = systemId == "fbneo" || systemId == "mame2003plus"

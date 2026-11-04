@@ -111,7 +111,8 @@ class ActivityViewModel(
     }
 
     private fun systems(entries: List<PlayActivityLog.Entry>): List<SystemStat> {
-        return entries.groupBy { it.systemId }
+        // Both arcade systems (FBNeo and MAME) count as one "Arcade" row.
+        return entries.groupBy { if (it.systemId == MAME_ID) FBNEO_ID else it.systemId }
             .map { (systemId, list) -> SystemStat(systemId, list.sumOf { it.duration }) }
             .sortedByDescending { it.duration }
     }
@@ -140,6 +141,8 @@ class ActivityViewModel(
     }
 
     companion object {
+        private const val FBNEO_ID = "fbneo"
+        private const val MAME_ID = "mame2003plus"
         private const val MONTH_TOP_GAMES = 5
         private const val ALL_TIME_TOP_GAMES = 10
         private const val MIN_SESSION_MS = 5 * 60 * 1000L
