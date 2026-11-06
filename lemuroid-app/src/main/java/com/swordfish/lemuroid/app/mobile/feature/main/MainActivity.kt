@@ -24,6 +24,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -276,7 +277,14 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
                 },
                 bottomBar = { if (!railVisible) MainNavigationBar(currentRoute, navController) },
             ) { padding ->
-                Row(modifier = Modifier.fillMaxSize()) {
+                Row(
+                    modifier =
+                        if (railVisible && currentRoute != MainRoute.SEARCH) {
+                            Modifier.fillMaxSize().windowInsetsPadding(topSafeInsets())
+                        } else {
+                            Modifier.fillMaxSize()
+                        },
+                ) {
                     if (railVisible) {
                         MainNavigationRail(
                             currentRoute = currentRoute,

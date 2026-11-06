@@ -93,6 +93,7 @@ fun LemuroidTopAppBar(
     val topBarColor = BottomAppBarDefaults.containerColor
 
     TopAppBar(
+        windowInsets = topSafeInsets(),
         title = {
             if (route == MainRoute.SEARCH) {
                 LemuroidSearchView(
