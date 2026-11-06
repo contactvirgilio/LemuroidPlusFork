@@ -1,6 +1,7 @@
 package com.swordfish.lemuroid.app.mobile.feature.main
 
 import android.os.Build
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.displayCutout
@@ -18,6 +19,7 @@ import androidx.compose.ui.platform.LocalView
  * we keep the status bar's height as a safe margin even while it is hidden; screens without a cutout
  * (like the Retroid Pocket) get no extra space.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun topSafeInsets(): WindowInsets {
     val view = LocalView.current
