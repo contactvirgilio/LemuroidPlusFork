@@ -41,6 +41,12 @@ interface StorageProvider {
 
     fun getInputStream(uri: Uri): InputStream?
 
+    /**
+     * Start of the uris of games that live in a folder the provider could not reach during this scan
+     * (an SD card that is out, a lost permission). Their games must not be dropped from the library.
+     */
+    fun unavailableUriPrefixes(): List<String> = emptyList()
+
     fun getStorageFile(baseStorageFile: BaseStorageFile): StorageFile?
 
     fun getGameRomFiles(

@@ -52,6 +52,8 @@ class LemuroidLibrary(
 ) {
     suspend fun indexLibrary() {
         val startedAtMs = System.currentTimeMillis()
+        // Games in a folder we cannot reach right now (SD card out) are kept, not deleted.
+        val unavailablePrefixes = collectUnavailablePrefixes()
 
         try {
             indexProviders(startedAtMs)
@@ -64,7 +66,9 @@ class LemuroidLibrary(
         } catch (e: Throwable) {
             Timber.e(e, "BIOS folder import failed")
         } finally {
-            cleanUp(startedAtMs)
+            kotlin.runCatching { removeDuplicateGames(startedAtMs, unavailablePrefixes) }
+                .onFailure { Timber.e(it, "Removing duplicate games failed") }
+            cleanUp(startedAtMs, unavailablePrefixes)
         }
 
         val executionTime = System.currentTimeMillis() - startedAtMs
@@ -261,16 +265,62 @@ class LemuroidLibrary(
             .getOrNull()
     }
 
-    private fun cleanUp(startedAtMs: Long) {
+    private fun collectUnavailablePrefixes(): List<String> {
+        return runCatching {
+            storageProviderRegistry.get().enabledProviders.flatMap { it.unavailableUriPrefixes() }
+        }.getOrDefault(emptyList())
+    }
+
+    private fun cleanUp(
+        startedAtMs: Long,
+        unavailablePrefixes: List<String>,
+    ) {
         kotlin.runCatching {
             removeDeletedBios(startedAtMs)
         }
         kotlin.runCatching {
-            removeDeletedGames(startedAtMs)
+            removeDeletedGames(startedAtMs, unavailablePrefixes)
         }
         kotlin.runCatching {
-            removeDeletedDataFiles(startedAtMs)
+            removeDeletedDataFiles(startedAtMs, unavailablePrefixes)
         }
+    }
+
+    /**
+     * The same game in two places (or two folders of one place) shares one save, so it is listed once.
+     * The oldest entry stays, so favorites and play history stay on it; the newest data is merged in.
+     */
+    private suspend fun removeDuplicateGames(
+        startedAtMs: Long,
+        unavailablePrefixes: List<String>,
+    ) {
+        fun isOffline(game: Game) = unavailablePrefixes.any { game.fileUri.startsWith(it) }
+
+        val survivors =
+            retrogradedb.gameDao().selectAll()
+                .filter { it.lastIndexedAt >= startedAtMs || isOffline(it) }
+
+        survivors
+            .groupBy { it.systemId to it.fileName.lowercase() }
+            .values
+            .filter { it.size > 1 }
+            .forEach { group ->
+                // A copy we can read right now is the one to keep; otherwise the oldest.
+                val keeper =
+                    group.sortedWith(
+                        compareBy<Game>({ it.lastIndexedAt < startedAtMs }, { it.id }),
+                    ).first()
+                val others = group.filter { it.id != keeper.id }
+
+                val merged =
+                    keeper.copy(
+                        isFavorite = group.any { it.isFavorite },
+                        lastPlayedAt = group.mapNotNull { it.lastPlayedAt }.maxOrNull(),
+                        customName = keeper.customName ?: others.firstNotNullOfOrNull { it.customName },
+                    )
+                retrogradedb.gameDao().update(merged)
+                retrogradedb.gameDao().delete(others)
+            }
     }
 
     private fun removeDeletedBios(startedAtMs: Long) {
@@ -311,15 +361,25 @@ class LemuroidLibrary(
         )
     }
 
-    private fun removeDeletedDataFiles(startedAtMs: Long) {
+    private fun removeDeletedDataFiles(
+        startedAtMs: Long,
+        unavailablePrefixes: List<String>,
+    ) {
         Timber.d("Deleting data files from db before: $startedAtMs")
-        val dataFiles = retrogradedb.dataFileDao().selectByLastIndexedAtLessThan(startedAtMs)
+        val dataFiles =
+            retrogradedb.dataFileDao().selectByLastIndexedAtLessThan(startedAtMs)
+                .filterNot { file -> unavailablePrefixes.any { file.fileUri.startsWith(it) } }
         retrogradedb.dataFileDao().delete(dataFiles)
     }
 
-    private fun removeDeletedGames(startedAtMs: Long) {
+    private fun removeDeletedGames(
+        startedAtMs: Long,
+        unavailablePrefixes: List<String>,
+    ) {
         Timber.d("Deleting games from db before: $startedAtMs")
-        val games = retrogradedb.gameDao().selectByLastIndexedAtLessThan(startedAtMs)
+        val games =
+            retrogradedb.gameDao().selectByLastIndexedAtLessThan(startedAtMs)
+                .filterNot { game -> unavailablePrefixes.any { game.fileUri.startsWith(it) } }
 
         retrogradedb.gameDao().delete(games)
     }

@@ -19,6 +19,7 @@ import com.swordfish.lemuroid.lib.storage.RomFiles
 import com.swordfish.lemuroid.lib.storage.StorageFile
 import com.swordfish.lemuroid.lib.storage.StorageProvider
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
 import timber.log.Timber
@@ -38,19 +39,50 @@ class StorageAccessFrameworkProvider(private val context: Context) : StorageProv
     override val enabledByDefault = true
 
     override fun listBaseStorageFiles(): Flow<List<BaseStorageFile>> {
-        return getExternalFolder()?.let { folder ->
-            traverseDirectoryEntries(Uri.parse(folder))
-        } ?: emptyFlow()
+        val reachableFolders = getExternalFolders().map { Uri.parse(it) }.filter { isReachable(it) }
+        if (reachableFolders.isEmpty()) return emptyFlow()
+        return flow {
+            // First folder first: when a game is in both, the first one is the one kept.
+            reachableFolders.forEach { emitAll(traverseDirectoryEntries(it)) }
+        }
+    }
+
+    override fun unavailableUriPrefixes(): List<String> {
+        return getExternalFolders()
+            .map { Uri.parse(it) }
+            .filterNot { isReachable(it) }
+            .mapNotNull { documentUriPrefix(it) }
+    }
+
+    private fun isReachable(treeUri: Uri): Boolean {
+        return runCatching {
+            val documentId = DocumentsContract.getTreeDocumentId(treeUri)
+            val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, documentId)
+            val projection = arrayOf(DocumentsContract.Document.COLUMN_DOCUMENT_ID)
+            context.contentResolver.query(childrenUri, projection, null, null, null)?.use { true } ?: false
+        }.getOrDefault(false)
+    }
+
+    // Games of this folder have uris built the same way, so they all start with this.
+    private fun documentUriPrefix(treeUri: Uri): String? {
+        return runCatching {
+            val documentId = DocumentsContract.getTreeDocumentId(treeUri)
+            val rootDocument = DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId).toString()
+            val marker = "/document/"
+            rootDocument.substring(0, rootDocument.indexOf(marker) + marker.length)
+        }.getOrNull()
     }
 
     override fun getStorageFile(baseStorageFile: BaseStorageFile): StorageFile? {
         return DocumentFileParser.parseDocumentFile(context, baseStorageFile)
     }
 
-    private fun getExternalFolder(): String? {
-        val prefString = context.getString(R.string.pref_key_extenral_folder)
+    private fun getExternalFolders(): List<String> {
         val preferenceManager = SharedPreferencesHelper.getLegacySharedPreferences(context)
-        return preferenceManager.getString(prefString, null)
+        return listOf(R.string.pref_key_extenral_folder, R.string.pref_key_extenral_folder_2)
+            .mapNotNull { preferenceManager.getString(context.getString(it), null) }
+            .filter { it.isNotBlank() }
+            .distinct()
     }
 
     private fun traverseDirectoryEntries(rootUri: Uri): Flow<List<BaseStorageFile>> =

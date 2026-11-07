@@ -14,6 +14,14 @@ class SettingsInteractor(
         StorageFrameworkPickerLauncher.pickFolder(context)
     }
 
+    fun changeSecondStorageFolder() {
+        StorageFrameworkPickerLauncher.pickFolder(context, slot = 2)
+    }
+
+    fun removeSecondStorageFolder() {
+        StorageFrameworkPickerLauncher.removeSecondFolder(context)
+    }
+
     fun resetAllSettings() {
         SharedPreferencesHelper.getLegacySharedPreferences(context).edit().clear().apply()
         SharedPreferencesHelper.getSharedPreferences(context).edit().clear().apply()

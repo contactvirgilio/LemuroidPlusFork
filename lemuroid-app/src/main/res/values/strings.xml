@@ -11,6 +11,11 @@
     <string name="stop">Stop</string>
     <string name="none">None</string>
     <string name="directory">Directory</string>
+    <string name="second_directory">Second directory</string>
+    <string name="second_directory_remove">Remove second directory</string>
+    <string name="second_directory_unavailable">Not available right now</string>
+    <string name="folders_card_title">ROM folders</string>
+    <string name="folders_card_overlap">That folder is the same as, or inside, your other ROM folder</string>
     <string name="display_filter">Display filter</string>
     <string name="roms">ROMs</string>
     <string name="ok">OK</string>

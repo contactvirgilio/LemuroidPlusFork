@@ -11,6 +11,7 @@ import com.swordfish.lemuroid.app.shared.settings.SettingsInteractor
 import com.swordfish.lemuroid.lib.savesync.SaveSyncManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -39,6 +40,7 @@ class SettingsViewModel(
 
     data class State(
         val currentDirectory: String = "",
+        val secondDirectory: String = "",
         val isSaveSyncSupported: Boolean = false,
     )
 
@@ -47,11 +49,23 @@ class SettingsViewModel(
     val directoryScanInProgress = PendingOperationsMonitor(context).isDirectoryScanInProgress()
 
     val uiState =
-        sharedPreferences.getString(context.getString(com.swordfish.lemuroid.lib.R.string.pref_key_extenral_folder))
-            .asFlow()
+        combine(
+            sharedPreferences.getString(context.getString(com.swordfish.lemuroid.lib.R.string.pref_key_extenral_folder))
+                .asFlow(),
+            sharedPreferences.getString(context.getString(com.swordfish.lemuroid.lib.R.string.pref_key_extenral_folder_2))
+                .asFlow(),
+        ) { first, second -> first to second }
             .flowOn(Dispatchers.IO)
-            .stateIn(viewModelScope, SharingStarted.Lazily, "")
-            .map { State(it, saveSyncManager.isSupported()) }
+            .stateIn(viewModelScope, SharingStarted.Lazily, "" to "")
+            .map { (first, second) -> State(first, second, saveSyncManager.isSupported()) }
+
+    fun changeSecondStorageFolder() {
+        settingsInteractor.changeSecondStorageFolder()
+    }
+
+    fun removeSecondStorageFolder() {
+        settingsInteractor.removeSecondStorageFolder()
+    }
 
     fun changeLocalStorageFolder() {
         settingsInteractor.changeLocalStorageFolder()

@@ -23,7 +23,7 @@ object SettingsSnapshot {
     private const val RESTORE_CHECKED_KEY = "pref_key_settings_snapshot_checked"
 
     // The ROM folder needs Android's permission, which a reinstall loses: never restore it.
-    private val EXCLUDED_KEYS = setOf("external_folder", "legacy_external_folder", RESTORE_CHECKED_KEY)
+    private val EXCLUDED_KEYS = setOf("external_folder", "external_folder_2", "legacy_external_folder", RESTORE_CHECKED_KEY)
 
     fun settingsFolder(): File = File(DirectoriesManager.getPublicRootDirectory(), "settings")
 

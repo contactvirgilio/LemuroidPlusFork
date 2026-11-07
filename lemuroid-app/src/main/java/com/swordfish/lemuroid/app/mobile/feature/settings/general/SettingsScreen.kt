@@ -66,6 +66,8 @@ fun SettingsScreen(
         RomsSettings(
             state = state,
             onChangeFolder = { viewModel.changeLocalStorageFolder() },
+            onChangeSecondFolder = { viewModel.changeSecondStorageFolder() },
+            onRemoveSecondFolder = { viewModel.removeSecondStorageFolder() },
             indexingInProgress = indexingInProgress,
             scanInProgress = scanInProgress,
         )
@@ -288,6 +290,8 @@ private fun GeneralSettings() {
 private fun RomsSettings(
     state: SettingsViewModel.State,
     onChangeFolder: () -> Unit,
+    onChangeSecondFolder: () -> Unit,
+    onRemoveSecondFolder: () -> Unit,
     indexingInProgress: Boolean,
     scanInProgress: Boolean,
 ) {
@@ -303,6 +307,18 @@ private fun RomsSettings(
             }.getOrNull() ?: emptyDirectory
         }
 
+    val unavailable = stringResource(R.string.second_directory_unavailable)
+    val secondDirectoryName =
+        remember(state.secondDirectory) {
+            if (state.secondDirectory.isBlank()) {
+                emptyDirectory
+            } else {
+                runCatching {
+                    DocumentFile.fromTreeUri(context, Uri.parse(state.secondDirectory))?.name
+                }.getOrNull() ?: unavailable
+            }
+        }
+
     LemuroidCardSettingsGroup(title = { Text(text = stringResource(id = R.string.roms)) }) {
         LemuroidSettingsMenuLink(
             title = { Text(text = stringResource(id = R.string.directory)) },
@@ -310,6 +326,19 @@ private fun RomsSettings(
             onClick = { onChangeFolder() },
             enabled = !indexingInProgress,
         )
+        LemuroidSettingsMenuLink(
+            title = { Text(text = stringResource(id = R.string.second_directory)) },
+            subtitle = { Text(text = secondDirectoryName) },
+            onClick = { onChangeSecondFolder() },
+            enabled = !indexingInProgress,
+        )
+        if (state.secondDirectory.isNotBlank()) {
+            LemuroidSettingsMenuLink(
+                title = { Text(text = stringResource(id = R.string.second_directory_remove)) },
+                onClick = { onRemoveSecondFolder() },
+                enabled = !indexingInProgress,
+            )
+        }
         if (scanInProgress) {
             LemuroidSettingsMenuLink(
                 title = { Text(text = stringResource(id = R.string.stop)) },
