@@ -50,6 +50,7 @@ import com.swordfish.lemuroid.lib.core.CoresSelection
 import com.swordfish.lemuroid.lib.game.GameLoader
 import com.swordfish.lemuroid.lib.injection.PerActivity
 import com.swordfish.lemuroid.lib.injection.PerApp
+import com.swordfish.lemuroid.lib.library.HiddenGamesStash
 import com.swordfish.lemuroid.lib.library.LemuroidLibrary
 import com.swordfish.lemuroid.lib.library.db.RetrogradeDatabase
 import com.swordfish.lemuroid.lib.library.db.dao.GameSearchDao
@@ -173,11 +174,12 @@ abstract class LemuroidApplicationModule {
         @PerApp
         @JvmStatic
         fun lemuroidLibrary(
+            context: Context,
             db: RetrogradeDatabase,
             storageProviderRegistry: Lazy<StorageProviderRegistry>,
             gameMetadataProvider: Lazy<GameMetadataProvider>,
             biosManager: BiosManager,
-        ) = LemuroidLibrary(db, storageProviderRegistry, gameMetadataProvider, biosManager)
+        ) = LemuroidLibrary(HiddenGamesStash(context), db, storageProviderRegistry, gameMetadataProvider, biosManager)
 
         @Provides
         @PerApp

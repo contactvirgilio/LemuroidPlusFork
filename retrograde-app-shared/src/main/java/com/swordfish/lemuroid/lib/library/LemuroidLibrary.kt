@@ -45,6 +45,7 @@ import kotlinx.coroutines.flow.mapNotNull
 import timber.log.Timber
 
 class LemuroidLibrary(
+    private val hiddenGamesStash: HiddenGamesStash,
     private val retrogradedb: RetrogradeDatabase,
     private val storageProviderRegistry: Lazy<StorageProviderRegistry>,
     private val gameMetadataProvider: Lazy<GameMetadataProvider>,
@@ -52,7 +53,7 @@ class LemuroidLibrary(
 ) {
     suspend fun indexLibrary() {
         val startedAtMs = System.currentTimeMillis()
-        // Games in a folder we cannot reach right now (SD card out) are kept, not deleted.
+        // Games in a folder we cannot reach right now (SD card out) are hidden until it is back.
         val unavailablePrefixes = collectUnavailablePrefixes()
 
         try {
@@ -66,7 +67,7 @@ class LemuroidLibrary(
         } catch (e: Throwable) {
             Timber.e(e, "BIOS folder import failed")
         } finally {
-            kotlin.runCatching { removeDuplicateGames(startedAtMs, unavailablePrefixes) }
+            kotlin.runCatching { removeDuplicateGames(startedAtMs) }
                 .onFailure { Timber.e(it, "Removing duplicate games failed") }
             cleanUp(startedAtMs, unavailablePrefixes)
         }
@@ -206,7 +207,7 @@ class LemuroidLibrary(
     ) {
         val games =
             pairs
-                .map { it.game }
+                .map { restoreHiddenDetails(it.game) }
 
         games.forEach { Timber.d("Insert: $it") }
 
@@ -222,6 +223,13 @@ class LemuroidLibrary(
                 }
 
         retrogradedb.dataFileDao().insert(dataFiles)
+    }
+
+    // A game whose folder was out comes back with its favorite, history and custom name.
+    private fun restoreHiddenDetails(game: Game): Game {
+        return hiddenGamesStash.restore(game) { id ->
+            retrogradedb.gameDao().selectExistingIds(listOf(id)).isEmpty()
+        }
     }
 
     private fun handleUnknownFiles(
@@ -282,7 +290,7 @@ class LemuroidLibrary(
             removeDeletedGames(startedAtMs, unavailablePrefixes)
         }
         kotlin.runCatching {
-            removeDeletedDataFiles(startedAtMs, unavailablePrefixes)
+            removeDeletedDataFiles(startedAtMs)
         }
     }
 
@@ -290,26 +298,17 @@ class LemuroidLibrary(
      * The same game in two places (or two folders of one place) shares one save, so it is listed once.
      * The oldest entry stays, so favorites and play history stay on it; the newest data is merged in.
      */
-    private suspend fun removeDuplicateGames(
-        startedAtMs: Long,
-        unavailablePrefixes: List<String>,
-    ) {
-        fun isOffline(game: Game) = unavailablePrefixes.any { game.fileUri.startsWith(it) }
-
+    private suspend fun removeDuplicateGames(startedAtMs: Long) {
         val survivors =
             retrogradedb.gameDao().selectAll()
-                .filter { it.lastIndexedAt >= startedAtMs || isOffline(it) }
+                .filter { it.lastIndexedAt >= startedAtMs }
 
         survivors
             .groupBy { it.systemId to it.fileName.lowercase() }
             .values
             .filter { it.size > 1 }
             .forEach { group ->
-                // A copy we can read right now is the one to keep; otherwise the oldest.
-                val keeper =
-                    group.sortedWith(
-                        compareBy<Game>({ it.lastIndexedAt < startedAtMs }, { it.id }),
-                    ).first()
+                val keeper = group.minByOrNull { it.id }!!
                 val others = group.filter { it.id != keeper.id }
 
                 val merged =
@@ -361,14 +360,9 @@ class LemuroidLibrary(
         )
     }
 
-    private fun removeDeletedDataFiles(
-        startedAtMs: Long,
-        unavailablePrefixes: List<String>,
-    ) {
+    private fun removeDeletedDataFiles(startedAtMs: Long) {
         Timber.d("Deleting data files from db before: $startedAtMs")
-        val dataFiles =
-            retrogradedb.dataFileDao().selectByLastIndexedAtLessThan(startedAtMs)
-                .filterNot { file -> unavailablePrefixes.any { file.fileUri.startsWith(it) } }
+        val dataFiles = retrogradedb.dataFileDao().selectByLastIndexedAtLessThan(startedAtMs)
         retrogradedb.dataFileDao().delete(dataFiles)
     }
 
@@ -377,9 +371,11 @@ class LemuroidLibrary(
         unavailablePrefixes: List<String>,
     ) {
         Timber.d("Deleting games from db before: $startedAtMs")
-        val games =
-            retrogradedb.gameDao().selectByLastIndexedAtLessThan(startedAtMs)
-                .filterNot { game -> unavailablePrefixes.any { game.fileUri.startsWith(it) } }
+        val games = retrogradedb.gameDao().selectByLastIndexedAtLessThan(startedAtMs)
+
+        // Games of a folder that is out are hidden, with what belongs to them kept for later.
+        val hidden = games.filter { game -> unavailablePrefixes.any { game.fileUri.startsWith(it) } }
+        hiddenGamesStash.put(hidden)
 
         retrogradedb.gameDao().delete(games)
     }

@@ -300,14 +300,18 @@ private fun RomsSettings(
     val currentDirectory = state.currentDirectory
     val emptyDirectory = stringResource(R.string.none)
 
+    val unavailable = stringResource(R.string.second_directory_unavailable)
     val currentDirectoryName =
         remember(state.currentDirectory) {
-            runCatching {
-                DocumentFile.fromTreeUri(context, Uri.parse(currentDirectory))?.name
-            }.getOrNull() ?: emptyDirectory
+            if (currentDirectory.isBlank()) {
+                emptyDirectory
+            } else {
+                runCatching {
+                    DocumentFile.fromTreeUri(context, Uri.parse(currentDirectory))?.name
+                }.getOrNull() ?: unavailable
+            }
         }
 
-    val unavailable = stringResource(R.string.second_directory_unavailable)
     val secondDirectoryName =
         remember(state.secondDirectory) {
             if (state.secondDirectory.isBlank()) {

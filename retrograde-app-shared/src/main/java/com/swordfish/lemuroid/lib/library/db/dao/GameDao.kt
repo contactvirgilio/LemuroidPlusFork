@@ -33,6 +33,9 @@ interface GameDao {
     @Query("SELECT * FROM games WHERE id = :id")
     suspend fun selectById(id: Int): Game?
 
+    @Query("SELECT id FROM games WHERE id IN (:ids)")
+    fun selectExistingIds(ids: List<Int>): List<Int>
+
     @Query("SELECT * FROM games WHERE fileUri = :fileUri")
     fun selectByFileUri(fileUri: String): Game?
 
