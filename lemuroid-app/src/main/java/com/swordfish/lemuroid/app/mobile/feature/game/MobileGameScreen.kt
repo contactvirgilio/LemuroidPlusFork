@@ -291,11 +291,14 @@ private fun GameOverlayButtons(
     viewModel: BaseGameScreenViewModel,
 ) {
     // The buttons fade back after a while so they don't distract from the game, and come back to
-    // full strength whenever one of them is touched (the tap still does its job).
+    // full strength whenever one of them is touched (the tap still does its job). While a gamepad is
+    // in use nobody touches the screen, so they would fade away for good: they stay fully visible.
+    val touchControlsVisible = viewModel.isTouchControllerVisible().collectAsState(true).value
     var interactions by remember { mutableIntStateOf(0) }
     var dimmed by remember { mutableStateOf(false) }
-    LaunchedEffect(interactions) {
+    LaunchedEffect(interactions, touchControlsVisible) {
         dimmed = false
+        if (!touchControlsVisible) return@LaunchedEffect
         delay(OVERLAY_BUTTONS_DIM_DELAY_MILLIS)
         dimmed = true
     }
