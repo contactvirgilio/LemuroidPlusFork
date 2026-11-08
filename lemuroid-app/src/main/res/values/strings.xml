@@ -341,6 +341,9 @@
     <string name="game_card_running_title">Game running</string>
     <string name="game_card_running_value">Close the current game first</string>
     <string name="apps_card_hidden_title">Hidden</string>
+    <string name="apps_menu_open">Open</string>
+    <string name="apps_menu_info">App info</string>
+    <string name="apps_menu_hide">Hide from Apps</string>
     <string name="backup_card_import_title">Import</string>
     <string name="backup_card_imported">%1$d files imported</string>
     <string name="backup_card_import_skipped">%1$d imported · %2$d skipped</string>

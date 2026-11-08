@@ -3,6 +3,8 @@ package com.swordfish.lemuroid.app.mobile.feature.apps
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.Settings
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
@@ -19,6 +21,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,6 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -104,9 +109,10 @@ fun AppsScreen(modifier: Modifier = Modifier) {
         items(current, key = { it.id }) { app ->
             AppTile(
                 app = app,
-                onClick = { openApp(context, app) },
-                onLongClick = {
-                    // Long press hides the app; it can be shown again in Settings > Home screen.
+                onOpen = { openApp(context, app) },
+                onAppInfo = { openAppInfo(context, app) },
+                onHide = {
+                    // It can be shown again in Settings > Home screen.
                     AppsTabSettings.setHidden(context, app, true)
                     apps = apps?.filter { it.id != app.id }
                     CenterCards.show(context.getString(R.string.apps_card_hidden_title), app.label.toString())
@@ -120,33 +126,74 @@ fun AppsScreen(modifier: Modifier = Modifier) {
 @Composable
 private fun AppTile(
     app: LauncherApp,
-    onClick: () -> Unit,
-    onLongClick: () -> Unit,
+    onOpen: () -> Unit,
+    onAppInfo: () -> Unit,
+    onHide: () -> Unit,
 ) {
-    Column(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .focusHighlight()
-                .clip(RoundedCornerShape(12.dp))
-                .combinedClickable(onClick = onClick, onLongClick = onLongClick)
-                .padding(vertical = 6.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Image(
-            modifier = Modifier.size(52.dp),
-            bitmap = app.icon,
-            contentDescription = app.label,
-        )
-        Text(
-            modifier = Modifier.padding(top = 6.dp, start = 4.dp, end = 4.dp),
-            text = app.label,
-            style = MaterialTheme.typography.bodySmall,
-            textAlign = TextAlign.Center,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-        )
+    var menuOpen by remember { mutableStateOf(false) }
+
+    Box {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .focusHighlight()
+                    .clip(RoundedCornerShape(12.dp))
+                    .combinedClickable(onClick = onOpen, onLongClick = { menuOpen = true })
+                    .padding(vertical = 6.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Image(
+                modifier = Modifier.size(52.dp),
+                bitmap = app.icon,
+                contentDescription = app.label,
+            )
+            Text(
+                modifier = Modifier.padding(top = 6.dp, start = 4.dp, end = 4.dp),
+                text = app.label,
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+
+        // Held down: a small menu instead of hiding straight away.
+        DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.apps_menu_open)) },
+                onClick = {
+                    menuOpen = false
+                    onOpen()
+                },
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.apps_menu_info)) },
+                onClick = {
+                    menuOpen = false
+                    onAppInfo()
+                },
+            )
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.apps_menu_hide)) },
+                onClick = {
+                    menuOpen = false
+                    onHide()
+                },
+            )
+        }
     }
+}
+
+private fun openAppInfo(
+    context: Context,
+    app: LauncherApp,
+) {
+    val intent =
+        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${app.packageName}"))
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    runCatching { context.startActivity(intent) }
+        .onFailure { Timber.e(it, "Cannot open app info for ${app.packageName}") }
 }
 
 internal fun loadApps(context: Context): List<LauncherApp> {
