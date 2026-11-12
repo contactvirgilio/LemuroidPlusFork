@@ -2,9 +2,7 @@ package com.swordfish.lemuroid.app.mobile.shared.compose.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -21,18 +19,11 @@ fun LemuroidGameImage(
     modifier: Modifier = Modifier,
     game: Game,
 ) {
+    val artwork = rememberGameArtwork(game)
     val imageModifier =
         modifier
             .fillMaxWidth()
             .aspectRatio(1.0f)
-
-    // Cartridge view: the game's media shape, never artwork.
-    if (rememberMediaView()) {
-        GameMediaImage(modifier = imageModifier.padding(6.dp), game = game)
-        return
-    }
-
-    val artwork = rememberGameArtwork(game)
 
     if (artwork != null) {
         // Artwork fills the tile, keeping its proportions; whatever doesn't fit is trimmed evenly.
