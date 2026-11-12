@@ -26,6 +26,9 @@ object GameTileUtils {
         return "https://fakeimg.pl/512x512/$background/$text/?font=bebas&text=${computeTitle(game)}"
     }
 
+    /** The letters shown on a game's tile or cartridge label ("DKC"). */
+    fun initials(game: Game): String = computeTitle(game)
+
     private fun computeTitle(game: Game): String {
         val sanitizedName =
             game.displayName()

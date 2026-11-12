@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.CloudSync
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.SdCard
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ViewModule
 import androidx.compose.material3.BottomAppBarDefaults
@@ -55,6 +56,8 @@ import com.swordfish.lemuroid.app.mobile.feature.games.HomeTileSize
 import com.swordfish.lemuroid.app.mobile.feature.games.HomeTileSizeStore
 import com.swordfish.lemuroid.app.mobile.feature.games.rememberGamesViewMode
 import com.swordfish.lemuroid.app.mobile.feature.games.rememberHomeTileSize
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.MediaViewSetting
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberMediaView
 import com.swordfish.lemuroid.app.shared.savesync.SaveSyncWork
 
 @Composable
@@ -152,6 +155,9 @@ fun LemuroidTopBarActions(
         if (route == MainRoute.HOME || route == MainRoute.FAVORITES) {
             HomeTileSizeButtons()
         }
+        if (route == MainRoute.HOME || route == MainRoute.FAVORITES || route == MainRoute.SYSTEM_GAMES) {
+            MediaViewButton()
+        }
         IconButton(
             onClick = { onHelpPressed() },
         ) {
@@ -181,6 +187,25 @@ fun LemuroidTopBarActions(
                 )
             }
         }
+    }
+}
+
+/** Cartridge view on/off: games drawn as their system's cartridge or disc instead of tiles. */
+@Composable
+private fun MediaViewButton() {
+    val context = LocalContext.current
+    val enabled = rememberMediaView()
+    IconButton(onClick = { MediaViewSetting.set(context, !enabled) }) {
+        Icon(
+            imageVector = Icons.Outlined.SdCard,
+            contentDescription = stringResource(R.string.settings_title_media_view),
+            tint =
+                if (enabled) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    LocalContentColor.current.copy(alpha = 0.6f)
+                },
+        )
     }
 }
 
