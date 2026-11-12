@@ -5,6 +5,8 @@ import android.widget.ImageView
 import com.swordfish.lemuroid.lib.library.db.entity.Game
 
 object GameTileUtils {
+    private val PARENTHESES = Regex("\\(.*\\)")
+
     fun loadTile(
         game: Game,
         imageView: ImageView?,
@@ -27,7 +29,7 @@ object GameTileUtils {
     private fun computeTitle(game: Game): String {
         val sanitizedName =
             game.displayName()
-                .replace(Regex("\\(.*\\)"), "")
+                .replace(PARENTHESES, "")
 
         return sanitizedName.asSequence()
             .filter { it.isDigit() or it.isUpperCase() or (it == '&') }

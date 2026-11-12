@@ -5,6 +5,10 @@ import android.graphics.Color
 import androidx.core.graphics.ColorUtils
 import com.swordfish.lemuroid.lib.library.MetaSystemID
 import com.swordfish.lemuroid.lib.library.SystemID
+import java.util.concurrent.ConcurrentHashMap
+
+// Top level so it exists before any SystemTileColors is created.
+private val DARK_TEXT_COLOR = Color.parseColor("#1C1C1C")
 
 /**
  * Solid color used to draw the default game tile. It is the same color the Systems screen uses
@@ -18,15 +22,14 @@ data class SystemTileColors(
     val base: Int,
 ) {
     /** White or near-black, whichever reads better on the base color. */
-    val text: Int
-        get() {
+    val text: Int =
+        run {
             val whiteContrast = ColorUtils.calculateContrast(Color.WHITE, base)
-            val darkContrast = ColorUtils.calculateContrast(DARK_TEXT, base)
-            return if (darkContrast > whiteContrast) DARK_TEXT else Color.WHITE
+            val darkContrast = ColorUtils.calculateContrast(DARK_TEXT_COLOR, base)
+            if (darkContrast > whiteContrast) DARK_TEXT_COLOR else Color.WHITE
         }
 
     companion object {
-        private val DARK_TEXT = Color.parseColor("#1C1C1C")
         private val DEFAULT = SystemTileColors(Color.parseColor("#5A5A66"))
 
         private const val SECONDARY_SHADE_DARKEN = 0.18f
@@ -81,7 +84,16 @@ data class SystemTileColors(
         /** The color of a Systems card, which can stand for two systems (the first one is used). */
         fun forMetaSystem(meta: MetaSystemID): SystemTileColors = forSystemId(meta.systemIDs.first().dbname)
 
+        // Every tile asks for its system's colors; they are worked out once per system and
+        // palette (normal or soft) instead of on every draw.
+        private val cache = ConcurrentHashMap<String, SystemTileColors>()
+
         fun forSystemId(systemId: String): SystemTileColors {
+            val key = if (pastelEnabled) "p:$systemId" else "n:$systemId"
+            return cache.getOrPut(key) { compute(systemId) }
+        }
+
+        private fun compute(systemId: String): SystemTileColors {
             val id = SystemID.values().firstOrNull { it.dbname == systemId } ?: return DEFAULT
             if (pastelEnabled) {
                 PASTEL[id]?.let { return SystemTileColors(Color.parseColor(it)) }

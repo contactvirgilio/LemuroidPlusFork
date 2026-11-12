@@ -3,6 +3,7 @@ package com.swordfish.lemuroid.app.mobile.feature.apps
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
 import android.net.Uri
 import android.provider.Settings
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -69,7 +70,11 @@ data class LauncherApp(
 @Composable
 fun AppsScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    var apps by remember { mutableStateOf<List<LauncherApp>?>(null) }
+    // Starts from the last loaded list, so coming back to the tab shows the apps at once.
+    var apps by remember {
+        val hidden = AppsTabSettings.hiddenApps(context)
+        mutableStateOf(cachedApps()?.filter { it.id !in hidden })
+    }
     var reloadKey by remember { mutableIntStateOf(0) }
 
     // Reload when coming back to the screen, so newly installed or removed apps show up.
@@ -196,12 +201,54 @@ private fun openAppInfo(
         .onFailure { Timber.e(it, "Cannot open app info for ${app.packageName}") }
 }
 
+/** The last loaded list, reused while the same apps (and versions) are installed. */
+private object AppsCache {
+    var signature: Set<String>? = null
+    var apps: List<LauncherApp>? = null
+}
+
+/** The list from the last load, if any. No waiting: used to show the screen at once. */
+internal fun cachedApps(): List<LauncherApp>? = synchronized(AppsCache) { AppsCache.apps }
+
 internal fun loadApps(context: Context): List<LauncherApp> {
     val packageManager = context.packageManager
     val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
     val iconSize = (52 * context.resources.displayMetrics.density).toInt()
-    return packageManager.queryIntentActivities(intent, PackageManager.MATCH_ALL)
-        .filter { it.activityInfo.packageName != context.packageName }
+    val infos =
+        packageManager.queryIntentActivities(intent, PackageManager.MATCH_ALL)
+            .filter { it.activityInfo.packageName != context.packageName }
+
+    // Reading names and icons is the slow part. Skip it when nothing was installed, removed or
+    // updated since the last load.
+    val updateTimes = HashMap<String, Long>()
+    val signature =
+        infos.mapTo(HashSet()) { info ->
+            val packageName = info.activityInfo.packageName
+            val updated =
+                updateTimes.getOrPut(packageName) {
+                    runCatching { packageManager.getPackageInfo(packageName, 0).lastUpdateTime }.getOrDefault(0L)
+                }
+            "$packageName/${info.activityInfo.name}@$updated"
+        }
+    synchronized(AppsCache) {
+        val cached = AppsCache.apps
+        if (cached != null && AppsCache.signature == signature) return cached
+    }
+
+    val loaded = readApps(infos, packageManager, iconSize)
+    synchronized(AppsCache) {
+        AppsCache.signature = signature
+        AppsCache.apps = loaded
+    }
+    return loaded
+}
+
+private fun readApps(
+    infos: List<ResolveInfo>,
+    packageManager: PackageManager,
+    iconSize: Int,
+): List<LauncherApp> {
+    return infos
         .mapNotNull { info ->
             runCatching {
                 LauncherApp(

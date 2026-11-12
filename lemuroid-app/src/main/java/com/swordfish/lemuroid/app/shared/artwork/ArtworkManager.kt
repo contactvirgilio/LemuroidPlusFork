@@ -11,6 +11,7 @@ import com.swordfish.lemuroid.lib.storage.DirectoriesManager
 import timber.log.Timber
 import java.io.File
 import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Game artwork from a single folder, Lemuroid/artwork, with one image per game.
@@ -40,6 +41,15 @@ object ArtworkManager {
             ): Int = value.byteCount
         }
 
+    // Game to the cache entry of its image, so a tile coming back on screen can show the image
+    // straight away instead of waiting for the background lookup.
+    private val lastKeys = ConcurrentHashMap<String, String>()
+
+    private fun gameKey(game: Game) = "${game.id}:${game.fileName}"
+
+    /** The image if it was already loaded for this game. Safe on the main thread (no file access). */
+    fun peekArtwork(game: Game): Bitmap? = lastKeys[gameKey(game)]?.let { cache.get(it) }
+
     fun isEnabled(context: Context): Boolean = preferences(context).getBoolean(SHOW_ARTWORK_KEY, false)
 
     fun preferences(context: Context): SharedPreferences = SharedPreferencesHelper.getSharedPreferences(context)
@@ -55,8 +65,13 @@ object ArtworkManager {
         context: Context,
         game: Game,
     ): Bitmap? {
-        val file = findArtworkFile(context, game) ?: return null
+        val file = findArtworkFile(context, game)
+        if (file == null) {
+            lastKeys.remove(gameKey(game))
+            return null
+        }
         val cacheKey = "${file.absolutePath}:${file.lastModified()}"
+        lastKeys[gameKey(game)] = cacheKey
         cache.get(cacheKey)?.let { return it }
         return runCatching { decode(file) }
             .onFailure { Timber.e(it, "Cannot read artwork ${file.name}") }
