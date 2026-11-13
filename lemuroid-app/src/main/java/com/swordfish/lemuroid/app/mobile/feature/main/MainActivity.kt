@@ -485,8 +485,6 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
                     gameInteractor.onFavoriteToggle(game, isFavorite)
                 },
                 onCreateShortcut = { gameInteractor.onCreateShortcut(it) },
-                onSetCustomName = { game, name -> gameInteractor.onSetCustomName(game, name) },
-                onClearCustomName = { game -> gameInteractor.onClearCustomName(game) },
             )
 
             if (infoDialogDisplayed.value) {

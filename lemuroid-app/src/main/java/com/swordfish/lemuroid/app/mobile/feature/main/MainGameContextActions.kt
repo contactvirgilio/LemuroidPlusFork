@@ -22,10 +22,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AppShortcut
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material3.BottomSheetDefaults
@@ -51,6 +50,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LemuroidGameTexts
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.isCartridgeColorable
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberMediaView
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LemuroidSmallGameImage
 import com.swordfish.lemuroid.lib.library.db.entity.Game
 
@@ -63,8 +64,6 @@ fun MainGameContextActions(
     onGameRestart: (Game) -> Unit,
     onFavoriteToggle: (Game, Boolean) -> Unit,
     onCreateShortcut: (Game) -> Unit,
-    onSetCustomName: (Game, String) -> Unit,
-    onClearCustomName: (Game) -> Unit,
 ) {
     val modalSheetState = rememberModalBottomSheetState(true)
     val selectedGame = selectedGameState.value
@@ -90,8 +89,6 @@ fun MainGameContextActions(
                 onFavoriteToggle = onFavoriteToggle,
                 shortcutSupported = shortcutSupported,
                 onCreateShortcut = onCreateShortcut,
-                onSetCustomName = onSetCustomName,
-                onClearCustomName = onClearCustomName,
             )
         }
     }
@@ -106,10 +103,8 @@ private fun ContextActionContent(
     onFavoriteToggle: (Game, Boolean) -> Unit,
     shortcutSupported: Boolean,
     onCreateShortcut: (Game) -> Unit,
-    onSetCustomName: (Game, String) -> Unit,
-    onClearCustomName: (Game) -> Unit,
 ) {
-    var showCustomNameDialog by remember { mutableStateOf(false) }
+    var showCartridgeColorDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier =
@@ -168,33 +163,22 @@ private fun ContextActionContent(
             )
         }
 
-        if (selectedGame.customName != null) {
+        // Cartridge view only: paint this game's cartridge.
+        if (rememberMediaView() && isCartridgeColorable(selectedGame)) {
             ContextActionEntry(
-                label = stringResource(id = R.string.game_context_menu_remove_custom_name),
-                icon = Icons.Default.Clear,
-                onClick = {
-                    onClearCustomName(selectedGame)
-                    selectedGameState.value = null
-                },
-            )
-        } else {
-            ContextActionEntry(
-                label = stringResource(id = R.string.game_context_menu_add_custom_name),
-                icon = Icons.Default.Edit,
-                onClick = {
-                    showCustomNameDialog = true
-                },
+                label = stringResource(id = R.string.game_context_menu_cartridge_color),
+                icon = Icons.Default.Palette,
+                onClick = { showCartridgeColorDialog = true },
             )
         }
     }
 
-    if (showCustomNameDialog) {
-        CustomNameDialog(
-            initialName = selectedGame.fileName,
-            onDismiss = { showCustomNameDialog = false },
-            onConfirm = { newName ->
-                showCustomNameDialog = false
-                onSetCustomName(selectedGame, newName)
+    if (showCartridgeColorDialog) {
+        CartridgeColorDialog(
+            game = selectedGame,
+            onDismiss = { showCartridgeColorDialog = false },
+            onSaved = {
+                showCartridgeColorDialog = false
                 selectedGameState.value = null
             },
         )

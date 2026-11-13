@@ -355,4 +355,10 @@
     <string name="settings_description_media_view">Show games as cartridges and discs instead of tiles</string>
     <string name="settings_title_vertical_bar">Vertical bar</string>
     <string name="settings_description_vertical_bar">One bar on the left instead of the top and bottom bars</string>
+    <string name="game_context_menu_cartridge_color">Cartridge color</string>
+    <string name="cartridge_color_matte">Matte</string>
+    <string name="cartridge_color_sparkly">Sparkly</string>
+    <string name="cartridge_color_original">Original colors</string>
+    <string name="cartridge_color_save">Save</string>
+    <string name="cartridge_color_cancel">Cancel</string>
 </resources>
