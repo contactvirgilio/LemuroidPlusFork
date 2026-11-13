@@ -32,6 +32,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import com.swordfish.lemuroid.R
+import com.swordfish.lemuroid.app.shared.game.CpsSets
 import com.swordfish.lemuroid.app.shared.game.NeoGeoSets
 import com.swordfish.lemuroid.lib.library.SystemID
 import com.swordfish.lemuroid.lib.library.db.entity.Game
@@ -119,10 +120,16 @@ private fun mediaFor(game: Game): Media {
         SystemID.DOS -> Media(R.drawable.media_dos, R.drawable.media_dos_label, true)
         SystemID.NINTENDO_3DS -> Media(R.drawable.media_3ds)
         SystemID.FBNEO, SystemID.MAME2003PLUS ->
-            if (NeoGeoSets.isNeoGeo(game.fileName)) {
-                Media(R.drawable.media_neogeo, R.drawable.media_neogeo_label, true)
-            } else {
-                Media(R.drawable.media_arcade)
+            when {
+                NeoGeoSets.isNeoGeo(game.fileName) ->
+                    Media(R.drawable.media_neogeo, R.drawable.media_neogeo_label, true)
+                else ->
+                    when (CpsSets.generation(game.fileName)) {
+                        1 -> Media(R.drawable.media_cps1)
+                        2 -> Media(R.drawable.media_cps2)
+                        3 -> Media(R.drawable.media_cps3)
+                        else -> Media(R.drawable.media_arcade)
+                    }
             }
     }
 }
