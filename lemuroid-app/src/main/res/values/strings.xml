@@ -351,6 +351,8 @@
     <string name="backup_card_export_title">Export</string>
     <string name="backup_card_exported">%1$d files saved</string>
     <string name="backup_card_export_failed_title">Export failed</string>
+    <string name="settings_title_media_view">Cartridge view</string>
+    <string name="settings_description_media_view">Show games as cartridges and discs instead of tiles</string>
     <string name="settings_title_vertical_bar">Vertical bar</string>
     <string name="settings_description_vertical_bar">One bar on the left instead of the top and bottom bars</string>
 </resources>

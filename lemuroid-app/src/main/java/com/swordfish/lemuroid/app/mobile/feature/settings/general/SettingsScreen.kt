@@ -20,6 +20,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.main.VERTICAL_BAR_KEY
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.MediaViewSetting
 import com.swordfish.lemuroid.app.shared.tiles.SystemTileColors
 import com.swordfish.lemuroid.app.mobile.feature.apps.AppsTabSettings
 import com.swordfish.lemuroid.app.mobile.feature.main.MainRoute
@@ -223,6 +224,11 @@ private fun GeneralSettings() {
             state = booleanPreferenceState(VERTICAL_BAR_KEY, false),
             title = { Text(text = stringResource(id = R.string.settings_title_vertical_bar)) },
             subtitle = { Text(text = stringResource(id = R.string.settings_description_vertical_bar)) },
+        )
+        LemuroidSettingsSwitch(
+            state = booleanPreferenceState(MediaViewSetting.KEY, false),
+            title = { Text(text = stringResource(id = R.string.settings_title_media_view)) },
+            subtitle = { Text(text = stringResource(id = R.string.settings_description_media_view)) },
         )
         LemuroidSettingsSwitch(
             state = booleanPreferenceState(SystemTileColors.PASTEL_PREF_KEY, false),
