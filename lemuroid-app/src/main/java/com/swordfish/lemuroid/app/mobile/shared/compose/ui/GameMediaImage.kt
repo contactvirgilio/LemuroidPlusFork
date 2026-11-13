@@ -115,7 +115,7 @@ private fun mediaFor(game: Game): Media {
         SystemID.NGP -> Media(R.drawable.media_ngp, R.drawable.media_ngp_label, true)
         SystemID.NGC -> Media(R.drawable.media_ngc, R.drawable.media_ngc_label, true)
         SystemID.WS -> Media(R.drawable.media_ws, R.drawable.media_ws_label, true)
-        SystemID.WSC -> Media(R.drawable.media_wsc)
+        SystemID.WSC -> Media(R.drawable.media_wsc, R.drawable.media_wsc_label, true)
         SystemID.DOS -> Media(R.drawable.media_dos, R.drawable.media_dos_label, true)
         SystemID.NINTENDO_3DS -> Media(R.drawable.media_3ds)
         SystemID.FBNEO, SystemID.MAME2003PLUS ->
