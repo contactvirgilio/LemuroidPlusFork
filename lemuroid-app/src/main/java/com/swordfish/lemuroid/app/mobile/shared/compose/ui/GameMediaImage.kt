@@ -99,7 +99,7 @@ private fun mediaFor(game: Game): Media {
         SystemID.SNES -> Media(R.drawable.media_snes, R.drawable.media_snes_label, true)
         SystemID.GENESIS -> Media(R.drawable.media_genesis, R.drawable.media_genesis_label, true)
         SystemID.GB -> Media(R.drawable.media_gb, R.drawable.media_gb_label, true)
-        SystemID.GBC -> Media(R.drawable.media_gbc)
+        SystemID.GBC -> Media(R.drawable.media_gbc, R.drawable.media_gbc_label, true)
         SystemID.GBA -> Media(R.drawable.media_gba, R.drawable.media_gba_label, true)
         SystemID.N64 -> Media(R.drawable.media_n64, R.drawable.media_n64_label, true)
         SystemID.SMS -> Media(R.drawable.media_sms, null, true)
