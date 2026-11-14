@@ -55,7 +55,7 @@ object DsSingleScreen {
         val v = values(config.coreID) ?: return variables
         val layout = effectiveLayout(context, config)
         active = isSingle(layout)
-        val value = if (active) (if (showingBottom) v.bottom else v.top) else layout
+        val value = if (active) (if (showingBottom) v.bottom else v.top) else (layout ?: return variables)
         return variables.filter { it.key != v.key } + CoreVariable(v.key, value)
     }
 

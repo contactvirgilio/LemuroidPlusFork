@@ -235,7 +235,7 @@ class GameViewModelRetroGameView(
             savesDirectory = gameData.savesDirectory.absolutePath
             DsSingleScreen.start(appContext, system.id, systemCoreConfig)
             variables =
-                DsSingleScreen.adjust(appContext, system.id, systemCoreConfig, gameData.coreVariables)
+                DsSingleScreen.adjust(appContext, system.id, systemCoreConfig, gameData.coreVariables.toList())
                     .map { Variable(it.key, it.value) }.toTypedArray()
             saveRAMState = gameData.saveRAMData
             shader =
