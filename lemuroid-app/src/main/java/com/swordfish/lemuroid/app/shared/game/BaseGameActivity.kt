@@ -226,6 +226,10 @@ abstract class BaseGameActivity : ImmersiveActivity() {
                     },
                 )
                 this.putExtra(
+                    GameMenuContract.EXTRA_IMMERSIVE_MODE,
+                    baseGameScreenViewModel.retroGameView.retroGameView?.immersiveModeEnabled ?: false,
+                )
+                this.putExtra(
                     GameMenuContract.EXTRA_TOUCH_CONTROLS_VISIBLE,
                     baseGameScreenViewModel.areTouchControlsVisible(),
                 )
@@ -467,6 +471,14 @@ abstract class BaseGameActivity : ImmersiveActivity() {
                     systemCoreConfig,
                     data.getBooleanExtra(GameMenuContract.RESULT_COLOR_CORRECTION, false),
                 )
+            }
+            if (data?.hasExtra(GameMenuContract.RESULT_IMMERSIVE_MODE) == true) {
+                // Applies at once (patched LibretroDroid) and is remembered like the Settings switch.
+                val enabled = data.getBooleanExtra(GameMenuContract.RESULT_IMMERSIVE_MODE, false)
+                baseGameScreenViewModel.retroGameView.retroGameView?.immersiveModeEnabled = enabled
+                sharedPreferences.get().edit()
+                    .putBoolean(getString(R.string.pref_key_enable_immersive_mode), enabled)
+                    .apply()
             }
             if (data?.hasExtra(GameMenuContract.RESULT_ENABLE_FAST_FORWARD) == true) {
                 baseGameScreenViewModel.setFastForwardEnabled(

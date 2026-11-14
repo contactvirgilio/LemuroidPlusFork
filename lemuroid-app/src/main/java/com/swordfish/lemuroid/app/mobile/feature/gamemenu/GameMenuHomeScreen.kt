@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.BlurOn
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -131,6 +132,27 @@ fun GameMenuHomeScreen(
                     )
                 },
                 onClick = { onResult { putExtra(GameMenuContract.RESULT_COLOR_CORRECTION, !isOn) } },
+            )
+    }
+
+    run {
+        // Immersive mode: the bars around the picture take a soft glow of the game's colors.
+        val immersive = stringResource(id = R.string.game_menu_immersive_mode)
+        val isOn = gameMenuRequest.immersiveMode
+        entries +=
+            MenuEntry(
+                label = immersive,
+                sublabel = stringResource(if (isOn) R.string.game_menu_on else R.string.game_menu_off),
+                active = isOn,
+                icon = { tint ->
+                    Icon(
+                        Icons.Outlined.BlurOn,
+                        contentDescription = immersive,
+                        tint = tint,
+                        modifier = Modifier.size(28.dp),
+                    )
+                },
+                onClick = { onResult { putExtra(GameMenuContract.RESULT_IMMERSIVE_MODE, !isOn) } },
             )
     }
 

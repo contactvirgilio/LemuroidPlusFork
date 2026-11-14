@@ -330,6 +330,7 @@
     <string name="public_storage_dialog_dont_ask">Don\'t ask again</string>
 
     <string name="game_menu_color_correction">Color correction</string>
+    <string name="game_menu_immersive_mode">Immersive mode</string>
     <string name="game_menu_on">On</string>
     <string name="game_menu_off">Off</string>
     <string name="settings_title_pastel_tiles">Soft tile colors</string>
