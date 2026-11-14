@@ -1012,6 +1012,10 @@ data class GameSystem(
                                         R.string.setting_desmume_screens_layout,
                                         arrayListOf(
                                             ExposedSetting.Value(
+                                                "top only",
+                                                R.string.value_ds_screens_layout_single,
+                                            ),
+                                            ExposedSetting.Value(
                                                 "top/bottom",
                                                 R.string.value_desmume_screens_layout_topbottom,
                                             ),
@@ -1045,6 +1049,10 @@ data class GameSystem(
                                         "melonds_screen_layout1",
                                         R.string.setting_melonds_screen_layout,
                                         arrayListOf(
+                                            ExposedSetting.Value(
+                                                "top-only",
+                                                R.string.value_ds_screens_layout_single,
+                                            ),
                                             ExposedSetting.Value(
                                                 "top-bottom",
                                                 R.string.value_melonds_screen_layout_topbottom,

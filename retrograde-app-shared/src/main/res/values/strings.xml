@@ -117,6 +117,7 @@
     <string name="value_mupen64plus_mupen64plus_pak2_none">None</string>
     <string name="value_mupen64plus_mupen64plus_pak2_rumble">Rumble</string>
 
+    <string name="value_ds_screens_layout_single">Single screen (R2 swaps)</string>
     <string name="value_melonds_screen_layout_topbottom">Top - Bottom</string>
     <string name="value_melonds_screen_layout_leftright">Left - Right</string>
     <string name="value_melonds_screen_layout_hybridtop">Hybrid Top</string>

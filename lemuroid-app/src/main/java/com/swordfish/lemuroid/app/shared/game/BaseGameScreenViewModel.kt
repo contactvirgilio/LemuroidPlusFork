@@ -393,6 +393,11 @@ class BaseGameScreenViewModel(
             )
     }
 
+    init {
+        // Before the scaling profile: a single-screen DS game has a different picture size.
+        DsSingleScreen.start(appContext, system.id, systemCoreConfig)
+    }
+
     private val scalingProfile = GameDisplayOptions.profileFor(system.id, game.fileName)
 
     fun isScalingSupported(): Boolean = scalingProfile != null

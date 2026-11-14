@@ -88,7 +88,7 @@ class GameDisplayOptions(
                 SystemID.N64 -> 240
                 SystemID.PSX -> 240
                 SystemID.PSP -> 272
-                SystemID.NDS -> 384
+                SystemID.NDS -> if (DsSingleScreen.active) 192 else 384
                 SystemID.NINTENDO_3DS -> 480
                 SystemID.ATARI2600 -> 210
                 SystemID.ATARI7800 -> 223

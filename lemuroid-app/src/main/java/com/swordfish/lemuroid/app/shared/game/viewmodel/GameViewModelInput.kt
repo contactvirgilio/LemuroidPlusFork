@@ -9,6 +9,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import com.swordfish.lemuroid.R
+import com.swordfish.lemuroid.app.shared.game.DsSingleScreen
 import com.swordfish.lemuroid.app.shared.input.InputDeviceManager
 import com.swordfish.lemuroid.app.shared.input.InputKey
 import com.swordfish.lemuroid.app.shared.input.inputclass.getInputClass
@@ -24,12 +25,15 @@ import com.swordfish.lemuroid.common.kotlin.zipOnKeys
 import com.swordfish.lemuroid.lib.controller.ControllerConfig
 import com.swordfish.lemuroid.lib.library.GameSystem
 import com.swordfish.lemuroid.lib.library.SystemCoreConfig
+import com.swordfish.lemuroid.lib.library.SystemID
 import com.swordfish.libretrodroid.Controller
 import com.swordfish.libretrodroid.GLRetroView
 import com.swordfish.libretrodroid.GLRetroView.Companion.MOTION_SOURCE_ANALOG_LEFT
 import com.swordfish.libretrodroid.GLRetroView.Companion.MOTION_SOURCE_ANALOG_RIGHT
 import com.swordfish.libretrodroid.GLRetroView.Companion.MOTION_SOURCE_DPAD
+import com.swordfish.libretrodroid.Variable
 import com.swordfish.touchinput.radial.sensors.TiltConfiguration
+import kotlin.math.abs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -45,7 +49,6 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import kotlin.math.abs
 
 class GameViewModelInput(
     private val appContext: Context,
@@ -189,6 +192,23 @@ class GameViewModelInput(
         return false
     }
 
+    /**
+     * DS single-screen mode: R2 flips between the top and the bottom screen instead of reaching
+     * the game (the DS has no R2). Returns true when the key was used here.
+     */
+    private fun handleDsScreenKey(
+        action: Int,
+        keyCode: Int,
+    ): Boolean {
+        if (keyCode != KeyEvent.KEYCODE_BUTTON_R2 || system.id != SystemID.NDS) return false
+        if (action == KeyEvent.ACTION_DOWN) {
+            val flipped = DsSingleScreen.flip(appContext, system.id, systemCoreConfig) ?: return false
+            retroGameView.retroGameView?.updateVariables(Variable(flipped.key, flipped.value))
+            return true
+        }
+        return DsSingleScreen.active
+    }
+
     fun sendMotionEvent(event: MotionEvent): Boolean {
         scope.launch {
             motionEventsFlow.emit(event)
@@ -285,6 +305,8 @@ class GameViewModelInput(
                 val port = ports(device)
                 val bindKeyCode = bindings(device)[InputKey(keyCode)]?.keyCode ?: keyCode
 
+                if (port == 0 && handleDsScreenKey(action, bindKeyCode)) return@safeCollect
+
                 if (port == 0) {
                     if (bindKeyCode == KeyEvent.KEYCODE_BUTTON_MODE && action == KeyEvent.ACTION_DOWN) {
                         sideEffects.showMenu(tilt, this)
@@ -343,6 +365,7 @@ class GameViewModelInput(
             }
             .scan(emptySet<SingleAxisEvent>()) { prev, next ->
                 next.minus(prev).forEach {
+                    if (it.port == 0 && handleDsScreenKey(it.action, it.keyCode)) return@forEach
                     retroGameView.retroGameView?.sendKeyEvent(it.action, it.keyCode, it.port)
                 }
                 next

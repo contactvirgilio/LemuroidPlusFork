@@ -2,6 +2,7 @@ package com.swordfish.lemuroid.app.shared.game.viewmodel
 
 import android.graphics.Bitmap
 import android.graphics.RectF
+import com.swordfish.lemuroid.app.shared.game.DsSingleScreen
 import com.swordfish.lemuroid.lib.library.SystemID
 import com.swordfish.libretrodroid.ViewportAlignment
 import kotlin.math.roundToInt
@@ -23,7 +24,7 @@ object GamePreviewCropper {
             SystemID.NGP, SystemID.NGC -> 20f / 19f
             SystemID.WS, SystemID.WSC -> 14f / 9f
             SystemID.LYNX -> 160f / 102f
-            SystemID.NDS -> 2f / 3f // Two screens stacked (default layout)
+            SystemID.NDS -> if (DsSingleScreen.active) 4f / 3f else 2f / 3f // One screen, or two stacked
             SystemID.NINTENDO_3DS -> 5f / 6f // Two screens stacked (default layout)
             SystemID.PSP -> 480f / 272f
             SystemID.FBNEO, SystemID.MAME2003PLUS -> null // Horizontal and vertical games

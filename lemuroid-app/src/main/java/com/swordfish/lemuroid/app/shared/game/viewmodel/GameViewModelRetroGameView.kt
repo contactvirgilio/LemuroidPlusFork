@@ -9,6 +9,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.swordfish.lemuroid.BuildConfig
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.settings.SettingsManager
+import com.swordfish.lemuroid.app.shared.game.DsSingleScreen
 import com.swordfish.lemuroid.app.shared.game.ShaderChooser
 import com.swordfish.lemuroid.app.shared.rumble.RumbleManager
 import com.swordfish.lemuroid.app.shared.settings.HDModeQuality
@@ -30,6 +31,7 @@ import com.swordfish.libretrodroid.ImmersiveMode
 import com.swordfish.libretrodroid.Variable
 import com.swordfish.libretrodroid.ViewportAlignment
 import com.swordfish.libretrodroid.VirtualFile
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -44,7 +46,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import kotlin.time.Duration.Companion.seconds
 
 @OptIn(FlowPreview::class)
 class GameViewModelRetroGameView(
@@ -232,7 +233,10 @@ class GameViewModelRetroGameView(
 
             systemDirectory = gameData.systemDirectory.absolutePath
             savesDirectory = gameData.savesDirectory.absolutePath
-            variables = gameData.coreVariables.map { Variable(it.key, it.value) }.toTypedArray()
+            DsSingleScreen.start(appContext, system.id, systemCoreConfig)
+            variables =
+                DsSingleScreen.adjust(appContext, system.id, systemCoreConfig, gameData.coreVariables)
+                    .map { Variable(it.key, it.value) }.toTypedArray()
             saveRAMState = gameData.saveRAMData
             shader =
                 ShaderChooser.getShaderForSystem(
@@ -328,7 +332,8 @@ class GameViewModelRetroGameView(
 
     private fun updateCoreVariables(options: List<CoreVariable>) {
         val updatedVariables =
-            options.map { Variable(it.key, it.value) }
+            DsSingleScreen.adjust(appContext, system.id, systemCoreConfig, options)
+                .map { Variable(it.key, it.value) }
                 .toTypedArray()
 
         updatedVariables.forEach {
