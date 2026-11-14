@@ -196,12 +196,18 @@ class GameViewModelInput(
      * DS single-screen mode: R2 flips between the top and the bottom screen instead of reaching
      * the game (the DS has no R2). Returns true when the key was used here.
      */
+    private var lastDsFlipAt = 0L
+
     private fun handleDsScreenKey(
         action: Int,
         keyCode: Int,
     ): Boolean {
         if (keyCode != KeyEvent.KEYCODE_BUTTON_R2 || system.id != SystemID.NDS) return false
         if (action == KeyEvent.ACTION_DOWN) {
+            // Some devices report one R2 press twice (as a button and as a trigger): flip once.
+            val now = android.os.SystemClock.uptimeMillis()
+            if (now - lastDsFlipAt < 300 && DsSingleScreen.active) return true
+            lastDsFlipAt = now
             val flipped = DsSingleScreen.flip(appContext, system.id, systemCoreConfig) ?: return false
             retroGameView.retroGameView?.updateVariables(Variable(flipped.key, flipped.value))
             return true

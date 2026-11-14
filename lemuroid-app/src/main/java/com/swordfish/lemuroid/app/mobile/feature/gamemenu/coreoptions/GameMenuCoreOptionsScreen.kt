@@ -55,6 +55,8 @@ private fun CoreOptions(
     }
 
     for (coreOption in coreOptions) {
+        // An option whose choices don't match what the core offers has nothing to show.
+        if (coreOption.getEntriesValues().isEmpty()) continue
         if (coreOption.getEntriesValues().toSet() == CoreOptionsPreferenceHelper.BOOLEAN_SET) {
             LemuroidSettingsSwitch(
                 state =
@@ -71,7 +73,9 @@ private fun CoreOptions(
                 state =
                     indexPreferenceState(
                         CoreVariablesManager.computeSharedPreferenceKey(coreOption.getKey(), systemID),
-                        coreOption.getEntriesValues().first(),
+                        coreOption.getCurrentValue()
+                            .takeIf { it in coreOption.getEntriesValues() }
+                            ?: coreOption.getEntriesValues().first(),
                         coreOption.getEntriesValues(),
                     ),
             )

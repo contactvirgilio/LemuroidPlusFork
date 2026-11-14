@@ -36,9 +36,13 @@ class SafeIndexPreferenceSettingValueState(
             _value = values[index]
             preferences.edit { putString(key, _value) }
         }
-        get() = values.indexOf(_value)
+        // A saved value that is no longer one of the choices (renamed option) falls back to the
+        // default instead of crashing the list.
+        get() =
+            values.indexOf(_value).takeIf { it >= 0 }
+                ?: values.indexOf(defaultValue).coerceAtLeast(0)
 
     override fun reset() {
-        value = values.indexOf(defaultValue)
+        value = values.indexOf(defaultValue).coerceAtLeast(0)
     }
 }
