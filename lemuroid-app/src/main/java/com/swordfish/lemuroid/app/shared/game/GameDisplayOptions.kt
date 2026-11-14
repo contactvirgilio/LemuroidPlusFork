@@ -52,6 +52,9 @@ class GameDisplayOptions(
          * the left and right edges are cut off instead of showing bars above and below.
          */
         ZOOM(R.string.game_scaling_zoom),
+
+        /** Stretch to fill: the picture covers the whole game area, ignoring its shape. */
+        STRETCH(R.string.game_scaling_stretch),
     }
 
     fun savedFilter(): Filter? {
@@ -148,7 +151,7 @@ class GameDisplayOptions(
                     areaRight / viewWidth,
                     areaBottom / viewHeight,
                 )
-            if (scaling == Scaling.FIT) return fit
+            if (scaling == Scaling.FIT || scaling == Scaling.STRETCH) return fit
 
             val baseHeight = profile?.baseHeight ?: return fit
             val aspectRatio = profile.aspectRatio

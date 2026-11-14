@@ -86,6 +86,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.CenterCard
 import com.swordfish.lemuroid.app.shared.game.BaseGameScreenViewModel
+import com.swordfish.lemuroid.app.shared.game.GameDisplayOptions
 import com.swordfish.lemuroid.app.shared.game.viewmodel.GameViewModelTouchControls.Companion.MENU_LOADING_ANIMATION_MILLIS
 import com.swordfish.lemuroid.app.shared.settings.HapticFeedbackMode
 import com.swordfish.lemuroid.lib.controller.ControllerConfig
@@ -185,6 +186,7 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                         viewPos.right - fullPos.left,
                         viewPos.bottom - fullPos.top,
                     )
+                gameView.stretch = scaling == GameDisplayOptions.Scaling.STRETCH
                 gameView.viewport =
                     viewModel.computeScaledViewport(
                         scaling,

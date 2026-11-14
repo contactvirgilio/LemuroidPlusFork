@@ -1,0 +1,201 @@
+diff --git a/libretrodroid/src/main/cpp/libretrodroid.cpp b/libretrodroid/src/main/cpp/libretrodroid.cpp
+index 60640c4..316af87 100644
+--- a/libretrodroid/src/main/cpp/libretrodroid.cpp
++++ b/libretrodroid/src/main/cpp/libretrodroid.cpp
+@@ -217,6 +217,7 @@ void LibretroDroid::onSurfaceCreated() {
+     );
+ 
+     video = std::unique_ptr<Video>(newVideo);
++    video->updateStretch(stretch);
+ 
+     if (Environment::getInstance().getHwContextReset() != nullptr) {
+         Environment::getInstance().getHwContextReset()();
+@@ -643,6 +644,22 @@ void LibretroDroid::setViewport(Rect viewportRect) {
+     }
+ }
+ 
++void LibretroDroid::setStretch(bool stretch) {
++    this->stretch = stretch;
++
++    if (video) {
++        video->updateStretch(stretch);
++    }
++}
++
++void LibretroDroid::setImmersiveModeEnabled(bool enabled) {
++    immersiveModeEnabled = enabled && openglESVersion >= 3;
++
++    if (video) {
++        video->setImmersiveModeEnabled(immersiveModeEnabled);
++    }
++}
++
+ void LibretroDroid::setViewportAlignment(unsigned int viewportAlignment) {
+     this-> viewportAlignment = viewportAlignment;
+ 
+diff --git a/libretrodroid/src/main/cpp/libretrodroid.h b/libretrodroid/src/main/cpp/libretrodroid.h
+index b507aee..ef0e8c5 100644
+--- a/libretrodroid/src/main/cpp/libretrodroid.h
++++ b/libretrodroid/src/main/cpp/libretrodroid.h
+@@ -134,6 +134,10 @@ public:
+ 
+     void setViewportAlignment(unsigned int viewportAlignment);
+ 
++    void setStretch(bool stretch);
++
++    void setImmersiveModeEnabled(bool enabled);
++
+     void resetGlobalVariables();
+ 
+     // Handle callbacks
+@@ -171,6 +175,7 @@ private:
+     int openglESVersion = 2;
+     bool skipDuplicateFrames = false;
+     bool immersiveModeEnabled = false;
++    bool stretch = false;
+     ImmersiveMode::Config immersiveModeConfig {};
+ 
+     float defaultAspectRatio = 1.0;
+diff --git a/libretrodroid/src/main/cpp/libretrodroidjni.cpp b/libretrodroid/src/main/cpp/libretrodroidjni.cpp
+index 2ec15cf..f1f1725 100644
+--- a/libretrodroid/src/main/cpp/libretrodroidjni.cpp
++++ b/libretrodroid/src/main/cpp/libretrodroidjni.cpp
+@@ -599,6 +599,22 @@ JNIEXPORT void JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_setViewpor
+     LibretroDroid::getInstance().setViewportAlignment(viewportAlignment);
+ }
+ 
++JNIEXPORT void JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_setStretch(
++    JNIEnv* env,
++    jclass obj,
++    jboolean stretch
++) {
++    LibretroDroid::getInstance().setStretch(stretch);
++}
++
++JNIEXPORT void JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_setImmersiveModeEnabled(
++    JNIEnv* env,
++    jclass obj,
++    jboolean enabled
++) {
++    LibretroDroid::getInstance().setImmersiveModeEnabled(enabled);
++}
++
+ JNIEXPORT void JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_refreshAspectRatio(
+     JNIEnv* env,
+     jclass obj
+diff --git a/libretrodroid/src/main/cpp/video.cpp b/libretrodroid/src/main/cpp/video.cpp
+index a75dbaf..eff241c 100644
+--- a/libretrodroid/src/main/cpp/video.cpp
++++ b/libretrodroid/src/main/cpp/video.cpp
+@@ -316,4 +316,14 @@ void Video::updateAspectRatio(float aspectRatio) {
+     videoLayout.updateAspectRatio(aspectRatio);
+ }
+ 
++void Video::updateStretch(bool stretch) {
++    videoLayout.updateStretch(stretch);
++    isDirty = true;
++}
++
++void Video::setImmersiveModeEnabled(bool enabled) {
++    immersiveModeEnabled = enabled;
++    isDirty = true;
++}
++
+ } //namespace libretrodroid
+diff --git a/libretrodroid/src/main/cpp/video.h b/libretrodroid/src/main/cpp/video.h
+index 05bd6b6..cadb8bb 100644
+--- a/libretrodroid/src/main/cpp/video.h
++++ b/libretrodroid/src/main/cpp/video.h
+@@ -68,6 +68,8 @@ public:
+     VideoLayout& getLayout() { return videoLayout; }
+ 
+     void updateAspectRatio(float aspectRatio);
++    void updateStretch(bool stretch);
++    void setImmersiveModeEnabled(bool enabled);
+     void updateScreenSize(unsigned screenWidth, unsigned screenHeight);
+     void updateViewportSize(Rect viewportRect);
+     void updateViewportAlignment(unsigned int viewportAlignment);
+diff --git a/libretrodroid/src/main/cpp/videolayout.cpp b/libretrodroid/src/main/cpp/videolayout.cpp
+index 8b89326..167223d 100644
+--- a/libretrodroid/src/main/cpp/videolayout.cpp
++++ b/libretrodroid/src/main/cpp/videolayout.cpp
+@@ -50,7 +50,7 @@ void VideoLayout::updateForegroundVertices() {
+     float screenW = screenWidth * viewportRect.getWidth();
+     float screenH = screenHeight * viewportRect.getHeight();
+     float screenAspect = screenW / screenH;
+-    float contentAspect = aspectRatio;
++    float contentAspect = stretch ? screenAspect : aspectRatio;
+ 
+     float scaleX = viewportRect.getWidth();
+     float scaleY = viewportRect.getHeight();
+@@ -162,6 +162,11 @@ void VideoLayout::updateBackgroundVertices() {
+     backgroundVertices[11] = rotatedQuad[3][1];
+ }
+ 
++void libretrodroid::VideoLayout::updateStretch(bool stretch) {
++    this->stretch = stretch;
++    updateBuffers();
++}
++
+ void libretrodroid::VideoLayout::updateAspectRatio(float aspectRatio) {
+     LOGD("Updated aspect ratio to : %f", aspectRatio);
+ 
+diff --git a/libretrodroid/src/main/cpp/videolayout.h b/libretrodroid/src/main/cpp/videolayout.h
+index e567388..5f4fc9b 100644
+--- a/libretrodroid/src/main/cpp/videolayout.h
++++ b/libretrodroid/src/main/cpp/videolayout.h
+@@ -42,6 +42,9 @@ public:
+ 
+     void updateRotation(float rotation);
+ 
++    // Lemuroid Plus: fill the viewport, ignoring the content aspect ratio.
++    void updateStretch(bool stretch);
++
+     std::array<float, 12>& getForegroundVertices() { return foregroundVertices; }
+     std::array<float, 12>& getBackgroundVertices() { return backgroundVertices; }
+     std::array<float, 12>& getFramebufferVertices() { return framebufferVertices; }
+@@ -55,6 +58,8 @@ public:
+     std::pair<float, float> getRelativePosition(float touchX, float touchY);
+ 
+ private:
++    bool stretch = false;
++
+     void updateBuffers();
+ 
+     void updateForegroundVertices();
+diff --git a/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt b/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt
+index 7eb8602..bc05e53 100644
+--- a/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt
++++ b/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt
+@@ -71,6 +71,16 @@ class GLRetroView(
+         LibretroDroid.setViewportAlignment(value.value)
+     }
+ 
++    /** Lemuroid Plus: fill the viewport instead of keeping the game's aspect ratio. */
++    var stretch: Boolean by Delegates.observable(false) { _, _, value ->
++        runOnEmulationThread(true) { LibretroDroid.setStretch(value) }
++    }
++
++    /** Lemuroid Plus: turn immersive mode (blurred background) on or off while running. */
++    var immersiveModeEnabled: Boolean by Delegates.observable(data.immersiveMode != null) { _, _, value ->
++        runOnEmulationThread(true) { LibretroDroid.setImmersiveModeEnabled(value) }
++    }
++
+     private val openGLESVersion: Int
+ 
+     private var isGameLoaded = false
+diff --git a/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java b/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java
+index 50eafa1..e28bea6 100644
+--- a/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java
++++ b/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java
+@@ -139,6 +139,10 @@ public class LibretroDroid {
+ 
+     public static native void refreshAspectRatio();
+ 
++    public static native void setStretch(boolean stretch);
++
++    public static native void setImmersiveModeEnabled(boolean enabled);
++
+     public static native Controller[][] getControllers();
+     public static native void setControllerType(int port, int type);
+ }

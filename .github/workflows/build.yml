@@ -134,6 +134,22 @@ jobs:
           cp "$so" lemuroid-app/src/bundle/jniLibs/arm64-v8a/libgenesis_plus_gx_paprium_libretro_android.so
           ls -l lemuroid-app/src/bundle/jniLibs/arm64-v8a/
 
+      # LibretroDroid (the video/audio/input library) is built from source with a small patch:
+      # patches/libretrodroid-0.14.0-plus.patch adds "stretch to fill" and a live immersive-mode
+      # switch. It is published to the local Maven repo, which the app build reads first.
+      - name: Build patched LibretroDroid
+        run: |
+          set -euo pipefail
+          SRC=/tmp/libretrodroid
+          git clone --quiet --branch 0.14.0 --depth 1 --recurse-submodules --shallow-submodules \
+            https://github.com/Swordfish90/LibretroDroid "$SRC"
+          git -C "$SRC" apply "$GITHUB_WORKSPACE/patches/libretrodroid-0.14.0-plus.patch"
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "cmake;3.22.1" > /dev/null || true
+          cd "$SRC"
+          chmod +x gradlew
+          ./gradlew --no-daemon -q :libretrodroid:publishReleasePublicationToMavenLocal
+          ls ~/.m2/repository/com/swordfish/libretrodroid/*
+
       - name: Build Lemuroid Plus release APK (all cores included)
         run: ./gradlew assembleFreeBundleRelease
 

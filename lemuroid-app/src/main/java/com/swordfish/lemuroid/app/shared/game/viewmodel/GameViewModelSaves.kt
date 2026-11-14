@@ -154,7 +154,8 @@ class GameViewModelSaves(
                             screenshot,
                             viewport,
                             gameView.viewportAlignment,
-                            GamePreviewCropper.aspectRatioFor(system.id),
+                            // Stretched: the picture fills the viewport, so no shape to cut out.
+                            if (gameView.stretch) null else GamePreviewCropper.aspectRatioFor(system.id),
                         )
                     }.getOrDefault(screenshot)
                 val scale = previewSize.toFloat() / maxOf(gameOnly.width, gameOnly.height)
