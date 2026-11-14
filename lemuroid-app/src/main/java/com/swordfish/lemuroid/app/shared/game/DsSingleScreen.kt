@@ -19,7 +19,8 @@ object DsSingleScreen {
 
     private fun values(coreId: CoreID): Values? =
         when (coreId) {
-            CoreID.MELONDS -> Values("melonds_screen_layout", "Top Only", "Bottom Only", "Top/Bottom")
+            // melonDS DS core
+            CoreID.MELONDS -> Values("melonds_screen_layout1", "top", "bottom", "top-bottom")
             CoreID.DESMUME -> Values("desmume_screens_layout", "top only", "bottom only", "top/bottom")
             else -> null
         }
@@ -73,7 +74,7 @@ object DsSingleScreen {
         return CoreVariable(v.key, if (showingBottom) v.bottom else v.top)
     }
 
-    private fun isSingle(layout: String?): Boolean = layout == "Top Only" || layout == "top only"
+    private fun isSingle(layout: String?): Boolean = layout == "top" || layout == "top only"
 
     private fun effectiveLayout(
         context: Context,
