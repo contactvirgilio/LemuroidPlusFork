@@ -1068,12 +1068,12 @@ data class GameSystem(
                                         R.string.setting_melonds_mic_input,
                                         arrayListOf(
                                             ExposedSetting.Value(
-                                                "microphone",
-                                                R.string.value_melonds_mic_input_microphone,
+                                                "Blow Noise",
+                                                R.string.value_melonds_mic_input_blow_noise,
                                             ),
                                             ExposedSetting.Value(
-                                                "blow",
-                                                R.string.value_melonds_mic_input_blow,
+                                                "White Noise",
+                                                R.string.value_melonds_mic_input_white_noise,
                                             ),
                                         ),
                                     ),
@@ -1100,7 +1100,7 @@ data class GameSystem(
                                     0 to arrayListOf(ControllerConfigs.MELONDS),
                                 ),
                             statesVersion = 2,
-                            supportsMicrophone = true,
+                            supportsMicrophone = false, // This melonDS core has no real microphone input
                         ),
                     ),
                     uniqueExtensions = listOf("nds"),
