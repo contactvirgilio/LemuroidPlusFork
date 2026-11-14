@@ -1046,19 +1046,19 @@ data class GameSystem(
                             exposedSettings =
                                 listOf(
                                     ExposedSetting(
-                                        "melonds_screen_layout1",
+                                        "melonds_screen_layout",
                                         R.string.setting_melonds_screen_layout,
                                         arrayListOf(
                                             ExposedSetting.Value(
-                                                "top-only",
+                                                "Top Only",
                                                 R.string.value_ds_screens_layout_single,
                                             ),
                                             ExposedSetting.Value(
-                                                "top-bottom",
+                                                "Top/Bottom",
                                                 R.string.value_melonds_screen_layout_topbottom,
                                             ),
                                             ExposedSetting.Value(
-                                                "left-right",
+                                                "Left/Right",
                                                 R.string.value_melonds_screen_layout_leftright,
                                             ),
                                         ),
