@@ -290,6 +290,10 @@
     <string name="game_button_filter">Filter</string>
     <string name="game_button_scaling">Scaling</string>
     <string name="game_overlay_filter_title">Filter %1$d</string>
+    <string name="game_overlay_ds_screen_title">DS screen</string>
+    <string name="game_overlay_ds_screen_top">Top screen</string>
+    <string name="game_overlay_ds_screen_bottom">Bottom screen</string>
+    <string name="game_overlay_ds_screen_off">Single screen is off (game menu, Screens layout)</string>
     <string name="game_overlay_scaling_title">Scaling %1$d</string>
     <string name="game_filter_sharp">Sharp</string>
     <string name="game_filter_smooth">Smooth</string>

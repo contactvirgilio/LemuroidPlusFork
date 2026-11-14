@@ -208,8 +208,15 @@ class GameViewModelInput(
             val now = android.os.SystemClock.uptimeMillis()
             if (now - lastDsFlipAt < 300 && DsSingleScreen.active) return true
             lastDsFlipAt = now
-            val flipped = DsSingleScreen.flip(appContext, system.id, systemCoreConfig) ?: return false
+            val title = appContext.getString(R.string.game_overlay_ds_screen_title)
+            val flipped = DsSingleScreen.flip(appContext, system.id, systemCoreConfig)
+            if (flipped == null) {
+                sideEffects.showCard(title, appContext.getString(R.string.game_overlay_ds_screen_off))
+                return false
+            }
             retroGameView.retroGameView?.updateVariables(Variable(flipped.key, flipped.value))
+            val shown = if (DsSingleScreen.showingBottom) R.string.game_overlay_ds_screen_bottom else R.string.game_overlay_ds_screen_top
+            sideEffects.showCard(title, appContext.getString(shown))
             return true
         }
         return DsSingleScreen.active
