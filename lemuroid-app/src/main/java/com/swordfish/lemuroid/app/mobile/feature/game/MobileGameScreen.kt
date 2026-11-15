@@ -322,11 +322,18 @@ private fun GameOverlayButtons(
     val nested = remember { GameShortcutsSetting.isNested(context) }
     var awake by remember { mutableStateOf(true) }
     var open by remember { mutableStateOf(false) }
-    LaunchedEffect(screenTouches) {
+    // A volume key while muted: only the muted speaker pops out (nested) or the row wakes up.
+    val muteNudges = viewModel.getMuteNudges().collectAsState().value
+    var peekMute by remember { mutableStateOf(false) }
+    LaunchedEffect(muteNudges) {
+        if (muteNudges > 0) peekMute = true
+    }
+    LaunchedEffect(screenTouches, muteNudges) {
         awake = true
         delay(OVERLAY_BUTTONS_IDLE_MILLIS)
         awake = false
         open = false
+        peekMute = false
     }
     val alpha by animateFloatAsState(
         targetValue = if (awake) 1f else OVERLAY_BUTTONS_DIMMED_ALPHA,
@@ -361,9 +368,18 @@ private fun GameOverlayButtons(
                 }
             }
         }
+        AnimatedVisibility(
+            visible = peekMute && !open,
+            enter = expandHorizontally(expandFrom = Alignment.End) + fadeIn(),
+            exit = shrinkHorizontally(shrinkTowards = Alignment.End) + fadeOut(),
+        ) {
+            CompositionLocalProvider(LocalOverlayButtonSize provides OVERLAY_BUTTON_SIZE_OPEN) {
+                MuteButton(viewModel)
+            }
+        }
         val label = stringResource(com.swordfish.lemuroid.R.string.game_button_shortcuts)
         CompositionLocalProvider(LocalOverlayButtonSize provides OVERLAY_BUTTON_SIZE_HUB) {
-            Box(modifier = Modifier.alpha(if (open) 1f else alpha)) {
+            Box(modifier = Modifier.alpha(if (open || peekMute) 1f else alpha)) {
                 OverlayButton(active = false, label = label, onClick = { open = !open }) {
                     Icon(
                         modifier = Modifier.size(OVERLAY_ICON_SIZE + 3.dp),

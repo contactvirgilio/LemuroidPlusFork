@@ -322,20 +322,17 @@ class BaseGameScreenViewModel(
 
     fun isAudioEnabled(): Flow<Boolean> = audioEnabledState
 
+    private val muteNudgesState = MutableStateFlow(0)
+
+    /** Goes up each time a volume key is pressed while this game is muted. */
+    fun getMuteNudges(): StateFlow<Int> = muteNudgesState
+
     /**
-     * Volume up while this game is muted: say so, since the system volume alone won't bring the
-     * sound back. The game stays muted (other audio, e.g. music, is untouched).
+     * Volume up or down while this game is muted: the muted speaker shortcut pops out so the user
+     * sees why there's no sound. The game stays muted (other audio, e.g. music, is untouched).
      */
-    fun onVolumeUp() {
-        if (audioEnabledState.value) return
-        overlayCardState.value =
-            OverlayCard(
-                appContext.getString(R.string.game_overlay_sound_title),
-                appContext.getString(R.string.game_overlay_sound_muted),
-                0,
-                0,
-                hint = appContext.getString(R.string.game_overlay_sound_muted_hint),
-            )
+    fun onVolumeKey() {
+        if (!audioEnabledState.value) muteNudgesState.value++
     }
 
     fun setAudioEnabled(enabled: Boolean) {

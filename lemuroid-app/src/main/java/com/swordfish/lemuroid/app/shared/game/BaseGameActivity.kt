@@ -301,7 +301,9 @@ abstract class BaseGameActivity : ImmersiveActivity() {
         keyCode: Int,
         event: KeyEvent,
     ): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) baseGameScreenViewModel.onVolumeUp()
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            baseGameScreenViewModel.onVolumeKey()
+        }
         val handled = baseGameScreenViewModel.sendKeyEvent(keyCode, event)
         if (handled) {
             return true
