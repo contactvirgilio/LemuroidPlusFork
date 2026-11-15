@@ -334,50 +334,63 @@ private fun GameOverlayButtons(
         label = "overlayButtonsAlpha",
     )
 
-    Box(modifier = modifier, contentAlignment = Alignment.TopEnd) {
+    if (!nested) {
+        Row(
+            modifier = modifier.alpha(alpha),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            ShortcutButtons(viewModel)
+        }
+        return
+    }
+
+    // Nested: the main button always stays; the shortcuts pop out to its left, bigger and solid.
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         AnimatedVisibility(
-            visible = !nested || open,
+            visible = open,
             enter = expandHorizontally(expandFrom = Alignment.End) + fadeIn(),
             exit = shrinkHorizontally(shrinkTowards = Alignment.End) + fadeOut(),
         ) {
-            CompositionLocalProvider(
-                LocalOverlayButtonSize provides if (nested) OVERLAY_BUTTON_SIZE_OPEN else OVERLAY_BUTTON_SIZE,
-            ) {
-                Row(
-                    modifier = Modifier.alpha(if (nested) 1f else alpha),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    if (viewModel.areStatesSupported()) {
-                        StatesButton(viewModel)
-                    }
-                    MuteButton(viewModel)
-                    if (viewModel.isFastForwardSupported()) {
-                        FastForwardButton(viewModel)
-                    }
-                    FilterButton(viewModel)
-                    if (viewModel.isScalingSupported()) {
-                        ScalingButton(viewModel)
-                    }
-                    MenuButton(viewModel)
+            CompositionLocalProvider(LocalOverlayButtonSize provides OVERLAY_BUTTON_SIZE_OPEN) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ShortcutButtons(viewModel)
                 }
             }
         }
-        AnimatedVisibility(visible = nested && !open, enter = fadeIn(), exit = fadeOut()) {
-            val label = stringResource(com.swordfish.lemuroid.R.string.game_button_shortcuts)
-            CompositionLocalProvider(LocalOverlayButtonSize provides OVERLAY_BUTTON_SIZE_HUB) {
-                Box(modifier = Modifier.alpha(alpha)) {
-                    OverlayButton(active = false, label = label, onClick = { open = true }) {
-                        Icon(
-                            modifier = Modifier.size(OVERLAY_ICON_SIZE + 3.dp),
-                            imageVector = Icons.Filled.Apps,
-                            contentDescription = label,
-                            tint = Color.White,
-                        )
-                    }
+        val label = stringResource(com.swordfish.lemuroid.R.string.game_button_shortcuts)
+        CompositionLocalProvider(LocalOverlayButtonSize provides OVERLAY_BUTTON_SIZE_HUB) {
+            Box(modifier = Modifier.alpha(if (open) 1f else alpha)) {
+                OverlayButton(active = false, label = label, onClick = { open = !open }) {
+                    Icon(
+                        modifier = Modifier.size(OVERLAY_ICON_SIZE + 3.dp),
+                        imageVector = Icons.Filled.Apps,
+                        contentDescription = label,
+                        tint = Color.White,
+                    )
                 }
             }
         }
     }
+}
+
+@Composable
+private fun ShortcutButtons(viewModel: BaseGameScreenViewModel) {
+    if (viewModel.areStatesSupported()) {
+        StatesButton(viewModel)
+    }
+    MuteButton(viewModel)
+    if (viewModel.isFastForwardSupported()) {
+        FastForwardButton(viewModel)
+    }
+    FilterButton(viewModel)
+    if (viewModel.isScalingSupported()) {
+        ScalingButton(viewModel)
+    }
+    MenuButton(viewModel)
 }
 
 /** Opens the in-game menu (same as the L1+R1 / menu shortcut). */
@@ -386,7 +399,7 @@ private fun MenuButton(viewModel: BaseGameScreenViewModel) {
     val label = stringResource(com.swordfish.lemuroid.R.string.game_button_menu)
     OverlayButton(active = false, label = label, onClick = { viewModel.openMenu() }) {
         Icon(
-            modifier = Modifier.size(OVERLAY_ICON_SIZE),
+            modifier = Modifier.size(LocalOverlayButtonSize.current * 0.5f),
             imageVector = Icons.Filled.Menu,
             contentDescription = label,
             tint = Color.White,
@@ -526,7 +539,7 @@ private fun StatesButton(viewModel: BaseGameScreenViewModel) {
         onClick = { viewModel.quickSaveToNextSlot() },
     ) {
         Icon(
-            modifier = Modifier.size(OVERLAY_ICON_SIZE),
+            modifier = Modifier.size(LocalOverlayButtonSize.current * 0.5f),
             imageVector = Icons.Outlined.Save,
             contentDescription = label,
             tint = Color.White,
@@ -541,7 +554,7 @@ private fun MuteButton(viewModel: BaseGameScreenViewModel) {
     val label = stringResource(com.swordfish.lemuroid.R.string.game_menu_mute_audio)
     OverlayButton(active = !audioEnabled, label = label, onClick = { viewModel.toggleMute() }) {
         Icon(
-            modifier = Modifier.size(OVERLAY_ICON_SIZE),
+            modifier = Modifier.size(LocalOverlayButtonSize.current * 0.5f),
             imageVector =
                 if (audioEnabled) Icons.AutoMirrored.Outlined.VolumeUp else Icons.AutoMirrored.Outlined.VolumeOff,
             contentDescription = label,
@@ -560,7 +573,7 @@ private fun FastForwardButton(viewModel: BaseGameScreenViewModel) {
         Icon(
             modifier =
                 Modifier
-                    .size(OVERLAY_ICON_SIZE)
+                    .size(LocalOverlayButtonSize.current * 0.5f)
                     .semantics { stateDescription = if (enabled) "On" else "Off" },
             painter = painterResource(com.swordfish.lemuroid.R.drawable.ic_menu_fast_forward),
             contentDescription = label,
@@ -573,10 +586,11 @@ private const val OVERLAY_BUTTONS_IDLE_MILLIS = 4_000L
 private const val OVERLAY_BUTTONS_DIMMED_ALPHA = 0.35f
 private const val OVERLAY_BUTTONS_FADE_MILLIS = 600
 private val OVERLAY_BUTTON_SIZE = 46.dp
-private val OVERLAY_BUTTON_SIZE_OPEN = 50.dp
+private val OVERLAY_BUTTON_SIZE_OPEN = 58.dp
 private val OVERLAY_BUTTON_SIZE_HUB = 52.dp
 private val LocalOverlayButtonSize = compositionLocalOf { OVERLAY_BUTTON_SIZE }
 private val OVERLAY_ICON_SIZE = 23.dp
+
 private const val OVERLAY_CARD_MILLIS = 1200L
 
 private val FAST_FORWARD_ACTIVE_COLOR = Color(0xFFFFC107)

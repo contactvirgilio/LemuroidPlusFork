@@ -226,7 +226,7 @@ private fun GeneralSettings() {
             subtitle = { Text(text = stringResource(id = R.string.settings_description_vertical_bar)) },
         )
         LemuroidSettingsSwitch(
-            state = booleanPreferenceState(GameShortcutsSetting.KEY, true),
+            state = booleanPreferenceState(GameShortcutsSetting.KEY, GameShortcutsSetting.defaultNested(LocalContext.current)),
             title = { Text(text = stringResource(id = R.string.settings_title_nested_shortcuts)) },
             subtitle = { Text(text = stringResource(id = R.string.settings_description_nested_shortcuts)) },
         )
