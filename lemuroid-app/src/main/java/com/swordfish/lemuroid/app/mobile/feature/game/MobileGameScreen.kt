@@ -4,8 +4,10 @@ import android.graphics.RectF
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -32,6 +34,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.VolumeOff
 import androidx.compose.material.icons.automirrored.outlined.VolumeUp
+import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Height
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.OpenInFull
@@ -47,6 +50,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -87,6 +91,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.CenterCard
 import com.swordfish.lemuroid.app.shared.game.BaseGameScreenViewModel
 import com.swordfish.lemuroid.app.shared.game.GameDisplayOptions
+import com.swordfish.lemuroid.app.shared.game.GameShortcutsSetting
 import com.swordfish.lemuroid.app.shared.game.viewmodel.GameViewModelTouchControls.Companion.MENU_LOADING_ANIMATION_MILLIS
 import com.swordfish.lemuroid.app.shared.settings.HapticFeedbackMode
 import com.swordfish.lemuroid.lib.controller.ControllerConfig
@@ -106,7 +111,22 @@ import kotlinx.coroutines.flow.filterNotNull
 
 @Composable
 fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+    // Counts every touch anywhere on the game screen (only watched, never taken), so the shortcut
+    // buttons can wake up.
+    var screenTouches by remember { mutableIntStateOf(0) }
+    BoxWithConstraints(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent(PointerEventPass.Initial)
+                            if (event.changes.any { it.pressed && !it.previousPressed }) screenTouches++
+                        }
+                    }
+                },
+    ) {
         val isLandscape = constraints.maxWidth > constraints.maxHeight
 
         LaunchedEffect(isLandscape) {
@@ -268,6 +288,7 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                         .windowInsetsPadding(WindowInsets.safeDrawing)
                         .padding(8.dp),
                 viewModel = viewModel,
+                screenTouches = screenTouches,
             )
             GameOverlayCard(
                 modifier = Modifier.align(Alignment.Center),
@@ -286,53 +307,76 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
     }
 }
 
-/** In-game buttons, top right: quick save state, mute, fast forward. */
+/**
+ * In-game shortcut buttons, top right. Any touch on the screen makes them solid; after a few
+ * seconds without one they fade back. "Nested" (Settings) keeps them folded behind one button that
+ * slides them out when tapped and folds them back when the time runs out.
+ */
 @Composable
 private fun GameOverlayButtons(
     modifier: Modifier = Modifier,
     viewModel: BaseGameScreenViewModel,
+    screenTouches: Int,
 ) {
-    // The buttons fade back after a while so they don't distract from the game, and come back to
-    // full strength whenever one of them is touched (the tap still does its job).
-    var interactions by remember { mutableIntStateOf(0) }
-    var dimmed by remember { mutableStateOf(false) }
-    LaunchedEffect(interactions) {
-        dimmed = false
-        delay(OVERLAY_BUTTONS_DIM_DELAY_MILLIS)
-        dimmed = true
+    val context = LocalContext.current
+    val nested = remember { GameShortcutsSetting.isNested(context) }
+    var awake by remember { mutableStateOf(true) }
+    var open by remember { mutableStateOf(false) }
+    LaunchedEffect(screenTouches) {
+        awake = true
+        delay(OVERLAY_BUTTONS_IDLE_MILLIS)
+        awake = false
+        open = false
     }
     val alpha by animateFloatAsState(
-        targetValue = if (dimmed) OVERLAY_BUTTONS_DIMMED_ALPHA else 1f,
+        targetValue = if (awake) 1f else OVERLAY_BUTTONS_DIMMED_ALPHA,
         animationSpec = tween(durationMillis = OVERLAY_BUTTONS_FADE_MILLIS),
         label = "overlayButtonsAlpha",
     )
 
-    Row(
-        modifier =
-            modifier
-                .alpha(alpha)
-                .pointerInput(Unit) {
-                    awaitPointerEventScope {
-                        while (true) {
-                            val event = awaitPointerEvent(PointerEventPass.Initial)
-                            if (event.changes.any { it.pressed && !it.previousPressed }) interactions++
-                        }
+    Box(modifier = modifier, contentAlignment = Alignment.TopEnd) {
+        AnimatedVisibility(
+            visible = !nested || open,
+            enter = expandHorizontally(expandFrom = Alignment.End) + fadeIn(),
+            exit = shrinkHorizontally(shrinkTowards = Alignment.End) + fadeOut(),
+        ) {
+            CompositionLocalProvider(
+                LocalOverlayButtonSize provides if (nested) OVERLAY_BUTTON_SIZE_OPEN else OVERLAY_BUTTON_SIZE,
+            ) {
+                Row(
+                    modifier = Modifier.alpha(if (nested) 1f else alpha),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    if (viewModel.areStatesSupported()) {
+                        StatesButton(viewModel)
                     }
-                },
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        if (viewModel.areStatesSupported()) {
-            StatesButton(viewModel)
+                    MuteButton(viewModel)
+                    if (viewModel.isFastForwardSupported()) {
+                        FastForwardButton(viewModel)
+                    }
+                    FilterButton(viewModel)
+                    if (viewModel.isScalingSupported()) {
+                        ScalingButton(viewModel)
+                    }
+                    MenuButton(viewModel)
+                }
+            }
         }
-        MuteButton(viewModel)
-        if (viewModel.isFastForwardSupported()) {
-            FastForwardButton(viewModel)
+        AnimatedVisibility(visible = nested && !open, enter = fadeIn(), exit = fadeOut()) {
+            val label = stringResource(com.swordfish.lemuroid.R.string.game_button_shortcuts)
+            CompositionLocalProvider(LocalOverlayButtonSize provides OVERLAY_BUTTON_SIZE_HUB) {
+                Box(modifier = Modifier.alpha(alpha)) {
+                    OverlayButton(active = false, label = label, onClick = { open = true }) {
+                        Icon(
+                            modifier = Modifier.size(OVERLAY_ICON_SIZE + 3.dp),
+                            imageVector = Icons.Filled.Apps,
+                            contentDescription = label,
+                            tint = Color.White,
+                        )
+                    }
+                }
+            }
         }
-        FilterButton(viewModel)
-        if (viewModel.isScalingSupported()) {
-            ScalingButton(viewModel)
-        }
-        MenuButton(viewModel)
     }
 }
 
@@ -345,7 +389,7 @@ private fun MenuButton(viewModel: BaseGameScreenViewModel) {
             modifier = Modifier.size(OVERLAY_ICON_SIZE),
             imageVector = Icons.Filled.Menu,
             contentDescription = label,
-            tint = Color.White.copy(alpha = 0.8f),
+            tint = Color.White,
         )
     }
 }
@@ -462,9 +506,9 @@ private fun OverlayButton(
     Box(
         modifier =
             Modifier
-                .size(OVERLAY_BUTTON_SIZE)
+                .size(LocalOverlayButtonSize.current)
                 .clip(CircleShape)
-                .background(Color.Black.copy(alpha = if (active) 0.6f else 0.35f))
+                .background(Color.Black)
                 .clickable(onClickLabel = label, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
@@ -485,7 +529,7 @@ private fun StatesButton(viewModel: BaseGameScreenViewModel) {
             modifier = Modifier.size(OVERLAY_ICON_SIZE),
             imageVector = Icons.Outlined.Save,
             contentDescription = label,
-            tint = Color.White.copy(alpha = 0.8f),
+            tint = Color.White,
         )
     }
 }
@@ -520,15 +564,18 @@ private fun FastForwardButton(viewModel: BaseGameScreenViewModel) {
                     .semantics { stateDescription = if (enabled) "On" else "Off" },
             painter = painterResource(com.swordfish.lemuroid.R.drawable.ic_menu_fast_forward),
             contentDescription = label,
-            tint = if (enabled) FAST_FORWARD_ACTIVE_COLOR else Color.White.copy(alpha = 0.7f),
+            tint = if (enabled) FAST_FORWARD_ACTIVE_COLOR else Color.White,
         )
     }
 }
 
-private const val OVERLAY_BUTTONS_DIM_DELAY_MILLIS = 15_000L
-private const val OVERLAY_BUTTONS_DIMMED_ALPHA = 0.3f
+private const val OVERLAY_BUTTONS_IDLE_MILLIS = 4_000L
+private const val OVERLAY_BUTTONS_DIMMED_ALPHA = 0.35f
 private const val OVERLAY_BUTTONS_FADE_MILLIS = 600
 private val OVERLAY_BUTTON_SIZE = 46.dp
+private val OVERLAY_BUTTON_SIZE_OPEN = 50.dp
+private val OVERLAY_BUTTON_SIZE_HUB = 52.dp
+private val LocalOverlayButtonSize = compositionLocalOf { OVERLAY_BUTTON_SIZE }
 private val OVERLAY_ICON_SIZE = 23.dp
 private const val OVERLAY_CARD_MILLIS = 1200L
 

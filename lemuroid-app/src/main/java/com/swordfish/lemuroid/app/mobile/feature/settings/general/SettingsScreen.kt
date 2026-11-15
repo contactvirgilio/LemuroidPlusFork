@@ -19,16 +19,17 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.swordfish.lemuroid.R
-import com.swordfish.lemuroid.app.mobile.feature.main.VERTICAL_BAR_KEY
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.MediaViewSetting
-import com.swordfish.lemuroid.app.shared.tiles.SystemTileColors
 import com.swordfish.lemuroid.app.mobile.feature.apps.AppsTabSettings
 import com.swordfish.lemuroid.app.mobile.feature.main.MainRoute
+import com.swordfish.lemuroid.app.mobile.feature.main.VERTICAL_BAR_KEY
 import com.swordfish.lemuroid.app.mobile.feature.main.navigateToRoute
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.MediaViewSetting
 import com.swordfish.lemuroid.app.shared.artwork.ArtworkManager
+import com.swordfish.lemuroid.app.shared.game.GameShortcutsSetting
 import com.swordfish.lemuroid.app.shared.launcher.HomeLauncher
 import com.swordfish.lemuroid.app.shared.library.LibraryIndexScheduler
 import com.swordfish.lemuroid.app.shared.sounds.NavigationSounds
+import com.swordfish.lemuroid.app.shared.tiles.SystemTileColors
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidCardSettingsGroup
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsList
 import com.swordfish.lemuroid.app.utils.android.settings.LemuroidSettingsMenuLink
@@ -223,6 +224,11 @@ private fun GeneralSettings() {
             state = booleanPreferenceState(VERTICAL_BAR_KEY, false),
             title = { Text(text = stringResource(id = R.string.settings_title_vertical_bar)) },
             subtitle = { Text(text = stringResource(id = R.string.settings_description_vertical_bar)) },
+        )
+        LemuroidSettingsSwitch(
+            state = booleanPreferenceState(GameShortcutsSetting.KEY, true),
+            title = { Text(text = stringResource(id = R.string.settings_title_nested_shortcuts)) },
+            subtitle = { Text(text = stringResource(id = R.string.settings_description_nested_shortcuts)) },
         )
         LemuroidSettingsSwitch(
             state = booleanPreferenceState(MediaViewSetting.KEY, false),

@@ -367,4 +367,7 @@
     <string name="cartridge_color_original">Original colors</string>
     <string name="cartridge_color_save">Save</string>
     <string name="cartridge_color_cancel">Cancel</string>
+    <string name="game_button_shortcuts">Shortcuts</string>
+    <string name="settings_title_nested_shortcuts">Nested game shortcuts</string>
+    <string name="settings_description_nested_shortcuts">Keep the in-game shortcuts behind one button that opens them. Off: always visible in a row</string>
 </resources>
