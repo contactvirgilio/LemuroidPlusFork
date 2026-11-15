@@ -473,12 +473,10 @@ abstract class BaseGameActivity : ImmersiveActivity() {
                 )
             }
             if (data?.hasExtra(GameMenuContract.RESULT_IMMERSIVE_MODE) == true) {
-                // Applies at once (patched LibretroDroid) and is remembered like the Settings switch.
+                // Applies at once (patched LibretroDroid) and is remembered for this game.
                 val enabled = data.getBooleanExtra(GameMenuContract.RESULT_IMMERSIVE_MODE, false)
                 baseGameScreenViewModel.retroGameView.retroGameView?.immersiveModeEnabled = enabled
-                sharedPreferences.get().edit()
-                    .putBoolean(getString(R.string.pref_key_enable_immersive_mode), enabled)
-                    .apply()
+                GameImmersiveMode.set(this, game, enabled)
             }
             if (data?.hasExtra(GameMenuContract.RESULT_ENABLE_FAST_FORWARD) == true) {
                 baseGameScreenViewModel.setFastForwardEnabled(

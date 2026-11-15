@@ -10,6 +10,7 @@ import com.swordfish.lemuroid.BuildConfig
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.settings.SettingsManager
 import com.swordfish.lemuroid.app.shared.game.DsSingleScreen
+import com.swordfish.lemuroid.app.shared.game.GameImmersiveMode
 import com.swordfish.lemuroid.app.shared.game.ShaderChooser
 import com.swordfish.lemuroid.app.shared.rumble.RumbleManager
 import com.swordfish.lemuroid.app.shared.settings.HDModeQuality
@@ -98,7 +99,7 @@ class GameViewModelRetroGameView(
         val lowLatencyAudio = settingsManager.lowLatencyAudio()
         val enableRumble = settingsManager.enableRumble()
         val directLoad = settingsManager.allowDirectGameLoad()
-        val enableImmersiveMode = settingsManager.enableImmersiveMode()
+        val enableImmersiveMode = GameImmersiveMode.isEnabled(appContext, game)
 
         val hasMicrophonePermission =
             ContextCompat.checkSelfPermission(

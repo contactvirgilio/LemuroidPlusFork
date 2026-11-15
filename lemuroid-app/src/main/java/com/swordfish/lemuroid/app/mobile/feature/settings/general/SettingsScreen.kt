@@ -210,7 +210,6 @@ private fun InputSettings(navController: NavController) {
 @Composable
 private fun GeneralSettings() {
     val hdMode = booleanPreferenceState(R.string.pref_key_hd_mode, false)
-    val immersiveMode = booleanPreferenceState(R.string.pref_key_enable_immersive_mode, false)
 
     LemuroidCardSettingsGroup(
         title = { Text(text = stringResource(id = R.string.settings_category_general)) },
@@ -235,11 +234,6 @@ private fun GeneralSettings() {
             title = { Text(text = stringResource(id = R.string.settings_title_pastel_tiles)) },
             subtitle = { Text(text = stringResource(id = R.string.settings_description_pastel_tiles)) },
             onCheckedChange = { SystemTileColors.pastelEnabled = it },
-        )
-        LemuroidSettingsSwitch(
-            state = immersiveMode,
-            title = { Text(text = stringResource(id = R.string.settings_title_immersive_mode)) },
-            subtitle = { Text(text = stringResource(id = R.string.settings_description_immersive_mode)) },
         )
         LemuroidSettingsSwitch(
             state = hdMode,
