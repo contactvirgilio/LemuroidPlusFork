@@ -505,7 +505,7 @@ private fun GameOverlayCard(
 
     AnimatedVisibility(modifier = modifier, visible = visibleCard != null, enter = fadeIn(), exit = fadeOut()) {
         if (shown == null) return@AnimatedVisibility
-        CenterCard(title = shown.title, value = shown.value, index = shown.index, count = shown.count)
+        CenterCard(title = shown.title, value = shown.value, index = shown.index, count = shown.count, hint = shown.hint)
     }
 }
 

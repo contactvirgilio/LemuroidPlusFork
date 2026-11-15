@@ -322,6 +322,22 @@ class BaseGameScreenViewModel(
 
     fun isAudioEnabled(): Flow<Boolean> = audioEnabledState
 
+    /**
+     * Volume up while this game is muted: say so, since the system volume alone won't bring the
+     * sound back. The game stays muted (other audio, e.g. music, is untouched).
+     */
+    fun onVolumeUp() {
+        if (audioEnabledState.value) return
+        overlayCardState.value =
+            OverlayCard(
+                appContext.getString(R.string.game_overlay_sound_title),
+                appContext.getString(R.string.game_overlay_sound_muted),
+                0,
+                0,
+                hint = appContext.getString(R.string.game_overlay_sound_muted_hint),
+            )
+    }
+
     fun setAudioEnabled(enabled: Boolean) {
         audioEnabledState.value = enabled
         sharedPreferences.edit().putBoolean(muteKey(), !enabled).apply()
@@ -356,6 +372,7 @@ class BaseGameScreenViewModel(
         val index: Int,
         val count: Int,
         val id: Long = System.nanoTime(),
+        val hint: String? = null,
     )
 
     private val overlayCardState = MutableStateFlow<OverlayCard?>(null)

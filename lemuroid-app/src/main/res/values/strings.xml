@@ -383,4 +383,7 @@
     <string name="game_button_shortcuts">Shortcuts</string>
     <string name="settings_title_nested_shortcuts">Nested game shortcuts</string>
     <string name="settings_description_nested_shortcuts">Keep the in-game shortcuts behind one button that opens them. Off: always visible in a row</string>
+    <string name="game_overlay_sound_title">Sound</string>
+    <string name="game_overlay_sound_muted">Muted</string>
+    <string name="game_overlay_sound_muted_hint">Unmute with the speaker shortcut</string>
 </resources>

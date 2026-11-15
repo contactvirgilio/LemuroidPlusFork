@@ -48,6 +48,7 @@ fun CenterCard(
     modifier: Modifier = Modifier,
     index: Int = 0,
     count: Int = 0,
+    hint: String? = null,
 ) {
     Column(
         modifier =
@@ -72,6 +73,15 @@ fun CenterCard(
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
         )
+        if (hint != null) {
+            Text(
+                modifier = Modifier.padding(top = 4.dp),
+                text = hint,
+                color = Color.White.copy(alpha = 0.8f),
+                fontSize = 13.sp,
+                textAlign = TextAlign.Center,
+            )
+        }
         if (count > 0) {
             Row(
                 modifier = Modifier.padding(top = 8.dp),
