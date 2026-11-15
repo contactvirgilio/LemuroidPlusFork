@@ -16,13 +16,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -69,9 +74,19 @@ fun ActivityScreen(
     if (!state.loaded) return
 
     val context = LocalContext.current
-    var showAllTime by remember { mutableStateOf(ActivityRange.isAllTime(context)) }
-    val topGames = if (showAllTime) state.allTimeTopGames else state.monthTopGames
-    val systems = if (showAllTime) state.allTimeSystems else state.monthSystems
+    var period by remember { mutableStateOf(ActivityRange.period(context)) }
+    var topCount by remember { mutableIntStateOf(ActivityRange.topCount(context)) }
+    val data = state.periods[period] ?: ActivityViewModel.PeriodData()
+    val topGames = data.topGames.take(topCount)
+    val periodLabel =
+        stringResource(
+            when (period) {
+                ActivityPeriod.WEEK -> R.string.activity_this_week
+                ActivityPeriod.MONTH -> R.string.activity_this_month
+                ActivityPeriod.YEAR -> R.string.activity_this_year
+                ActivityPeriod.ALL -> R.string.activity_all_time
+            },
+        )
 
     if (state.allTimeTotal == 0L) {
         Box(modifier = modifier.fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
@@ -91,70 +106,93 @@ fun ActivityScreen(
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         item {
+            PillRow(
+                options = ActivityPeriod.values().toList(),
+                selected = period,
+                label = {
+                    stringResource(
+                        when (it) {
+                            ActivityPeriod.WEEK -> R.string.activity_week
+                            ActivityPeriod.MONTH -> R.string.activity_month
+                            ActivityPeriod.YEAR -> R.string.activity_year
+                            ActivityPeriod.ALL -> R.string.activity_all_time
+                        },
+                    )
+                },
+                onSelect = {
+                    period = it
+                    ActivityRange.setPeriod(context, it)
+                },
+            )
+        }
+        item {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                StatCard(Modifier.weight(1f), formatDuration(data.total), periodLabel)
                 StatCard(
                     Modifier.weight(1f),
-                    formatDuration(state.weekTotal),
-                    stringResource(R.string.activity_this_week),
-                )
-                StatCard(
-                    Modifier.weight(1f),
-                    state.weekGames.toString(),
-                    stringResource(R.string.activity_games_this_week),
+                    data.games.toString(),
+                    stringResource(R.string.activity_games_played),
                 )
                 StatCard(
                     Modifier.weight(1f),
                     formatDuration(state.allTimeTotal),
-                    stringResource(R.string.activity_all_time),
+                    stringResource(R.string.activity_total),
                 )
             }
         }
-        item { SectionTitle(stringResource(R.string.activity_this_week)) }
-        item { WeekChart(state.days, state.todayIndex) }
+        item { BarChart(data.bars, data.labels, data.currentBar) }
         item {
-            RangeSwitch(
-                allTime = showAllTime,
-                onChange = {
-                    showAllTime = it
-                    ActivityRange.setAllTime(context, it)
-                },
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(modifier = Modifier.weight(1f)) { SectionTitle(stringResource(R.string.activity_most_played)) }
+                PillRow(
+                    options = ActivityRange.TOP_COUNTS,
+                    selected = topCount,
+                    label = { stringResource(R.string.activity_top_count, it) },
+                    onSelect = {
+                        topCount = it
+                        ActivityRange.setTopCount(context, it)
+                    },
+                )
+            }
         }
-        item { SectionTitle(stringResource(R.string.activity_most_played)) }
         if (topGames.isEmpty()) {
             item {
                 Text(
-                    text = stringResource(R.string.activity_nothing_this_month),
+                    text = stringResource(R.string.activity_nothing_period),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
-        items(topGames, key = { "game-${it.game.id}" }) { stat -> GameRow(stat) }
-        if (systems.isNotEmpty()) {
+        itemsIndexed(topGames, key = { _, it -> "game-${it.game.id}" }) { index, stat ->
+            GameRow(index + 1, stat, state.trophies[stat.game.id])
+        }
+        if (data.systems.isNotEmpty()) {
             item { SectionTitle(stringResource(R.string.activity_by_system)) }
-            val longest = systems.first().duration.coerceAtLeast(1)
-            items(systems, key = { "system-${it.systemId}" }) { stat -> SystemRow(stat, longest) }
+            val longest = data.systems.first().duration.coerceAtLeast(1)
+            items(data.systems, key = { "system-${it.systemId}" }) { stat -> SystemRow(stat, longest) }
         }
     }
 }
 
-/** "This month / All time" pills; changes Most played and By system. */
+/** A row of pills, one selected (period, or how many top games). */
 @Composable
-private fun RangeSwitch(
-    allTime: Boolean,
-    onChange: (Boolean) -> Unit,
+private fun <T> PillRow(
+    options: List<T>,
+    selected: T,
+    label: @Composable (T) -> String,
+    onSelect: (T) -> Unit,
 ) {
     Row(
         modifier =
             Modifier
-                .padding(top = 6.dp)
                 .clip(RoundedCornerShape(20.dp))
                 .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(3.dp),
     ) {
-        RangePill(stringResource(R.string.activity_this_month), selected = !allTime) { onChange(false) }
-        RangePill(stringResource(R.string.activity_all_time), selected = allTime) { onChange(true) }
+        options.forEach { option ->
+            RangePill(label(option), selected = option == selected) { onSelect(option) }
+        }
     }
 }
 
@@ -171,7 +209,7 @@ private fun RangePill(
                 .clip(RoundedCornerShape(17.dp))
                 .background(if (selected) FocusHighlightColor else Color.Transparent)
                 .clickable(onClick = onClick)
-                .padding(horizontal = 14.dp, vertical = 6.dp),
+                .padding(horizontal = 12.dp, vertical = 6.dp),
     ) {
         Text(
             text = text,
@@ -217,12 +255,13 @@ private fun SectionTitle(text: String) {
 }
 
 @Composable
-private fun WeekChart(
-    days: List<Long>,
-    todayIndex: Int,
+private fun BarChart(
+    bars: List<Long>,
+    labels: List<String>,
+    currentBar: Int,
 ) {
-    val dayLabels = stringResource(R.string.activity_week_days).split(',')
-    val longest = days.maxOrNull()?.coerceAtLeast(1) ?: 1
+    val longest = bars.maxOrNull()?.coerceAtLeast(1) ?: 1
+    val gap = if (bars.size > 12) 2.dp else 6.dp
     Row(
         modifier =
             Modifier
@@ -230,9 +269,9 @@ private fun WeekChart(
                 .clip(RoundedCornerShape(12.dp))
                 .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(horizontal = 12.dp, vertical = 10.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(gap),
     ) {
-        days.forEachIndexed { index, duration ->
+        bars.forEachIndexed { index, duration ->
             Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
                 Box(modifier = Modifier.height(80.dp).fillMaxWidth(), contentAlignment = Alignment.BottomCenter) {
                     Box(
@@ -240,17 +279,19 @@ private fun WeekChart(
                             Modifier
                                 .fillMaxWidth()
                                 .fillMaxHeight((duration.toFloat() / longest).coerceAtLeast(0.03f))
-                                .clip(RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp))
+                                .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
                                 .background(
-                                    if (index == todayIndex) TODAY_COLOR else FocusHighlightColor.copy(alpha = 0.85f),
+                                    if (index == currentBar) TODAY_COLOR else FocusHighlightColor.copy(alpha = 0.85f),
                                 ),
                     )
                 }
                 Text(
                     modifier = Modifier.padding(top = 4.dp),
-                    text = dayLabels.getOrElse(index) { "" },
+                    text = labels.getOrElse(index) { "" },
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    softWrap = false,
                 )
             }
         }
@@ -258,7 +299,11 @@ private fun WeekChart(
 }
 
 @Composable
-private fun GameRow(stat: ActivityViewModel.GameStat) {
+private fun GameRow(
+    rank: Int,
+    stat: ActivityViewModel.GameStat,
+    trophy: ActivityViewModel.Trophy?,
+) {
     val systemTitleId =
         remember(stat.game.systemId) {
             if (isArcadeId(stat.game.systemId)) {
@@ -273,19 +318,43 @@ private fun GameRow(stat: ActivityViewModel.GameStat) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
+        Text(
+            modifier = Modifier.width(22.dp),
+            text = "$rank",
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            color = if (rank <= 3) FocusHighlightColor else MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         LemuroidSmallGameImage(
             modifier = Modifier.size(36.dp).clip(RoundedCornerShape(7.dp)),
             game = stat.game,
         )
         Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    modifier = Modifier.weight(1f, fill = false),
+                    text = stat.game.displayName(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                if (trophy != null) {
+                    Icon(
+                        modifier = Modifier.padding(start = 6.dp).size(16.dp),
+                        imageVector = Icons.Filled.EmojiEvents,
+                        contentDescription = stringResource(trophyLabel(trophy.tier)),
+                        tint = Color(trophy.tier.color),
+                    )
+                }
+            }
             Text(
-                text = stat.game.displayName(),
-                style = MaterialTheme.typography.bodyMedium,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                text = systemName,
+                text =
+                    if (trophy == null) {
+                        systemName
+                    } else {
+                        stringResource(R.string.activity_trophy_line, systemName, stringResource(trophyLabel(trophy.tier)), trophy.rank)
+                    },
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
@@ -348,6 +417,14 @@ private fun formatDuration(millis: Long): String {
         else -> "${minutes}m"
     }
 }
+
+private fun trophyLabel(tier: ActivityViewModel.TrophyTier) =
+    when (tier) {
+        ActivityViewModel.TrophyTier.BRONZE -> R.string.activity_trophy_bronze
+        ActivityViewModel.TrophyTier.SILVER -> R.string.activity_trophy_silver
+        ActivityViewModel.TrophyTier.GOLD -> R.string.activity_trophy_gold
+        ActivityViewModel.TrophyTier.DIAMOND -> R.string.activity_trophy_diamond
+    }
 
 private val TODAY_COLOR = Color(0xFF5EEAD4)
 
