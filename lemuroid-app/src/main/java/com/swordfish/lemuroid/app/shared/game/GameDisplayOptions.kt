@@ -47,12 +47,6 @@ class GameDisplayOptions(
         /** One whole multiple smaller than [INTEGER]. */
         INTEGER_SMALLER(R.string.game_scaling_integer_smaller),
 
-        /**
-         * Zoom to fill: the picture is enlarged until it fills the full height, keeping its shape;
-         * the left and right edges are cut off instead of showing bars above and below.
-         */
-        ZOOM(R.string.game_scaling_zoom),
-
         /** Stretch to fill: the picture covers the whole game area, ignoring its shape. */
         STRETCH(R.string.game_scaling_stretch),
     }
@@ -158,20 +152,6 @@ class GameDisplayOptions(
 
             val areaWidth = areaRight - areaLeft
             val areaHeight = areaBottom - areaTop
-
-            if (scaling == Scaling.ZOOM) {
-                // Only when the full-height picture is wider than the area: the sides are cut off.
-                // Otherwise (a tall area) zooming would spill into the controls, so keep Fit.
-                val zoomWidth = areaHeight * aspectRatio
-                if (zoomWidth <= areaWidth) return fit
-                val left = areaLeft + (areaWidth - zoomWidth) / 2f
-                return RectF(
-                    left / viewWidth,
-                    areaTop / viewHeight,
-                    (left + zoomWidth) / viewWidth,
-                    areaBottom / viewHeight,
-                )
-            }
             val fitHeight = min(areaHeight, areaWidth / aspectRatio)
 
             var multiple = floor(fitHeight / baseHeight).toInt()

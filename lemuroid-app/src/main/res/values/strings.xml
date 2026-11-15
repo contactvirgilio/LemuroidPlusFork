@@ -302,7 +302,6 @@
     <string name="game_scaling_fit">Fit</string>
     <string name="game_scaling_integer">Integer</string>
     <string name="game_scaling_integer_smaller">Integer −1</string>
-    <string name="game_scaling_zoom">Zoom to fill</string>
     <string name="game_scaling_stretch">Stretch to fill</string>
     <string name="game_button_states">Save state</string>
     <string name="games_view_list">List view</string>
