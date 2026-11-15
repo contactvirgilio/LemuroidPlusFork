@@ -402,13 +402,23 @@ class BaseGameScreenViewModel(
 
     fun isScalingSupported(): Boolean = scalingProfile != null
 
-    private val scalingState = MutableStateFlow(displayOptions.savedScaling())
+    // Stretch only looks right on 4:3-ish screens (e.g. Retroid Pocket Classic); on phones and
+    // widescreen devices it would pull the picture far out of shape, so it isn't offered there.
+    private val scalingModes =
+        GameDisplayOptions.Scaling.values().filter {
+            it != GameDisplayOptions.Scaling.STRETCH || GameShortcutsSetting.defaultNested(appContext)
+        }
+
+    private val scalingState =
+        MutableStateFlow(
+            displayOptions.savedScaling().takeIf { it in scalingModes } ?: GameDisplayOptions.Scaling.FIT,
+        )
 
     fun getScaling(): StateFlow<GameDisplayOptions.Scaling> = scalingState
 
     fun cycleScaling() {
-        val modes = GameDisplayOptions.Scaling.values()
-        val next = modes[(scalingState.value.ordinal + 1) % modes.size]
+        val modes = scalingModes
+        val next = modes[(modes.indexOf(scalingState.value) + 1) % modes.size]
         scalingState.value = next
         displayOptions.saveScaling(next)
         overlayCardState.value =
