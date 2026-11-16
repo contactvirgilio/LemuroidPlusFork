@@ -192,7 +192,7 @@ fun LemuroidTopBarActions(
 
 /** Cartridge view on/off: games drawn as their system's cartridge or disc instead of tiles. */
 @Composable
-private fun MediaViewButton() {
+internal fun MediaViewButton() {
     val context = LocalContext.current
     val enabled = rememberMediaView()
     IconButton(onClick = { MediaViewSetting.set(context, !enabled) }) {

@@ -3,8 +3,11 @@ package com.swordfish.lemuroid.app.mobile.feature.main
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -12,12 +15,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CloudSync
-import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.ViewModule
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,6 +42,9 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.apps.rememberAppsTabVisible
+import com.swordfish.lemuroid.app.mobile.feature.games.HomeTileSize
+import com.swordfish.lemuroid.app.mobile.feature.games.HomeTileSizeStore
+import com.swordfish.lemuroid.app.mobile.feature.games.rememberHomeTileSize
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.focusHighlight
 import com.swordfish.lemuroid.app.shared.savesync.SaveSyncWork
 import com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper
@@ -66,7 +74,7 @@ private fun readVerticalBar(context: Context): Boolean =
 
 /**
  * One bar down the left side instead of the top and bottom bars: the pages, then the shortcuts
- * that normally sit in the top bar (tile size, sync, settings, help).
+ * that normally sit in the top bar (view options, sync, settings).
  */
 @Composable
 fun MainNavigationRail(
@@ -104,7 +112,10 @@ fun MainNavigationRail(
             .forEach { destination ->
                 val isSelected = currentRoute?.root == destination.route
                 NavigationRailItem(
-                    modifier = Modifier.focusHighlight(shape = RoundedCornerShape(16.dp), zoom = 1f),
+                    modifier =
+                        Modifier
+                            .height(52.dp)
+                            .focusHighlight(shape = RoundedCornerShape(16.dp), zoom = 1f),
                     selected = isSelected,
                     onClick = {
                         navController.navigate(destination.route.route) {
@@ -126,29 +137,58 @@ fun MainNavigationRail(
 
         Divider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
 
-        if (saveSyncEnabled) {
+        // View options of the page (the top bar holds them in the horizontal layout).
+        if (currentRoute == MainRoute.HOME || currentRoute == MainRoute.FAVORITES) {
+            Row {
+                HomeTileSizeCycleButton()
+                MediaViewButton()
+            }
+            Text(
+                text = stringResource(R.string.rail_view),
+                fontSize = 10.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Divider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
+        }
+
+        // Settings (and sync, when on) side by side, without labels, to fit short screens.
+        Row(horizontalArrangement = Arrangement.Center) {
+            if (saveSyncEnabled) {
+                IconButton(
+                    modifier = Modifier.focusHighlight(shape = RoundedCornerShape(16.dp), zoom = 1f),
+                    onClick = { SaveSyncWork.enqueueManualWork(context.applicationContext) },
+                    enabled = !operationsInProgress,
+                ) {
+                    Icon(Icons.Outlined.CloudSync, stringResource(R.string.save_sync))
+                }
+            }
             IconButton(
-                onClick = { SaveSyncWork.enqueueManualWork(context.applicationContext) },
-                enabled = !operationsInProgress,
+                modifier = Modifier.focusHighlight(shape = RoundedCornerShape(16.dp), zoom = 1f),
+                onClick = { navController.navigate(MainRoute.SETTINGS.route) },
             ) {
-                Icon(Icons.Outlined.CloudSync, stringResource(R.string.save_sync))
+                Icon(Icons.Outlined.Settings, stringResource(R.string.settings))
             }
         }
-        NavigationRailItem(
-            modifier = Modifier.focusHighlight(shape = RoundedCornerShape(16.dp), zoom = 1f),
-            selected = false,
-            onClick = { navController.navigate(MainRoute.SETTINGS.route) },
-            icon = { Icon(Icons.Outlined.Settings, stringResource(R.string.settings)) },
-            label = { Text(stringResource(R.string.settings), fontSize = 11.sp, maxLines = 1) },
-            alwaysShowLabel = true,
-        )
-        NavigationRailItem(
-            modifier = Modifier.focusHighlight(shape = RoundedCornerShape(16.dp), zoom = 1f),
-            selected = false,
-            onClick = onHelpPressed,
-            icon = { Icon(Icons.Outlined.Info, stringResource(R.string.mobile_settings_help)) },
-            label = { Text(stringResource(R.string.mobile_settings_help), fontSize = 11.sp, maxLines = 1) },
-            alwaysShowLabel = true,
+    }
+}
+
+/** Small / large tiles in one button: each tap switches, the icon shows the current size. */
+@Composable
+private fun HomeTileSizeCycleButton() {
+    val context = LocalContext.current
+    val size = rememberHomeTileSize()
+    val next = if (size == HomeTileSize.SMALL) HomeTileSize.LARGE else HomeTileSize.SMALL
+    IconButton(
+        modifier = Modifier.focusHighlight(shape = RoundedCornerShape(16.dp), zoom = 1f),
+        onClick = { HomeTileSizeStore.set(context, next) },
+    ) {
+        Icon(
+            imageVector = if (size == HomeTileSize.SMALL) Icons.Outlined.ViewModule else Icons.Outlined.GridView,
+            contentDescription =
+                stringResource(
+                    if (size == HomeTileSize.SMALL) R.string.games_view_grid_small else R.string.games_view_grid_large,
+                ),
         )
     }
 }
+
