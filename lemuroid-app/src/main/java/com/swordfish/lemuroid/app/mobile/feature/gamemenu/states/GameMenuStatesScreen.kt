@@ -12,9 +12,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,31 +56,54 @@ fun GameMenuStatesScreen(
         if (hasGamepad && firstEnabled >= 0) runCatching { firstTile.requestFocus() }
     }
 
-    // Always 2 x 2, as big as the card allows: each slot is limited by the card's width and by its
-    // height (two rows of picture + name + date), so all four show at once without scrolling.
     BoxWithConstraints(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-    val gap = 14.dp
-    val byWidth = (maxWidth - 44.dp - gap) / 2
-    val byHeight = ((maxHeight - 24.dp - gap) / 2 - SLOT_TEXT_HEIGHT) * PREVIEW_ASPECT_RATIO
-    val slotWidth = minOf(byWidth, byHeight).coerceAtLeast(96.dp)
-    LazyVerticalGrid(
-        // Only as big as the slots, centred in the card.
-        modifier = Modifier.width(slotWidth * 2 + gap + 44.dp).wrapContentHeight(),
-        columns = GridCells.Fixed(2),
-        contentPadding = PaddingValues(start = 22.dp, end = 22.dp, top = 8.dp, bottom = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(gap),
-        verticalArrangement = Arrangement.spacedBy(gap),
-    ) {
-        itemsIndexed(state.value.entries) { index, entry ->
-            StateSlot(
-                entry = entry,
-                modifier = if (index == firstEnabled) Modifier.focusRequester(firstTile) else Modifier,
-                onClick = { onStateClicked(index) },
-            )
+        val gap = 14.dp
+        val slotModifier = { index: Int -> if (index == firstEnabled) Modifier.focusRequester(firstTile) else Modifier }
+        if (maxWidth > maxHeight) {
+            // Option A (wide cards, e.g. RPC): one row of big slots filling the card's height; the
+            // last one peeks in at the right and the row scrolls sideways to it.
+            val byHeight = (maxHeight - 24.dp - SLOT_TEXT_HEIGHT) * PREVIEW_ASPECT_RATIO
+            val byWidth = (maxWidth - 22.dp - gap * 3) / VISIBLE_SLOTS_IN_ROW
+            val slotWidth = minOf(byHeight, byWidth).coerceAtLeast(96.dp)
+            LazyRow(
+                modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+                contentPadding = PaddingValues(start = 22.dp, end = 22.dp, top = 8.dp, bottom = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(gap),
+            ) {
+                itemsIndexed(state.value.entries) { index, entry ->
+                    StateSlot(
+                        entry = entry,
+                        modifier = slotModifier(index).width(slotWidth),
+                        onClick = { onStateClicked(index) },
+                    )
+                }
+            }
+        } else {
+            // Option B (kept): 2 x 2, as big as the card allows, all four without scrolling.
+            val byWidth = (maxWidth - 44.dp - gap) / 2
+            val byHeight = ((maxHeight - 24.dp - gap) / 2 - SLOT_TEXT_HEIGHT) * PREVIEW_ASPECT_RATIO
+            val slotWidth = minOf(byWidth, byHeight).coerceAtLeast(96.dp)
+            LazyVerticalGrid(
+                modifier = Modifier.width(slotWidth * 2 + gap + 44.dp).wrapContentHeight(),
+                columns = GridCells.Fixed(2),
+                contentPadding = PaddingValues(start = 22.dp, end = 22.dp, top = 8.dp, bottom = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(gap),
+                verticalArrangement = Arrangement.spacedBy(gap),
+            ) {
+                itemsIndexed(state.value.entries) { index, entry ->
+                    StateSlot(
+                        entry = entry,
+                        modifier = slotModifier(index),
+                        onClick = { onStateClicked(index) },
+                    )
+                }
+            }
         }
     }
 }
-}
+
+// In the one-row layout: about 2.3 slots across, so the next one visibly peeks in.
+private const val VISIBLE_SLOTS_IN_ROW = 2.3f
 
 private const val PREVIEW_ASPECT_RATIO = 4f / 3f
 
