@@ -2,6 +2,7 @@ package com.swordfish.lemuroid.app.mobile.feature.game
 
 import android.graphics.RectF
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
@@ -85,6 +86,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -381,43 +383,48 @@ private fun GameOverlayButtons(
         return
     }
 
-    // Nested: the main button always stays; the shortcuts pop out to its left, bigger and solid.
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
+    // Nested: the shortcuts and the main button are drawn on top of each other (not side by side),
+    // so opening never needs room for both: the row slides out from the right edge while the
+    // chevron fades away under the cog, and the reverse when they fold.
+    val slide = tween<IntSize>(durationMillis = NEST_SLIDE_MILLIS, easing = FastOutSlowInEasing)
+    val fade = tween<Float>(durationMillis = NEST_SLIDE_MILLIS)
+    Box(modifier = modifier, contentAlignment = Alignment.TopEnd) {
         AnimatedVisibility(
             visible = open,
-            enter = expandHorizontally(expandFrom = Alignment.End) + fadeIn(),
-            exit = shrinkHorizontally(shrinkTowards = Alignment.End) + fadeOut(),
+            enter = expandHorizontally(slide, expandFrom = Alignment.End) + fadeIn(fade),
+            exit = shrinkHorizontally(slide, shrinkTowards = Alignment.End) + fadeOut(fade),
         ) {
             CompositionLocalProvider(LocalOverlayButtonSize provides openSize) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(gap)) {
                     ShortcutButtons(viewModel)
                 }
             }
         }
-        AnimatedVisibility(
-            visible = peekMute && !open,
-            enter = expandHorizontally(expandFrom = Alignment.End) + fadeIn(),
-            exit = shrinkHorizontally(shrinkTowards = Alignment.End) + fadeOut(),
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(gap),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            CompositionLocalProvider(LocalOverlayButtonSize provides openSize) {
-                MuteButton(viewModel)
+            AnimatedVisibility(
+                visible = peekMute && !open,
+                enter = expandHorizontally(slide, expandFrom = Alignment.End) + fadeIn(fade),
+                exit = shrinkHorizontally(slide, shrinkTowards = Alignment.End) + fadeOut(fade),
+            ) {
+                CompositionLocalProvider(LocalOverlayButtonSize provides openSize) {
+                    MuteButton(viewModel)
+                }
             }
-        }
-        val label = stringResource(com.swordfish.lemuroid.R.string.game_button_shortcuts)
-        AnimatedVisibility(visible = !open, enter = fadeIn(), exit = fadeOut()) {
-            CompositionLocalProvider(LocalOverlayButtonSize provides OVERLAY_BUTTON_SIZE_HUB) {
-                Box(modifier = Modifier.alpha(if (open || peekMute) 1f else alpha)) {
-                    OverlayButton(active = false, label = label, onClick = { open = !open }) {
-                        Icon(
-                            modifier = Modifier.size(OVERLAY_ICON_SIZE + 3.dp),
-                            imageVector = Icons.Filled.ChevronLeft,
-                            contentDescription = label,
-                            tint = Color.White,
-                        )
+            val label = stringResource(com.swordfish.lemuroid.R.string.game_button_shortcuts)
+            AnimatedVisibility(visible = !open, enter = fadeIn(fade), exit = fadeOut(fade)) {
+                CompositionLocalProvider(LocalOverlayButtonSize provides OVERLAY_BUTTON_SIZE_HUB) {
+                    Box(modifier = Modifier.alpha(if (peekMute) 1f else alpha)) {
+                        OverlayButton(active = false, label = label, onClick = { open = true }) {
+                            Icon(
+                                modifier = Modifier.size(OVERLAY_ICON_SIZE + 3.dp),
+                                imageVector = Icons.Filled.ChevronLeft,
+                                contentDescription = label,
+                                tint = Color.White,
+                            )
+                        }
                     }
                 }
             }
@@ -651,6 +658,7 @@ private fun FastForwardButton(viewModel: BaseGameScreenViewModel) {
 
 private const val OVERLAY_BUTTONS_IDLE_MILLIS = 4_000L
 private const val TOUCH_CONTROL_CHECK_MILLIS = 80L
+private const val NEST_SLIDE_MILLIS = 260
 
 // Padding around the shortcut row (8 dp each side) plus a little room.
 private val OVERLAY_SCREEN_MARGIN = 20.dp
