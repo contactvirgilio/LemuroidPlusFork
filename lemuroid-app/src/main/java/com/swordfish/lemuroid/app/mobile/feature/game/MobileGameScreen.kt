@@ -362,11 +362,12 @@ private fun GameOverlayButtons(
     val rowSize = minOf(OVERLAY_BUTTON_SIZE, (screenWidth - gap * (count - 1)) / count)
     val openWithHub =
         minOf(OVERLAY_BUTTON_SIZE_OPEN, (screenWidth - OVERLAY_BUTTON_SIZE_HUB - gap * count) / count)
-    // Narrow screens (phone portrait): with the main button beside them the shortcuts would get
-    // smaller than the row, so when open the main button steps aside and the shortcuts sit exactly
-    // like the row, the 3-line menu in its spot. It comes back when they fold.
+    // When open, the main button steps aside and the shortcuts sit in a row with the 3-line menu
+    // in its spot; it comes back when they fold. Narrow screens (phone portrait) use the row's
+    // size, wider ones (RPC) a little bigger, as long as all fit.
     val narrow = openWithHub < rowSize
-    val openSize = if (narrow) rowSize else openWithHub
+    val openSize =
+        if (narrow) rowSize else minOf(OVERLAY_BUTTON_SIZE_OPEN, (screenWidth - gap * (count - 1)) / count)
 
     if (!nested) {
         CompositionLocalProvider(LocalOverlayButtonSize provides rowSize) {
@@ -407,7 +408,7 @@ private fun GameOverlayButtons(
             }
         }
         val label = stringResource(com.swordfish.lemuroid.R.string.game_button_shortcuts)
-        AnimatedVisibility(visible = !(narrow && open), enter = fadeIn(), exit = fadeOut()) {
+        AnimatedVisibility(visible = !open, enter = fadeIn(), exit = fadeOut()) {
             CompositionLocalProvider(LocalOverlayButtonSize provides OVERLAY_BUTTON_SIZE_HUB) {
                 Box(modifier = Modifier.alpha(if (open || peekMute) 1f else alpha)) {
                     OverlayButton(active = false, label = label, onClick = { open = !open }) {
