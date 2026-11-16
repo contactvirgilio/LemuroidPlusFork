@@ -32,7 +32,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.VolumeOff
 import androidx.compose.material.icons.automirrored.outlined.VolumeUp
-import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Height
 import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.RotateLeft
@@ -414,7 +414,7 @@ private fun GameOverlayButtons(
                         OverlayButton(active = false, label = label, onClick = { open = true }) {
                             Icon(
                                 modifier = Modifier.size(OVERLAY_ICON_SIZE + 3.dp),
-                                imageVector = Icons.Filled.ChevronLeft,
+                                imageVector = Icons.Filled.Apps,
                                 contentDescription = label,
                                 tint = Color.White,
                             )
