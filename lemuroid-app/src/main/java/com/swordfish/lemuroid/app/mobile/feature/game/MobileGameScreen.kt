@@ -360,8 +360,13 @@ private fun GameOverlayButtons(
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp - OVERLAY_SCREEN_MARGIN
     val gap = 8.dp
     val rowSize = minOf(OVERLAY_BUTTON_SIZE, (screenWidth - gap * (count - 1)) / count)
-    val openSize =
+    val openWithHub =
         minOf(OVERLAY_BUTTON_SIZE_OPEN, (screenWidth - OVERLAY_BUTTON_SIZE_HUB - gap * count) / count)
+    // Narrow screens (phone portrait): with the main button beside them the shortcuts would get
+    // smaller than the row, so when open the main button steps aside and the shortcuts sit exactly
+    // like the row, the 3-line menu in its spot. It comes back when they fold.
+    val narrow = openWithHub < rowSize
+    val openSize = if (narrow) rowSize else openWithHub
 
     if (!nested) {
         CompositionLocalProvider(LocalOverlayButtonSize provides rowSize) {
@@ -402,15 +407,17 @@ private fun GameOverlayButtons(
             }
         }
         val label = stringResource(com.swordfish.lemuroid.R.string.game_button_shortcuts)
-        CompositionLocalProvider(LocalOverlayButtonSize provides OVERLAY_BUTTON_SIZE_HUB) {
-            Box(modifier = Modifier.alpha(if (open || peekMute) 1f else alpha)) {
-                OverlayButton(active = false, label = label, onClick = { open = !open }) {
-                    Icon(
-                        modifier = Modifier.size(OVERLAY_ICON_SIZE + 3.dp),
-                        imageVector = Icons.Filled.Apps,
-                        contentDescription = label,
-                        tint = Color.White,
-                    )
+        AnimatedVisibility(visible = !(narrow && open), enter = fadeIn(), exit = fadeOut()) {
+            CompositionLocalProvider(LocalOverlayButtonSize provides OVERLAY_BUTTON_SIZE_HUB) {
+                Box(modifier = Modifier.alpha(if (open || peekMute) 1f else alpha)) {
+                    OverlayButton(active = false, label = label, onClick = { open = !open }) {
+                        Icon(
+                            modifier = Modifier.size(OVERLAY_ICON_SIZE + 3.dp),
+                            imageVector = Icons.Filled.Apps,
+                            contentDescription = label,
+                            tint = Color.White,
+                        )
+                    }
                 }
             }
         }
