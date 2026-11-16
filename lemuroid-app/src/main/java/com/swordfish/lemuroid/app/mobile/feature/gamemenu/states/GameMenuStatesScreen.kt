@@ -54,7 +54,7 @@ fun GameMenuStatesScreen(
     // The four slots are one row when they fit (RPC, landscape) and a 2 x 2 grid otherwise, so no
     // slot ends up alone on a row whose date line falls below the card.
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-    val columns = if (maxWidth - 44.dp >= 4 * 96.dp + 3 * 14.dp) 4 else 2
+    val columns = if (maxWidth - 44.dp >= 96.dp * 4 + 14.dp * 3) 4 else 2
     LazyVerticalGrid(
         modifier = Modifier.fillMaxSize(),
         columns = GridCells.Fixed(columns),
