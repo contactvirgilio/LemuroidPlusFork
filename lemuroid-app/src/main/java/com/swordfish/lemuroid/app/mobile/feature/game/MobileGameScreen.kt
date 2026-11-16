@@ -77,6 +77,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -352,12 +353,24 @@ private fun GameOverlayButtons(
         label = "overlayButtonsAlpha",
     )
 
+    // Every shortcut has to fit across the screen when shown: shrink them on narrow screens.
+    val count =
+        4 + (if (viewModel.areStatesSupported()) 1 else 0) + (if (viewModel.isFastForwardSupported()) 1 else 0) +
+            (if (viewModel.isScalingSupported()) 1 else 0)
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp - OVERLAY_SCREEN_MARGIN
+    val gap = 8.dp
+    val rowSize = minOf(OVERLAY_BUTTON_SIZE, (screenWidth - gap * (count - 1)) / count)
+    val openSize =
+        minOf(OVERLAY_BUTTON_SIZE_OPEN, (screenWidth - OVERLAY_BUTTON_SIZE_HUB - gap * count) / count)
+
     if (!nested) {
-        Row(
-            modifier = modifier.alpha(alpha),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            ShortcutButtons(viewModel)
+        CompositionLocalProvider(LocalOverlayButtonSize provides rowSize) {
+            Row(
+                modifier = modifier.alpha(alpha),
+                horizontalArrangement = Arrangement.spacedBy(gap),
+            ) {
+                ShortcutButtons(viewModel)
+            }
         }
         return
     }
@@ -373,7 +386,7 @@ private fun GameOverlayButtons(
             enter = expandHorizontally(expandFrom = Alignment.End) + fadeIn(),
             exit = shrinkHorizontally(shrinkTowards = Alignment.End) + fadeOut(),
         ) {
-            CompositionLocalProvider(LocalOverlayButtonSize provides OVERLAY_BUTTON_SIZE_OPEN) {
+            CompositionLocalProvider(LocalOverlayButtonSize provides openSize) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     ShortcutButtons(viewModel)
                 }
@@ -384,7 +397,7 @@ private fun GameOverlayButtons(
             enter = expandHorizontally(expandFrom = Alignment.End) + fadeIn(),
             exit = shrinkHorizontally(shrinkTowards = Alignment.End) + fadeOut(),
         ) {
-            CompositionLocalProvider(LocalOverlayButtonSize provides OVERLAY_BUTTON_SIZE_OPEN) {
+            CompositionLocalProvider(LocalOverlayButtonSize provides openSize) {
                 MuteButton(viewModel)
             }
         }
@@ -483,7 +496,7 @@ private fun MiniScreenIcon(
     stand: Boolean,
 ) {
     val color = Color.White.copy(alpha = 0.85f)
-    Canvas(modifier = Modifier.size(28.dp)) {
+    Canvas(modifier = Modifier.size(LocalOverlayButtonSize.current * 0.6f)) {
         val stroke = 1.8.dp.toPx()
         val screenWidth = 20.dp.toPx()
         val screenHeight = 15.dp.toPx()
@@ -630,6 +643,9 @@ private fun FastForwardButton(viewModel: BaseGameScreenViewModel) {
 
 private const val OVERLAY_BUTTONS_IDLE_MILLIS = 4_000L
 private const val TOUCH_CONTROL_CHECK_MILLIS = 80L
+
+// Padding around the shortcut row (8 dp each side) plus a little room.
+private val OVERLAY_SCREEN_MARGIN = 20.dp
 private const val OVERLAY_BUTTONS_DIMMED_ALPHA = 0.35f
 private const val OVERLAY_BUTTONS_FADE_MILLIS = 600
 private val OVERLAY_BUTTON_SIZE = 46.dp
