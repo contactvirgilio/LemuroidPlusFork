@@ -356,6 +356,22 @@ class BaseGameScreenViewModel(
 
     fun areStatesSupported(): Boolean = systemCoreConfig.statesSupported
 
+    private val immersiveState = MutableStateFlow(GameImmersiveMode.isEnabled(appContext, game))
+
+    fun isImmersiveEnabled(): StateFlow<Boolean> = immersiveState
+
+    /** Immersive mode on/off for this game; applies at once and is remembered for the game. */
+    fun toggleImmersive() {
+        val enabled = !immersiveState.value
+        immersiveState.value = enabled
+        retroGameView.retroGameView?.immersiveModeEnabled = enabled
+        GameImmersiveMode.set(appContext, game, enabled)
+        showCard(
+            appContext.getString(R.string.game_menu_immersive_mode),
+            appContext.getString(if (enabled) R.string.game_menu_on else R.string.game_menu_off),
+        )
+    }
+
     /** Opens the in-game menu, the same one as the L1+R1 / menu shortcut. */
     fun openMenu() {
         if (loadingState.value) return

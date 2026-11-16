@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.Height
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.RotateLeft
+import androidx.compose.material.icons.outlined.BlurOn
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -395,18 +396,37 @@ private fun GameOverlayButtons(
 
 @Composable
 private fun ShortcutButtons(viewModel: BaseGameScreenViewModel) {
-    if (viewModel.areStatesSupported()) {
-        StatesButton(viewModel)
-    }
-    MuteButton(viewModel)
-    if (viewModel.isFastForwardSupported()) {
-        FastForwardButton(viewModel)
-    }
+    // Picture
     FilterButton(viewModel)
     if (viewModel.isScalingSupported()) {
         ScalingButton(viewModel)
     }
+    ImmersiveButton(viewModel)
+    // Play
+    if (viewModel.areStatesSupported()) {
+        StatesButton(viewModel)
+    }
+    if (viewModel.isFastForwardSupported()) {
+        FastForwardButton(viewModel)
+    }
+    // Sound: next to the menu, where it also pops out alone on a volume key while muted.
+    MuteButton(viewModel)
     MenuButton(viewModel)
+}
+
+/** Immersive mode (soft glow of the game's colors around the picture) on and off; yellow while on. */
+@Composable
+private fun ImmersiveButton(viewModel: BaseGameScreenViewModel) {
+    val enabled = viewModel.isImmersiveEnabled().collectAsState().value
+    val label = stringResource(com.swordfish.lemuroid.R.string.game_menu_immersive_mode)
+    OverlayButton(active = enabled, label = label, onClick = { viewModel.toggleImmersive() }) {
+        Icon(
+            modifier = Modifier.size(LocalOverlayButtonSize.current * 0.5f),
+            imageVector = Icons.Outlined.BlurOn,
+            contentDescription = label,
+            tint = if (enabled) FAST_FORWARD_ACTIVE_COLOR else Color.White,
+        )
+    }
 }
 
 /** Opens the in-game menu (same as the L1+R1 / menu shortcut). */
