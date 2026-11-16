@@ -57,6 +57,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -109,12 +110,15 @@ import gg.padkit.inputstate.InputState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.launch
 
 @Composable
 fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
-    // Counts every touch anywhere on the game screen (only watched, never taken), so the shortcut
-    // buttons can wake up.
+    // Counts touches on the game screen (only watched, never taken), so the shortcut buttons can
+    // wake up. Touches on the touch controls (D-pad, buttons) don't count: they're pressed all the
+    // time while playing. A touch counts if the controls report nothing shortly after it lands.
     var screenTouches by remember { mutableIntStateOf(0) }
+    val touchScope = rememberCoroutineScope()
     BoxWithConstraints(
         modifier =
             Modifier
@@ -123,7 +127,13 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                     awaitPointerEventScope {
                         while (true) {
                             val event = awaitPointerEvent(PointerEventPass.Initial)
-                            if (event.changes.any { it.pressed && !it.previousPressed }) screenTouches++
+                            if (event.changes.any { it.pressed && !it.previousPressed }) {
+                                val downAt = android.os.SystemClock.uptimeMillis()
+                                touchScope.launch {
+                                    delay(TOUCH_CONTROL_CHECK_MILLIS)
+                                    if (viewModel.lastTouchControlInputAt < downAt) screenTouches++
+                                }
+                            }
                         }
                     }
                 },
@@ -619,6 +629,7 @@ private fun FastForwardButton(viewModel: BaseGameScreenViewModel) {
 }
 
 private const val OVERLAY_BUTTONS_IDLE_MILLIS = 4_000L
+private const val TOUCH_CONTROL_CHECK_MILLIS = 80L
 private const val OVERLAY_BUTTONS_DIMMED_ALPHA = 0.35f
 private const val OVERLAY_BUTTONS_FADE_MILLIS = 600
 private val OVERLAY_BUTTON_SIZE = 46.dp

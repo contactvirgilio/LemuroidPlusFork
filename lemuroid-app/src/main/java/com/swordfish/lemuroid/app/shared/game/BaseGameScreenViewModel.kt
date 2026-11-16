@@ -587,7 +587,13 @@ class BaseGameScreenViewModel(
         }
     }
 
+    /** When the touch controls last reported anything (a press, a release, a move). */
+    @Volatile
+    var lastTouchControlInputAt = 0L
+        private set
+
     fun handleVirtualInputEvent(events: List<InputEvent>) {
+        if (events.isNotEmpty()) lastTouchControlInputAt = android.os.SystemClock.uptimeMillis()
         touchControls.handleVirtualInputEvent(events)
     }
 
