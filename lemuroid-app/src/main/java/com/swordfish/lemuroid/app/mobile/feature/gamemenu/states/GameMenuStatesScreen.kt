@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -53,17 +54,20 @@ fun GameMenuStatesScreen(
         if (hasGamepad && firstEnabled >= 0) runCatching { firstTile.requestFocus() }
     }
 
-    // The four slots are one row when they fit (RPC, landscape) and a 2 x 2 grid otherwise, so no
-    // slot ends up alone on a row whose date line falls below the card.
+    // Always 2 x 2, as big as the card allows: each slot is limited by the card's width and by its
+    // height (two rows of picture + name + date), so all four show at once without scrolling.
     BoxWithConstraints(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-    val columns = if (maxWidth - 44.dp >= 96.dp * 4 + 14.dp * 3) 4 else 2
+    val gap = 14.dp
+    val byWidth = (maxWidth - 44.dp - gap) / 2
+    val byHeight = ((maxHeight - 24.dp - gap) / 2 - SLOT_TEXT_HEIGHT) * PREVIEW_ASPECT_RATIO
+    val slotWidth = minOf(byWidth, byHeight).coerceAtLeast(96.dp)
     LazyVerticalGrid(
-        // Only as tall as the slots, centred in the card.
-        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
-        columns = GridCells.Fixed(columns),
+        // Only as big as the slots, centred in the card.
+        modifier = Modifier.width(slotWidth * 2 + gap + 44.dp).wrapContentHeight(),
+        columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(start = 22.dp, end = 22.dp, top = 8.dp, bottom = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(14.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
+        horizontalArrangement = Arrangement.spacedBy(gap),
+        verticalArrangement = Arrangement.spacedBy(gap),
     ) {
         itemsIndexed(state.value.entries) { index, entry ->
             StateSlot(
@@ -77,6 +81,9 @@ fun GameMenuStatesScreen(
 }
 
 private const val PREVIEW_ASPECT_RATIO = 4f / 3f
+
+// Name and date under each picture.
+private val SLOT_TEXT_HEIGHT = 46.dp
 
 @Composable
 private fun StateSlot(
