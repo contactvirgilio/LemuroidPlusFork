@@ -2,14 +2,19 @@ package com.swordfish.lemuroid.app.mobile.feature.gamemenu.states
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
@@ -17,17 +22,30 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -40,6 +58,7 @@ import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.feature.gamemenu.LocalMenuHasGamepad
 import com.swordfish.lemuroid.app.mobile.feature.gamemenu.MenuColors
 import com.swordfish.lemuroid.app.mobile.feature.gamemenu.MenuTile
+import kotlinx.coroutines.launch
 
 /** Save/load state slots as tiles with the whole game picture, like the DKC states card. */
 @Composable
@@ -65,17 +84,86 @@ fun GameMenuStatesScreen(
             val byHeight = (maxHeight - 24.dp - SLOT_TEXT_HEIGHT) * PREVIEW_ASPECT_RATIO
             val byWidth = (maxWidth - 22.dp - gap * 3) / VISIBLE_SLOTS_IN_ROW
             val slotWidth = minOf(byHeight, byWidth).coerceAtLeast(96.dp)
-            LazyRow(
-                modifier = Modifier.fillMaxWidth().wrapContentHeight(),
-                contentPadding = PaddingValues(start = 22.dp, end = 22.dp, top = 8.dp, bottom = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(gap),
-            ) {
-                itemsIndexed(state.value.entries) { index, entry ->
-                    StateSlot(
-                        entry = entry,
-                        modifier = slotModifier(index).width(slotWidth),
-                        onClick = { onStateClicked(index) },
-                    )
+            val listState = rememberLazyListState()
+            val scope = rememberCoroutineScope()
+            val count = state.value.entries.size
+            var focused by remember { mutableStateOf(-1) }
+            // The slot the dots point at: the focused one (gamepad), else the one at the left edge,
+            // or the last one once the row is scrolled to the end.
+            val current =
+                when {
+                    focused >= 0 -> focused
+                    !listState.canScrollForward && count > 0 -> count - 1
+                    else -> listState.firstVisibleItemIndex
+                }
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Box {
+                    LazyRow(
+                        state = listState,
+                        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+                        contentPadding = PaddingValues(start = 22.dp, end = 22.dp, top = 8.dp, bottom = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(gap),
+                    ) {
+                        itemsIndexed(state.value.entries) { index, entry ->
+                            StateSlot(
+                                entry = entry,
+                                modifier =
+                                    slotModifier(index)
+                                        .width(slotWidth)
+                                        .onFocusChanged { if (it.isFocused) focused = index },
+                                onClick = { onStateClicked(index) },
+                            )
+                        }
+                    }
+                    // Hint that more slots follow: a fade at the right edge and a solid arrow
+                    // that scrolls to the next ones. Gone once the row reaches the end.
+                    if (listState.canScrollForward) {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .align(Alignment.CenterEnd)
+                                    .width(64.dp)
+                                    .height(slotWidth / PREVIEW_ASPECT_RATIO + 8.dp + SLOT_TEXT_HEIGHT)
+                                    .background(Brush.horizontalGradient(listOf(Color.Transparent, MenuColors.Card))),
+                        )
+                        Box(
+                            modifier =
+                                Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(top = 8.dp + slotWidth / PREVIEW_ASPECT_RATIO / 2 - 20.dp, end = 10.dp)
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.Black)
+                                    // Touch only: the D-pad moves between the slots, not to this.
+                                    .focusProperties { canFocus = false }
+                                    .clickable {
+                                        scope.launch { listState.animateScrollToItem((current + 1).coerceAtMost(count - 1)) }
+                                    },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                contentDescription = null,
+                                tint = Color.White,
+                            )
+                        }
+                    }
+                }
+                // One dot per slot; the current one is a longer accent pill.
+                Row(
+                    modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    repeat(count) { i ->
+                        Box(
+                            modifier =
+                                Modifier
+                                    .size(width = if (i == current) 22.dp else 9.dp, height = 9.dp)
+                                    .clip(CircleShape)
+                                    .background(if (i == current) MenuColors.Gold else Color.White.copy(alpha = 0.3f)),
+                        )
+                    }
                 }
             }
         } else {
