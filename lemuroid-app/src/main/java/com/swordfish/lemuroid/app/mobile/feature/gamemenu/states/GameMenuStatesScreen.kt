@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
@@ -19,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
@@ -53,10 +55,11 @@ fun GameMenuStatesScreen(
 
     // The four slots are one row when they fit (RPC, landscape) and a 2 x 2 grid otherwise, so no
     // slot ends up alone on a row whose date line falls below the card.
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+    BoxWithConstraints(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
     val columns = if (maxWidth - 44.dp >= 96.dp * 4 + 14.dp * 3) 4 else 2
     LazyVerticalGrid(
-        modifier = Modifier.fillMaxSize(),
+        // Only as tall as the slots, centred in the card.
+        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
         columns = GridCells.Fixed(columns),
         contentPadding = PaddingValues(start = 22.dp, end = 22.dp, top = 8.dp, bottom = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(14.dp),
@@ -81,7 +84,10 @@ private fun StateSlot(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
-    Column(modifier = modifier.fillMaxWidth().alpha(if (entry.enabled) 1f else 0.45f)) {
+    Column(
+        modifier = modifier.fillMaxWidth().alpha(if (entry.enabled) 1f else 0.45f),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         MenuTile(
             modifier = Modifier.fillMaxWidth().aspectRatio(PREVIEW_ASPECT_RATIO),
             shape = RoundedCornerShape(8.dp),
