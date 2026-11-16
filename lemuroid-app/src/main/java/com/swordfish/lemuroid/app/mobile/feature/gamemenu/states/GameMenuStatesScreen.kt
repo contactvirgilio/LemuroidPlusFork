@@ -3,6 +3,7 @@ package com.swordfish.lemuroid.app.mobile.feature.gamemenu.states
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
@@ -50,9 +51,13 @@ fun GameMenuStatesScreen(
         if (hasGamepad && firstEnabled >= 0) runCatching { firstTile.requestFocus() }
     }
 
+    // The four slots are one row when they fit (RPC, landscape) and a 2 x 2 grid otherwise, so no
+    // slot ends up alone on a row whose date line falls below the card.
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+    val columns = if (maxWidth - 44.dp >= 4 * 96.dp + 3 * 14.dp) 4 else 2
     LazyVerticalGrid(
         modifier = Modifier.fillMaxSize(),
-        columns = GridCells.Adaptive(minSize = 128.dp),
+        columns = GridCells.Fixed(columns),
         contentPadding = PaddingValues(start = 22.dp, end = 22.dp, top = 8.dp, bottom = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(14.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
@@ -65,6 +70,7 @@ fun GameMenuStatesScreen(
             )
         }
     }
+}
 }
 
 private const val PREVIEW_ASPECT_RATIO = 4f / 3f
