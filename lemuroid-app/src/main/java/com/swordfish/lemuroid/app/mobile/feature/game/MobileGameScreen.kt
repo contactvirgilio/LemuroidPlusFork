@@ -34,11 +34,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.VolumeOff
 import androidx.compose.material.icons.automirrored.outlined.VolumeUp
-import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.Height
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.RotateLeft
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.BlurOn
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material3.Card
@@ -414,7 +414,7 @@ private fun GameOverlayButtons(
                     OverlayButton(active = false, label = label, onClick = { open = !open }) {
                         Icon(
                             modifier = Modifier.size(OVERLAY_ICON_SIZE + 3.dp),
-                            imageVector = Icons.Filled.Apps,
+                            imageVector = Icons.Filled.ChevronLeft,
                             contentDescription = label,
                             tint = Color.White,
                         )
@@ -467,7 +467,7 @@ private fun MenuButton(viewModel: BaseGameScreenViewModel) {
     OverlayButton(active = false, label = label, onClick = { viewModel.openMenu() }) {
         Icon(
             modifier = Modifier.size(LocalOverlayButtonSize.current * 0.5f),
-            imageVector = Icons.Filled.Menu,
+            imageVector = Icons.Filled.Settings,
             contentDescription = label,
             tint = Color.White,
         )
