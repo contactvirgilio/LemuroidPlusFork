@@ -11,6 +11,9 @@ import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -24,29 +27,38 @@ fun LemuroidCrossForeground(
     directionState: State<Offset>,
 ) {
     val theme = LocalLemuroidPadTheme.current
-    // Outline skin: one plus-shaped outline for the whole d-pad, drawn here so it is not repeated per arm.
+    val pressedArms = remember { mutableStateMapOf<Int, Boolean>() }
+    // Outline skin: one plus-shaped outline for the whole d-pad, with the pressed arms filled to match it.
     val outlineModifier =
         if (theme.outline) {
-            Modifier.drawBehind { drawCrossOutline(color = theme.outlineColor, strokeWidth = theme.outlineStroke) }
+            Modifier.drawBehind {
+                drawCrossOutline(
+                    color = theme.outlineColor,
+                    strokeWidth = theme.outlineStroke,
+                    pressedFill = theme.outlinePressedFill,
+                    pressedArms = pressedArms.filterValues { it }.keys,
+                )
+            }
         } else {
             Modifier
         }
+    val report: (Int, Boolean) -> Unit = { arm, down -> pressedArms[arm] = down }
     Box(modifier = Modifier.fillMaxSize().then(outlineModifier)) {
         DefaultCrossForeground(
             modifier = Modifier.fillMaxSize(),
             directionState = directionState,
             allowDiagonals = allowDiagonals,
             leftDial = {
-                LemuroidCrossButton(it, Icons.Default.KeyboardArrowLeft)
+                LemuroidCrossButton(it, Icons.Default.KeyboardArrowLeft) { d -> report(0, d) }
             },
             rightDial = {
-                LemuroidCrossButton(it, Icons.Default.KeyboardArrowRight)
+                LemuroidCrossButton(it, Icons.Default.KeyboardArrowRight) { d -> report(1, d) }
             },
             topDial = {
-                LemuroidCrossButton(it, Icons.Default.KeyboardArrowUp)
+                LemuroidCrossButton(it, Icons.Default.KeyboardArrowUp) { d -> report(2, d) }
             },
             bottomDial = {
-                LemuroidCrossButton(it, Icons.Default.KeyboardArrowDown)
+                LemuroidCrossButton(it, Icons.Default.KeyboardArrowDown) { d -> report(3, d) }
             },
             foregroundComposite = {
                 LemuroidCompositeForeground(it)
@@ -59,7 +71,10 @@ fun LemuroidCrossForeground(
 private fun LemuroidCrossButton(
     pressedState: State<Boolean>,
     imageVector: ImageVector,
+    onPressed: (Boolean) -> Unit,
 ) {
+    val down = pressedState.value
+    SideEffect { onPressed(down) }
     LemuroidButtonForeground(
         pressed = pressedState,
         rectangle = true,

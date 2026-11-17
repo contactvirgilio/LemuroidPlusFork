@@ -32,6 +32,7 @@ fun LemuroidButtonForeground(
     if (theme.outline) {
         val fill =
             when {
+                rectangle -> Color.Transparent
                 pressed.value && pressedColor != null -> pressedColor.copy(alpha = 0.9f)
                 pressed.value -> theme.outlinePressedFill
                 else -> Color.Transparent

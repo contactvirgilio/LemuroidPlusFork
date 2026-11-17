@@ -53,6 +53,8 @@ fun DrawScope.drawCrossOutline(
     color: Color,
     strokeWidth: Dp,
     fillColor: Color = Color.Transparent,
+    pressedFill: Color = Color.Transparent,
+    pressedArms: Set<Int> = emptySet(),
 ) {
     val sw = strokeWidth.toPx()
     val half = sw / 2f
@@ -81,5 +83,16 @@ fun DrawScope.drawCrossOutline(
             close()
         }
     drawPath(path = path, color = fillColor)
+    // Pressed arms (0 left, 1 right, 2 up, 3 down), filled right up to the outline.
+    for (arm in pressedArms) {
+        val (l, t, r, btm) =
+            when (arm) {
+                0 -> listOf(half, c, a, d)
+                1 -> listOf(b, c, right, d)
+                2 -> listOf(a, half, b, c)
+                else -> listOf(a, d, b, bottom)
+            }
+        drawRect(color = pressedFill, topLeft = Offset(l, t), size = Size(r - l, btm - t))
+    }
     drawPath(path = path, color = color, style = Stroke(width = sw))
 }
