@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.DefaultShadowColor
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-class LemuroidPadTheme {
+class LemuroidPadTheme(val outline: Boolean = false) {
     private fun gray(
         luminosity: Float,
         opacity: Float,
@@ -19,6 +19,12 @@ class LemuroidPadTheme {
 
     private val icons = gray(0.0f, 0.50f)
     private val iconsPressed = gray(1.0f, 0.50f)
+
+    // Outline skin: black background, thin light outlines, coloured buttons when pressed.
+    val outlineStroke: Dp = 3.dp
+    val outlineColor = gray(1.0f, 0.60f)
+    val outlinePressedFill = gray(1.0f, 0.20f)
+    private val outlineIcons = gray(1.0f, 0.80f)
 
     private val level3Fill = gray(1.0f, 0.50f)
     private val level3FillPressed = gray(0.0f, 0.50f)
@@ -56,10 +62,11 @@ class LemuroidPadTheme {
     }
 
     fun icons(pressed: Boolean): Color {
-        return if (pressed) {
-            iconsPressed
-        } else {
-            icons
+        return when {
+            outline && pressed -> Color.White
+            outline -> outlineIcons
+            pressed -> iconsPressed
+            else -> icons
         }
     }
 }

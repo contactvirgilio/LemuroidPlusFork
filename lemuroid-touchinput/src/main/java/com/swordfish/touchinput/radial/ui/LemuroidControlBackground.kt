@@ -1,5 +1,6 @@
 package com.swordfish.touchinput.radial.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -8,6 +9,10 @@ import com.swordfish.touchinput.radial.LocalLemuroidPadTheme
 @Composable
 fun LemuroidControlBackground(modifier: Modifier = Modifier) {
     val theme = LocalLemuroidPadTheme.current
+    if (theme.outline) {
+        Box(modifier = modifier.fillMaxSize())
+        return
+    }
     GlassSurface(
         modifier = modifier.fillMaxSize(),
         fillColor = theme.level1Fill,

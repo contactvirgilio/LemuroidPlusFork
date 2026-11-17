@@ -23,10 +23,32 @@ fun LemuroidButtonForeground(
     modifier: Modifier = Modifier,
     pressed: State<Boolean>,
     pressedColor: Color? = null,
+    rectangle: Boolean = false,
     label: (@Composable BoxWithConstraintsScope.() -> Unit),
     icon: (@Composable BoxWithConstraintsScope.() -> Unit),
 ) {
     val theme = LocalLemuroidPadTheme.current
+
+    if (theme.outline) {
+        val fill =
+            when {
+                pressed.value && pressedColor != null -> pressedColor.copy(alpha = 0.9f)
+                pressed.value -> theme.outlinePressedFill
+                else -> Color.Transparent
+            }
+        OutlineSurface(
+            modifier = modifier.fillMaxSize().padding(theme.foregroundPadding),
+            rectangle = rectangle,
+            fillColor = fill,
+            strokeColor = theme.outlineColor,
+            strokeWidth = theme.outlineStroke,
+            content = {
+                icon()
+                label()
+            },
+        )
+        return
+    }
 
     GlassSurface(
         modifier = modifier.fillMaxSize().padding(theme.foregroundPadding),
@@ -54,6 +76,7 @@ fun LemuroidButtonForeground(
     iconScale: Float = 0.5f,
     labelScale: Float = 1.0f,
     pressedColor: Color? = null,
+    rectangle: Boolean = false,
 ) {
     // Light colors (yellow) get dark lettering, the others white.
     val pressedTint = pressedColor?.let { if (it.luminance() > 0.5f) Color(0xFF1E1804) else Color.White }
@@ -61,6 +84,7 @@ fun LemuroidButtonForeground(
         modifier = modifier,
         pressed = pressed,
         pressedColor = pressedColor,
+        rectangle = rectangle,
         label = { LemuroidButtonForegroundLabel(label, labelScale, pressed, pressedTint) },
         icon = { LemuroidButtonForegroundIcon(icon, iconScale, pressed, pressedTint) },
     )

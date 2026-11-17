@@ -50,6 +50,7 @@ private fun LemuroidCrossButton(
 ) {
     LemuroidButtonForeground(
         pressed = pressedState,
+        rectangle = true,
         label = { },
         icon = {
             Icon(
