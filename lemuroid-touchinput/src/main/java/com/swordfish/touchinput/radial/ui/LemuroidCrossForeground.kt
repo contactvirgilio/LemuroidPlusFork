@@ -1,6 +1,8 @@
 package com.swordfish.touchinput.radial.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -21,26 +23,36 @@ fun LemuroidCrossForeground(
     allowDiagonals: Boolean,
     directionState: State<Offset>,
 ) {
-    DefaultCrossForeground(
-        modifier = Modifier.fillMaxSize(),
-        directionState = directionState,
-        allowDiagonals = allowDiagonals,
-        leftDial = {
-            LemuroidCrossButton(it, Icons.Default.KeyboardArrowLeft)
-        },
-        rightDial = {
-            LemuroidCrossButton(it, Icons.Default.KeyboardArrowRight)
-        },
-        topDial = {
-            LemuroidCrossButton(it, Icons.Default.KeyboardArrowUp)
-        },
-        bottomDial = {
-            LemuroidCrossButton(it, Icons.Default.KeyboardArrowDown)
-        },
-        foregroundComposite = {
-            LemuroidCompositeForeground(it)
-        },
-    )
+    val theme = LocalLemuroidPadTheme.current
+    // Outline skin: one plus-shaped outline for the whole d-pad, drawn here so it is not repeated per arm.
+    val outlineModifier =
+        if (theme.outline) {
+            Modifier.drawBehind { drawCrossOutline(color = theme.outlineColor, strokeWidth = theme.outlineStroke) }
+        } else {
+            Modifier
+        }
+    Box(modifier = Modifier.fillMaxSize().then(outlineModifier)) {
+        DefaultCrossForeground(
+            modifier = Modifier.fillMaxSize(),
+            directionState = directionState,
+            allowDiagonals = allowDiagonals,
+            leftDial = {
+                LemuroidCrossButton(it, Icons.Default.KeyboardArrowLeft)
+            },
+            rightDial = {
+                LemuroidCrossButton(it, Icons.Default.KeyboardArrowRight)
+            },
+            topDial = {
+                LemuroidCrossButton(it, Icons.Default.KeyboardArrowUp)
+            },
+            bottomDial = {
+                LemuroidCrossButton(it, Icons.Default.KeyboardArrowDown)
+            },
+            foregroundComposite = {
+                LemuroidCompositeForeground(it)
+            },
+        )
+    }
 }
 
 @Composable
