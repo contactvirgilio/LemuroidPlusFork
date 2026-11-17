@@ -40,7 +40,8 @@ fun LemuroidButtonForeground(
             modifier = modifier.fillMaxSize().padding(theme.foregroundPadding),
             rectangle = rectangle,
             fillColor = fill,
-            strokeColor = theme.outlineColor,
+            // d-pad arms draw no outline: the plus-shaped outline comes from the composite
+            strokeColor = if (rectangle) Color.Transparent else theme.outlineColor,
             strokeWidth = theme.outlineStroke,
             content = {
                 icon()
