@@ -356,7 +356,11 @@ class BaseGameScreenViewModel(
 
     fun areStatesSupported(): Boolean = systemCoreConfig.statesSupported
 
-    private val lookState = MutableStateFlow(GameShellSkin.load(appContext, game))
+    // Arcade games that may be vertical only get OLED and Glow: a colour can't hug their picture.
+    private val lookCount by lazy { if (pictureAspectRatio() == null) 2 else GameShellSkin.count }
+
+    private val lookState =
+        MutableStateFlow(GameShellSkin.load(appContext, game).let { if (it >= lookCount) GameShellSkin.GLOW else it })
 
     private val immersiveState = MutableStateFlow(lookState.value == GameShellSkin.GLOW)
 
@@ -373,7 +377,7 @@ class BaseGameScreenViewModel(
 
     /** Next look for this game: Off, Glow, Teal, ...; applies at once and is remembered for the game. */
     fun toggleImmersive() {
-        val next = (lookState.value + 1) % GameShellSkin.count
+        val next = (lookState.value + 1) % lookCount
         lookState.value = next
         val glow = next == GameShellSkin.GLOW
         immersiveState.value = glow
@@ -381,10 +385,10 @@ class BaseGameScreenViewModel(
         GameShellSkin.save(appContext, game, next)
         overlayCardState.value =
             OverlayCard(
-                appContext.getString(R.string.game_overlay_skin_title, next + 1, GameShellSkin.count),
+                appContext.getString(R.string.game_overlay_skin_title, next + 1, lookCount),
                 appContext.getString(GameShellSkin.nameRes(next)),
                 next,
-                GameShellSkin.count,
+                lookCount,
                 swatch = GameShellSkin.shellFor(next)?.color,
             )
     }
@@ -510,6 +514,8 @@ class BaseGameScreenViewModel(
             } else {
                 filterState.value = GameDisplayOptions.Filter.fromShader(gameView.shader)
             }
+            // Glow follows the look (an arcade game saved with a colour falls back to Glow).
+            gameView.immersiveModeEnabled = lookState.value == GameShellSkin.GLOW
             // Starts muted if this game was left muted last time.
             applyAudio()
         }
