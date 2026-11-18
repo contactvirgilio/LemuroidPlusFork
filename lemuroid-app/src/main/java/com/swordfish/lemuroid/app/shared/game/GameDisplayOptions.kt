@@ -44,9 +44,6 @@ class GameDisplayOptions(
         /** The largest whole multiple of the game's height, so every pixel is the same size. */
         INTEGER(R.string.game_scaling_integer),
 
-        /** One whole multiple smaller than [INTEGER]. */
-        INTEGER_SMALLER(R.string.game_scaling_integer_smaller),
-
         /** Stretch to fill: the picture covers the whole game area, ignoring its shape. */
         STRETCH(R.string.game_scaling_stretch),
     }
@@ -62,6 +59,8 @@ class GameDisplayOptions(
 
     fun savedScaling(): Scaling {
         val name = sharedPreferences.getString(key(SCALING_KEY), null)
+        // "Integer -1" was removed (owner, 2026-11-18): it becomes Integer.
+        if (name == "INTEGER_SMALLER") return Scaling.INTEGER
         return Scaling.values().firstOrNull { it.name == name } ?: Scaling.FIT
     }
 
@@ -154,8 +153,7 @@ class GameDisplayOptions(
             val areaHeight = areaBottom - areaTop
             val fitHeight = min(areaHeight, areaWidth / aspectRatio)
 
-            var multiple = floor(fitHeight / baseHeight).toInt()
-            if (scaling == Scaling.INTEGER_SMALLER) multiple -= 1
+            val multiple = floor(fitHeight / baseHeight).toInt()
             // Screens too small for a whole multiple keep the normal size.
             if (multiple < 1) return fit
 
