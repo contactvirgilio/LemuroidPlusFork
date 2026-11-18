@@ -912,7 +912,10 @@ private fun ShellSkinOverlay(
     look: Int,
     picture: RectF?,
 ) {
-    val shell = GameShellSkin.shellFor(look) ?: return
+    // OLED (the first look): pure black around the picture, no bezel, whatever is behind.
+    val shell =
+        GameShellSkin.shellFor(look)
+            ?: if (look == GameShellSkin.OFF) GameShellSkin.Shell(0, 0xFF000000, 0xFF000000) else return
     if (picture == null) return
     Canvas(modifier = Modifier.fillMaxSize()) {
         val l = picture.left * size.width
