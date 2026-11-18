@@ -1,5 +1,9 @@
 package com.swordfish.lemuroid.app.mobile.feature.game
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.rememberInfiniteTransition
 import android.graphics.RectF
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
@@ -359,17 +363,14 @@ private fun GameOverlayButtons(
     LaunchedEffect(muteNudges) {
         if (muteNudges > 0) peekMute = true
     }
-    // Timed auto-save: the save shortcut flashes yellow, white, yellow (pops out alone when nested).
+    // Timed auto-save: the save shortcut's icon pulses in yellow (pops out alone when nested).
     val autoSaveFlashes = viewModel.getAutoSaveFlashes().collectAsState().value
     var saveFlash by remember { mutableStateOf<Color?>(null) }
     LaunchedEffect(autoSaveFlashes) {
         if (autoSaveFlashes == 0) return@LaunchedEffect
+        // Yellow icon that fades between 30% and 100% for a few seconds (pulse in StatesButtonBody).
         saveFlash = FAST_FORWARD_ACTIVE_COLOR
-        delay(AUTO_SAVE_FLASH_ON_MILLIS)
-        saveFlash = Color.White
-        delay(AUTO_SAVE_FLASH_OFF_MILLIS)
-        saveFlash = FAST_FORWARD_ACTIVE_COLOR
-        delay(AUTO_SAVE_FLASH_ON_MILLIS)
+        delay(AUTO_SAVE_FLASH_MILLIS)
         saveFlash = null
     }
     LaunchedEffect(screenTouches, muteNudges) {
@@ -696,11 +697,22 @@ private fun StatesButtonBody(
         label = label,
         onClick = { viewModel.quickSaveToNextSlot() },
     ) {
+        val pulse =
+            if (flash != null) {
+                rememberInfiniteTransition(label = "autoSavePulse").animateFloat(
+                    initialValue = 1f,
+                    targetValue = 0.3f,
+                    animationSpec = infiniteRepeatable(tween(AUTO_SAVE_PULSE_MILLIS), RepeatMode.Reverse),
+                    label = "autoSavePulseAlpha",
+                ).value
+            } else {
+                1f
+            }
         Icon(
             modifier = Modifier.size(LocalOverlayButtonSize.current * 0.5f),
             imageVector = Icons.Outlined.Save,
             contentDescription = label,
-            tint = flash ?: Color.White,
+            tint = flash?.copy(alpha = pulse) ?: Color.White,
         )
     }
 }
@@ -742,8 +754,8 @@ private fun FastForwardButton(viewModel: BaseGameScreenViewModel) {
 
 private const val OVERLAY_BUTTONS_IDLE_MILLIS = 4_000L
 private const val TOUCH_CONTROL_CHECK_MILLIS = 80L
-private const val AUTO_SAVE_FLASH_ON_MILLIS = 1_500L
-private const val AUTO_SAVE_FLASH_OFF_MILLIS = 1_000L
+private const val AUTO_SAVE_FLASH_MILLIS = 4_000L
+private const val AUTO_SAVE_PULSE_MILLIS = 500
 
 /** Fade of the shortcut row when idle; each button applies it, so one can stay solid. */
 private val LocalOverlayAlpha = compositionLocalOf { 1f }
