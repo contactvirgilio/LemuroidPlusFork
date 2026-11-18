@@ -68,6 +68,12 @@ fun GameMenuStatesScreen(
 ) {
     val state = viewModel.uiStates.collectAsState(initial = GameMenuStatesViewModel.State())
 
+    // Frames take the shape of the saved pictures (Game Boy 10:9, SNES 8:7...), so no black bars.
+    val aspect =
+        state.value.entries.firstNotNullOfOrNull { it.preview }
+            ?.let { (it.width.toFloat() / it.height.toFloat()).coerceIn(0.75f, 2f) }
+            ?: PREVIEW_ASPECT_RATIO
+
     val firstTile = remember { FocusRequester() }
     val hasGamepad = LocalMenuHasGamepad.current
     val firstEnabled = state.value.entries.indexOfFirst { it.enabled }
@@ -81,7 +87,7 @@ fun GameMenuStatesScreen(
         if (maxWidth > maxHeight) {
             // Option A (wide cards, e.g. RPC): one row of big slots filling the card's height; the
             // last one peeks in at the right and the row scrolls sideways to it.
-            val byHeight = (maxHeight - 24.dp - SLOT_TEXT_HEIGHT) * PREVIEW_ASPECT_RATIO
+            val byHeight = (maxHeight - 24.dp - SLOT_TEXT_HEIGHT) * aspect
             val byWidth = (maxWidth - 22.dp - gap * 3) / VISIBLE_SLOTS_IN_ROW
             val slotWidth = minOf(byHeight, byWidth).coerceAtLeast(96.dp)
             val listState = rememberLazyListState()
@@ -107,6 +113,7 @@ fun GameMenuStatesScreen(
                         itemsIndexed(state.value.entries) { index, entry ->
                             StateSlot(
                                 entry = entry,
+                                aspect = aspect,
                                 modifier =
                                     slotModifier(index)
                                         .width(slotWidth)
@@ -123,14 +130,14 @@ fun GameMenuStatesScreen(
                                 Modifier
                                     .align(Alignment.CenterEnd)
                                     .width(64.dp)
-                                    .height(slotWidth / PREVIEW_ASPECT_RATIO + 8.dp + SLOT_TEXT_HEIGHT)
+                                    .height(slotWidth / aspect + 8.dp + SLOT_TEXT_HEIGHT)
                                     .background(Brush.horizontalGradient(listOf(Color.Transparent, MenuColors.Card))),
                         )
                         Box(
                             modifier =
                                 Modifier
                                     .align(Alignment.TopEnd)
-                                    .padding(top = 8.dp + slotWidth / PREVIEW_ASPECT_RATIO / 2 - 20.dp, end = 10.dp)
+                                    .padding(top = 8.dp + slotWidth / aspect / 2 - 20.dp, end = 10.dp)
                                     .size(40.dp)
                                     .clip(CircleShape)
                                     .background(Color.Black)
@@ -169,7 +176,7 @@ fun GameMenuStatesScreen(
         } else {
             // Option B (kept): 2 x 2, as big as the card allows, all four without scrolling.
             val byWidth = (maxWidth - 44.dp - gap) / 2
-            val byHeight = ((maxHeight - 24.dp - gap) / 2 - SLOT_TEXT_HEIGHT) * PREVIEW_ASPECT_RATIO
+            val byHeight = ((maxHeight - 24.dp - gap) / 2 - SLOT_TEXT_HEIGHT) * aspect
             val slotWidth = minOf(byWidth, byHeight).coerceAtLeast(96.dp)
             LazyVerticalGrid(
                 modifier = Modifier.width(slotWidth * 2 + gap + 44.dp).wrapContentHeight(),
@@ -181,6 +188,7 @@ fun GameMenuStatesScreen(
                 itemsIndexed(state.value.entries) { index, entry ->
                     StateSlot(
                         entry = entry,
+                        aspect = aspect,
                         modifier = slotModifier(index),
                         onClick = { onStateClicked(entry.slot) },
                     )
@@ -207,6 +215,7 @@ private val SLOT_TEXT_HEIGHT = 46.dp
 @Composable
 private fun StateSlot(
     entry: GameMenuStatesViewModel.StateEntry,
+    aspect: Float,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
@@ -215,7 +224,7 @@ private fun StateSlot(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         MenuTile(
-            modifier = Modifier.fillMaxWidth().aspectRatio(PREVIEW_ASPECT_RATIO),
+            modifier = Modifier.fillMaxWidth().aspectRatio(aspect),
             shape = RoundedCornerShape(8.dp),
             enabled = entry.enabled,
             onClick = onClick,
