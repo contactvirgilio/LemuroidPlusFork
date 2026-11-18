@@ -362,6 +362,10 @@ class BaseGameScreenViewModel(
 
     fun isImmersiveEnabled(): StateFlow<Boolean> = immersiveState
 
+    /** Shape of the game picture (width / height), or null when it varies (arcade). */
+    fun pictureAspectRatio(): Float? =
+        com.swordfish.lemuroid.app.shared.game.viewmodel.GamePreviewCropper.aspectRatioFor(system.id)
+
     /** The look around the picture: Off, Glow, or a shell colour (see [GameShellSkin]). */
     fun getLook(): StateFlow<Int> = lookState
 

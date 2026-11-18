@@ -234,7 +234,16 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                         fullPos.height,
                         area,
                     )
-                pictureRect.value = RectF(gameView.viewport)
+                // The viewport is the area the picture may use; with Fit the picture keeps its shape
+                // inside it (black bars). The skin hugs the picture itself, not the area.
+                val area01 = RectF(gameView.viewport)
+                val ratio = if (gameView.stretch) null else viewModel.pictureAspectRatio()
+                pictureRect.value =
+                    if (ratio == null) {
+                        area01
+                    } else {
+                        fitPicture(area01, ratio, fullPos.width, fullPos.height, gameView.viewportAlignment)
+                    }
             }
 
             ConstraintLayout(
@@ -945,3 +954,26 @@ private fun ShellSkinOverlay(
 
 private val SHELL_BEZEL = 10.dp
 private val SHELL_BEZEL_CORNER = 10.dp
+
+/** The picture's rectangle (fractions of the screen) inside [area], keeping [ratio] (width / height). */
+private fun fitPicture(
+    area: RectF,
+    ratio: Float,
+    screenWidth: Float,
+    screenHeight: Float,
+    alignment: com.swordfish.libretrodroid.ViewportAlignment,
+): RectF {
+    val areaW = area.width() * screenWidth
+    val areaH = area.height() * screenHeight
+    if (areaW <= 0f || areaH <= 0f) return area
+    val w = minOf(areaW, areaH * ratio)
+    val h = w / ratio
+    val left = area.left * screenWidth + (areaW - w) / 2f
+    val top =
+        when (alignment) {
+            com.swordfish.libretrodroid.ViewportAlignment.TOP -> area.top * screenHeight
+            com.swordfish.libretrodroid.ViewportAlignment.BOTTOM -> area.bottom * screenHeight - h
+            else -> area.top * screenHeight + (areaH - h) / 2f
+        }
+    return RectF(left / screenWidth, top / screenHeight, (left + w) / screenWidth, (top + h) / screenHeight)
+}
