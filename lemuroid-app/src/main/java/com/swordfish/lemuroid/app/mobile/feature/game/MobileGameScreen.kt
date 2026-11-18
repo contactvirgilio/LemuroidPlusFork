@@ -127,7 +127,9 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                     awaitPointerEventScope {
                         while (true) {
                             val event = awaitPointerEvent(PointerEventPass.Initial)
-                            if (event.changes.any { it.pressed && !it.previousPressed }) {
+                            // Only touches in the top band of the screen (near the shortcuts) count.
+                            val wakeLimit = size.height * TOUCH_WAKE_TOP_FRACTION
+                            if (event.changes.any { it.pressed && !it.previousPressed && it.position.y < wakeLimit }) {
                                 val downAt = android.os.SystemClock.uptimeMillis()
                                 touchScope.launch {
                                     delay(TOUCH_CONTROL_CHECK_MILLIS)
@@ -655,6 +657,9 @@ private fun FastForwardButton(viewModel: BaseGameScreenViewModel) {
 
 private const val OVERLAY_BUTTONS_IDLE_MILLIS = 4_000L
 private const val TOUCH_CONTROL_CHECK_MILLIS = 80L
+
+/** Touches only wake the shortcuts in this top part of the screen (owner: from just below the game's top edge up). */
+private const val TOUCH_WAKE_TOP_FRACTION = 0.23f
 private const val NEST_FADE_MILLIS = 220
 
 // Padding around the shortcut row (8 dp each side) plus a little room.
