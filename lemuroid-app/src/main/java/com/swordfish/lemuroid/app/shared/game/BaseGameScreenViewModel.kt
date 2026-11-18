@@ -459,14 +459,21 @@ class BaseGameScreenViewModel(
     // widescreen devices it would pull the picture far out of shape, so it isn't offered there.
     private val scalingModes =
         GameDisplayOptions.Scaling.values().filter {
-            (it != GameDisplayOptions.Scaling.STRETCH || GameShortcutsSetting.defaultNested(appContext)) &&
+            // Fit and Integer aren't offered (owner, 2026-11-18): Fine integer covers both. Fit is
+            // still used inside for games without a fixed picture size (most arcade, DOS).
+            it != GameDisplayOptions.Scaling.FIT &&
+                it != GameDisplayOptions.Scaling.INTEGER &&
+                (it != GameDisplayOptions.Scaling.STRETCH || GameShortcutsSetting.defaultNested(appContext)) &&
                 // Pixel-perfect needs the game's width in pixels.
                 (it != GameDisplayOptions.Scaling.PIXEL_PERFECT || scalingProfile?.baseWidth != null)
         }
 
     private val scalingState =
         MutableStateFlow(
-            displayOptions.savedScaling().takeIf { it in scalingModes } ?: GameDisplayOptions.Scaling.FIT,
+            when {
+                scalingProfile == null -> GameDisplayOptions.Scaling.FIT
+                else -> displayOptions.savedScaling().takeIf { it in scalingModes } ?: GameDisplayOptions.Scaling.FINE_INTEGER
+            },
         )
 
     fun getScaling(): StateFlow<GameDisplayOptions.Scaling> = scalingState

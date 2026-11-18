@@ -566,7 +566,7 @@ private fun FilterButton(viewModel: BaseGameScreenViewModel) {
     }
 }
 
-/** Switches to the next scaling mode; the tiny screen shows its number (1 Fit, 2 Integer, 3 Pixel-perfect, 4 Fine integer, 5 Stretch). */
+/** Switches to the next scaling mode; the tiny screen shows its number (1 Pixel-perfect, 2 Fine integer, 3 Stretch). */
 @Composable
 private fun ScalingButton(viewModel: BaseGameScreenViewModel) {
     val scaling = viewModel.getScaling().collectAsState().value
