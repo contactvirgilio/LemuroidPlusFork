@@ -223,7 +223,8 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
             val pictureRect = remember { mutableStateOf<RectF?>(null) }
             ShellSkinOverlay(look = viewModel.getLook().collectAsState().value, picture = pictureRect.value)
 
-            LaunchedEffect(fullPos, viewPos, scaling) {
+            val runtimeProfile = viewModel.getRuntimeProfile().collectAsState().value
+            LaunchedEffect(fullPos, viewPos, scaling, runtimeProfile) {
                 val gameView = viewModel.retroGameView.retroGameViewFlow()
                 if (fullPos == null || viewPos == null) return@LaunchedEffect
                 val area =
@@ -233,7 +234,7 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                         viewPos.right - fullPos.left,
                         viewPos.bottom - fullPos.top,
                     )
-                gameView.stretch = GameDisplayOptions.fillsViewport(scaling)
+                gameView.stretch = viewModel.fillsViewport(scaling)
                 gameView.viewport =
                     viewModel.computeScaledViewport(
                         scaling,

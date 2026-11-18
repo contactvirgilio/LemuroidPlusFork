@@ -1,8 +1,16 @@
 diff --git a/libretrodroid/src/main/cpp/libretrodroid.cpp b/libretrodroid/src/main/cpp/libretrodroid.cpp
-index 60640c4..316af87 100644
+index 60640c4..a443d34 100644
 --- a/libretrodroid/src/main/cpp/libretrodroid.cpp
 +++ b/libretrodroid/src/main/cpp/libretrodroid.cpp
-@@ -217,6 +217,7 @@ void LibretroDroid::onSurfaceCreated() {
+@@ -19,6 +19,7 @@
+ 
+ #include <EGL/egl.h>
+ 
++#include <cmath>
+ #include <string>
+ #include <utility>
+ #include <vector>
+@@ -217,6 +218,7 @@ void LibretroDroid::onSurfaceCreated() {
      );
  
      video = std::unique_ptr<Video>(newVideo);
@@ -10,7 +18,31 @@ index 60640c4..316af87 100644
  
      if (Environment::getInstance().getHwContextReset() != nullptr) {
          Environment::getInstance().getHwContextReset()();
-@@ -643,6 +644,22 @@ void LibretroDroid::setViewport(Rect viewportRect) {
+@@ -479,6 +481,8 @@ void LibretroDroid::step() {
+             Environment::getInstance().getGameGeometryWidth(),
+             Environment::getInstance().getGameGeometryHeight()
+         );
++        gameWidth = (int) Environment::getInstance().getGameGeometryWidth();
++        gameHeight = (int) Environment::getInstance().getGameGeometryHeight();
+ 
+         dirtyVideo = true;
+     }
+@@ -618,6 +622,14 @@ void LibretroDroid::afterGameLoad() {
+     updateAudioSampleRateMultiplier();
+ 
+     defaultAspectRatio = findDefaultAspectRatio(system_av_info);
++    gameWidth = (int) system_av_info.geometry.base_width;
++    gameHeight = (int) system_av_info.geometry.base_height;
++}
++
++int LibretroDroid::getGameRotation() const {
++    // Quarter turns (0-3) the core asked for with RETRO_ENVIRONMENT_SET_ROTATION.
++    float turns = Environment::getInstance().getScreenRotation() / (float) (-M_PI / 2.0);
++    return ((int) std::lround(turns) % 4 + 4) % 4;
+ }
+ 
+ float LibretroDroid::findDefaultAspectRatio(const retro_system_av_info& system_av_info) {
+@@ -643,6 +655,22 @@ void LibretroDroid::setViewport(Rect viewportRect) {
      }
  }
  
@@ -34,10 +66,21 @@ index 60640c4..316af87 100644
      this-> viewportAlignment = viewportAlignment;
  
 diff --git a/libretrodroid/src/main/cpp/libretrodroid.h b/libretrodroid/src/main/cpp/libretrodroid.h
-index b507aee..ef0e8c5 100644
+index b507aee..73a77de 100644
 --- a/libretrodroid/src/main/cpp/libretrodroid.h
 +++ b/libretrodroid/src/main/cpp/libretrodroid.h
-@@ -134,6 +134,10 @@ public:
+@@ -108,6 +108,10 @@ public:
+ 
+     void refreshAspectRatio();
+     float getAspectRatio();
++    // Lemuroid Plus: the game's picture size as the core reports it (0 before a game is loaded).
++    int getGameWidth() const { return gameWidth; }
++    int getGameHeight() const { return gameHeight; }
++    int getGameRotation() const;
+ 
+     bool requiresVideoRefresh() const;
+     void clearRequiresVideoRefresh();
+@@ -134,6 +138,10 @@ public:
  
      void setViewportAlignment(unsigned int viewportAlignment);
  
@@ -48,7 +91,7 @@ index b507aee..ef0e8c5 100644
      void resetGlobalVariables();
  
      // Handle callbacks
-@@ -171,6 +175,7 @@ private:
+@@ -171,9 +179,12 @@ private:
      int openglESVersion = 2;
      bool skipDuplicateFrames = false;
      bool immersiveModeEnabled = false;
@@ -56,8 +99,13 @@ index b507aee..ef0e8c5 100644
      ImmersiveMode::Config immersiveModeConfig {};
  
      float defaultAspectRatio = 1.0;
++    int gameWidth = 0;
++    int gameHeight = 0;
+     bool dirtyVideo = false;
+ 
+     std::mutex coreLock;
 diff --git a/libretrodroid/src/main/cpp/libretrodroidjni.cpp b/libretrodroid/src/main/cpp/libretrodroidjni.cpp
-index 2ec15cf..f1f1725 100644
+index 2ec15cf..54db3e1 100644
 --- a/libretrodroid/src/main/cpp/libretrodroidjni.cpp
 +++ b/libretrodroid/src/main/cpp/libretrodroidjni.cpp
 @@ -599,6 +599,22 @@ JNIEXPORT void JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_setViewpor
@@ -83,6 +131,28 @@ index 2ec15cf..f1f1725 100644
  JNIEXPORT void JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_refreshAspectRatio(
      JNIEnv* env,
      jclass obj
+@@ -608,4 +624,21 @@ JNIEXPORT void JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_refreshAsp
+ 
+ }
+ 
++
++JNIEXPORT jint JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_getGameWidth(JNIEnv* env, jclass obj) {
++    return LibretroDroid::getInstance().getGameWidth();
++}
++
++JNIEXPORT jint JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_getGameHeight(JNIEnv* env, jclass obj) {
++    return LibretroDroid::getInstance().getGameHeight();
++}
++
++JNIEXPORT jint JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_getGameRotation(JNIEnv* env, jclass obj) {
++    return LibretroDroid::getInstance().getGameRotation();
++}
++
++JNIEXPORT jfloat JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_getGameAspectRatio(JNIEnv* env, jclass obj) {
++    return LibretroDroid::getInstance().getAspectRatio();
++}
++
+ }
 diff --git a/libretrodroid/src/main/cpp/video.cpp b/libretrodroid/src/main/cpp/video.cpp
 index a75dbaf..eff241c 100644
 --- a/libretrodroid/src/main/cpp/video.cpp
@@ -185,13 +255,20 @@ index 7eb8602..bc05e53 100644
  
      private var isGameLoaded = false
 diff --git a/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java b/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java
-index 50eafa1..e28bea6 100644
+index 50eafa1..b2dd586 100644
 --- a/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java
 +++ b/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java
-@@ -139,6 +139,10 @@ public class LibretroDroid {
+@@ -139,6 +139,17 @@ public class LibretroDroid {
  
      public static native void refreshAspectRatio();
  
++    /** Lemuroid Plus: the game's picture as the core reports it; 0 before a game is loaded. */
++    public static native int getGameWidth();
++    public static native int getGameHeight();
++    /** Quarter turns the core asked for (vertical arcade games); 0-3. */
++    public static native int getGameRotation();
++    public static native float getGameAspectRatio();
++
 +    public static native void setStretch(boolean stretch);
 +
 +    public static native void setImmersiveModeEnabled(boolean enabled);

@@ -125,7 +125,7 @@ class GameDisplayOptions(
             }
 
         /** Size of the picture and its shape, used to work out whole-number sizes. */
-        class Profile(val baseHeight: Int, val aspectRatio: Float, val baseWidth: Int? = null)
+        data class Profile(val baseHeight: Int, val aspectRatio: Float, val baseWidth: Int? = null)
 
         /**
          * Null when the game has no fixed picture size (most of Arcade), so there is nothing to

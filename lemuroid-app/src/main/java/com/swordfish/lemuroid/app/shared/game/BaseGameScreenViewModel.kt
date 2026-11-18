@@ -356,14 +356,24 @@ class BaseGameScreenViewModel(
 
     fun areStatesSupported(): Boolean = systemCoreConfig.statesSupported
 
-    // Only OLED and Glow unless shell skins are on in Settings; arcade games that may be
-    // vertical never get colours (a colour can't hug their picture).
-    private val lookCount by lazy {
+    // Picture size reported by the core while the game runs (arcade, DOS): their size isn't
+    // known in advance. Null until the core reports it.
+    private val runtimeProfile = MutableStateFlow<GameDisplayOptions.Profile?>(null)
+
+    fun getRuntimeProfile(): StateFlow<GameDisplayOptions.Profile?> = runtimeProfile
+
+    // Only OLED and Glow unless shell skins are on in Settings, or while the picture's shape is
+    // still unknown (a colour has to hug the picture).
+    private fun lookCount(): Int =
         if (!GameShellSkin.isEnabled(appContext) || pictureAspectRatio() == null) 2 else GameShellSkin.count
-    }
 
     private val lookState =
-        MutableStateFlow(GameShellSkin.load(appContext, game).let { if (it >= lookCount) GameShellSkin.GLOW else it })
+        MutableStateFlow(
+            GameShellSkin.load(appContext, game).let {
+                // A colour saved for a game whose shape comes later (arcade) is applied once known.
+                if (it >= GameShellSkin.count || (it >= 2 && !GameShellSkin.isEnabled(appContext))) GameShellSkin.GLOW else it
+            },
+        )
 
     private val immersiveState = MutableStateFlow(lookState.value == GameShellSkin.GLOW)
 
@@ -374,13 +384,16 @@ class BaseGameScreenViewModel(
         com.swordfish.lemuroid.app.shared.game.viewmodel.GamePreviewCropper.aspectRatioFor(system.id)
             // Arcade can be horizontal or vertical, but Neo Geo and CPS3 games are all 4:3.
             ?: if (NeoGeoSets.isNeoGeo(game.fileName) || CpsSets.generation(game.fileName) == 3) 4f / 3f else null
+            // Other arcade games and DOS: the shape the core reports once the game runs.
+            ?: runtimeProfile.value?.aspectRatio
 
     /** The look around the picture: Off, Glow, or a shell colour (see [GameShellSkin]). */
     fun getLook(): StateFlow<Int> = lookState
 
     /** Next look for this game: Off, Glow, Teal, ...; applies at once and is remembered for the game. */
     fun toggleImmersive() {
-        val next = (lookState.value + 1) % lookCount
+        val count = lookCount()
+        val next = (lookState.value + 1) % count
         lookState.value = next
         val glow = next == GameShellSkin.GLOW
         immersiveState.value = glow
@@ -388,10 +401,10 @@ class BaseGameScreenViewModel(
         GameShellSkin.save(appContext, game, next)
         overlayCardState.value =
             OverlayCard(
-                appContext.getString(R.string.game_overlay_skin_title, next + 1, lookCount),
+                appContext.getString(R.string.game_overlay_skin_title, next + 1, count),
                 appContext.getString(GameShellSkin.nameRes(next)),
                 next,
-                lookCount,
+                count,
                 swatch = GameShellSkin.shellFor(next)?.color,
             )
     }
@@ -454,9 +467,19 @@ class BaseGameScreenViewModel(
         DsSingleScreen.start(appContext, system.id, systemCoreConfig)
     }
 
-    private val scalingProfile = GameDisplayOptions.profileFor(system.id, game.fileName)
+    private val staticProfile = GameDisplayOptions.profileFor(system.id, game.fileName)
 
-    fun isScalingSupported(): Boolean = scalingProfile != null
+    // Known in advance for consoles; reported by the core for arcade and DOS.
+    private val scalingProfile: GameDisplayOptions.Profile?
+        get() = staticProfile ?: runtimeProfile.value
+
+    // Every system now: arcade and DOS get their size from the core.
+    fun isScalingSupported(): Boolean = true
+
+    /** Whether the picture fills its viewport exactly (Stretch, and Pixel-perfect once sized). */
+    fun fillsViewport(scaling: GameDisplayOptions.Scaling): Boolean =
+        scaling == GameDisplayOptions.Scaling.STRETCH ||
+            (scaling == GameDisplayOptions.Scaling.PIXEL_PERFECT && scalingProfile?.baseWidth != null)
 
     // Stretch only looks right on 4:3-ish screens (e.g. Retroid Pocket Classic); on phones and
     // widescreen devices it would pull the picture far out of shape, so it isn't offered there.
@@ -466,17 +489,12 @@ class BaseGameScreenViewModel(
             // still used inside for games without a fixed picture size (most arcade, DOS).
             it != GameDisplayOptions.Scaling.FIT &&
                 it != GameDisplayOptions.Scaling.INTEGER &&
-                (it != GameDisplayOptions.Scaling.STRETCH || GameShortcutsSetting.defaultNested(appContext)) &&
-                // Pixel-perfect needs the game's width in pixels.
-                (it != GameDisplayOptions.Scaling.PIXEL_PERFECT || scalingProfile?.baseWidth != null)
+                (it != GameDisplayOptions.Scaling.STRETCH || GameShortcutsSetting.defaultNested(appContext))
         }
 
     private val scalingState =
         MutableStateFlow(
-            when {
-                scalingProfile == null -> GameDisplayOptions.Scaling.FIT
-                else -> displayOptions.savedScaling().takeIf { it in scalingModes } ?: GameDisplayOptions.Scaling.FINE_INTEGER
-            },
+            displayOptions.savedScaling().takeIf { it in scalingModes } ?: GameDisplayOptions.Scaling.FINE_INTEGER,
         )
 
     fun getScaling(): StateFlow<GameDisplayOptions.Scaling> = scalingState
@@ -663,6 +681,33 @@ class BaseGameScreenViewModel(
         return inputs.sendMotionEvent(event)
     }
 
+    // Arcade and DOS: read the picture size from the core while the game runs (it is only known
+    // once the game has loaded, and a few games change it).
+    init {
+        if (staticProfile == null) {
+            viewModelScope.launch {
+                while (true) {
+                    delay(RUNTIME_SIZE_POLL_MILLIS)
+                    val profile = runCatching { coreReportedProfile() }.getOrNull() ?: continue
+                    if (profile != runtimeProfile.value) runtimeProfile.value = profile
+                }
+            }
+        }
+    }
+
+    private fun coreReportedProfile(): GameDisplayOptions.Profile? {
+        val width = com.swordfish.libretrodroid.LibretroDroid.getGameWidth()
+        val height = com.swordfish.libretrodroid.LibretroDroid.getGameHeight()
+        if (width <= 0 || height <= 0) return null
+        val aspect = com.swordfish.libretrodroid.LibretroDroid.getGameAspectRatio().takeIf { it > 0f } ?: (width.toFloat() / height)
+        // A core that asks for a quarter turn (vertical arcade games) is shown on its side.
+        return if (com.swordfish.libretrodroid.LibretroDroid.getGameRotation() % 2 == 1) {
+            GameDisplayOptions.Profile(width, 1f / aspect, height)
+        } else {
+            GameDisplayOptions.Profile(height, aspect, width)
+        }
+    }
+
     // Timed auto-save: every 5 minutes of play (game on screen, menu closed) into the regular
     // auto-save, the one also written when leaving the game. Skipped while nothing was pressed
     // since the last one; then it checks again every second. Each one flashes the save shortcut.
@@ -715,6 +760,7 @@ class BaseGameScreenViewModel(
     companion object {
         private val FAST_FORWARD_SPEEDS = listOf(1, 2)
         private const val AUTO_SAVE_TICK_MILLIS = 1_000L
+        private const val RUNTIME_SIZE_POLL_MILLIS = 500L
         private const val AUTO_SAVE_INTERVAL_MILLIS = 5 * 60_000L
     }
 }
