@@ -111,7 +111,7 @@ fun GameMenuStatesScreen(
                                     slotModifier(index)
                                         .width(slotWidth)
                                         .onFocusChanged { if (it.isFocused) focused = index },
-                                onClick = { onStateClicked(index) },
+                                onClick = { onStateClicked(entry.slot) },
                             )
                         }
                     }
@@ -182,7 +182,7 @@ fun GameMenuStatesScreen(
                     StateSlot(
                         entry = entry,
                         modifier = slotModifier(index),
-                        onClick = { onStateClicked(index) },
+                        onClick = { onStateClicked(entry.slot) },
                     )
                 }
             }
@@ -197,6 +197,9 @@ private const val PREVIEW_ASPECT_RATIO = 4f / 3f
 
 /** Gold, as the page dots and the shortcut toggles. */
 private val LATEST_PILL_COLOR = Color(0xFFF5C828)
+
+/** White, so the auto-save doesn't read as "Latest". */
+private val AUTO_PILL_COLOR = Color(0xFFF1EFE8)
 
 // Name and date under each picture.
 private val SLOT_TEXT_HEIGHT = 46.dp
@@ -233,15 +236,15 @@ private fun StateSlot(
                         fontSize = 12.sp,
                     )
                 }
-                if (entry.latest) {
+                if (entry.auto || entry.latest) {
                     Text(
                         modifier =
                             Modifier
                                 .align(Alignment.TopStart)
                                 .padding(6.dp)
-                                .background(LATEST_PILL_COLOR, RoundedCornerShape(50))
+                                .background(if (entry.auto) AUTO_PILL_COLOR else LATEST_PILL_COLOR, RoundedCornerShape(50))
                                 .padding(horizontal = 8.dp, vertical = 2.dp),
-                        text = stringResource(id = R.string.game_menu_state_latest),
+                        text = stringResource(id = if (entry.auto) R.string.game_menu_state_auto else R.string.game_menu_state_latest),
                         color = Color(0xFF1E1804),
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,

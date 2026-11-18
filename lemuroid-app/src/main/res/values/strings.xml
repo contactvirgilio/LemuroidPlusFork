@@ -383,6 +383,8 @@
     <string name="game_button_shortcuts">Shortcuts</string>
     <string name="settings_title_nested_shortcuts">Nested game shortcuts</string>
     <string name="game_menu_state_latest">Latest</string>
+    <string name="game_menu_state_auto">Auto</string>
+    <string name="game_menu_state_auto_title">Auto-save</string>
     <string name="settings_title_pad_skin">Touch pad skin</string>
     <string name="settings_description_pad_skin">Skin 1: original. Skin 2: grey outline</string>
     <string name="settings_description_nested_shortcuts">Keep the in-game shortcuts behind one button that opens them. Off: always visible in a row</string>

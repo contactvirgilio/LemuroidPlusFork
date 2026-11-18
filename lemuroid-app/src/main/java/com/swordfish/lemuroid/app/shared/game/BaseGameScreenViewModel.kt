@@ -559,6 +559,7 @@ class BaseGameScreenViewModel(
             withLoading {
                 val snapshot = saves.captureSaveSnapshot(true) ?: return@launch
                 saves.writeSaveSnapshot(snapshot)
+                if (snapshot.autoSave != null) saves.takeAutoSavePreview()
                 sideEffects.requestSuccessfulFinish()
             }
         }
@@ -658,7 +659,10 @@ class BaseGameScreenViewModel(
                 try {
                     val snapshot = saves.captureSaveSnapshot(true) ?: continue
                     saves.writeSaveSnapshot(snapshot)
-                    if (snapshot.autoSave != null) autoSaveFlashes.value += 1
+                    if (snapshot.autoSave != null) {
+                        saves.takeAutoSavePreview()
+                        autoSaveFlashes.value += 1
+                    }
                 } catch (e: Throwable) {
                     Timber.e(e, "Timed auto-save failed")
                 }

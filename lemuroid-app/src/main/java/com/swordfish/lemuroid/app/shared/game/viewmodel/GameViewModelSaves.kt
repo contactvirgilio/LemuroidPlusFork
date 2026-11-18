@@ -1,5 +1,6 @@
 package com.swordfish.lemuroid.app.shared.game.viewmodel
 
+import com.swordfish.lemuroid.app.shared.GameMenuContract
 import android.content.Context
 import android.graphics.Bitmap
 import com.swordfish.lemuroid.R
@@ -49,9 +50,20 @@ class GameViewModelSaves(
         }
     }
 
+    /** Picture for the auto-save (shown in the Load menu); only while the game is on screen. */
+    suspend fun takeAutoSavePreview() {
+        runCatching { takeScreenshotPreview(GameMenuContract.AUTO_SLOT) }
+    }
+
     suspend fun loadSlot(index: Int) {
         try {
-            statesManager.getSlotSave(game, systemCoreConfig.coreID, index)?.let {
+            val saveState =
+                if (index == GameMenuContract.AUTO_SLOT) {
+                    statesManager.getAutoSave(game, systemCoreConfig.coreID)
+                } else {
+                    statesManager.getSlotSave(game, systemCoreConfig.coreID, index)
+                }
+            saveState?.let {
                 val loaded =
                     withContext(Dispatchers.IO) {
                         loadSaveState(it)
@@ -94,7 +106,11 @@ class GameViewModelSaves(
             snapshot.autoSave != null,
         )
         savesManager.setSaveRAM(game, snapshot.sram)
-        snapshot.autoSave?.let { statesManager.setAutoSave(game, systemCoreConfig.coreID, it) }
+        snapshot.autoSave?.let {
+            statesManager.setAutoSave(game, systemCoreConfig.coreID, it)
+            // The old picture no longer matches; callers that can, take a new one right after.
+            runCatching { statesPreviewManager.deletePreviewForSlot(game, systemCoreConfig.coreID, GameMenuContract.AUTO_SLOT) }
+        }
     }
 
     // On some cores unserialize fails with no reason. So we need to try multiple times.
