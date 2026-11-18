@@ -41,6 +41,8 @@ class GameMenuStatesViewModel(
         val description: String,
         val enabled: Boolean,
         val preview: Bitmap?,
+        // The most recently saved slot, marked with a "Latest" pill.
+        val latest: Boolean = false,
     )
 
     data class State(val entries: List<StateEntry> = emptyList())
@@ -49,6 +51,8 @@ class GameMenuStatesViewModel(
         flow {
             val slotsInfo = statesManager.getSavedSlotsInfo(gameMenuRequest.game, gameMenuRequest.coreConfig.coreID)
 
+            val latestIndex =
+                slotsInfo.indices.filter { slotsInfo[it].exists }.maxByOrNull { slotsInfo[it].date } ?: -1
             val entries =
                 slotsInfo.mapIndexed { index, slotInfo ->
                     val title =
@@ -69,7 +73,7 @@ class GameMenuStatesViewModel(
                             fullImage = true,
                         )
 
-                    StateEntry(title, description, isEnabled, preview)
+                    StateEntry(title, description, isEnabled, preview, latest = index == latestIndex)
                 }
 
             emit(State(entries))

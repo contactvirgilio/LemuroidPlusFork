@@ -195,6 +195,9 @@ private const val VISIBLE_SLOTS_IN_ROW = 2.3f
 
 private const val PREVIEW_ASPECT_RATIO = 4f / 3f
 
+/** Gold, as the page dots and the shortcut toggles. */
+private val LATEST_PILL_COLOR = Color(0xFFF5C828)
+
 // Name and date under each picture.
 private val SLOT_TEXT_HEIGHT = 46.dp
 
@@ -214,19 +217,36 @@ private fun StateSlot(
             enabled = entry.enabled,
             onClick = onClick,
         ) { _ ->
-            if (entry.preview != null) {
-                Image(
-                    modifier = Modifier.fillMaxSize().background(Color.Black),
-                    bitmap = entry.preview.asImageBitmap(),
-                    contentScale = ContentScale.Fit,
-                    contentDescription = entry.title,
-                )
-            } else {
-                Text(
-                    text = stringResource(id = R.string.game_menu_state_empty),
-                    color = MenuColors.Title,
-                    fontSize = 12.sp,
-                )
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (entry.preview != null) {
+                    Image(
+                        modifier = Modifier.fillMaxSize().background(Color.Black),
+                        bitmap = entry.preview.asImageBitmap(),
+                        contentScale = ContentScale.Fit,
+                        contentDescription = entry.title,
+                    )
+                } else {
+                    Text(
+                        modifier = Modifier.align(Alignment.Center),
+                        text = stringResource(id = R.string.game_menu_state_empty),
+                        color = MenuColors.Title,
+                        fontSize = 12.sp,
+                    )
+                }
+                if (entry.latest) {
+                    Text(
+                        modifier =
+                            Modifier
+                                .align(Alignment.TopStart)
+                                .padding(6.dp)
+                                .background(LATEST_PILL_COLOR, RoundedCornerShape(50))
+                                .padding(horizontal = 8.dp, vertical = 2.dp),
+                        text = stringResource(id = R.string.game_menu_state_latest),
+                        color = Color(0xFF1E1804),
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
             }
         }
         Text(
