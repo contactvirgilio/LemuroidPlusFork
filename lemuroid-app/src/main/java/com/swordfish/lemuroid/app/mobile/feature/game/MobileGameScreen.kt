@@ -476,7 +476,7 @@ private fun GameOverlayButtons(
                         modifier = Modifier.size(OVERLAY_ICON_SIZE + 3.dp),
                         imageVector = Icons.Filled.Apps,
                         contentDescription = label,
-                        tint = if (open) FAST_FORWARD_ACTIVE_COLOR else Color.White,
+                        tint = if (open) GRID_OPEN_COLOR else Color.White,
                     )
                 }
             }
@@ -787,6 +787,9 @@ private val OVERLAY_ICON_SIZE = 23.dp
 private const val OVERLAY_CARD_MILLIS = 1200L
 
 private val FAST_FORWARD_ACTIVE_COLOR = Color(0xFFFFC107)
+
+/** The grid button while the shortcuts are out (yellow means a toggle is on, so not yellow). */
+private val GRID_OPEN_COLOR = Color(0xFF5DCAA5)
 
 @Composable
 private fun PadContainer(modifier: Modifier = Modifier) {
