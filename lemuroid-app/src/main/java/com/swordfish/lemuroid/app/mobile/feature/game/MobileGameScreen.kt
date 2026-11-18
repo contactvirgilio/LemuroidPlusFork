@@ -1,5 +1,6 @@
 package com.swordfish.lemuroid.app.mobile.feature.game
 
+import androidx.compose.foundation.layout.height
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.expandHorizontally
@@ -428,8 +429,10 @@ private fun GameOverlayButtons(
     val slide = tween<IntSize>(durationMillis = NEST_FADE_MILLIS)
     // Room for every shortcut plus the grid button.
     val openRowSize = openWithHub.coerceAtLeast(24.dp)
+    // Fixed height: the shortcuts can be taller than the grid button, and a row that grows when
+    // they appear would re-centre the grid button and nudge it up and down.
     Row(
-        modifier = modifier,
+        modifier = modifier.height(maxOf(OVERLAY_BUTTON_SIZE_HUB, openRowSize, openSize)),
         horizontalArrangement = Arrangement.spacedBy(gap),
         verticalAlignment = Alignment.CenterVertically,
     ) {
