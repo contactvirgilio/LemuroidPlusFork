@@ -232,7 +232,7 @@ private fun GeneralSettings() {
             subtitle = { Text(text = stringResource(id = R.string.settings_description_nested_shortcuts)) },
         )
         LemuroidSettingsSwitch(
-            state = booleanPreferenceState(PadSkinSetting.KEY, false),
+            state = booleanPreferenceState(PadSkinSetting.KEY, true),
             title = { Text(text = stringResource(id = R.string.settings_title_pad_skin)) },
             subtitle = { Text(text = stringResource(id = R.string.settings_description_pad_skin)) },
         )
