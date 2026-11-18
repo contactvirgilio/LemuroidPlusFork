@@ -679,6 +679,7 @@ private val FAST_FORWARD_ACTIVE_COLOR = Color(0xFFFFC107)
 @Composable
 private fun PadContainer(modifier: Modifier = Modifier) {
     val theme = LocalLemuroidPadTheme.current
+    if (theme.outline) return // skin 2: no panel behind the touch controls
     GlassSurface(
         modifier = modifier,
         cornerRadius = theme.level0CornerRadius,
