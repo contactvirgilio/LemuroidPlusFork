@@ -343,6 +343,19 @@ private fun GameOverlayButtons(
     LaunchedEffect(muteNudges) {
         if (muteNudges > 0) peekMute = true
     }
+    // Timed auto-save: the save shortcut flashes yellow, white, yellow (pops out alone when nested).
+    val autoSaveFlashes = viewModel.getAutoSaveFlashes().collectAsState().value
+    var saveFlash by remember { mutableStateOf<Color?>(null) }
+    LaunchedEffect(autoSaveFlashes) {
+        if (autoSaveFlashes == 0) return@LaunchedEffect
+        saveFlash = FAST_FORWARD_ACTIVE_COLOR
+        delay(AUTO_SAVE_FLASH_ON_MILLIS)
+        saveFlash = Color.White
+        delay(AUTO_SAVE_FLASH_OFF_MILLIS)
+        saveFlash = FAST_FORWARD_ACTIVE_COLOR
+        delay(AUTO_SAVE_FLASH_ON_MILLIS)
+        saveFlash = null
+    }
     LaunchedEffect(screenTouches, muteNudges) {
         awake = true
         delay(OVERLAY_BUTTONS_IDLE_MILLIS)
@@ -373,9 +386,13 @@ private fun GameOverlayButtons(
         if (narrow) rowSize else minOf(OVERLAY_BUTTON_SIZE_OPEN, (screenWidth - gap * (count - 1)) / count)
 
     if (!nested) {
-        CompositionLocalProvider(LocalOverlayButtonSize provides rowSize) {
+        CompositionLocalProvider(
+            LocalOverlayButtonSize provides rowSize,
+            LocalOverlayAlpha provides alpha,
+            LocalSaveFlash provides saveFlash,
+        ) {
             Row(
-                modifier = modifier.alpha(alpha),
+                modifier = modifier,
                 horizontalArrangement = Arrangement.spacedBy(gap),
             ) {
                 ShortcutButtons(viewModel)
@@ -393,7 +410,7 @@ private fun GameOverlayButtons(
             enter = fadeIn(fade),
             exit = fadeOut(fade),
         ) {
-            CompositionLocalProvider(LocalOverlayButtonSize provides openSize) {
+            CompositionLocalProvider(LocalOverlayButtonSize provides openSize, LocalSaveFlash provides saveFlash) {
                 Row(horizontalArrangement = Arrangement.spacedBy(gap)) {
                     ShortcutButtons(viewModel)
                 }
@@ -403,6 +420,18 @@ private fun GameOverlayButtons(
             horizontalArrangement = Arrangement.spacedBy(gap),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            AnimatedVisibility(
+                visible = saveFlash != null && !open && viewModel.areStatesSupported(),
+                enter = fadeIn(fade),
+                exit = fadeOut(fade),
+            ) {
+                // Keeps the last colour while fading out.
+                var lastFlash by remember { mutableStateOf(FAST_FORWARD_ACTIVE_COLOR) }
+                saveFlash?.let { lastFlash = it }
+                CompositionLocalProvider(LocalOverlayButtonSize provides openSize, LocalSaveFlash provides lastFlash) {
+                    StatesButton(viewModel)
+                }
+            }
             AnimatedVisibility(
                 visible = peekMute && !open,
                 enter = fadeIn(fade),
@@ -593,6 +622,7 @@ private fun OverlayButton(
         modifier =
             Modifier
                 .size(LocalOverlayButtonSize.current)
+                .alpha(LocalOverlayAlpha.current)
                 .clip(CircleShape)
                 .background(Color.Black)
                 .clickable(onClickLabel = label, onClick = onClick),
@@ -606,6 +636,18 @@ private fun OverlayButton(
 @Composable
 private fun StatesButton(viewModel: BaseGameScreenViewModel) {
     val label = stringResource(com.swordfish.lemuroid.R.string.game_button_states)
+    val flash = LocalSaveFlash.current
+    CompositionLocalProvider(LocalOverlayAlpha provides if (flash != null) 1f else LocalOverlayAlpha.current) {
+        StatesButtonBody(viewModel, label, flash)
+    }
+}
+
+@Composable
+private fun StatesButtonBody(
+    viewModel: BaseGameScreenViewModel,
+    label: String,
+    flash: Color?,
+) {
     OverlayButton(
         active = false,
         label = label,
@@ -615,7 +657,7 @@ private fun StatesButton(viewModel: BaseGameScreenViewModel) {
             modifier = Modifier.size(LocalOverlayButtonSize.current * 0.5f),
             imageVector = Icons.Outlined.Save,
             contentDescription = label,
-            tint = Color.White,
+            tint = flash ?: Color.White,
         )
     }
 }
@@ -657,6 +699,14 @@ private fun FastForwardButton(viewModel: BaseGameScreenViewModel) {
 
 private const val OVERLAY_BUTTONS_IDLE_MILLIS = 4_000L
 private const val TOUCH_CONTROL_CHECK_MILLIS = 80L
+private const val AUTO_SAVE_FLASH_ON_MILLIS = 1_500L
+private const val AUTO_SAVE_FLASH_OFF_MILLIS = 1_000L
+
+/** Fade of the shortcut row when idle; each button applies it, so one can stay solid. */
+private val LocalOverlayAlpha = compositionLocalOf { 1f }
+
+/** Colour of the save shortcut while it flashes after a timed auto-save; null when not flashing. */
+private val LocalSaveFlash = compositionLocalOf<Color?> { null }
 
 /** Touches only wake the shortcuts in this top part of the screen (owner: about the top 30%). */
 private const val TOUCH_WAKE_TOP_FRACTION = 0.30f

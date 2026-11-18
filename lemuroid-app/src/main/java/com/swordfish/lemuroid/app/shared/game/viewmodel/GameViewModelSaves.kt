@@ -144,7 +144,18 @@ class GameViewModelSaves(
         val viewport = gameView.viewport
         val viewportFraction = maxOf(viewport.width(), viewport.height()).coerceIn(0.1f, 1f)
         val captureSize = (previewSize / viewportFraction).roundToInt()
-        val screenshot = gameView.takeScreenshot(captureSize, 3) ?: return
+        // The capture sometimes comes back empty (the frame isn't ready): try again a few times.
+        var captured: Bitmap? = null
+        for (attempt in 0 until SCREENSHOT_ATTEMPTS) {
+            captured = runCatching { gameView.takeScreenshot(captureSize, 3) }.getOrNull()
+            if (captured != null) break
+            kotlinx.coroutines.delay(SCREENSHOT_RETRY_MILLIS)
+        }
+        val screenshot =
+            captured ?: run {
+                Timber.w("Save-state picture: capture failed for slot %d", index)
+                return
+            }
 
         val preview =
             withContext(Dispatchers.Default) {
@@ -217,3 +228,6 @@ class GameViewModelSaves(
         )
     }
 }
+
+private const val SCREENSHOT_ATTEMPTS = 4
+private const val SCREENSHOT_RETRY_MILLIS = 150L

@@ -593,7 +593,10 @@ class BaseGameScreenViewModel(
         private set
 
     fun handleVirtualInputEvent(events: List<InputEvent>) {
-        if (events.isNotEmpty()) lastTouchControlInputAt = android.os.SystemClock.uptimeMillis()
+        if (events.isNotEmpty()) {
+            lastTouchControlInputAt = android.os.SystemClock.uptimeMillis()
+            lastPlayerInputAt = lastTouchControlInputAt
+        }
         touchControls.handleVirtualInputEvent(events)
     }
 
@@ -610,14 +613,64 @@ class BaseGameScreenViewModel(
         keyCode: Int,
         event: KeyEvent,
     ): Boolean {
+        lastPlayerInputAt = android.os.SystemClock.uptimeMillis()
         return inputs.sendKeyEvent(keyCode, event)
     }
 
     fun sendMotionEvent(event: MotionEvent): Boolean {
+        lastPlayerInputAt = android.os.SystemClock.uptimeMillis()
         return inputs.sendMotionEvent(event)
+    }
+
+    // Timed auto-save: every 5 minutes of play (game on screen, menu closed) into the regular
+    // auto-save, the one also written when leaving the game. Skipped while nothing was pressed
+    // since the last one; then it checks again every second. Each one flashes the save shortcut.
+    @Volatile
+    private var lastPlayerInputAt = 0L
+
+    @Volatile
+    private var gameResumed = false
+
+    private val autoSaveFlashes = MutableStateFlow(0)
+
+    fun getAutoSaveFlashes(): StateFlow<Int> = autoSaveFlashes
+
+    override fun onResume(owner: LifecycleOwner) {
+        super.onResume(owner)
+        gameResumed = true
+    }
+
+    override fun onPause(owner: LifecycleOwner) {
+        super.onPause(owner)
+        gameResumed = false
+    }
+
+    init {
+        viewModelScope.launch {
+            var playedMillis = 0L
+            var lastAutoSaveAt = 0L
+            while (true) {
+                delay(AUTO_SAVE_TICK_MILLIS)
+                if (!gameResumed || loadingState.value) continue
+                playedMillis += AUTO_SAVE_TICK_MILLIS
+                if (playedMillis < AUTO_SAVE_INTERVAL_MILLIS) continue
+                if (lastPlayerInputAt <= lastAutoSaveAt) continue
+                try {
+                    val snapshot = saves.captureSaveSnapshot(true) ?: continue
+                    saves.writeSaveSnapshot(snapshot)
+                    if (snapshot.autoSave != null) autoSaveFlashes.value += 1
+                } catch (e: Throwable) {
+                    Timber.e(e, "Timed auto-save failed")
+                }
+                lastAutoSaveAt = android.os.SystemClock.uptimeMillis()
+                playedMillis = 0L
+            }
+        }
     }
 
     companion object {
         private val FAST_FORWARD_SPEEDS = listOf(1, 2)
+        private const val AUTO_SAVE_TICK_MILLIS = 1_000L
+        private const val AUTO_SAVE_INTERVAL_MILLIS = 5 * 60_000L
     }
 }
