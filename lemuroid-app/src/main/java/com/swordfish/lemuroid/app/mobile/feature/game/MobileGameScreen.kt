@@ -688,7 +688,19 @@ private fun OverlayButton(
 private fun StatesButton(viewModel: BaseGameScreenViewModel) {
     val label = stringResource(com.swordfish.lemuroid.R.string.game_button_states)
     val flash = LocalSaveFlash.current
-    CompositionLocalProvider(LocalOverlayAlpha provides if (flash != null) 1f else LocalOverlayAlpha.current) {
+    // After a timed auto-save the whole button (circle and icon together) pulses 100% to 30%.
+    val pulse =
+        if (flash != null) {
+            rememberInfiniteTransition(label = "autoSavePulse").animateFloat(
+                initialValue = 1f,
+                targetValue = 0.3f,
+                animationSpec = infiniteRepeatable(tween(AUTO_SAVE_PULSE_MILLIS), RepeatMode.Reverse),
+                label = "autoSavePulseAlpha",
+            ).value
+        } else {
+            null
+        }
+    CompositionLocalProvider(LocalOverlayAlpha provides (pulse ?: LocalOverlayAlpha.current)) {
         StatesButtonBody(viewModel, label, flash)
     }
 }
@@ -704,22 +716,11 @@ private fun StatesButtonBody(
         label = label,
         onClick = { viewModel.quickSaveToNextSlot() },
     ) {
-        val pulse =
-            if (flash != null) {
-                rememberInfiniteTransition(label = "autoSavePulse").animateFloat(
-                    initialValue = 1f,
-                    targetValue = 0.3f,
-                    animationSpec = infiniteRepeatable(tween(AUTO_SAVE_PULSE_MILLIS), RepeatMode.Reverse),
-                    label = "autoSavePulseAlpha",
-                ).value
-            } else {
-                1f
-            }
         Icon(
             modifier = Modifier.size(LocalOverlayButtonSize.current * 0.5f),
             imageVector = Icons.Outlined.Save,
             contentDescription = label,
-            tint = flash?.copy(alpha = pulse) ?: Color.White,
+            tint = flash ?: Color.White,
         )
     }
 }
