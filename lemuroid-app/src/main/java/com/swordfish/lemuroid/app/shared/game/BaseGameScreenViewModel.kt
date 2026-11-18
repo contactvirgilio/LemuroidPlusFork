@@ -356,8 +356,11 @@ class BaseGameScreenViewModel(
 
     fun areStatesSupported(): Boolean = systemCoreConfig.statesSupported
 
-    // Arcade games that may be vertical only get OLED and Glow: a colour can't hug their picture.
-    private val lookCount by lazy { if (pictureAspectRatio() == null) 2 else GameShellSkin.count }
+    // Only OLED and Glow unless shell skins are on in Settings; arcade games that may be
+    // vertical never get colours (a colour can't hug their picture).
+    private val lookCount by lazy {
+        if (!GameShellSkin.isEnabled(appContext) || pictureAspectRatio() == null) 2 else GameShellSkin.count
+    }
 
     private val lookState =
         MutableStateFlow(GameShellSkin.load(appContext, game).let { if (it >= lookCount) GameShellSkin.GLOW else it })

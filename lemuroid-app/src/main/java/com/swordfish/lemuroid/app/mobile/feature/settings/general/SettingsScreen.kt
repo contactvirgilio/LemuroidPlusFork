@@ -26,6 +26,7 @@ import com.swordfish.lemuroid.app.mobile.feature.main.navigateToRoute
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.MediaViewSetting
 import com.swordfish.lemuroid.app.shared.artwork.ArtworkManager
 import com.swordfish.lemuroid.app.shared.game.GameShortcutsSetting
+import com.swordfish.lemuroid.app.shared.game.GameShellSkin
 import com.swordfish.lemuroid.app.shared.game.PadSkinSetting
 import com.swordfish.lemuroid.app.shared.launcher.HomeLauncher
 import com.swordfish.lemuroid.app.shared.library.LibraryIndexScheduler
@@ -230,6 +231,10 @@ private fun GeneralSettings() {
             state = booleanPreferenceState(GameShortcutsSetting.KEY, GameShortcutsSetting.defaultNested(LocalContext.current)),
             title = { Text(text = stringResource(id = R.string.settings_title_nested_shortcuts)) },
             subtitle = { Text(text = stringResource(id = R.string.settings_description_nested_shortcuts)) },
+        )
+        LemuroidSettingsSwitch(
+            state = booleanPreferenceState(GameShellSkin.SETTING_KEY, false),
+            title = { Text(text = stringResource(id = R.string.settings_title_shell_skins)) },
         )
         LemuroidSettingsSwitch(
             state = booleanPreferenceState(PadSkinSetting.KEY, true),

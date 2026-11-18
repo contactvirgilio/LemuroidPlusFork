@@ -40,6 +40,12 @@ object GameShellSkin {
 
     private fun key(game: Game) = "pref_key_game_shell_skin_${game.id}"
 
+    /** Settings switch: off (default) the immersive shortcut only toggles OLED and Glow. */
+    const val SETTING_KEY = "pref_key_shell_skins"
+
+    fun isEnabled(context: Context): Boolean =
+        SharedPreferencesHelper.getSharedPreferences(context).getBoolean(SETTING_KEY, false)
+
     /** The saved look; without a shell it follows the immersive setting (Glow or Off). */
     fun load(
         context: Context,
