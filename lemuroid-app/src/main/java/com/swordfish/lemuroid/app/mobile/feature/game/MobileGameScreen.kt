@@ -1,5 +1,8 @@
 package com.swordfish.lemuroid.app.mobile.feature.game
 
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.animateFloat
@@ -418,59 +421,63 @@ private fun GameOverlayButtons(
         return
     }
 
-    // Nested: the shortcuts and the main button are layered in one place. Nothing moves: the
-    // shortcuts fade in already in their spots while the chevron fades out, and the reverse.
+    // Nested: the grid button never moves. Tapped, it turns yellow and the shortcuts slide out to
+    // its left; tapping it again while open does nothing (no double-tap surprises). They slide
+    // back in after the idle time.
     val fade = tween<Float>(durationMillis = NEST_FADE_MILLIS)
-    Box(modifier = modifier, contentAlignment = Alignment.TopEnd) {
+    val slide = tween<IntSize>(durationMillis = NEST_FADE_MILLIS)
+    // Room for every shortcut plus the grid button.
+    val openRowSize = openWithHub.coerceAtLeast(24.dp)
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(gap),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         AnimatedVisibility(
             visible = open,
-            enter = fadeIn(fade),
-            exit = fadeOut(fade),
+            enter = expandHorizontally(slide, expandFrom = Alignment.End) + fadeIn(fade),
+            exit = shrinkHorizontally(slide, shrinkTowards = Alignment.End) + fadeOut(fade),
         ) {
-            CompositionLocalProvider(LocalOverlayButtonSize provides openSize, LocalSaveFlash provides saveFlash) {
-                Row(horizontalArrangement = Arrangement.spacedBy(gap)) {
+            CompositionLocalProvider(LocalOverlayButtonSize provides openRowSize, LocalSaveFlash provides saveFlash) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(gap),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     ShortcutButtons(viewModel)
                 }
             }
         }
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(gap),
-            verticalAlignment = Alignment.CenterVertically,
+        AnimatedVisibility(
+            visible = saveFlash != null && !open && viewModel.areStatesSupported(),
+            enter = fadeIn(fade),
+            exit = fadeOut(fade),
         ) {
-            AnimatedVisibility(
-                visible = saveFlash != null && !open && viewModel.areStatesSupported(),
-                enter = fadeIn(fade),
-                exit = fadeOut(fade),
-            ) {
-                // Keeps the last colour while fading out.
-                var lastFlash by remember { mutableStateOf(FAST_FORWARD_ACTIVE_COLOR) }
-                saveFlash?.let { lastFlash = it }
-                CompositionLocalProvider(LocalOverlayButtonSize provides openSize, LocalSaveFlash provides lastFlash) {
-                    StatesButton(viewModel)
-                }
+            // Keeps the last colour while fading out.
+            var lastFlash by remember { mutableStateOf(FAST_FORWARD_ACTIVE_COLOR) }
+            saveFlash?.let { lastFlash = it }
+            CompositionLocalProvider(LocalOverlayButtonSize provides openSize, LocalSaveFlash provides lastFlash) {
+                StatesButton(viewModel)
             }
-            AnimatedVisibility(
-                visible = peekMute && !open,
-                enter = fadeIn(fade),
-                exit = fadeOut(fade),
-            ) {
-                CompositionLocalProvider(LocalOverlayButtonSize provides openSize) {
-                    MuteButton(viewModel)
-                }
+        }
+        AnimatedVisibility(
+            visible = peekMute && !open,
+            enter = fadeIn(fade),
+            exit = fadeOut(fade),
+        ) {
+            CompositionLocalProvider(LocalOverlayButtonSize provides openSize) {
+                MuteButton(viewModel)
             }
-            val label = stringResource(com.swordfish.lemuroid.R.string.game_button_shortcuts)
-            AnimatedVisibility(visible = !open, enter = fadeIn(fade), exit = fadeOut(fade)) {
-                CompositionLocalProvider(LocalOverlayButtonSize provides OVERLAY_BUTTON_SIZE_HUB) {
-                    Box(modifier = Modifier.alpha(if (peekMute) 1f else alpha)) {
-                        OverlayButton(active = false, label = label, onClick = { open = true }) {
-                            Icon(
-                                modifier = Modifier.size(OVERLAY_ICON_SIZE + 3.dp),
-                                imageVector = Icons.Filled.Apps,
-                                contentDescription = label,
-                                tint = Color.White,
-                            )
-                        }
-                    }
+        }
+        val label = stringResource(com.swordfish.lemuroid.R.string.game_button_shortcuts)
+        CompositionLocalProvider(LocalOverlayButtonSize provides OVERLAY_BUTTON_SIZE_HUB) {
+            Box(modifier = Modifier.alpha(if (peekMute || open) 1f else alpha)) {
+                OverlayButton(active = open, label = label, onClick = { if (!open) open = true }) {
+                    Icon(
+                        modifier = Modifier.size(OVERLAY_ICON_SIZE + 3.dp),
+                        imageVector = Icons.Filled.Apps,
+                        contentDescription = label,
+                        tint = if (open) FAST_FORWARD_ACTIVE_COLOR else Color.White,
+                    )
                 }
             }
         }
