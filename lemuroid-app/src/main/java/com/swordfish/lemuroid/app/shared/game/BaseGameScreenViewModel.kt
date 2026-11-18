@@ -358,9 +358,9 @@ class BaseGameScreenViewModel(
 
     // Picture size reported by the core while the game runs (arcade, DOS): their size isn't
     // known in advance. Null until the core reports it.
-    private val runtimeProfile = MutableStateFlow<GameDisplayOptions.Profile?>(null)
+    private val runtimeProfile = MutableStateFlow<GameDisplayOptions.Companion.Profile?>(null)
 
-    fun getRuntimeProfile(): StateFlow<GameDisplayOptions.Profile?> = runtimeProfile
+    fun getRuntimeProfile(): StateFlow<GameDisplayOptions.Companion.Profile?> = runtimeProfile
 
     // Only OLED and Glow unless shell skins are on in Settings, or while the picture's shape is
     // still unknown (a colour has to hug the picture).
@@ -470,7 +470,7 @@ class BaseGameScreenViewModel(
     private val staticProfile = GameDisplayOptions.profileFor(system.id, game.fileName)
 
     // Known in advance for consoles; reported by the core for arcade and DOS.
-    private val scalingProfile: GameDisplayOptions.Profile?
+    private val scalingProfile: GameDisplayOptions.Companion.Profile?
         get() = staticProfile ?: runtimeProfile.value
 
     // Every system now: arcade and DOS get their size from the core.
@@ -695,16 +695,16 @@ class BaseGameScreenViewModel(
         }
     }
 
-    private fun coreReportedProfile(): GameDisplayOptions.Profile? {
+    private fun coreReportedProfile(): GameDisplayOptions.Companion.Profile? {
         val width = com.swordfish.libretrodroid.LibretroDroid.getGameWidth()
         val height = com.swordfish.libretrodroid.LibretroDroid.getGameHeight()
         if (width <= 0 || height <= 0) return null
         val aspect = com.swordfish.libretrodroid.LibretroDroid.getGameAspectRatio().takeIf { it > 0f } ?: (width.toFloat() / height)
         // A core that asks for a quarter turn (vertical arcade games) is shown on its side.
         return if (com.swordfish.libretrodroid.LibretroDroid.getGameRotation() % 2 == 1) {
-            GameDisplayOptions.Profile(width, 1f / aspect, height)
+            GameDisplayOptions.Companion.Profile(width, 1f / aspect, height)
         } else {
-            GameDisplayOptions.Profile(height, aspect, width)
+            GameDisplayOptions.Companion.Profile(height, aspect, width)
         }
     }
 
