@@ -233,7 +233,7 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                         viewPos.right - fullPos.left,
                         viewPos.bottom - fullPos.top,
                     )
-                gameView.stretch = scaling == GameDisplayOptions.Scaling.STRETCH
+                gameView.stretch = GameDisplayOptions.fillsViewport(scaling)
                 gameView.viewport =
                     viewModel.computeScaledViewport(
                         scaling,
@@ -566,13 +566,13 @@ private fun FilterButton(viewModel: BaseGameScreenViewModel) {
     }
 }
 
-/** Switches to the next scaling mode; the tiny screen shows its number (1 Fit, 2 Integer, 3 Stretch). */
+/** Switches to the next scaling mode; the tiny screen shows its number (1 Fit, 2 Integer, 3 Pixel-perfect, 4 Fine integer, 5 Stretch). */
 @Composable
 private fun ScalingButton(viewModel: BaseGameScreenViewModel) {
     val scaling = viewModel.getScaling().collectAsState().value
     val label = stringResource(com.swordfish.lemuroid.R.string.game_button_scaling)
     OverlayButton(active = false, label = label, onClick = { viewModel.cycleScaling() }) {
-        MiniScreenIcon(text = "${scaling.ordinal + 1}", stand = false)
+        MiniScreenIcon(text = "${viewModel.scalingNumber(scaling)}", stand = false)
     }
 }
 

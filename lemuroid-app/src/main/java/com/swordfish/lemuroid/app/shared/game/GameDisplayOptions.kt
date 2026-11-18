@@ -44,6 +44,15 @@ class GameDisplayOptions(
         /** The largest whole multiple of the game's height, so every pixel is the same size. */
         INTEGER(R.string.game_scaling_integer),
 
+        /**
+         * Whole multiples of the game's pixels both ways (MiSTer style): the width is the whole
+         * multiple closest to the right shape, so every pixel is identical but the shape can be off.
+         */
+        PIXEL_PERFECT(R.string.game_scaling_pixel_perfect),
+
+        /** Like [INTEGER] but in quarter steps (4, 4.25, 4.5...): bigger, with some rows 1 px taller. */
+        FINE_INTEGER(R.string.game_scaling_fine_integer),
+
         /** Stretch to fill: the picture covers the whole game area, ignoring its shape. */
         STRETCH(R.string.game_scaling_stretch),
     }
@@ -101,8 +110,22 @@ class GameDisplayOptions(
                 SystemID.FBNEO, SystemID.MAME2003PLUS, SystemID.DOS -> null
             }
 
-        /** Height of the picture and its shape, used to work out whole-number sizes. */
-        class Profile(val baseHeight: Int, val aspectRatio: Float)
+        /** Width in pixels of the picture each system outputs (for pixel-perfect scaling). */
+        fun baseWidth(systemId: SystemID): Int? =
+            when (systemId) {
+                SystemID.NES, SystemID.SNES, SystemID.SMS, SystemID.PC_ENGINE, SystemID.NDS -> 256
+                SystemID.GENESIS, SystemID.SEGACD, SystemID.N64, SystemID.PSX, SystemID.ATARI7800 -> 320
+                SystemID.GG, SystemID.GB, SystemID.GBC, SystemID.ATARI2600, SystemID.LYNX -> 160
+                SystemID.NGP, SystemID.NGC -> 160
+                SystemID.GBA -> 240
+                SystemID.WS, SystemID.WSC -> 224
+                SystemID.PSP -> 480
+                SystemID.NINTENDO_3DS -> 400
+                SystemID.FBNEO, SystemID.MAME2003PLUS, SystemID.DOS -> null
+            }
+
+        /** Size of the picture and its shape, used to work out whole-number sizes. */
+        class Profile(val baseHeight: Int, val aspectRatio: Float, val baseWidth: Int? = null)
 
         /**
          * Null when the game has no fixed picture size (most of Arcade), so there is nothing to
@@ -114,13 +137,37 @@ class GameDisplayOptions(
         ): Profile? {
             val isArcade = systemId == SystemID.FBNEO || systemId == SystemID.MAME2003PLUS
             // Neo Geo (320 x 224) and Capcom CPS1/CPS2 (384 x 224) games, all shown at 4:3.
-            if (isArcade && (NeoGeoSets.isNeoGeo(romFileName) || CpsSets.isCps(romFileName))) {
-                return Profile(224, 4f / 3f)
-            }
+            if (isArcade && NeoGeoSets.isNeoGeo(romFileName)) return Profile(224, 4f / 3f, 320)
+            if (isArcade && CpsSets.isCps(romFileName)) return Profile(224, 4f / 3f, 384)
             val height = baseHeight(systemId) ?: return null
             val aspectRatio = GamePreviewCropper.aspectRatioFor(systemId) ?: return null
-            return Profile(height, aspectRatio)
+            return Profile(height, aspectRatio, baseWidth(systemId))
         }
+
+        /**
+         * Pixel-perfect: a whole multiple of the height, then the whole multiple of the width
+         * closest to the right shape. Tries the biggest height first. Width to height in pixels.
+         */
+        private fun pixelPerfectSize(
+            profile: Profile,
+            areaWidth: Float,
+            areaHeight: Float,
+        ): Pair<Float, Float>? {
+            val w = profile.baseWidth ?: return null
+            val h = profile.baseHeight
+            var v = floor(areaHeight / h).toInt()
+            while (v >= 1) {
+                val target = v * h * profile.aspectRatio / w
+                val choices = listOf(floor(target).toInt(), floor(target).toInt() + 1).filter { it >= 1 && it * w <= areaWidth }
+                val k = choices.minByOrNull { kotlin.math.abs(it - target) }
+                if (k != null) return (k * w).toFloat() to (v * h).toFloat()
+                v--
+            }
+            return null
+        }
+
+        /** Modes where the picture fills its viewport exactly (the shape is set by the viewport). */
+        fun fillsViewport(scaling: Scaling) = scaling == Scaling.STRETCH || scaling == Scaling.PIXEL_PERFECT
 
         /**
          * Viewport (fractions of the whole view) for the scaling mode. [areaLeft]..[areaBottom] is
@@ -153,12 +200,21 @@ class GameDisplayOptions(
             val areaHeight = areaBottom - areaTop
             val fitHeight = min(areaHeight, areaWidth / aspectRatio)
 
-            val multiple = floor(fitHeight / baseHeight).toInt()
+            val size =
+                when (scaling) {
+                    Scaling.PIXEL_PERFECT -> pixelPerfectSize(profile, areaWidth, areaHeight)
+                    Scaling.FINE_INTEGER -> {
+                        // Quarter steps of the height.
+                        val step = floor(fitHeight * 4f / baseHeight) / 4f
+                        if (step < 1f) null else (step * baseHeight).let { h -> h * aspectRatio to h }
+                    }
+                    else -> {
+                        val multiple = floor(fitHeight / baseHeight).toInt()
+                        if (multiple < 1) null else (multiple * baseHeight).toFloat().let { h -> h * aspectRatio to h }
+                    }
+                }
             // Screens too small for a whole multiple keep the normal size.
-            if (multiple < 1) return fit
-
-            val height = (multiple * baseHeight).toFloat()
-            val width = height * aspectRatio
+            val (width, height) = size ?: return fit
             val left = areaLeft + (areaWidth - width) / 2f
             val top =
                 when (alignment) {

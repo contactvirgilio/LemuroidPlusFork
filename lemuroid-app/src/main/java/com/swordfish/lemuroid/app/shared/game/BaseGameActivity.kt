@@ -95,6 +95,7 @@ abstract class BaseGameActivity : ImmersiveActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        preferSixtyHertz()
         setUpExceptionsHandler()
         GameService.startService(applicationContext, intent)
         game = intent.getSerializableExtra(EXTRA_GAME) as Game
@@ -493,6 +494,27 @@ abstract class BaseGameActivity : ImmersiveActivity() {
                 val tiltConfig = data.serializable<TiltConfiguration>(GameMenuContract.RESULT_CHANGE_TILT_CONFIG)
                 baseGameScreenViewModel.changeTiltConfiguration(tiltConfig!!)
             }
+        }
+    }
+
+
+    /**
+     * Games run at 60 fps. On 90 Hz screens that can't show evenly (scrolling judders), so while a
+     * game is open we ask for the screen's 60 Hz mode at the same resolution, when there is one.
+     * 120 Hz-only screens are left alone (60 fps shows evenly there).
+     */
+    @Suppress("DEPRECATION")
+    private fun preferSixtyHertz() {
+        runCatching {
+            val display = windowManager.defaultDisplay ?: return
+            val current = display.mode
+            if (kotlin.math.abs(current.refreshRate - 60f) < 1f) return
+            val sixty =
+                display.supportedModes
+                    .filter { it.physicalWidth == current.physicalWidth && it.physicalHeight == current.physicalHeight }
+                    .filter { kotlin.math.abs(it.refreshRate - 60f) < 1f }
+                    .minByOrNull { kotlin.math.abs(it.refreshRate - 60f) } ?: return
+            window.attributes = window.attributes.apply { preferredDisplayModeId = sixty.modeId }
         }
     }
 

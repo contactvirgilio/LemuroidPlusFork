@@ -459,7 +459,9 @@ class BaseGameScreenViewModel(
     // widescreen devices it would pull the picture far out of shape, so it isn't offered there.
     private val scalingModes =
         GameDisplayOptions.Scaling.values().filter {
-            it != GameDisplayOptions.Scaling.STRETCH || GameShortcutsSetting.defaultNested(appContext)
+            (it != GameDisplayOptions.Scaling.STRETCH || GameShortcutsSetting.defaultNested(appContext)) &&
+                // Pixel-perfect needs the game's width in pixels.
+                (it != GameDisplayOptions.Scaling.PIXEL_PERFECT || scalingProfile?.baseWidth != null)
         }
 
     private val scalingState =
@@ -469,6 +471,9 @@ class BaseGameScreenViewModel(
 
     fun getScaling(): StateFlow<GameDisplayOptions.Scaling> = scalingState
 
+    /** Position of a scaling mode among the ones offered here, from 1 (shown on the shortcut). */
+    fun scalingNumber(scaling: GameDisplayOptions.Scaling): Int = scalingModes.indexOf(scaling) + 1
+
     fun cycleScaling() {
         val modes = scalingModes
         val next = modes[(modes.indexOf(scalingState.value) + 1) % modes.size]
@@ -476,9 +481,9 @@ class BaseGameScreenViewModel(
         displayOptions.saveScaling(next)
         overlayCardState.value =
             OverlayCard(
-                appContext.getString(R.string.game_overlay_scaling_title, next.ordinal + 1),
+                appContext.getString(R.string.game_overlay_scaling_title, modes.indexOf(next) + 1),
                 appContext.getString(next.labelRes),
-                next.ordinal,
+                modes.indexOf(next),
                 modes.size,
             )
     }

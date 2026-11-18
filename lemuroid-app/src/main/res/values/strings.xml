@@ -314,7 +314,8 @@
     <string name="game_filter_lcd">LCD</string>
     <string name="game_scaling_fit">Fit</string>
     <string name="game_scaling_integer">Integer</string>
-    <string name="game_scaling_integer_smaller">Integer −1</string>
+    <string name="game_scaling_pixel_perfect">Pixel-perfect</string>
+    <string name="game_scaling_fine_integer">Fine integer</string>
     <string name="game_scaling_stretch">Stretch to fill</string>
     <string name="game_button_states">Save state</string>
     <string name="games_view_list">List view</string>
