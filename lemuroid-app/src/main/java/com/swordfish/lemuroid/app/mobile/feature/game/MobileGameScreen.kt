@@ -67,6 +67,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -92,6 +94,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.CenterCard
 import com.swordfish.lemuroid.app.shared.game.BaseGameScreenViewModel
 import com.swordfish.lemuroid.app.shared.game.GameDisplayOptions
+import com.swordfish.lemuroid.app.shared.game.GameShellSkin
 import com.swordfish.lemuroid.app.shared.game.GameShortcutsSetting
 import com.swordfish.lemuroid.app.shared.game.PadSkinSetting
 import com.swordfish.lemuroid.app.shared.game.viewmodel.GameViewModelTouchControls.Companion.MENU_LOADING_ANIMATION_MILLIS
@@ -208,6 +211,9 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
             val fullPos = fullScreenPosition.value
             val viewPos = viewportPosition.value
             val scaling = viewModel.getScaling().collectAsState().value
+            // Where the picture is, as fractions of the screen (for the shell skins).
+            val pictureRect = remember { mutableStateOf<RectF?>(null) }
+            ShellSkinOverlay(look = viewModel.getLook().collectAsState().value, picture = pictureRect.value)
 
             LaunchedEffect(fullPos, viewPos, scaling) {
                 val gameView = viewModel.retroGameView.retroGameViewFlow()
@@ -228,6 +234,7 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                         fullPos.height,
                         area,
                     )
+                pictureRect.value = RectF(gameView.viewport)
             }
 
             ConstraintLayout(
@@ -483,15 +490,35 @@ private fun ShortcutButtons(viewModel: BaseGameScreenViewModel) {
 /** Immersive mode (soft glow of the game's colors around the picture) on and off; yellow while on. */
 @Composable
 private fun ImmersiveButton(viewModel: BaseGameScreenViewModel) {
-    val enabled = viewModel.isImmersiveEnabled().collectAsState().value
+    val look = viewModel.getLook().collectAsState().value
+    val shell = GameShellSkin.shellFor(look)
     val label = stringResource(com.swordfish.lemuroid.R.string.game_menu_immersive_mode)
-    OverlayButton(active = enabled, label = label, onClick = { viewModel.toggleImmersive() }) {
-        Icon(
-            modifier = Modifier.size(LocalOverlayButtonSize.current * 0.5f),
-            imageVector = Icons.Outlined.BlurOn,
-            contentDescription = label,
-            tint = if (enabled) FAST_FORWARD_ACTIVE_COLOR else Color.White,
-        )
+    OverlayButton(active = look != GameShellSkin.OFF, label = label, onClick = { viewModel.toggleImmersive() }) {
+        if (shell == null) {
+            Icon(
+                modifier = Modifier.size(LocalOverlayButtonSize.current * 0.5f),
+                imageVector = Icons.Outlined.BlurOn,
+                contentDescription = label,
+                tint = if (look == GameShellSkin.GLOW) FAST_FORWARD_ACTIVE_COLOR else Color.White,
+            )
+        } else {
+            // A tiny shell in the skin's colour, with its dark screen.
+            Canvas(modifier = Modifier.size(LocalOverlayButtonSize.current * 0.5f)) {
+                val w = size.width * 0.62f
+                val h = size.height * 0.9f
+                val left = (size.width - w) / 2f
+                val top = (size.height - h) / 2f
+                val corner = CornerRadius(w * 0.18f)
+                drawRoundRect(Color(shell.color), Offset(left, top), Size(w, h), corner)
+                drawRoundRect(Color.White, Offset(left, top), Size(w, h), corner, style = Stroke(1.5.dp.toPx()))
+                drawRoundRect(
+                    Color(shell.bezel),
+                    Offset(left + w * 0.18f, top + h * 0.14f),
+                    Size(w * 0.64f, h * 0.36f),
+                    CornerRadius(1.dp.toPx()),
+                )
+            }
+        }
     }
 }
 
@@ -607,7 +634,14 @@ private fun GameOverlayCard(
 
     AnimatedVisibility(modifier = modifier, visible = visibleCard != null, enter = fadeIn(), exit = fadeOut()) {
         if (shown == null) return@AnimatedVisibility
-        CenterCard(title = shown.title, value = shown.value, index = shown.index, count = shown.count, hint = shown.hint)
+        CenterCard(
+            title = shown.title,
+            value = shown.value,
+            index = shown.index,
+            count = shown.count,
+            hint = shown.hint,
+            swatch = shown.swatch?.let { Color(it) },
+        )
     }
 }
 
@@ -868,3 +902,43 @@ private fun MenuEditTouchControlRow(
         slider()
     }
 }
+
+/**
+ * Shell skin: a flat colour over the whole screen except the picture, with a dark bezel round it.
+ * Drawn over the game view and under the touch controls and shortcuts; it takes no touches.
+ */
+@Composable
+private fun ShellSkinOverlay(
+    look: Int,
+    picture: RectF?,
+) {
+    val shell = GameShellSkin.shellFor(look) ?: return
+    if (picture == null) return
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        val l = picture.left * size.width
+        val t = picture.top * size.height
+        val r = picture.right * size.width
+        val b = picture.bottom * size.height
+        val bezel = SHELL_BEZEL.toPx()
+        val outer = androidx.compose.ui.geometry.RoundRect(
+            l - bezel, t - bezel, r + bezel, b + bezel, CornerRadius(SHELL_BEZEL_CORNER.toPx()),
+        )
+        val shellPath =
+            Path().apply {
+                fillType = PathFillType.EvenOdd
+                addRect(androidx.compose.ui.geometry.Rect(0f, 0f, size.width, size.height))
+                addRoundRect(outer)
+            }
+        drawPath(shellPath, Color(shell.color))
+        val bezelPath =
+            Path().apply {
+                fillType = PathFillType.EvenOdd
+                addRoundRect(outer)
+                addRect(androidx.compose.ui.geometry.Rect(l, t, r, b))
+            }
+        drawPath(bezelPath, Color(shell.bezel))
+    }
+}
+
+private val SHELL_BEZEL = 10.dp
+private val SHELL_BEZEL_CORNER = 10.dp

@@ -49,6 +49,7 @@ fun CenterCard(
     index: Int = 0,
     count: Int = 0,
     hint: String? = null,
+    swatch: Color? = null,
 ) {
     Column(
         modifier =
@@ -66,13 +67,25 @@ fun CenterCard(
             letterSpacing = 1.2.sp,
             textAlign = TextAlign.Center,
         )
-        Text(
-            text = value,
-            color = Color.White,
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (swatch != null) {
+                Box(
+                    modifier =
+                        Modifier
+                            .padding(end = 8.dp)
+                            .size(width = 16.dp, height = 22.dp)
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(swatch),
+                )
+            }
+            Text(
+                text = value,
+                color = Color.White,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+            )
+        }
         if (hint != null) {
             Text(
                 modifier = Modifier.padding(top = 4.dp),

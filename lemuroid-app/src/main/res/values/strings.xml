@@ -343,6 +343,15 @@
 
     <string name="game_menu_color_correction">Color correction</string>
     <string name="game_menu_immersive_mode">Immersive mode</string>
+    <string name="game_overlay_skin_title">Skin %1$d of %2$d</string>
+    <string name="game_skin_off">Off</string>
+    <string name="game_skin_glow">Glow</string>
+    <string name="game_skin_teal">Teal</string>
+    <string name="game_skin_purple">Purple</string>
+    <string name="game_skin_yellow">Yellow</string>
+    <string name="game_skin_berry">Berry</string>
+    <string name="game_skin_light_grey">Light grey</string>
+    <string name="game_skin_dark_grey">Dark grey</string>
     <string name="game_menu_on">On</string>
     <string name="game_menu_off">Off</string>
     <string name="settings_title_pastel_tiles">Soft tile colors</string>

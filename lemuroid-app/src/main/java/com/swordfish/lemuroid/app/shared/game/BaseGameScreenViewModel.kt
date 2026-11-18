@@ -356,20 +356,31 @@ class BaseGameScreenViewModel(
 
     fun areStatesSupported(): Boolean = systemCoreConfig.statesSupported
 
-    private val immersiveState = MutableStateFlow(GameImmersiveMode.isEnabled(appContext, game))
+    private val lookState = MutableStateFlow(GameShellSkin.load(appContext, game))
+
+    private val immersiveState = MutableStateFlow(lookState.value == GameShellSkin.GLOW)
 
     fun isImmersiveEnabled(): StateFlow<Boolean> = immersiveState
 
-    /** Immersive mode on/off for this game; applies at once and is remembered for the game. */
+    /** The look around the picture: Off, Glow, or a shell colour (see [GameShellSkin]). */
+    fun getLook(): StateFlow<Int> = lookState
+
+    /** Next look for this game: Off, Glow, Teal, ...; applies at once and is remembered for the game. */
     fun toggleImmersive() {
-        val enabled = !immersiveState.value
-        immersiveState.value = enabled
-        retroGameView.retroGameView?.immersiveModeEnabled = enabled
-        GameImmersiveMode.set(appContext, game, enabled)
-        showCard(
-            appContext.getString(R.string.game_menu_immersive_mode),
-            appContext.getString(if (enabled) R.string.game_menu_on else R.string.game_menu_off),
-        )
+        val next = (lookState.value + 1) % GameShellSkin.count
+        lookState.value = next
+        val glow = next == GameShellSkin.GLOW
+        immersiveState.value = glow
+        retroGameView.retroGameView?.immersiveModeEnabled = glow
+        GameShellSkin.save(appContext, game, next)
+        overlayCardState.value =
+            OverlayCard(
+                appContext.getString(R.string.game_overlay_skin_title, next + 1, GameShellSkin.count),
+                appContext.getString(GameShellSkin.nameRes(next)),
+                next,
+                GameShellSkin.count,
+                swatch = GameShellSkin.shellFor(next)?.color,
+            )
     }
 
     /** Opens the in-game menu, the same one as the L1+R1 / menu shortcut. */
@@ -386,6 +397,8 @@ class BaseGameScreenViewModel(
         val count: Int,
         val id: Long = System.nanoTime(),
         val hint: String? = null,
+        // A small colour sample next to the value (skins).
+        val swatch: Long? = null,
     )
 
     private val overlayCardState = MutableStateFlow<OverlayCard?>(null)
