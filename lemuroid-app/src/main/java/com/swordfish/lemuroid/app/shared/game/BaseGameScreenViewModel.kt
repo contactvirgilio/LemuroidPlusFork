@@ -365,6 +365,8 @@ class BaseGameScreenViewModel(
     /** Shape of the game picture (width / height), or null when it varies (arcade). */
     fun pictureAspectRatio(): Float? =
         com.swordfish.lemuroid.app.shared.game.viewmodel.GamePreviewCropper.aspectRatioFor(system.id)
+            // Arcade can be horizontal or vertical, but Neo Geo and CPS3 games are all 4:3.
+            ?: if (NeoGeoSets.isNeoGeo(game.fileName) || CpsSets.generation(game.fileName) == 3) 4f / 3f else null
 
     /** The look around the picture: Off, Glow, or a shell colour (see [GameShellSkin]). */
     fun getLook(): StateFlow<Int> = lookState
