@@ -754,8 +754,8 @@ private fun FastForwardButton(viewModel: BaseGameScreenViewModel) {
 
 private const val OVERLAY_BUTTONS_IDLE_MILLIS = 4_000L
 private const val TOUCH_CONTROL_CHECK_MILLIS = 80L
-private const val AUTO_SAVE_FLASH_MILLIS = 4_000L
-private const val AUTO_SAVE_PULSE_MILLIS = 500
+private const val AUTO_SAVE_FLASH_MILLIS = 8_000L
+private const val AUTO_SAVE_PULSE_MILLIS = 700
 
 /** Fade of the shortcut row when idle; each button applies it, so one can stay solid. */
 private val LocalOverlayAlpha = compositionLocalOf { 1f }
