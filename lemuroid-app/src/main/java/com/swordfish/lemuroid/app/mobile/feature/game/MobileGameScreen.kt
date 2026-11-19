@@ -1,5 +1,10 @@
 package com.swordfish.lemuroid.app.mobile.feature.game
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.Animatable
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.slideOutHorizontally
@@ -427,11 +432,15 @@ private fun GameOverlayButtons(
     // Nested: the grid button never moves. Tapped, it turns yellow and the shortcuts slide out to
     // its left; tapping it again while open does nothing (no double-tap surprises). They slide
     // back in after the idle time.
-    val fade = tween<Float>(durationMillis = NEST_FADE_MILLIS)
     // Smooth open/close: the shortcuts fade while drifting a short way from the grid button.
     // No clipping or growing box (that made them look cut off at an edge).
     val glideFade = tween<Float>(durationMillis = NEST_GLIDE_MILLIS, easing = FastOutSlowInEasing)
     val glide = tween<IntOffset>(durationMillis = NEST_GLIDE_MILLIS, easing = FastOutSlowInEasing)
+    // Single buttons that pop out by the grid (save, fast forward, speaker): they fade while the
+    // space for them opens or closes smoothly, so the others glide aside instead of jumping.
+    val room = tween<IntSize>(durationMillis = NEST_GLIDE_MILLIS, easing = FastOutSlowInEasing)
+    val popIn = fadeIn(glideFade) + expandHorizontally(room, expandFrom = Alignment.End, clip = false)
+    val popOut = fadeOut(glideFade) + shrinkHorizontally(room, shrinkTowards = Alignment.End, clip = false)
     // Room for every shortcut plus the grid button.
     val openRowSize = openWithHub.coerceAtLeast(24.dp)
     // Fixed height: the shortcuts can be taller than the grid button, and a row that grows when
@@ -457,8 +466,8 @@ private fun GameOverlayButtons(
         }
         AnimatedVisibility(
             visible = saveFlash != null && !open && viewModel.areStatesSupported(),
-            enter = fadeIn(fade),
-            exit = fadeOut(fade),
+            enter = popIn,
+            exit = popOut,
         ) {
             // Keeps the last colour while fading out.
             var lastFlash by remember { mutableStateOf(FAST_FORWARD_ACTIVE_COLOR) }
@@ -471,8 +480,8 @@ private fun GameOverlayButtons(
         val fastForwardOn = viewModel.isFastForwardEnabled().collectAsState(false).value
         AnimatedVisibility(
             visible = fastForwardOn && !open,
-            enter = fadeIn(fade),
-            exit = fadeOut(fade),
+            enter = popIn,
+            exit = popOut,
         ) {
             CompositionLocalProvider(LocalOverlayButtonSize provides openSize) {
                 FastForwardButton(viewModel)
@@ -480,8 +489,8 @@ private fun GameOverlayButtons(
         }
         AnimatedVisibility(
             visible = peekMute && !open,
-            enter = fadeIn(fade),
-            exit = fadeOut(fade),
+            enter = popIn,
+            exit = popOut,
         ) {
             CompositionLocalProvider(LocalOverlayButtonSize provides openSize) {
                 MuteButton(viewModel)
@@ -489,13 +498,23 @@ private fun GameOverlayButtons(
         }
         val label = stringResource(com.swordfish.lemuroid.R.string.game_button_shortcuts)
         CompositionLocalProvider(LocalOverlayButtonSize provides OVERLAY_BUTTON_SIZE_HUB) {
-            Box(modifier = Modifier.alpha(if (peekMute || open) 1f else alpha)) {
+            val hubAlpha by animateFloatAsState(
+                if (peekMute || open) 1f else alpha,
+                tween(NEST_GLIDE_MILLIS, easing = FastOutSlowInEasing),
+                label = "hubAlpha",
+            )
+            val gridTint by animateColorAsState(
+                if (open) GRID_OPEN_COLOR else Color.White,
+                tween(NEST_GLIDE_MILLIS, easing = FastOutSlowInEasing),
+                label = "gridTint",
+            )
+            Box(modifier = Modifier.alpha(hubAlpha)) {
                 OverlayButton(active = open, label = label, onClick = { if (!open) open = true }) {
                     Icon(
                         modifier = Modifier.size(OVERLAY_ICON_SIZE + 3.dp),
                         imageVector = Icons.Filled.Apps,
                         contentDescription = label,
-                        tint = if (open) GRID_OPEN_COLOR else Color.White,
+                        tint = gridTint,
                     )
                 }
             }
@@ -719,7 +738,10 @@ private fun StatesButton(viewModel: BaseGameScreenViewModel) {
         } else {
             null
         }
-    CompositionLocalProvider(LocalOverlayAlpha provides (pulse ?: LocalOverlayAlpha.current)) {
+    // After the pulse, ease back to the row's fade instead of jumping.
+    val base = LocalOverlayAlpha.current
+    val solid by animateFloatAsState(if (flash != null) 1f else 0f, tween(NEST_GLIDE_MILLIS, easing = FastOutSlowInEasing), label = "saveSolid")
+    CompositionLocalProvider(LocalOverlayAlpha provides (pulse ?: (base + (1f - base) * solid))) {
         StatesButtonBody(viewModel, label, flash)
     }
 }
@@ -730,16 +752,25 @@ private fun StatesButtonBody(
     label: String,
     flash: Color?,
 ) {
+    // Tapped: the icon turns yellow and fades back to white, so the save is confirmed.
+    val pressTint = remember { Animatable(Color.White) }
+    val scope = rememberCoroutineScope()
     OverlayButton(
         active = false,
         label = label,
-        onClick = { viewModel.quickSaveToNextSlot() },
+        onClick = {
+            viewModel.quickSaveToNextSlot()
+            scope.launch {
+                pressTint.snapTo(FAST_FORWARD_ACTIVE_COLOR)
+                pressTint.animateTo(Color.White, tween(SAVE_PRESS_FADE_MILLIS, easing = FastOutSlowInEasing))
+            }
+        },
     ) {
         Icon(
             modifier = Modifier.size(LocalOverlayButtonSize.current * 0.5f),
             imageVector = Icons.Outlined.Save,
             contentDescription = label,
-            tint = flash ?: Color.White,
+            tint = flash ?: pressTint.value,
         )
     }
 }
@@ -766,8 +797,10 @@ private fun FastForwardButton(viewModel: BaseGameScreenViewModel) {
     val enabled = viewModel.isFastForwardEnabled().collectAsState(false).value
     val label = stringResource(com.swordfish.lemuroid.R.string.game_menu_fast_forward)
 
-    // While on it doesn't fade with the others: it stays solid until turned off.
-    CompositionLocalProvider(LocalOverlayAlpha provides if (enabled) 1f else LocalOverlayAlpha.current) {
+    // While on it doesn't fade with the others: it stays solid until turned off (eased both ways).
+    val base = LocalOverlayAlpha.current
+    val solid by animateFloatAsState(if (enabled) 1f else 0f, tween(NEST_GLIDE_MILLIS, easing = FastOutSlowInEasing), label = "ffSolid")
+    CompositionLocalProvider(LocalOverlayAlpha provides base + (1f - base) * solid) {
         FastForwardButtonBody(viewModel, enabled, label)
     }
 }
@@ -805,6 +838,7 @@ private val LocalSaveFlash = compositionLocalOf<Color?> { null }
 /** Touches only wake the shortcuts in this top part of the screen (owner: about the top 30%). */
 private const val TOUCH_WAKE_TOP_FRACTION = 0.30f
 private const val NEST_GLIDE_MILLIS = 320
+private const val SAVE_PRESS_FADE_MILLIS = 700
 private const val NEST_FADE_MILLIS = 220
 
 // Padding around the shortcut row (8 dp each side) plus a little room.
