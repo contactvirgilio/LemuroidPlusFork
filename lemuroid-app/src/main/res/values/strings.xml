@@ -402,7 +402,9 @@
     <string name="cartridge_color_save">Save</string>
     <string name="cartridge_color_cancel">Cancel</string>
     <string name="game_button_shortcuts">Shortcuts</string>
-    <string name="settings_title_nested_shortcuts">Nested game shortcuts</string>
+    <string name="settings_title_nested_shortcuts">Game shortcuts</string>
+    <string name="settings_shortcuts_row">Always shown</string>
+    <string name="settings_shortcuts_nested">Behind one button</string>
     <string name="game_menu_state_latest">Latest</string>
     <string name="game_menu_state_auto">Auto</string>
     <string name="game_menu_state_auto_title">Auto-save</string>

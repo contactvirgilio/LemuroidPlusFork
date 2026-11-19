@@ -1,5 +1,15 @@
 package com.swordfish.lemuroid.app.mobile.feature.settings.general
 
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.material.icons.outlined.VolumeUp
+import androidx.compose.material.icons.outlined.FastForward
+import androidx.compose.material.icons.outlined.Save
+import androidx.compose.material.icons.outlined.BlurOn
+import androidx.compose.material.icons.outlined.Crop
+import androidx.compose.material.icons.outlined.Tv
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.Icons
 import androidx.compose.foundation.layout.height
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.layout.ContentScale
@@ -222,6 +232,83 @@ private fun DrawScope.drawOutlinePad() {
     drawPath(plus, line, style = stroke)
     drawCircle(line, radius = size.height * 0.12f, center = Offset(size.width * 0.68f, size.height * 0.62f), style = stroke)
     drawCircle(line, radius = size.height * 0.12f, center = Offset(size.width * 0.84f, size.height * 0.42f), style = stroke)
+}
+
+/** In-game shortcuts: always in a row, or behind one grid button. Each card is a tiny game screen. */
+@Composable
+fun ShortcutsPicker(
+    nested: Boolean,
+    onPick: (Boolean) -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
+        Text(
+            text = stringResource(R.string.settings_title_nested_shortcuts),
+            style = MaterialTheme.typography.titleMedium,
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            val card = Modifier.fillMaxWidth().height(84.dp)
+            Box(modifier = Modifier.weight(1f)) {
+                ChoiceCard(!nested, stringResource(R.string.settings_shortcuts_row), { onPick(false) }, card) {
+                    MiniGameScreen {
+                        Row(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                            ROW_ICONS.forEach { MiniShortcut(it) }
+                        }
+                    }
+                }
+            }
+            Box(modifier = Modifier.weight(1f)) {
+                ChoiceCard(nested, stringResource(R.string.settings_shortcuts_nested), { onPick(true) }, card) {
+                    MiniGameScreen { MiniShortcut(Icons.Filled.Apps) }
+                }
+            }
+        }
+    }
+}
+
+private val ROW_ICONS =
+    listOf(
+        Icons.Outlined.Tv,
+        Icons.Outlined.Crop,
+        Icons.Outlined.BlurOn,
+        Icons.Outlined.Save,
+        Icons.Outlined.FastForward,
+        Icons.Outlined.VolumeUp,
+        Icons.Filled.Settings,
+    )
+
+/** A tiny game screen: dark grey picture with the shortcuts at the top right. */
+@Composable
+private fun MiniGameScreen(shortcuts: @Composable () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize().padding(6.dp)) {
+        Box(
+            modifier =
+                Modifier
+                    .align(Alignment.Center)
+                    .padding(top = 12.dp)
+                    .fillMaxWidth(0.62f)
+                    .fillMaxHeight(0.7f)
+                    .background(Color(0xFF5F5E5A), RoundedCornerShape(2.dp)),
+        )
+        Box(modifier = Modifier.align(Alignment.TopEnd)) { shortcuts() }
+    }
+}
+
+@Composable
+private fun MiniShortcut(icon: androidx.compose.ui.graphics.vector.ImageVector) {
+    Box(
+        modifier = Modifier.size(12.dp).background(Color(0xFF2C2C2A), androidx.compose.foundation.shape.CircleShape),
+        contentAlignment = Alignment.Center,
+    ) {
+        androidx.compose.material3.Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = Color.White,
+            modifier = Modifier.size(8.dp),
+        )
+    }
 }
 
 private val PREVIEW_SYSTEMS = listOf(SystemID.SNES, SystemID.GBA, SystemID.GENESIS, SystemID.PSX, SystemID.GB, SystemID.N64)

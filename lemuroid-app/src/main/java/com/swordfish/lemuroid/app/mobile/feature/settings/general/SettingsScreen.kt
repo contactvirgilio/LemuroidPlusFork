@@ -216,11 +216,8 @@ private fun GeneralSettings() {
                 subtitle = { Text(text = stringResource(id = R.string.settings_description_vertical_bar)) },
             )
         }
-        LemuroidSettingsSwitch(
-            state = booleanPreferenceState(GameShortcutsSetting.KEY, GameShortcutsSetting.defaultNested(LocalContext.current)),
-            title = { Text(text = stringResource(id = R.string.settings_title_nested_shortcuts)) },
-            subtitle = { Text(text = stringResource(id = R.string.settings_description_nested_shortcuts)) },
-        )
+        val nestedShortcuts = booleanPreferenceState(GameShortcutsSetting.KEY, GameShortcutsSetting.defaultNested(LocalContext.current))
+        ShortcutsPicker(nested = nestedShortcuts.value, onPick = { nestedShortcuts.value = it })
         val shellSkins = booleanPreferenceState(GameShellSkin.SETTING_KEY, false)
         LemuroidSettingsSwitch(
             state = shellSkins,
