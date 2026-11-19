@@ -153,6 +153,103 @@ index 2ec15cf..54db3e1 100644
 +}
 +
  }
+diff --git a/libretrodroid/src/main/cpp/shadermanager.cpp b/libretrodroid/src/main/cpp/shadermanager.cpp
+index b853a6a..22ab6ac 100644
+--- a/libretrodroid/src/main/cpp/shadermanager.cpp
++++ b/libretrodroid/src/main/cpp/shadermanager.cpp
+@@ -125,6 +125,58 @@ const std::string ShaderManager::lcdShaderFragment =
+     "  gl_FragColor = vec4(mix(texel, mix(pixelLow, pixelHigh, mask), screenMaskStrength), 1.0);\n"
+     "}\n";
+ 
++// Lemuroid Plus: MiSTer-style scanlines. Sharp pixels, then the lower half of every game row is
++// darkened by SCAN_STRENGTH (edges anti-aliased over one screen pixel, so they are crisp and even
++// with integer scaling). Lit rows get a small SCAN_BOOST to keep the brightness. Below about 2.5
++// screen rows per game row the lines fade out (they would flicker). USE_MASK adds an aperture
++// grille: every third screen column keeps one of red, green or blue at full strength.
++const std::unordered_map<std::string, std::string> ShaderManager::scanlinesParams = {
++    { "SCAN_STRENGTH", "0.5" },
++    { "SCAN_BOOST", "0.2" },
++    { "USE_MASK", "0" },
++    { "MASK_STRENGTH", "0.25" },
++};
++
++const std::string ShaderManager::scanlinesFragment =
++    "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
++    "#define HIGHP highp\n"
++    "#else\n"
++    "#define HIGHP mediump\n"
++    "#endif\n"
++    "\n"
++    "precision mediump float;\n"
++    "uniform lowp sampler2D texture;\n"
++    "uniform HIGHP vec2 textureSize;\n"
++    "uniform mediump float screenDensity;\n"
++    "\n"
++    "varying HIGHP vec2 coords;\n"
++    "varying HIGHP vec2 screenCoords;\n"
++    "\n"
++    "void main() {\n"
++    "  mediump float w = 1.0 / screenDensity;\n"
++    "  mediump vec2 x = fract(screenCoords);\n"
++    "  mediump vec2 sx = 0.5 * (smoothstep(vec2(0.0), vec2(w), x) + smoothstep(vec2(1.0 - w), vec2(1.0), x));\n"
++    "  mediump vec2 sharpCoords = (floor(screenCoords) + sx) / textureSize;\n"
++    "  lowp vec3 rgb = texture2D(texture, sharpCoords).rgb;\n"
++    "\n"
++    "  mediump float fade = smoothstep(1.75, 2.75, screenDensity);\n"
++    "  mediump float dark = smoothstep(0.5 - 0.5 * w, 0.5 + 0.5 * w, x.y);\n"
++    "  lowp vec3 lit = min(rgb * (1.0 + SCAN_BOOST * fade), vec3(1.0));\n"
++    "  lowp vec3 dim = rgb * (1.0 - SCAN_STRENGTH * fade);\n"
++    "  lowp vec3 color = mix(lit, dim, dark);\n"
++    "\n"
++    "#if USE_MASK\n"
++    "  mediump float column = mod(floor(gl_FragCoord.x), 3.0);\n"
++    "  lowp vec3 mask = vec3(1.0 - MASK_STRENGTH);\n"
++    "  if (column < 0.5) mask.r = 1.0;\n"
++    "  else if (column < 1.5) mask.g = 1.0;\n"
++    "  else mask.b = 1.0;\n"
++    "  color = min(color * mask * (1.0 + 0.5 * MASK_STRENGTH), vec3(1.0));\n"
++    "#endif\n"
++    "\n"
++    "  gl_FragColor = vec4(color, 1.0);\n"
++    "}\n";
++
+ const std::string ShaderManager::defaultSharpFragment =
+     "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+     "#define HIGHP highp\n"
+@@ -1545,6 +1597,11 @@ ShaderManager::Chain ShaderManager::getShader(const ShaderManager::Config& confi
+         return { { { defaultShaderVertex, defaultSharpFragment, true, 1.0 } }, true };
+     }
+ 
++    case Type::SHADER_SCANLINES: {
++        std::string defines = buildDefines(scanlinesParams, config.params);
++        return { { { defines + defaultShaderVertex, defines + scanlinesFragment, true, 1.0 } }, true };
++    }
++
+     case Type::SHADER_UPSCALE_CUT: {
+         std::string defines = buildDefines(cutUpscaleParams, config.params);
+         return { { {
+diff --git a/libretrodroid/src/main/cpp/shadermanager.h b/libretrodroid/src/main/cpp/shadermanager.h
+index 4407e8b..19f2e3d 100644
+--- a/libretrodroid/src/main/cpp/shadermanager.h
++++ b/libretrodroid/src/main/cpp/shadermanager.h
+@@ -51,6 +51,7 @@ public:
+         SHADER_UPSCALE_CUT = 4,
+         SHADER_UPSCALE_CUT2 = 5,
+         SHADER_UPSCALE_CUT3 = 6,
++        SHADER_SCANLINES = 7,
+     };
+ 
+     struct Config {
+@@ -70,6 +71,9 @@ private:
+     static const std::string crtShaderFragment;
+     static const std::string lcdShaderFragment;
+ 
++    static const std::unordered_map<std::string, std::string> scanlinesParams;
++    static const std::string scanlinesFragment;
++
+     static const std::unordered_map<std::string, std::string> cutUpscaleParams;
+     static const std::string cutUpscaleVertex;
+     static const std::string cutUpscaleFragment;
 diff --git a/libretrodroid/src/main/cpp/video.cpp b/libretrodroid/src/main/cpp/video.cpp
 index a75dbaf..eff241c 100644
 --- a/libretrodroid/src/main/cpp/video.cpp
@@ -234,7 +331,7 @@ index e567388..5f4fc9b 100644
  
      void updateForegroundVertices();
 diff --git a/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt b/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt
-index 7eb8602..bc05e53 100644
+index 7eb8602..712ea3b 100644
 --- a/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt
 +++ b/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt
 @@ -71,6 +71,16 @@ class GLRetroView(
@@ -254,11 +351,40 @@ index 7eb8602..bc05e53 100644
      private val openGLESVersion: Int
  
      private var isGameLoaded = false
+@@ -413,6 +423,15 @@ class GLRetroView(
+             is ShaderConfig.CRT -> GLRetroShader(LibretroDroid.SHADER_CRT)
+             is ShaderConfig.LCD -> GLRetroShader(LibretroDroid.SHADER_LCD)
+             is ShaderConfig.Sharp -> GLRetroShader(LibretroDroid.SHADER_SHARP)
++            is ShaderConfig.Scanlines -> GLRetroShader(
++                LibretroDroid.SHADER_SCANLINES,
++                mapOf(
++                    LibretroDroid.SHADER_SCANLINES_PARAM_STRENGTH to toParam(config.strength),
++                    LibretroDroid.SHADER_SCANLINES_PARAM_BOOST to toParam(config.boost),
++                    LibretroDroid.SHADER_SCANLINES_PARAM_USE_MASK to toParam(config.mask),
++                    LibretroDroid.SHADER_SCANLINES_PARAM_MASK_STRENGTH to toParam(config.maskStrength),
++                )
++            )
+             is ShaderConfig.CUT -> GLRetroShader(
+                 LibretroDroid.SHADER_UPSCALE_CUT,
+                 buildParams(
 diff --git a/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java b/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java
-index 50eafa1..b2dd586 100644
+index 50eafa1..c9a921b 100644
 --- a/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java
 +++ b/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java
-@@ -139,6 +139,17 @@ public class LibretroDroid {
+@@ -37,6 +37,12 @@ public class LibretroDroid {
+     public static final int SHADER_UPSCALE_CUT = 4;
+     public static final int SHADER_UPSCALE_CUT2 = 5;
+     public static final int SHADER_UPSCALE_CUT3 = 6;
++    public static final int SHADER_SCANLINES = 7;
++
++    public static final String SHADER_SCANLINES_PARAM_STRENGTH = "SCAN_STRENGTH";
++    public static final String SHADER_SCANLINES_PARAM_BOOST = "SCAN_BOOST";
++    public static final String SHADER_SCANLINES_PARAM_USE_MASK = "USE_MASK";
++    public static final String SHADER_SCANLINES_PARAM_MASK_STRENGTH = "MASK_STRENGTH";
+ 
+     public static final String SHADER_UPSCALE_CUT_PARAM_USE_DYNAMIC_BLEND = "USE_DYNAMIC_BLEND";
+     public static final String SHADER_UPSCALE_CUT_PARAM_BLEND_MIN_CONTRAST_EDGE = "BLEND_MIN_CONTRAST_EDGE";
+@@ -139,6 +145,17 @@ public class LibretroDroid {
  
      public static native void refreshAspectRatio();
  
@@ -276,3 +402,22 @@ index 50eafa1..b2dd586 100644
      public static native Controller[][] getControllers();
      public static native void setControllerType(int port, int type);
  }
+diff --git a/libretrodroid/src/main/java/com/swordfish/libretrodroid/ShaderConfig.kt b/libretrodroid/src/main/java/com/swordfish/libretrodroid/ShaderConfig.kt
+index 5bf4514..6aff166 100644
+--- a/libretrodroid/src/main/java/com/swordfish/libretrodroid/ShaderConfig.kt
++++ b/libretrodroid/src/main/java/com/swordfish/libretrodroid/ShaderConfig.kt
+@@ -24,6 +24,14 @@ sealed interface ShaderConfig {
+     object LCD : ShaderConfig
+     object Sharp : ShaderConfig
+ 
++    /** Lemuroid Plus: MiSTer-style scanlines (strength 0-1), with an optional RGB aperture-grille mask. */
++    data class Scanlines(
++        val strength: Float = 0.5f,
++        val boost: Float = 0.2f,
++        val mask: Boolean = false,
++        val maskStrength: Float = 0.25f,
++    ) : ShaderConfig
++
+     data class CUT(
+         val useDynamicBlend: Boolean = true,
+         val blendMinContrastEdge: Float = 0.0f,
