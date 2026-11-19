@@ -28,11 +28,11 @@ class GameDisplayOptions(
         CRT(R.string.game_filter_crt, ShaderConfig.CRT),
         LCD(R.string.game_filter_lcd, ShaderConfig.LCD),
 
-        // MiSTer-style scanlines: darkest with integer scaling (Fine integer / Pixel-perfect).
-        SCAN_25(R.string.game_filter_scan_25, ShaderConfig.Scanlines(strength = 0.25f, boost = 0.08f)),
-        SCAN_50(R.string.game_filter_scan_50, ShaderConfig.Scanlines(strength = 0.5f, boost = 0.18f)),
-        SCAN_75(R.string.game_filter_scan_75, ShaderConfig.Scanlines(strength = 0.75f, boost = 0.3f)),
-        SCAN_MASK(R.string.game_filter_scan_mask, ShaderConfig.Scanlines(strength = 0.5f, boost = 0.2f, mask = true)),
+        // CRT-style scanlines (soft beams); most even with integer scaling (Pixel-perfect).
+        SCAN_25(R.string.game_filter_scan_25, ShaderConfig.Scanlines(strength = 0.35f, boost = 0.06f)),
+        SCAN_50(R.string.game_filter_scan_50, ShaderConfig.Scanlines(strength = 0.6f, boost = 0.15f)),
+        SCAN_75(R.string.game_filter_scan_75, ShaderConfig.Scanlines(strength = 0.9f, boost = 0.3f)),
+        SCAN_MASK(R.string.game_filter_scan_mask, ShaderConfig.Scanlines(strength = 0.6f, boost = 0.18f, mask = true)),
         ;
 
         companion object {

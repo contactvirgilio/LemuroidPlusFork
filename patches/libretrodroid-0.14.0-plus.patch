@@ -154,23 +154,26 @@ index 2ec15cf..54db3e1 100644
 +
  }
 diff --git a/libretrodroid/src/main/cpp/shadermanager.cpp b/libretrodroid/src/main/cpp/shadermanager.cpp
-index b853a6a..22ab6ac 100644
+index b853a6a..e3fe3b0 100644
 --- a/libretrodroid/src/main/cpp/shadermanager.cpp
 +++ b/libretrodroid/src/main/cpp/shadermanager.cpp
-@@ -125,6 +125,58 @@ const std::string ShaderManager::lcdShaderFragment =
+@@ -125,6 +125,73 @@ const std::string ShaderManager::lcdShaderFragment =
      "  gl_FragColor = vec4(mix(texel, mix(pixelLow, pixelHigh, mask), screenMaskStrength), 1.0);\n"
      "}\n";
  
-+// Lemuroid Plus: MiSTer-style scanlines. Sharp pixels, then the lower half of every game row is
-+// darkened by SCAN_STRENGTH (edges anti-aliased over one screen pixel, so they are crisp and even
-+// with integer scaling). Lit rows get a small SCAN_BOOST to keep the brightness. Below about 2.5
-+// screen rows per game row the lines fade out (they would flicker). USE_MASK adds an aperture
-+// grille: every third screen column keeps one of red, green or blue at full strength.
++// Lemuroid Plus: CRT-style scanlines. Each game row is drawn as a soft beam of light: brightest
++// in the middle of the row, fading towards its edges, and wider for bright pixels (like a CRT).
++// SCAN_STRENGTH sets how dark the gaps between rows get. Every screen pixel averages the beam over
++// its own height (3 samples), so fractional scales (e.g. 3.5x) stay smooth instead of stepping.
++// Pixels stay sharp across. Below about 2 screen rows per game row the lines fade out.
++// USE_MASK adds a soft aperture grille (every third screen column favours red, green or blue).
 +const std::unordered_map<std::string, std::string> ShaderManager::scanlinesParams = {
 +    { "SCAN_STRENGTH", "0.5" },
-+    { "SCAN_BOOST", "0.2" },
++    { "SCAN_BOOST", "0.1" },
++    { "BEAM_MIN", "0.14" },
++    { "BEAM_MAX", "0.28" },
 +    { "USE_MASK", "0" },
-+    { "MASK_STRENGTH", "0.25" },
++    { "MASK_STRENGTH", "0.2" },
 +};
 +
 +const std::string ShaderManager::scanlinesFragment =
@@ -188,18 +191,30 @@ index b853a6a..22ab6ac 100644
 +    "varying HIGHP vec2 coords;\n"
 +    "varying HIGHP vec2 screenCoords;\n"
 +    "\n"
-+    "void main() {\n"
-+    "  mediump float w = 1.0 / screenDensity;\n"
-+    "  mediump vec2 x = fract(screenCoords);\n"
-+    "  mediump vec2 sx = 0.5 * (smoothstep(vec2(0.0), vec2(w), x) + smoothstep(vec2(1.0 - w), vec2(1.0), x));\n"
-+    "  mediump vec2 sharpCoords = (floor(screenCoords) + sx) / textureSize;\n"
-+    "  lowp vec3 rgb = texture2D(texture, sharpCoords).rgb;\n"
++    "HIGHP float sharpX;\n"
 +    "\n"
-+    "  mediump float fade = smoothstep(1.75, 2.75, screenDensity);\n"
-+    "  mediump float dark = smoothstep(0.5 - 0.5 * w, 0.5 + 0.5 * w, x.y);\n"
-+    "  lowp vec3 lit = min(rgb * (1.0 + SCAN_BOOST * fade), vec3(1.0));\n"
-+    "  lowp vec3 dim = rgb * (1.0 - SCAN_STRENGTH * fade);\n"
-+    "  lowp vec3 color = mix(lit, dim, dark);\n"
++    "lowp vec3 beam(HIGHP float y) {\n"
++    "  HIGHP float row = floor(y);\n"
++    "  mediump float d = y - row - 0.5;\n"
++    "  lowp vec3 c = texture2D(texture, vec2(sharpX, (row + 0.5) / textureSize.y)).rgb;\n"
++    "  mediump float luma = dot(c, vec3(0.299, 0.587, 0.114));\n"
++    "  mediump float w = mix(BEAM_MIN, BEAM_MAX, luma);\n"
++    "  mediump float profile = exp(-(d * d) / (2.0 * w * w));\n"
++    "  return c * profile;\n"
++    "}\n"
++    "\n"
++    "void main() {\n"
++    "  mediump float px = 1.0 / screenDensity;\n"
++    "  mediump float fx = fract(screenCoords.x);\n"
++    "  mediump float sx = 0.5 * (smoothstep(0.0, px, fx) + smoothstep(1.0 - px, 1.0, fx));\n"
++    "  sharpX = (floor(screenCoords.x) + sx) / textureSize.x;\n"
++    "\n"
++    "  HIGHP float y = screenCoords.y;\n"
++    "  lowp vec3 beams = (beam(y - px / 3.0) + beam(y) + beam(y + px / 3.0)) / 3.0;\n"
++    "  lowp vec3 plain = texture2D(texture, vec2(sharpX, (floor(y) + 0.5) / textureSize.y)).rgb;\n"
++    "\n"
++    "  mediump float strength = SCAN_STRENGTH * smoothstep(1.5, 2.5, screenDensity);\n"
++    "  lowp vec3 color = mix(plain, beams, strength) * (1.0 + SCAN_BOOST * smoothstep(1.5, 2.5, screenDensity));\n"
 +    "\n"
 +    "#if USE_MASK\n"
 +    "  mediump float column = mod(floor(gl_FragCoord.x), 3.0);\n"
@@ -207,16 +222,16 @@ index b853a6a..22ab6ac 100644
 +    "  if (column < 0.5) mask.r = 1.0;\n"
 +    "  else if (column < 1.5) mask.g = 1.0;\n"
 +    "  else mask.b = 1.0;\n"
-+    "  color = min(color * mask * (1.0 + 0.5 * MASK_STRENGTH), vec3(1.0));\n"
++    "  color = color * mask * (1.0 + 0.5 * MASK_STRENGTH);\n"
 +    "#endif\n"
 +    "\n"
-+    "  gl_FragColor = vec4(color, 1.0);\n"
++    "  gl_FragColor = vec4(min(color, vec3(1.0)), 1.0);\n"
 +    "}\n";
 +
  const std::string ShaderManager::defaultSharpFragment =
      "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
      "#define HIGHP highp\n"
-@@ -1545,6 +1597,11 @@ ShaderManager::Chain ShaderManager::getShader(const ShaderManager::Config& confi
+@@ -1545,6 +1612,11 @@ ShaderManager::Chain ShaderManager::getShader(const ShaderManager::Config& confi
          return { { { defaultShaderVertex, defaultSharpFragment, true, 1.0 } }, true };
      }
  
@@ -403,7 +418,7 @@ index 50eafa1..c9a921b 100644
      public static native void setControllerType(int port, int type);
  }
 diff --git a/libretrodroid/src/main/java/com/swordfish/libretrodroid/ShaderConfig.kt b/libretrodroid/src/main/java/com/swordfish/libretrodroid/ShaderConfig.kt
-index 5bf4514..6aff166 100644
+index 5bf4514..cf891ec 100644
 --- a/libretrodroid/src/main/java/com/swordfish/libretrodroid/ShaderConfig.kt
 +++ b/libretrodroid/src/main/java/com/swordfish/libretrodroid/ShaderConfig.kt
 @@ -24,6 +24,14 @@ sealed interface ShaderConfig {
@@ -413,9 +428,9 @@ index 5bf4514..6aff166 100644
 +    /** Lemuroid Plus: MiSTer-style scanlines (strength 0-1), with an optional RGB aperture-grille mask. */
 +    data class Scanlines(
 +        val strength: Float = 0.5f,
-+        val boost: Float = 0.2f,
++        val boost: Float = 0.1f,
 +        val mask: Boolean = false,
-+        val maskStrength: Float = 0.25f,
++        val maskStrength: Float = 0.2f,
 +    ) : ShaderConfig
 +
      data class CUT(
