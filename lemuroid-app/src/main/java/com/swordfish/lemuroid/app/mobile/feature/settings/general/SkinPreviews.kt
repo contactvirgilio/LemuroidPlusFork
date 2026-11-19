@@ -28,6 +28,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.shared.game.GameShellSkin
+import com.swordfish.lemuroid.app.shared.tiles.SystemTileColors
+import com.swordfish.lemuroid.lib.library.SystemID
 
 /** The six shell colours as tiny shells, under the Shell skins switch; faded while it is off. */
 @Composable
@@ -149,6 +151,48 @@ private fun DrawScope.drawOutlinePad() {
     drawPath(plus, line, style = stroke)
     drawCircle(line, radius = size.height * 0.12f, center = Offset(size.width * 0.68f, size.height * 0.62f), style = stroke)
     drawCircle(line, radius = size.height * 0.12f, center = Offset(size.width * 0.84f, size.height * 0.42f), style = stroke)
+}
+
+/** Two little tile walls to pick normal or soft tile colors; the chosen one has a teal outline. */
+@Composable
+fun TileColorsPicker(
+    soft: Boolean,
+    onPick: (Boolean) -> Unit,
+) {
+    val normal = SystemTileColors.previewColors(false, PREVIEW_SYSTEMS)
+    val pastel = SystemTileColors.previewColors(true, PREVIEW_SYSTEMS)
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
+        Text(
+            text = stringResource(R.string.settings_title_pastel_tiles),
+            style = MaterialTheme.typography.titleMedium,
+        )
+        Row(
+            modifier = Modifier.padding(top = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            PadCard(selected = !soft, label = stringResource(R.string.settings_tiles_normal), onClick = { onPick(false) }) {
+                drawTileWall(normal)
+            }
+            PadCard(selected = soft, label = stringResource(R.string.settings_tiles_soft), onClick = { onPick(true) }) {
+                drawTileWall(pastel)
+            }
+        }
+    }
+}
+
+private val PREVIEW_SYSTEMS = listOf(SystemID.SNES, SystemID.GBA, SystemID.GENESIS, SystemID.PSX, SystemID.GB, SystemID.N64)
+
+private fun DrawScope.drawTileWall(colors: List<Int>) {
+    val cols = 3
+    val rows = 2
+    val gap = 6.dp.toPx()
+    val w = (size.width - gap * (cols + 1)) / cols
+    val h = (size.height - gap * (rows + 1)) / rows
+    colors.forEachIndexed { i, c ->
+        val x = gap + (i % cols) * (w + gap)
+        val y = gap + (i / cols) * (h + gap)
+        drawRoundRect(Color(c), Offset(x, y), Size(w, h), CornerRadius(5.dp.toPx()))
+    }
 }
 
 private val TEAL = Color(0xFF5DCAA5)

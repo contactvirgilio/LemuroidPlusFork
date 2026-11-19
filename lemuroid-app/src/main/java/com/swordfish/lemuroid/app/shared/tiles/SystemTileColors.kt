@@ -90,12 +90,21 @@ data class SystemTileColors(
 
         fun forSystemId(systemId: String): SystemTileColors {
             val key = if (pastelEnabled) "p:$systemId" else "n:$systemId"
-            return cache.getOrPut(key) { compute(systemId) }
+            return cache.getOrPut(key) { compute(systemId, pastelEnabled) }
         }
 
-        private fun compute(systemId: String): SystemTileColors {
+        /** Base colors for a few systems in either palette (the Settings preview). */
+        fun previewColors(
+            pastel: Boolean,
+            systems: List<SystemID>,
+        ): List<Int> = systems.map { compute(it.dbname, pastel).base }
+
+        private fun compute(
+            systemId: String,
+            pastel: Boolean,
+        ): SystemTileColors {
             val id = SystemID.values().firstOrNull { it.dbname == systemId } ?: return DEFAULT
-            if (pastelEnabled) {
+            if (pastel) {
                 PASTEL[id]?.let { return SystemTileColors(Color.parseColor(it)) }
             }
             val systemColor = MetaSystemID.fromSystemID(id).color()

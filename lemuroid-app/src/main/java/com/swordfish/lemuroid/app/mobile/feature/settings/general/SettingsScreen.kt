@@ -232,11 +232,13 @@ private fun GeneralSettings() {
             title = { Text(text = stringResource(id = R.string.settings_title_media_view)) },
             subtitle = { Text(text = stringResource(id = R.string.settings_description_media_view)) },
         )
-        LemuroidSettingsSwitch(
-            state = booleanPreferenceState(SystemTileColors.PASTEL_PREF_KEY, false),
-            title = { Text(text = stringResource(id = R.string.settings_title_pastel_tiles)) },
-            subtitle = { Text(text = stringResource(id = R.string.settings_description_pastel_tiles)) },
-            onCheckedChange = { SystemTileColors.pastelEnabled = it },
+        val softTiles = booleanPreferenceState(SystemTileColors.PASTEL_PREF_KEY, false)
+        TileColorsPicker(
+            soft = softTiles.value,
+            onPick = {
+                softTiles.value = it
+                SystemTileColors.pastelEnabled = it
+            },
         )
         // HD mode is hidden (owner, 2026-11-19): the in-game Filter shortcut covers the look.
         LemuroidSettingsSwitch(
