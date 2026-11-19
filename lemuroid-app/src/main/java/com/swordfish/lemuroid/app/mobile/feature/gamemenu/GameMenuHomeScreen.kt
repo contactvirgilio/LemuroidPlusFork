@@ -1,5 +1,11 @@
 package com.swordfish.lemuroid.app.mobile.feature.gamemenu
 
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.material.icons.outlined.SportsEsports
+import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material.icons.outlined.BlurLinear
 import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
@@ -155,15 +161,9 @@ fun GameMenuHomeScreen(
             )
     }
 
-    if (gameMenuRequest.advancedCoreOptions.isNotEmpty() || gameMenuRequest.coreOptions.isNotEmpty()) {
-        val settings = stringResource(id = R.string.game_menu_settings)
-        entries +=
-            MenuEntry(
-                label = settings,
-                icon = drawableIcon(R.drawable.ic_menu_settings, settings),
-                onClick = { navController.navigateToRoute(GameMenuRoute.OPTIONS) },
-            )
-    }
+    // Every core option is a tile right here (no separate Settings page): a tap moves to the next
+    // value and is saved at once; the game picks it up when the menu closes.
+    entries += coreOptionEntries(gameMenuRequest)
 
     val firstTile = remember { FocusRequester() }
     val hasGamepad = LocalMenuHasGamepad.current
@@ -200,4 +200,77 @@ fun GameMenuHomeScreen(
             }
         }
     }
+}
+
+@Composable
+private fun coreOptionEntries(gameMenuRequest: GameMenuActivity.GameMenuRequest): List<MenuEntry> {
+    val context = LocalContext.current
+    val prefs = remember { com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper.getSharedPreferences(context) }
+    val systemId = gameMenuRequest.game.systemId
+    val on = stringResource(R.string.game_menu_on)
+    val off = stringResource(R.string.game_menu_off)
+    val result = mutableListOf<MenuEntry>()
+
+    for (option in gameMenuRequest.coreOptions + gameMenuRequest.advancedCoreOptions) {
+        val values = option.getEntriesValues()
+        if (values.isEmpty()) continue
+        val key = com.swordfish.lemuroid.lib.core.CoreVariablesManager.computeSharedPreferenceKey(option.getKey(), systemId)
+        val isSwitch = values.toSet() == com.swordfish.lemuroid.app.shared.coreoptions.CoreOptionsPreferenceHelper.BOOLEAN_SET
+        val names = option.getEntries(context)
+        var current by remember(key) {
+            mutableStateOf(option.getCurrentValue().takeIf { it in values } ?: values.first())
+        }
+        val label = option.getDisplayName(context)
+        result +=
+            MenuEntry(
+                label = label,
+                sublabel = if (isSwitch) (if (current == "enabled") on else off) else names.getOrNull(values.indexOf(current)),
+                active = if (isSwitch) current == "enabled" else current != values.first(),
+                icon = { tint ->
+                    Icon(Icons.Outlined.Tune, contentDescription = label, tint = tint, modifier = Modifier.size(28.dp))
+                },
+                onClick = {
+                    val next = values[(values.indexOf(current) + 1) % values.size]
+                    current = next
+                    // Same storage as the old Settings page: switches as booleans, lists as values.
+                    if (isSwitch) {
+                        prefs.edit().putBoolean(key, next == "enabled").apply()
+                    } else {
+                        prefs.edit().putString(key, next).apply()
+                    }
+                },
+            )
+    }
+
+    // Controller type for the first controller, when the system has more than one.
+    val configs = gameMenuRequest.coreConfig.controllerConfigs[0]
+    if (configs != null && configs.size >= 2) {
+        val key =
+            com.swordfish.lemuroid.app.shared.settings.ControllerConfigsManager.getSharedPreferencesId(
+                systemId,
+                gameMenuRequest.coreConfig.coreID,
+                0,
+            )
+        val names = configs.map { stringResource(it.displayName) }
+        var current by remember(key) {
+            mutableStateOf(prefs.getString(key, null)?.takeIf { n -> configs.any { it.name == n } } ?: configs.first().name)
+        }
+        val label = context.getString(R.string.core_settings_controller, "1")
+        result +=
+            MenuEntry(
+                label = label,
+                sublabel = names.getOrNull(configs.indexOfFirst { it.name == current }),
+                active = current != configs.first().name,
+                icon = { tint ->
+                    Icon(Icons.Outlined.SportsEsports, contentDescription = label, tint = tint, modifier = Modifier.size(28.dp))
+                },
+                onClick = {
+                    val i = configs.indexOfFirst { it.name == current }
+                    val next = configs[(i + 1) % configs.size].name
+                    current = next
+                    prefs.edit().putString(key, next).apply()
+                },
+            )
+    }
+    return result
 }
