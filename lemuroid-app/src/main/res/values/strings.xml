@@ -352,6 +352,10 @@
 
     <string name="game_menu_color_correction">Color correction</string>
     <string name="game_menu_motion_blur">Motion blur</string>
+    <string name="game_menu_group_game">Game</string>
+    <string name="game_menu_group_picture">Picture</string>
+    <string name="game_menu_group_controls">Controls</string>
+    <string name="game_menu_group_performance">Performance</string>
     <string name="game_menu_ds_screens">Screens</string>
     <string name="menu_option_crop_sides">Crop sides</string>
     <string name="menu_option_crop_top_bottom">Crop top and bottom</string>

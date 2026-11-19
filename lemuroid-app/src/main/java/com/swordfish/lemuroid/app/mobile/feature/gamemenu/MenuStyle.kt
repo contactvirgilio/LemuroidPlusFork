@@ -1,5 +1,6 @@
 package com.swordfish.lemuroid.app.mobile.feature.gamemenu
 
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -129,6 +130,8 @@ fun MenuTile(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     shape: androidx.compose.ui.graphics.Shape = RoundedCornerShape(12.dp),
+    // A thin strip down the left edge in the tile's group colour (game menu home).
+    accent: Color? = null,
     content: @Composable (focused: Boolean) -> Unit,
 ) {
     val interaction = remember { MutableInteractionSource() }
@@ -138,6 +141,15 @@ fun MenuTile(
             modifier
                 .clip(shape)
                 .background(MenuColors.Tile)
+                .then(
+                    if (accent != null) {
+                        Modifier.drawBehind {
+                            drawRect(accent, size = androidx.compose.ui.geometry.Size(4.dp.toPx(), size.height))
+                        }
+                    } else {
+                        Modifier
+                    },
+                )
                 .border(
                     if (focused) BorderStroke(3.dp, MenuColors.Gold) else BorderStroke(1.dp, MenuColors.TileBorder),
                     shape,

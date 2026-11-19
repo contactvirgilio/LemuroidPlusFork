@@ -1,5 +1,9 @@
 package com.swordfish.lemuroid.app.mobile.feature.gamemenu
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.unit.sp
+import androidx.compose.material3.Text
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.material.icons.outlined.Splitscreen
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -40,7 +44,16 @@ private class MenuEntry(
     val active: Boolean = false,
     val icon: @Composable (Color) -> Unit,
     val onClick: () -> Unit,
+    val group: MenuGroup = MenuGroup.GAME,
 )
+
+/** Groups of the game menu, in order, each with a heading and a colour strip on its tiles. */
+private enum class MenuGroup(val title: Int, val color: Color) {
+    GAME(R.string.game_menu_group_game, Color(0xFFB4B2A9)),
+    PICTURE(R.string.game_menu_group_picture, Color(0xFF85B7EB)),
+    CONTROLS(R.string.game_menu_group_controls, Color(0xFF5DCAA5)),
+    PERFORMANCE(R.string.game_menu_group_performance, Color(0xFFEF9F27)),
+}
 
 private fun drawableIcon(
     id: Int,
@@ -119,6 +132,7 @@ fun GameMenuHomeScreen(
                 label = edit,
                 icon = drawableIcon(R.drawable.ic_menu_controls, edit),
                 onClick = { onResult { putExtra(GameMenuContract.RESULT_EDIT_TOUCH_CONTROLS, true) } },
+                group = MenuGroup.CONTROLS,
             )
     }
 
@@ -139,6 +153,7 @@ fun GameMenuHomeScreen(
                     )
                 },
                 onClick = { onResult { putExtra(GameMenuContract.RESULT_COLOR_CORRECTION, !isOn) } },
+                group = MenuGroup.PICTURE,
             )
     }
 
@@ -159,6 +174,7 @@ fun GameMenuHomeScreen(
                     )
                 },
                 onClick = { onResult { putExtra(GameMenuContract.RESULT_MOTION_BLUR, !isOn) } },
+                group = MenuGroup.PICTURE,
             )
     }
 
@@ -180,23 +196,41 @@ fun GameMenuHomeScreen(
         horizontalArrangement = Arrangement.spacedBy(14.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        entries.forEachIndexed { index, entry ->
-            item(key = entry.label) {
-                MenuTile(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(96.dp)
-                            .then(if (index == 0) Modifier.focusRequester(firstTile) else Modifier),
-                    onClick = entry.onClick,
-                ) { focused ->
-                    MenuTileLabel(
-                        icon = entry.icon,
-                        label = entry.label,
-                        focused = focused,
-                        sublabel = entry.sublabel,
-                        active = entry.active,
-                    )
+        // Grouped: a heading per group (only groups with tiles), then its tiles with a colour strip.
+        var index = 0
+        MenuGroup.values().forEach { group ->
+            val tiles = entries.filter { it.group == group }
+            if (tiles.isEmpty()) return@forEach
+            item(key = "group-" + group.name, span = { GridItemSpan(maxLineSpan) }) {
+                Text(
+                    modifier = Modifier.padding(top = 4.dp),
+                    text = stringResource(group.title).uppercase(),
+                    color = group.color,
+                    fontSize = 12.sp,
+                    letterSpacing = 1.5.sp,
+                )
+            }
+            tiles.forEach { entry ->
+                val first = index == 0
+                index++
+                item(key = entry.label) {
+                    MenuTile(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .height(96.dp)
+                                .then(if (first) Modifier.focusRequester(firstTile) else Modifier),
+                        onClick = entry.onClick,
+                        accent = group.color,
+                    ) { focused ->
+                        MenuTileLabel(
+                            icon = entry.icon,
+                            label = entry.label,
+                            focused = focused,
+                            sublabel = entry.sublabel,
+                            active = entry.active,
+                        )
+                    }
                 }
             }
         }
@@ -240,6 +274,7 @@ private fun coreOptionEntries(gameMenuRequest: GameMenuActivity.GameMenuRequest)
                 icon = { tint ->
                     Icon(Icons.Outlined.Splitscreen, contentDescription = label, tint = tint, modifier = Modifier.size(28.dp))
                 },
+                group = MenuGroup.PICTURE,
                 onClick = {
                     val all = com.swordfish.lemuroid.app.shared.game.DsSingleScreen.Layout.values()
                     layout = all[(layout.ordinal + 1) % all.size]
@@ -272,6 +307,7 @@ private fun coreOptionEntries(gameMenuRequest: GameMenuActivity.GameMenuRequest)
                 icon = { tint ->
                     Icon(Icons.Outlined.Tune, contentDescription = label, tint = tint, modifier = Modifier.size(28.dp))
                 },
+                group = MENU_OPTION_GROUPS[option.getKey()] ?: MenuGroup.PICTURE,
                 onClick = {
                     val next = values[(values.indexOf(current) + 1) % values.size]
                     current = next
@@ -310,6 +346,7 @@ private fun coreOptionEntries(gameMenuRequest: GameMenuActivity.GameMenuRequest)
                 icon = { tint ->
                     Icon(Icons.Outlined.SportsEsports, contentDescription = label, tint = tint, modifier = Modifier.size(28.dp))
                 },
+                group = MenuGroup.CONTROLS,
                 onClick = {
                     val i = configs.indexOfFirst { it.name == current }
                     val next = configs[(i + 1) % configs.size].name
@@ -353,6 +390,19 @@ private val MENU_CORE_OPTIONS =
         "mupen64plus-pak1" to R.string.menu_option_pak,
         "ppsspp_internal_resolution" to R.string.menu_option_resolution,
         "citra_resolution_factor" to R.string.menu_option_resolution,
+    )
+
+/** Group of each core option tile (anything not listed is Picture). */
+private val MENU_OPTION_GROUPS =
+    mapOf(
+        "pcsx_rearmed_frameskip" to MenuGroup.PERFORMANCE,
+        "ppsspp_frameskip" to MenuGroup.PERFORMANCE,
+        "ppsspp_auto_frameskip" to MenuGroup.PERFORMANCE,
+        "fbneo-frameskip" to MenuGroup.PERFORMANCE,
+        "desmume_frameskip" to MenuGroup.PERFORMANCE,
+        "mgba_frameskip" to MenuGroup.PERFORMANCE,
+        "mgba_solar_sensor_level" to MenuGroup.CONTROLS,
+        "mupen64plus-pak1" to MenuGroup.CONTROLS,
     )
 
 private const val SOLAR_SENSOR_KEY = "mgba_solar_sensor_level"
