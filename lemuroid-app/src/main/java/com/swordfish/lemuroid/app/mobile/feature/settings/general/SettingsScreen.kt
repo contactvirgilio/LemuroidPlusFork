@@ -81,7 +81,6 @@ fun SettingsScreen(
         BackupSettings(retrogradeDb)
         MiscSettings(
             indexingInProgress = indexingInProgress,
-            isSaveSyncSupported = state.isSaveSyncSupported,
             navController = navController,
         )
     }
@@ -143,21 +142,11 @@ private fun HomeScreenSettings(navController: NavController) {
 @Composable
 private fun MiscSettings(
     indexingInProgress: Boolean,
-    isSaveSyncSupported: Boolean,
     navController: NavController,
 ) {
     LemuroidCardSettingsGroup(
         title = { Text(text = stringResource(id = R.string.settings_category_misc)) },
     ) {
-        if (isSaveSyncSupported) {
-            LemuroidSettingsMenuLink(
-                title = { Text(text = stringResource(id = R.string.settings_title_save_sync)) },
-                subtitle = {
-                    Text(text = stringResource(id = R.string.settings_description_save_sync))
-                },
-                onClick = { navController.navigateToRoute(MainRoute.SETTINGS_SAVE_SYNC) },
-            )
-        }
         LemuroidSettingsMenuLink(
             title = { Text(text = stringResource(id = R.string.settings_title_open_cores_selection)) },
             subtitle = {
@@ -268,17 +257,6 @@ private fun GeneralSettings() {
             valueRange = 0f..2f,
             title = { Text(text = stringResource(R.string.settings_title_hd_quality)) },
             subtitle = { Text(text = stringResource(id = R.string.settings_description_hd_quality)) },
-        )
-        LemuroidSettingsList(
-            enabled = !hdMode.value,
-            state =
-                indexPreferenceState(
-                    R.string.pref_key_shader_filter,
-                    "auto",
-                    stringListResource(R.array.pref_key_shader_filter_values).toList(),
-                ),
-            title = { Text(text = stringResource(id = R.string.display_filter)) },
-            items = stringListResource(R.array.pref_key_shader_filter_display_names),
         )
         LemuroidSettingsSwitch(
             state = booleanPreferenceState(NavigationSounds.ENABLED_KEY, true),

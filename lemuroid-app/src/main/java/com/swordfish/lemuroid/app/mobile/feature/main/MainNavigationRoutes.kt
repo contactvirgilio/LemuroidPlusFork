@@ -109,12 +109,6 @@ enum class MainRoute(
         parent = SETTINGS,
         showBottomNavigation = false,
     ),
-    SETTINGS_SAVE_SYNC(
-        route = "settings/savesync",
-        titleId = R.string.settings_title_save_sync,
-        parent = SETTINGS,
-        showBottomNavigation = false,
-    ),
     ;
 
     val root = root()

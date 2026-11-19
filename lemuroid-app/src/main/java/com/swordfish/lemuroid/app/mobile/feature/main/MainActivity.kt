@@ -62,8 +62,6 @@ import com.swordfish.lemuroid.app.mobile.feature.settings.general.SettingsScreen
 import com.swordfish.lemuroid.app.mobile.feature.settings.general.SettingsViewModel
 import com.swordfish.lemuroid.app.mobile.feature.settings.inputdevices.InputDevicesSettingsScreen
 import com.swordfish.lemuroid.app.mobile.feature.settings.inputdevices.InputDevicesSettingsViewModel
-import com.swordfish.lemuroid.app.mobile.feature.settings.savesync.SaveSyncSettingsScreen
-import com.swordfish.lemuroid.app.mobile.feature.settings.savesync.SaveSyncSettingsViewModel
 import com.swordfish.lemuroid.app.mobile.feature.shortcuts.ShortcutsGenerator
 import com.swordfish.lemuroid.app.mobile.feature.systems.MetaSystemsScreen
 import com.swordfish.lemuroid.app.mobile.feature.systems.MetaSystemsViewModel
@@ -290,7 +288,6 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
                             currentRoute = currentRoute,
                             navController = navController,
                             onHelpPressed = onHelpPressed,
-                            saveSyncEnabled = mainUIState.saveSyncEnabled,
                             operationsInProgress = mainUIState.operationInProgress,
                         )
                     }
@@ -457,19 +454,6 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
                     }
                     composable(MainRoute.SETTINGS_HIDDEN_APPS) {
                         HiddenAppsScreen(modifier = Modifier.padding(padding))
-                    }
-                    composable(MainRoute.SETTINGS_SAVE_SYNC) {
-                        SaveSyncSettingsScreen(
-                            modifier = Modifier.padding(padding),
-                            viewModel =
-                                viewModel(
-                                    factory =
-                                        SaveSyncSettingsViewModel.Factory(
-                                            application,
-                                            saveSyncManager,
-                                        ),
-                                ),
-                        )
                     }
                 }
                     }

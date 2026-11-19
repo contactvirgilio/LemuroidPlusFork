@@ -17,7 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.ViewList
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.CloudSync
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.SdCard
@@ -58,7 +57,6 @@ import com.swordfish.lemuroid.app.mobile.feature.games.rememberGamesViewMode
 import com.swordfish.lemuroid.app.mobile.feature.games.rememberHomeTileSize
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.MediaViewSetting
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberMediaView
-import com.swordfish.lemuroid.app.shared.savesync.SaveSyncWork
 
 @Composable
 fun MainTopBar(
@@ -131,7 +129,6 @@ fun LemuroidTopAppBar(
                 route = route,
                 navController = navController,
                 context = context,
-                saveSyncEnabled = mainUIState.saveSyncEnabled,
                 onHelpPressed = onHelpPressed,
                 operationsInProgress = mainUIState.operationInProgress,
             )
@@ -144,7 +141,6 @@ fun LemuroidTopBarActions(
     route: MainRoute,
     navController: NavController,
     context: Context,
-    saveSyncEnabled: Boolean,
     operationsInProgress: Boolean,
     onHelpPressed: () -> Unit,
 ) {
@@ -165,17 +161,6 @@ fun LemuroidTopBarActions(
                 Icons.Outlined.Info,
                 stringResource(R.string.mobile_settings_help),
             )
-        }
-        if (saveSyncEnabled) {
-            IconButton(
-                onClick = { SaveSyncWork.enqueueManualWork(context.applicationContext) },
-                enabled = !operationsInProgress,
-            ) {
-                Icon(
-                    Icons.Outlined.CloudSync,
-                    stringResource(R.string.save_sync),
-                )
-            }
         }
         if (route.showBottomNavigation) {
             IconButton(

@@ -14,7 +14,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CloudSync
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ViewModule
@@ -46,7 +45,6 @@ import com.swordfish.lemuroid.app.mobile.feature.games.HomeTileSize
 import com.swordfish.lemuroid.app.mobile.feature.games.HomeTileSizeStore
 import com.swordfish.lemuroid.app.mobile.feature.games.rememberHomeTileSize
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.focusHighlight
-import com.swordfish.lemuroid.app.shared.savesync.SaveSyncWork
 import com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper
 
 const val VERTICAL_BAR_KEY = "pref_key_vertical_bar"
@@ -81,7 +79,6 @@ fun MainNavigationRail(
     currentRoute: MainRoute?,
     navController: NavHostController,
     onHelpPressed: () -> Unit,
-    saveSyncEnabled: Boolean,
     operationsInProgress: Boolean,
 ) {
     val context = LocalContext.current
@@ -151,17 +148,8 @@ fun MainNavigationRail(
             Divider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
         }
 
-        // Settings (and sync, when on) side by side, without labels, to fit short screens.
+        // Settings, without a label, to fit short screens.
         Row(horizontalArrangement = Arrangement.Center) {
-            if (saveSyncEnabled) {
-                IconButton(
-                    modifier = Modifier.focusHighlight(shape = RoundedCornerShape(16.dp), zoom = 1f),
-                    onClick = { SaveSyncWork.enqueueManualWork(context.applicationContext) },
-                    enabled = !operationsInProgress,
-                ) {
-                    Icon(Icons.Outlined.CloudSync, stringResource(R.string.save_sync))
-                }
-            }
             IconButton(
                 modifier = Modifier.focusHighlight(shape = RoundedCornerShape(16.dp), zoom = 1f),
                 onClick = { navController.navigate(MainRoute.SETTINGS.route) },
