@@ -45,6 +45,7 @@ import com.swordfish.lemuroid.app.mobile.feature.games.HomeTileSize
 import com.swordfish.lemuroid.app.mobile.feature.games.HomeTileSizeStore
 import com.swordfish.lemuroid.app.mobile.feature.games.rememberHomeTileSize
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.focusHighlight
+import com.swordfish.lemuroid.app.shared.game.GameShortcutsSetting
 import com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper
 
 const val VERTICAL_BAR_KEY = "pref_key_vertical_bar"
@@ -68,7 +69,9 @@ fun rememberVerticalBar(): Boolean {
 }
 
 private fun readVerticalBar(context: Context): Boolean =
-    SharedPreferencesHelper.getSharedPreferences(context).getBoolean(VERTICAL_BAR_KEY, false)
+    // Only on 4:3-ish screens like the Retroid Pocket Classic (owner); phones always get the normal bars.
+    GameShortcutsSetting.defaultNested(context) &&
+        SharedPreferencesHelper.getSharedPreferences(context).getBoolean(VERTICAL_BAR_KEY, false)
 
 /**
  * One bar down the left side instead of the top and bottom bars: the pages, then the shortcuts

@@ -208,11 +208,14 @@ private fun GeneralSettings() {
             title = { Text(text = stringResource(id = R.string.settings_title_enable_autosave)) },
             subtitle = { Text(text = stringResource(id = R.string.settings_description_enable_autosave)) },
         )
-        LemuroidSettingsSwitch(
-            state = booleanPreferenceState(VERTICAL_BAR_KEY, false),
-            title = { Text(text = stringResource(id = R.string.settings_title_vertical_bar)) },
-            subtitle = { Text(text = stringResource(id = R.string.settings_description_vertical_bar)) },
-        )
+        // Vertical bar: only on 4:3-ish screens like the Retroid Pocket Classic.
+        if (GameShortcutsSetting.defaultNested(LocalContext.current)) {
+            LemuroidSettingsSwitch(
+                state = booleanPreferenceState(VERTICAL_BAR_KEY, false),
+                title = { Text(text = stringResource(id = R.string.settings_title_vertical_bar)) },
+                subtitle = { Text(text = stringResource(id = R.string.settings_description_vertical_bar)) },
+            )
+        }
         LemuroidSettingsSwitch(
             state = booleanPreferenceState(GameShortcutsSetting.KEY, GameShortcutsSetting.defaultNested(LocalContext.current)),
             title = { Text(text = stringResource(id = R.string.settings_title_nested_shortcuts)) },
