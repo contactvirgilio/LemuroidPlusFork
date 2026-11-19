@@ -182,6 +182,48 @@ fun GameStylePicker(
     }
 }
 
+private fun DrawScope.drawClassicPad() {
+    val fill = Color.White.copy(alpha = 0.35f)
+    drawRoundRect(Color(0xFF5F5E5A).copy(alpha = 0.4f), Offset(6.dp.toPx(), 6.dp.toPx()), Size(size.width - 12.dp.toPx(), size.height - 12.dp.toPx()), CornerRadius(8.dp.toPx()))
+    val cx = size.width * 0.27f
+    val cy = size.height * 0.52f
+    drawCircle(fill, radius = size.height * 0.24f, center = Offset(cx, cy))
+    val arm = size.height * 0.2f
+    val thick = size.height * 0.1f
+    drawRect(Color.White.copy(alpha = 0.6f), Offset(cx - thick / 2, cy - arm), Size(thick, arm * 2))
+    drawRect(Color.White.copy(alpha = 0.6f), Offset(cx - arm, cy - thick / 2), Size(arm * 2, thick))
+    drawCircle(Color.White.copy(alpha = 0.5f), radius = size.height * 0.12f, center = Offset(size.width * 0.68f, size.height * 0.62f))
+    drawCircle(Color.White.copy(alpha = 0.5f), radius = size.height * 0.12f, center = Offset(size.width * 0.84f, size.height * 0.42f))
+}
+
+private fun DrawScope.drawOutlinePad() {
+    val line = Color(0xFF9A9A96)
+    val stroke = Stroke(width = 2.dp.toPx())
+    val cx = size.width * 0.27f
+    val cy = size.height * 0.52f
+    val a = size.height * 0.1f
+    val b = size.height * 0.3f
+    val plus =
+        Path().apply {
+            moveTo(cx - a, cy - b)
+            lineTo(cx + a, cy - b)
+            lineTo(cx + a, cy - a)
+            lineTo(cx + b, cy - a)
+            lineTo(cx + b, cy + a)
+            lineTo(cx + a, cy + a)
+            lineTo(cx + a, cy + b)
+            lineTo(cx - a, cy + b)
+            lineTo(cx - a, cy + a)
+            lineTo(cx - b, cy + a)
+            lineTo(cx - b, cy - a)
+            lineTo(cx - a, cy - a)
+            close()
+        }
+    drawPath(plus, line, style = stroke)
+    drawCircle(line, radius = size.height * 0.12f, center = Offset(size.width * 0.68f, size.height * 0.62f), style = stroke)
+    drawCircle(line, radius = size.height * 0.12f, center = Offset(size.width * 0.84f, size.height * 0.42f), style = stroke)
+}
+
 private val PREVIEW_SYSTEMS = listOf(SystemID.SNES, SystemID.GBA, SystemID.GENESIS, SystemID.PSX, SystemID.GB, SystemID.N64)
 
 private fun DrawScope.drawTileWall(colors: List<Int>) {
