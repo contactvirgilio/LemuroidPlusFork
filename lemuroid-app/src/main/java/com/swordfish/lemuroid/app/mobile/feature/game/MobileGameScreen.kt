@@ -726,11 +726,11 @@ private fun OverlayButton(
 private fun StatesButton(viewModel: BaseGameScreenViewModel) {
     val label = stringResource(com.swordfish.lemuroid.R.string.game_button_states)
     val flash = LocalSaveFlash.current
-    // After a timed auto-save the whole button (circle and icon together) pulses 100% to 30%.
+    // After a timed auto-save the whole button (circle and icon together) pulses 85% to 30%.
     val pulse =
         if (flash != null) {
             rememberInfiniteTransition(label = "autoSavePulse").animateFloat(
-                initialValue = 1f,
+                initialValue = 0.85f,
                 targetValue = 0.3f,
                 animationSpec = infiniteRepeatable(tween(AUTO_SAVE_PULSE_MILLIS), RepeatMode.Reverse),
                 label = "autoSavePulseAlpha",
@@ -826,7 +826,7 @@ private fun FastForwardButtonBody(
 
 private const val OVERLAY_BUTTONS_IDLE_MILLIS = 4_000L
 private const val TOUCH_CONTROL_CHECK_MILLIS = 80L
-private const val AUTO_SAVE_FLASH_MILLIS = 5_000L
+private const val AUTO_SAVE_FLASH_MILLIS = 3_000L
 private const val AUTO_SAVE_PULSE_MILLIS = 500
 
 /** Fade of the shortcut row when idle; each button applies it, so one can stay solid. */
