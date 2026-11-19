@@ -135,11 +135,14 @@ private fun HomeScreenSettings(navController: NavController) {
                 )
             },
         )
-        LemuroidSettingsMenuLink(
-            title = { Text(text = stringResource(id = R.string.settings_title_hidden_apps)) },
-            subtitle = { Text(text = stringResource(id = R.string.settings_description_hidden_apps)) },
-            onClick = { navController.navigateToRoute(MainRoute.SETTINGS_HIDDEN_APPS) },
-        )
+        // Only when the Apps tab is on, so it doesn't get in the way.
+        if (isHome || appsTab.value) {
+            LemuroidSettingsMenuLink(
+                title = { Text(text = stringResource(id = R.string.settings_title_hidden_apps)) },
+                subtitle = { Text(text = stringResource(id = R.string.settings_description_hidden_apps)) },
+                onClick = { navController.navigateToRoute(MainRoute.SETTINGS_HIDDEN_APPS) },
+            )
+        }
     }
 }
 
