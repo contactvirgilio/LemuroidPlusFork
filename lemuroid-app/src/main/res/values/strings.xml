@@ -363,6 +363,9 @@
     <string name="menu_option_rotate">Rotate screen</string>
     <string name="menu_option_frameskip">Frameskip</string>
     <string name="menu_option_auto_frameskip">Auto frameskip</string>
+    <string name="menu_option_sun_sensor">Sun sensor</string>
+    <string name="menu_option_pak">Memory pak</string>
+    <string name="menu_option_resolution">Resolution</string>
     <string name="game_menu_ds_screens_both">Both</string>
     <string name="game_menu_ds_screens_single">Single (R2 flips)</string>
     <string name="game_menu_ds_screens_side">Side by side</string>

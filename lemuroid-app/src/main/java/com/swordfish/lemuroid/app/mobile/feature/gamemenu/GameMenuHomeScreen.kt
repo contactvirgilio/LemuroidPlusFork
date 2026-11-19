@@ -212,6 +212,8 @@ private fun coreOptionEntries(gameMenuRequest: GameMenuActivity.GameMenuRequest)
     val off = stringResource(R.string.game_menu_off)
     val result = mutableListOf<MenuEntry>()
 
+    val isBoktai = remember(gameMenuRequest.game.id) { Boktai.isBoktai(context, gameMenuRequest.game) }
+
     // DS: the core's screen layout is driven by our own Screens tile (single screen, R2 flips).
     val dsLayoutKey =
         if (systemId == com.swordfish.lemuroid.lib.library.SystemID.NDS.dbname) {
@@ -251,6 +253,8 @@ private fun coreOptionEntries(gameMenuRequest: GameMenuActivity.GameMenuRequest)
         // Only the essentials the owner picked get a tile (with a plain name); the rest are gone
         // from the menu and keep their defaults.
         val plainName = MENU_CORE_OPTIONS[option.getKey()] ?: continue
+        // The GBA sun sensor only matters for the Boktai games.
+        if (option.getKey() == SOLAR_SENSOR_KEY && !isBoktai) continue
         val values = option.getEntriesValues()
         if (values.isEmpty()) continue
         val key = com.swordfish.lemuroid.lib.core.CoreVariablesManager.computeSharedPreferenceKey(option.getKey(), systemId)
@@ -263,7 +267,7 @@ private fun coreOptionEntries(gameMenuRequest: GameMenuActivity.GameMenuRequest)
         result +=
             MenuEntry(
                 label = label,
-                sublabel = if (isSwitch) (if (current == "enabled") on else off) else names.getOrNull(values.indexOf(current)),
+                sublabel = if (isSwitch) (if (current == "enabled") on else off) else plainValue(current, names.getOrNull(values.indexOf(current)), on, off),
                 active = if (isSwitch) current == "enabled" else current != values.first(),
                 icon = { tint ->
                     Icon(Icons.Outlined.Tune, contentDescription = label, tint = tint, modifier = Modifier.size(28.dp))
@@ -281,20 +285,23 @@ private fun coreOptionEntries(gameMenuRequest: GameMenuActivity.GameMenuRequest)
             )
     }
 
-    // Controller type for the first controller, when the system has more than one.
-    val configs = gameMenuRequest.coreConfig.controllerConfigs[0]
-    if (configs != null && configs.size >= 2) {
+    // Controller type per player, when the system has more than one: player 1 always, players
+    // 2-4 only while that many gamepads are connected.
+    val pads = remember { connectedGamepads() }
+    for (port in 0 until maxOf(1, minOf(pads, 4))) {
+        val configs = gameMenuRequest.coreConfig.controllerConfigs[port] ?: continue
+        if (configs.size < 2) continue
         val key =
             com.swordfish.lemuroid.app.shared.settings.ControllerConfigsManager.getSharedPreferencesId(
                 systemId,
                 gameMenuRequest.coreConfig.coreID,
-                0,
+                port,
             )
         val names = configs.map { stringResource(it.displayName) }
         var current by remember(key) {
             mutableStateOf(prefs.getString(key, null)?.takeIf { n -> configs.any { it.name == n } } ?: configs.first().name)
         }
-        val label = context.getString(R.string.core_settings_controller, "1")
+        val label = context.getString(R.string.core_settings_controller, (port + 1).toString())
         result +=
             MenuEntry(
                 label = label,
@@ -340,4 +347,33 @@ private val MENU_CORE_OPTIONS =
         "fbneo-frameskip" to R.string.menu_option_frameskip,
         "desmume_frameskip" to R.string.menu_option_frameskip,
         "mgba_frameskip" to R.string.menu_option_frameskip,
+        // Only for the Boktai games (see Boktai)
+        SOLAR_SENSOR_KEY to R.string.menu_option_sun_sensor,
+        // N64 memory / rumble pak, PSP and 3DS rendering resolution
+        "mupen64plus-pak1" to R.string.menu_option_pak,
+        "ppsspp_internal_resolution" to R.string.menu_option_resolution,
+        "citra_resolution_factor" to R.string.menu_option_resolution,
     )
+
+private const val SOLAR_SENSOR_KEY = "mgba_solar_sensor_level"
+
+/** Value words for the tiles: plain Off / On where the core says disabled / enabled and the like. */
+private fun plainValue(
+    value: String,
+    shown: String?,
+    on: String,
+    off: String,
+): String? =
+    when (value.lowercase()) {
+        "disabled", "off", "false", "none" -> off
+        "enabled", "on", "true" -> on
+        else -> shown?.replace("/", " and ")?.replace("-", " ")?.replaceFirstChar { it.uppercase() }
+    }
+
+/** Gamepads plugged in or built in (RPC), not the touch screen. */
+private fun connectedGamepads(): Int =
+    android.view.InputDevice.getDeviceIds().count { id ->
+        val device = android.view.InputDevice.getDevice(id) ?: return@count false
+        !device.isVirtual &&
+            (device.sources and android.view.InputDevice.SOURCE_GAMEPAD) == android.view.InputDevice.SOURCE_GAMEPAD
+    }
