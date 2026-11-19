@@ -25,7 +25,6 @@ class GameDisplayOptions(
     ) {
         SHARP(R.string.game_filter_sharp, ShaderConfig.Sharp),
         SMOOTH(R.string.game_filter_smooth, ShaderConfig.Default),
-        CRT(R.string.game_filter_crt, ShaderConfig.CRT),
         LCD(R.string.game_filter_lcd, ShaderConfig.LCD),
 
         // CRT-style scanlines (soft beams); most even with integer scaling (Pixel-perfect).
@@ -65,6 +64,8 @@ class GameDisplayOptions(
 
     fun savedFilter(): Filter? {
         val name = sharedPreferences.getString(key(FILTER_KEY), null) ?: return null
+        // The old CRT filter was removed (owner, 2026-11-19): Scanlines 25% replaces it.
+        if (name == "CRT") return Filter.SCAN_25
         return Filter.values().firstOrNull { it.name == name }
     }
 

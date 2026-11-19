@@ -29,7 +29,7 @@ object ShaderChooser {
             hdMode -> getHDShaderForSystem(system, hdModeQuality)
             else ->
                 when (screenFilter) {
-                    "crt" -> ShaderConfig.CRT
+                    "crt" -> SCANLINES
                     "lcd" -> ShaderConfig.LCD
                     "smooth" -> ShaderConfig.Default
                     "sharp" -> ShaderConfig.Sharp
@@ -38,28 +38,31 @@ object ShaderChooser {
         }
     }
 
+    // The old CRT filter was replaced by Scanlines 25% (also the automatic choice for TV consoles).
+    private val SCANLINES get() = GameDisplayOptions.Filter.SCAN_25.shader
+
     private fun getDefaultShaderForSystem(system: GameSystem): ShaderConfig {
         return when (system.id) {
             SystemID.GBA -> ShaderConfig.LCD
             SystemID.GBC -> ShaderConfig.LCD
             SystemID.GB -> ShaderConfig.LCD
-            SystemID.N64 -> ShaderConfig.CRT
-            SystemID.GENESIS -> ShaderConfig.CRT
-            SystemID.SEGACD -> ShaderConfig.CRT
-            SystemID.NES -> ShaderConfig.CRT
-            SystemID.SNES -> ShaderConfig.CRT
-            SystemID.FBNEO -> ShaderConfig.CRT
-            SystemID.SMS -> ShaderConfig.CRT
+            SystemID.N64 -> SCANLINES
+            SystemID.GENESIS -> SCANLINES
+            SystemID.SEGACD -> SCANLINES
+            SystemID.NES -> SCANLINES
+            SystemID.SNES -> SCANLINES
+            SystemID.FBNEO -> SCANLINES
+            SystemID.SMS -> SCANLINES
             SystemID.PSP -> ShaderConfig.LCD
             SystemID.NDS -> ShaderConfig.LCD
             SystemID.GG -> ShaderConfig.LCD
-            SystemID.ATARI2600 -> ShaderConfig.CRT
-            SystemID.PSX -> ShaderConfig.CRT
-            SystemID.MAME2003PLUS -> ShaderConfig.CRT
-            SystemID.ATARI7800 -> ShaderConfig.CRT
-            SystemID.PC_ENGINE -> ShaderConfig.CRT
+            SystemID.ATARI2600 -> SCANLINES
+            SystemID.PSX -> SCANLINES
+            SystemID.MAME2003PLUS -> SCANLINES
+            SystemID.ATARI7800 -> SCANLINES
+            SystemID.PC_ENGINE -> SCANLINES
             SystemID.LYNX -> ShaderConfig.LCD
-            SystemID.DOS -> ShaderConfig.CRT
+            SystemID.DOS -> SCANLINES
             SystemID.NGP -> ShaderConfig.LCD
             SystemID.NGC -> ShaderConfig.LCD
             SystemID.WS -> ShaderConfig.LCD
