@@ -95,6 +95,7 @@ class GameMenuActivity : RetrogradeComponentActivity() {
         val allTiltConfigurations: List<TiltConfiguration>,
         val touchControlsVisible: Boolean,
         val colorCorrection: Int,
+        val motionBlur: Int,
         val immersiveMode: Boolean,
     )
 
@@ -170,6 +171,8 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                     extras?.getBoolean(GameMenuContract.EXTRA_TOUCH_CONTROLS_VISIBLE, true) ?: true,
                 colorCorrection =
                     extras?.getInt(GameMenuContract.EXTRA_COLOR_CORRECTION, -1) ?: -1,
+                motionBlur =
+                    extras?.getInt(GameMenuContract.EXTRA_MOTION_BLUR, -1) ?: -1,
                 immersiveMode =
                     extras?.getBoolean(GameMenuContract.EXTRA_IMMERSIVE_MODE, false) ?: false,
             )

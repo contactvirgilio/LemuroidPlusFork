@@ -189,10 +189,12 @@ abstract class BaseGameActivity : ImmersiveActivity() {
         val coreOptions = getCoreOptions()
 
         // Color correction has its own switch in the menu, so it isn't listed with the core options.
+        // Motion blur too: both are switches in the menu itself.
         val colorCorrectionKey = ColorCorrection.specFor(system.id, systemCoreConfig)?.key
+        val motionBlurKey = com.swordfish.lemuroid.app.shared.gamemenu.MotionBlur.specFor(systemCoreConfig)?.key
         val options =
             systemCoreConfig.exposedSettings
-                .filter { it.key != colorCorrectionKey }
+                .filter { it.key != colorCorrectionKey && it.key != motionBlurKey }
                 .mapNotNull { transformExposedSetting(it, coreOptions) }
 
         val advancedOptions =
@@ -223,6 +225,14 @@ abstract class BaseGameActivity : ImmersiveActivity() {
                     when {
                         ColorCorrection.specFor(system.id, systemCoreConfig) == null -> -1
                         ColorCorrection.isEnabled(sharedPreferences.get(), system.id, systemCoreConfig) -> 1
+                        else -> 0
+                    },
+                )
+                this.putExtra(
+                    GameMenuContract.EXTRA_MOTION_BLUR,
+                    when {
+                        com.swordfish.lemuroid.app.shared.gamemenu.MotionBlur.specFor(systemCoreConfig) == null -> -1
+                        com.swordfish.lemuroid.app.shared.gamemenu.MotionBlur.isEnabled(sharedPreferences.get(), system.id, systemCoreConfig) -> 1
                         else -> 0
                     },
                 )
@@ -474,6 +484,14 @@ abstract class BaseGameActivity : ImmersiveActivity() {
                     system.id,
                     systemCoreConfig,
                     data.getBooleanExtra(GameMenuContract.RESULT_COLOR_CORRECTION, false),
+                )
+            }
+            if (data?.hasExtra(GameMenuContract.RESULT_MOTION_BLUR) == true) {
+                com.swordfish.lemuroid.app.shared.gamemenu.MotionBlur.save(
+                    sharedPreferences.get(),
+                    system.id,
+                    systemCoreConfig,
+                    data.getBooleanExtra(GameMenuContract.RESULT_MOTION_BLUR, false),
                 )
             }
             if (data?.hasExtra(GameMenuContract.RESULT_IMMERSIVE_MODE) == true) {

@@ -1,5 +1,6 @@
 package com.swordfish.lemuroid.app.mobile.feature.gamemenu
 
+import androidx.compose.material.icons.outlined.BlurLinear
 import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -131,6 +132,26 @@ fun GameMenuHomeScreen(
                     )
                 },
                 onClick = { onResult { putExtra(GameMenuContract.RESULT_COLOR_CORRECTION, !isOn) } },
+            )
+    }
+
+    if (gameMenuRequest.motionBlur >= 0) {
+        val motionBlur = stringResource(id = R.string.game_menu_motion_blur)
+        val isOn = gameMenuRequest.motionBlur == 1
+        entries +=
+            MenuEntry(
+                label = motionBlur,
+                sublabel = stringResource(if (isOn) R.string.game_menu_on else R.string.game_menu_off),
+                active = isOn,
+                icon = { tint ->
+                    Icon(
+                        Icons.Outlined.BlurLinear,
+                        contentDescription = motionBlur,
+                        tint = tint,
+                        modifier = Modifier.size(28.dp),
+                    )
+                },
+                onClick = { onResult { putExtra(GameMenuContract.RESULT_MOTION_BLUR, !isOn) } },
             )
     }
 
