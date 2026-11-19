@@ -34,13 +34,14 @@ object AppsTabSettings {
 
     fun mode(context: Context): String = preferences(context).getString(MODE_KEY, MODE_AUTO) ?: MODE_AUTO
 
-    fun isTabVisible(context: Context): Boolean {
-        return when (mode(context)) {
-            MODE_ON -> true
-            MODE_OFF -> false
-            else -> HomeLauncher.isDefaultHome(context)
-        }
-    }
+    /** On/off switch in Settings (replaces the Automatic / Always show / Hide list). */
+    const val SHOW_KEY = "pref_key_apps_tab_show"
+
+    /** Whether the switch is on; until it is used, the old list's "Always show" counts as on. */
+    fun isSwitchOn(context: Context): Boolean = preferences(context).getBoolean(SHOW_KEY, mode(context) == MODE_ON)
+
+    /** Always shown while Lemuroid Plus is the home screen (owner); otherwise the switch decides. */
+    fun isTabVisible(context: Context): Boolean = HomeLauncher.isDefaultHome(context) || isSwitchOn(context)
 
     fun hiddenApps(context: Context): Set<String> {
         return preferences(context).getStringSet(HIDDEN_KEY, emptySet())?.toSet() ?: emptySet()
@@ -68,7 +69,7 @@ fun rememberAppsTabVisible(): Boolean {
         val preferences = SharedPreferencesHelper.getSharedPreferences(context)
         val listener =
             SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-                if (key == AppsTabSettings.MODE_KEY) visible = AppsTabSettings.isTabVisible(context)
+                if (key == AppsTabSettings.MODE_KEY || key == AppsTabSettings.SHOW_KEY) visible = AppsTabSettings.isTabVisible(context)
             }
         val observer =
             LifecycleEventObserver { _, event ->

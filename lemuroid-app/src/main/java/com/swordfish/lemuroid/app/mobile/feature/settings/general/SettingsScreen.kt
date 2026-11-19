@@ -119,15 +119,21 @@ private fun HomeScreenSettings(navController: NavController) {
             },
             onClick = { (context as? Activity)?.let { HomeLauncher.openHomeScreenChooser(it) } },
         )
-        LemuroidSettingsList(
-            state = indexPreferenceState(AppsTabSettings.MODE_KEY, AppsTabSettings.MODE_AUTO, AppsTabSettings.MODES),
+        // A plain switch; while Lemuroid Plus is the home screen it is always on (and locked).
+        val appsTab = booleanPreferenceState(AppsTabSettings.SHOW_KEY, AppsTabSettings.isSwitchOn(context))
+        val lockedOn = remember { com.swordfish.lemuroid.app.utils.settings.FixedSettingValueState(true) }
+        LemuroidSettingsSwitch(
+            enabled = !isHome,
+            state = if (isHome) lockedOn else appsTab,
             title = { Text(text = stringResource(id = R.string.settings_title_apps_tab)) },
-            items =
-                listOf(
-                    stringResource(R.string.settings_value_apps_tab_auto),
-                    stringResource(R.string.settings_value_apps_tab_on),
-                    stringResource(R.string.settings_value_apps_tab_off),
-                ),
+            subtitle = {
+                Text(
+                    text =
+                        stringResource(
+                            if (isHome) R.string.settings_description_apps_tab_home else R.string.settings_description_apps_tab,
+                        ),
+                )
+            },
         )
         LemuroidSettingsMenuLink(
             title = { Text(text = stringResource(id = R.string.settings_title_hidden_apps)) },
