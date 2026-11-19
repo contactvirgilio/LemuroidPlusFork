@@ -352,6 +352,9 @@
 
     <string name="game_menu_color_correction">Color correction</string>
     <string name="game_menu_motion_blur">Motion blur</string>
+    <string name="game_menu_ds_screens">Screens</string>
+    <string name="game_menu_ds_screens_both">Both</string>
+    <string name="game_menu_ds_screens_single">Single (R2 flips)</string>
     <string name="game_menu_immersive_mode">Immersive mode</string>
     <string name="game_overlay_skin_title">Skin %1$d of %2$d</string>
     <string name="game_skin_off">OLED</string>

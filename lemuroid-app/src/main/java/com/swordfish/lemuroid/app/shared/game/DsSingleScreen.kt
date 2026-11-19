@@ -76,6 +76,28 @@ object DsSingleScreen {
 
     private fun isSingle(layout: String?): Boolean = layout == "top" || layout == "top only"
 
+    /** The core option key this mode drives (hidden from the game menu's option tiles). */
+    fun layoutKey(coreId: CoreID): String? = values(coreId)?.key
+
+    /** Game menu "Screens" tile: whether single-screen is chosen (or the default for this device). */
+    fun isSingleChosen(
+        context: Context,
+        config: SystemCoreConfig,
+    ): Boolean = isSingle(effectiveLayout(context, config))
+
+    /** Game menu "Screens" tile: Both (stacked) or Single (R2 flips). Applies when the menu closes. */
+    fun choose(
+        context: Context,
+        config: SystemCoreConfig,
+        single: Boolean,
+    ) {
+        val v = values(config.coreID) ?: return
+        val prefKey = CoreVariablesManager.computeSharedPreferenceKey(v.key, SystemID.NDS.dbname)
+        SharedPreferencesHelper.getSharedPreferences(context).edit()
+            .putString(prefKey, if (single) v.top else v.stacked).apply()
+        showingBottom = false
+    }
+
     private fun effectiveLayout(
         context: Context,
         config: SystemCoreConfig,

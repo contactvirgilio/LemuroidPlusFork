@@ -1,5 +1,6 @@
 package com.swordfish.lemuroid.app.mobile.feature.gamemenu
 
+import androidx.compose.material.icons.outlined.Splitscreen
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
@@ -211,7 +212,35 @@ private fun coreOptionEntries(gameMenuRequest: GameMenuActivity.GameMenuRequest)
     val off = stringResource(R.string.game_menu_off)
     val result = mutableListOf<MenuEntry>()
 
+    // DS: the core's screen layout is driven by our own Screens tile (single screen, R2 flips).
+    val dsLayoutKey =
+        if (systemId == com.swordfish.lemuroid.lib.library.SystemID.NDS.dbname) {
+            com.swordfish.lemuroid.app.shared.game.DsSingleScreen.layoutKey(gameMenuRequest.coreConfig.coreID)
+        } else {
+            null
+        }
+    if (dsLayoutKey != null) {
+        var single by remember {
+            mutableStateOf(com.swordfish.lemuroid.app.shared.game.DsSingleScreen.isSingleChosen(context, gameMenuRequest.coreConfig))
+        }
+        val label = stringResource(R.string.game_menu_ds_screens)
+        result +=
+            MenuEntry(
+                label = label,
+                sublabel = stringResource(if (single) R.string.game_menu_ds_screens_single else R.string.game_menu_ds_screens_both),
+                active = single,
+                icon = { tint ->
+                    Icon(Icons.Outlined.Splitscreen, contentDescription = label, tint = tint, modifier = Modifier.size(28.dp))
+                },
+                onClick = {
+                    single = !single
+                    com.swordfish.lemuroid.app.shared.game.DsSingleScreen.choose(context, gameMenuRequest.coreConfig, single)
+                },
+            )
+    }
+
     for (option in gameMenuRequest.coreOptions + gameMenuRequest.advancedCoreOptions) {
+        if (option.getKey() == dsLayoutKey) continue
         val values = option.getEntriesValues()
         if (values.isEmpty()) continue
         val key = com.swordfish.lemuroid.lib.core.CoreVariablesManager.computeSharedPreferenceKey(option.getKey(), systemId)
