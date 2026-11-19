@@ -463,7 +463,7 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
             MainGameContextActions(
                 selectedGameState = selectedGameState,
                 shortcutSupported = gameInteractor.supportShortcuts(),
-                onGamePlay = { gameInteractor.onGamePlay(it) },
+                onGamePlay = { gameInteractor.onGamePlay(it, forceResume = true) },
                 onGameRestart = { gameInteractor.onGameRestart(it) },
                 onFavoriteToggle = { game: Game, isFavorite: Boolean ->
                     gameInteractor.onFavoriteToggle(game, isFavorite)

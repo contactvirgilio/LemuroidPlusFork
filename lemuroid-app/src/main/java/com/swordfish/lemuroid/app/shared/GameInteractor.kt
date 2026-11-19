@@ -21,14 +21,25 @@ class GameInteractor(
     private val shortcutsGenerator: ShortcutsGenerator,
     private val gameLauncher: GameLauncher,
 ) {
-    fun onGamePlay(game: Game) {
+    /**
+     * Opens a game. It continues from the auto-save when "Resume where you left off" is on, or
+     * always when [forceResume] (the Resume entry of the game's menu).
+     */
+    fun onGamePlay(
+        game: Game,
+        forceResume: Boolean = false,
+    ) {
         if (!ensureNotBusy()) {
             return
         }
         if (!ensureNotificationsPermissionAvailable()) {
             return
         }
-        gameLauncher.launchGameAsync(activity.activity(), game, true, useLeanback)
+        val context = activity.activity()
+        val autoResume =
+            com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper.getSharedPreferences(context)
+                .getBoolean(context.getString(com.swordfish.lemuroid.R.string.pref_key_autosave), true)
+        gameLauncher.launchGameAsync(context, game, forceResume || autoResume, useLeanback)
     }
 
     fun onGameRestart(game: Game) {

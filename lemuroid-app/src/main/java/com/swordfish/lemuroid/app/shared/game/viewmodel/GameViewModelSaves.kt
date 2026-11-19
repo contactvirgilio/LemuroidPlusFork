@@ -147,7 +147,9 @@ class GameViewModelSaves(
     }
 
     private suspend fun isAutoSaveEnabled(): Boolean {
-        return systemCoreConfig.statesSupported && settingsManager.autoSave()
+        // Always on (owner, 2026-11-19): saving costs the player nothing. The setting now only
+        // decides whether games resume from it when opened (see GameInteractor.onGamePlay).
+        return systemCoreConfig.statesSupported
     }
 
     private suspend fun takeScreenshotPreview(index: Int) {

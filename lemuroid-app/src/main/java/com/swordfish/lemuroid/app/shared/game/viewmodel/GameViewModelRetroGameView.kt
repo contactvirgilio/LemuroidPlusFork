@@ -92,7 +92,6 @@ class GameViewModelRetroGameView(
         val currentState = gameState.value
         if (currentState != GameState.Uninitialized) return
 
-        val autoSaveEnabled = settingsManager.autoSave()
         val filter = settingsManager.screenFilter()
         // HD mode is hidden in Settings, so it is always off (a saved "on" would block the filters).
         val hdMode = false
@@ -115,7 +114,7 @@ class GameViewModelRetroGameView(
             gameLoader.load(
                 applicationContext,
                 game,
-                requestLoadSave && autoSaveEnabled,
+                requestLoadSave,
                 systemCoreConfig,
                 directLoad,
             )

@@ -31,8 +31,8 @@
     <string name="settings_category_general">General</string>
     <string name="settings_category_input">Input</string>
     <string name="settings_category_misc">Miscellaneous</string>
-    <string name="settings_title_enable_autosave">Autosave state</string>
-    <string name="settings_description_enable_autosave">Saves where you are every 5 minutes and when you leave a game. It shows as Auto in Load.</string>
+    <string name="settings_title_enable_autosave">Resume where you left off</string>
+    <string name="settings_description_enable_autosave">Opening a game takes you back to where you stopped. Off: games start from the beginning, and your auto-save waits in Load.</string>
     <string name="settings_title_enable_touch_feedback">Vibrate on touch</string>
     <string name="settings_title_tilt_sensitivity">Tilt sensor sensitivity</string>
     <string name="settings_title_hd_quality">HD mode quality</string>
