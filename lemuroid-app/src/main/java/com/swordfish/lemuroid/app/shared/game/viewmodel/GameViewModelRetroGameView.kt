@@ -96,7 +96,8 @@ class GameViewModelRetroGameView(
         // HD mode is hidden in Settings, so it is always off (a saved "on" would block the filters).
         val hdMode = false
         val hdModeQuality = settingsManager.hdModeQuality()
-        val alignment = settingsManager.viewportAlignment()
+        // Viewport alignment was removed from Settings (owner, 2026-11-19): always the default.
+        val alignment = "center"
         val lowLatencyAudio = settingsManager.lowLatencyAudio()
         val enableRumble = settingsManager.enableRumble()
         val directLoad = settingsManager.allowDirectGameLoad()
