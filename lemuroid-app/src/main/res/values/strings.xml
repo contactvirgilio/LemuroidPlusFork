@@ -221,7 +221,7 @@
         <b>Multi-disc games</b><br/>
         Make an <i>.m3u</i> text file listing the disc files, one per line, and keep it next to them. The game shows once; swap with <b>Menu &#8594; Change disc</b>.<br/><br/>
         <b>Hidden tricks</b><br/>
-        &#8226; Shortcuts asleep? Touch the top part of the screen. Touches lower down don't wake them.<br/>
+        &#8226; Shortcuts asleep? Touch the top part of the screen. Touches lower down do not wake them.<br/>
         &#8226; Muted? A volume key brings up just the sound button.<br/>
         &#8226; Hold a game for Restart, to start fresh instead of from the auto-save.<br/>
         &#8226; Scanlines and Pixel-perfect look most even together (every line the same height).<br/><br/>
