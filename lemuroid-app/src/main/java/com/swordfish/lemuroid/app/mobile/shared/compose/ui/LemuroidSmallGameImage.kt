@@ -12,6 +12,7 @@ import androidx.compose.ui.layout.ContentScale
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import com.swordfish.lemuroid.app.shared.artwork.rememberGameArtwork
 import com.swordfish.lemuroid.app.shared.tiles.GameTileUtils
+import com.swordfish.lemuroid.app.shared.tiles.SystemTileColors
 import com.swordfish.lemuroid.lib.library.db.entity.Game
 
 @Composable
@@ -24,6 +25,12 @@ fun LemuroidSmallGameImage(
         modifier
             .fillMaxWidth()
             .aspectRatio(1.0f)
+
+    // Follows the chosen style: with Cartridges, small pictures (menus, lists) show the cartridge too.
+    if (rememberMediaView()) {
+        GameMediaImage(modifier = imageModifier, game = game)
+        return
+    }
 
     if (artwork != null) {
         // Artwork fills the tile, keeping its proportions; whatever doesn't fit is trimmed evenly.
@@ -38,7 +45,8 @@ fun LemuroidSmallGameImage(
         return
     }
 
-    val tileDrawable = remember(game) { GameTileUtils.getTileDrawable(game) }
+    val soft = SystemTileColors.pastelEnabled
+    val tileDrawable = remember(game, soft) { GameTileUtils.getTileDrawable(game) }
 
     Image(
         painter = rememberDrawablePainter(drawable = tileDrawable),

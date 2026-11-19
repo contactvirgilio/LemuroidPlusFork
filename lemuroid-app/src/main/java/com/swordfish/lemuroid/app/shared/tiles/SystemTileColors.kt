@@ -2,6 +2,9 @@ package com.swordfish.lemuroid.app.shared.tiles
 
 import android.content.SharedPreferences
 import android.graphics.Color
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.graphics.ColorUtils
 import com.swordfish.lemuroid.lib.library.MetaSystemID
 import com.swordfish.lemuroid.lib.library.SystemID
@@ -42,9 +45,11 @@ data class SystemTileColors(
                 SystemID.MAME2003PLUS,
             )
 
-        /** Soft colors picked in Settings; each system has its own, so none is darkened. */
-        @Volatile
-        var pastelEnabled: Boolean = false
+        /**
+         * Soft colors picked in Settings or the Style button; each system has its own, so none is
+         * darkened. Compose state, so tiles on screen redraw when it changes.
+         */
+        var pastelEnabled: Boolean by mutableStateOf(false)
 
         const val PASTEL_PREF_KEY = "pref_key_pastel_tiles"
 
