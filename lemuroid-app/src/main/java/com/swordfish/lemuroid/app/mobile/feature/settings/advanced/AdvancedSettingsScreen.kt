@@ -93,6 +93,11 @@ private fun GeneralSettings(
                 ),
         )
         LemuroidSettingsSwitch(
+            state = booleanPreferenceState(com.swordfish.lemuroid.app.shared.game.BaseGameScreenViewModel.CORE_PICTURE_SIZE_KEY, true),
+            title = { Text(text = stringResource(id = R.string.settings_title_core_picture_size)) },
+            subtitle = { Text(text = stringResource(id = R.string.settings_description_core_picture_size)) },
+        )
+        LemuroidSettingsSwitch(
             state = booleanPreferenceState(R.string.pref_key_allow_direct_game_load, true),
             title = { Text(text = stringResource(id = R.string.settings_title_direct_game_load)) },
             subtitle = { Text(text = stringResource(id = R.string.settings_description_direct_game_load)) },

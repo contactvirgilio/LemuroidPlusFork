@@ -380,12 +380,7 @@ class BaseGameScreenViewModel(
     fun isImmersiveEnabled(): StateFlow<Boolean> = immersiveState
 
     /** Shape of the game picture (width / height), or null when it varies (arcade). */
-    fun pictureAspectRatio(): Float? =
-        com.swordfish.lemuroid.app.shared.game.viewmodel.GamePreviewCropper.aspectRatioFor(system.id)
-            // Arcade can be horizontal or vertical, but Neo Geo and CPS3 games are all 4:3.
-            ?: if (NeoGeoSets.isNeoGeo(game.fileName) || CpsSets.generation(game.fileName) == 3) 4f / 3f else null
-            // Other arcade games and DOS: the shape the core reports once the game runs.
-            ?: runtimeProfile.value?.aspectRatio
+    fun pictureAspectRatio(): Float? = scalingProfile?.aspectRatio
 
     /** The look around the picture: Off, Glow, or a shell colour (see [GameShellSkin]). */
     fun getLook(): StateFlow<Int> = lookState
@@ -470,8 +465,22 @@ class BaseGameScreenViewModel(
     private val staticProfile = GameDisplayOptions.profileFor(system.id, game.fileName)
 
     // Known in advance for consoles; reported by the core for arcade and DOS.
+    // Sizes come from the core while the game runs (crop/overscan, screen layouts, rotation and
+    // resolution changes all stay right); the fixed per-system size is only the first guess.
+    // Settings > Advanced > "Picture size from the emulator" off: fixed sizes only (failsafe).
+    // The DS keeps its fixed size: our single-screen mode crops what the core sends.
+    private val useCoreSize =
+        system.id != com.swordfish.lemuroid.lib.library.SystemID.NDS &&
+            com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper.getSharedPreferences(appContext)
+                .getBoolean(CORE_PICTURE_SIZE_KEY, true)
+
     private val scalingProfile: GameDisplayOptions.Companion.Profile?
-        get() = staticProfile ?: runtimeProfile.value
+        get() =
+            when {
+                staticProfile == null -> runtimeProfile.value
+                useCoreSize -> runtimeProfile.value ?: staticProfile
+                else -> staticProfile
+            }
 
     // Every system now: arcade and DOS get their size from the core.
     fun isScalingSupported(): Boolean = true
@@ -684,7 +693,7 @@ class BaseGameScreenViewModel(
     // Arcade and DOS: read the picture size from the core while the game runs (it is only known
     // once the game has loaded, and a few games change it).
     init {
-        if (staticProfile == null) {
+        if (staticProfile == null || useCoreSize) {
             viewModelScope.launch {
                 while (true) {
                     delay(RUNTIME_SIZE_POLL_MILLIS)
@@ -699,8 +708,13 @@ class BaseGameScreenViewModel(
         val width = com.swordfish.libretrodroid.LibretroDroid.getGameWidth()
         val height = com.swordfish.libretrodroid.LibretroDroid.getGameHeight()
         if (width <= 0 || height <= 0) return null
-        val aspect = com.swordfish.libretrodroid.LibretroDroid.getGameAspectRatio().takeIf { it > 0f } ?: (width.toFloat() / height)
-        // A core that asks for a quarter turn (vertical arcade games) is shown on its side.
+        // Consoles keep their usual shape (today's look); only the size in pixels comes from the
+        // core. Arcade and DOS take the core's shape too.
+        val aspect =
+            staticProfile?.aspectRatio
+                ?: com.swordfish.libretrodroid.LibretroDroid.getGameAspectRatio().takeIf { it > 0f }
+                ?: (width.toFloat() / height)
+        // A core that asks for a quarter turn (vertical arcade, Lynx, WonderSwan) is shown on its side.
         return if (com.swordfish.libretrodroid.LibretroDroid.getGameRotation() % 2 == 1) {
             GameDisplayOptions.Companion.Profile(width, 1f / aspect, height)
         } else {
@@ -761,6 +775,7 @@ class BaseGameScreenViewModel(
         private val FAST_FORWARD_SPEEDS = listOf(1, 2)
         private const val AUTO_SAVE_TICK_MILLIS = 1_000L
         private const val RUNTIME_SIZE_POLL_MILLIS = 500L
+        const val CORE_PICTURE_SIZE_KEY = "pref_key_core_picture_size"
         private const val AUTO_SAVE_INTERVAL_MILLIS = 5 * 60_000L
     }
 }

@@ -26,15 +26,15 @@
     <string name="setting_fceumm_nospritelimit">No sprite limit</string>
     <string name="setting_genesis_plus_gx_blargg_ntsc_filter">TV effect</string>
     <string name="setting_genesis_plus_gx_overscan">Borders</string>
-    <string name="setting_genesis_plus_gx_lcd_filter">LCD ghosting</string>
+    <string name="setting_genesis_plus_gx_lcd_filter">Motion blur (like the real screen)</string>
     <string name="setting_genesis_plus_gx_no_sprite_limit">No sprite limit</string>
     <string name="setting_gambatte_gb_colorization">Colorization</string>
     <string name="setting_gambatte_gb_internal_palette">Internal palette</string>
-    <string name="setting_gambatte_mix_frames">LCD ghosting</string>
+    <string name="setting_gambatte_mix_frames">Motion blur (like the real screen)</string>
     <string name="setting_gambatte_dark_filter_level">Darken screen</string>
     <string name="setting_gambatte_gbc_color_correction">Color correction</string>
     <string name="setting_mgba_solar_sensor_level">Solar sensor level</string>
-    <string name="setting_mgba_interframe_blending">LCD ghosting</string>
+    <string name="setting_mgba_interframe_blending">Motion blur (like the real screen)</string>
     <string name="setting_mgba_frameskip">Frameskip</string>
     <string name="setting_mgba_color_correction">Color correction</string>
     <string name="setting_mupen64plus_43screensize">Screen size 4:3</string>
@@ -69,16 +69,16 @@
 
     <!-- Core settings values. Duplicated here to ease the translation process. -->
     <string name="value_gambatte_mix_frames_disabled">Disabled</string>
-    <string name="value_gambatte_mix_frames_mix">Simple</string>
-    <string name="value_gambatte_mix_frames_lcd_ghosting">LCD Ghosting (Accurate)</string>
-    <string name="value_gambatte_mix_frames_lcd_ghosting_fast">LCD Ghosting (Fast)</string>
+    <string name="value_gambatte_mix_frames_mix">Light</string>
+    <string name="value_gambatte_mix_frames_lcd_ghosting">Real screen (accurate)</string>
+    <string name="value_gambatte_mix_frames_lcd_ghosting_fast">Real screen (fast)</string>
     <string name="value_gambatte_gbc_color_correction_always">Enabled</string>
     <string name="value_gambatte_gbc_color_correction_disabled">Disabled</string>
 
     <string name="value_mgba_interframe_blending_off">Disabled</string>
-    <string name="value_mgba_interframe_blending_mix">Simple</string>
-    <string name="value_mgba_interframe_blending_lcd_ghosting">LCD Ghosting (Accurate)</string>
-    <string name="value_mgba_interframe_blending_lcd_ghosting_fast">LCD Ghosting (Fast)</string>
+    <string name="value_mgba_interframe_blending_mix">Light</string>
+    <string name="value_mgba_interframe_blending_lcd_ghosting">Real screen (accurate)</string>
+    <string name="value_mgba_interframe_blending_lcd_ghosting_fast">Real screen (fast)</string>
 
     <string name="value_mgba_frameskip_disabled">Disabled</string>
     <string name="value_mgba_frameskip_auto">Auto</string>

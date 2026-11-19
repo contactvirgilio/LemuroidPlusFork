@@ -75,6 +75,8 @@
     <string name="settings_title_low_latency_audio">Prefer low-latency audio</string>
     <string name="settings_description_low_latency_audio">Sound comes out a little sooner. If you hear crackles, turn it off.</string>
 
+    <string name="settings_title_core_picture_size">Picture size from the emulator</string>
+    <string name="settings_description_core_picture_size">Scaling and scanlines use the size the game really sends, so crop, layout and rotation options stay sharp. Turn off if a game looks the wrong size.</string>
     <string name="settings_title_direct_game_load">Direct game load</string>
     <string name="settings_description_direct_game_load">Big PS1, PSP and 3DS games start faster because they aren\'t copied first. If one won\'t start, turn this off.</string>
 
