@@ -397,7 +397,7 @@
     <string name="game_menu_state_auto">Auto</string>
     <string name="game_menu_state_auto_title">Auto-save</string>
     <string name="settings_title_shell_skins">Shell skins</string>
-    <string name="settings_description_shell_skins">Colour frames around the game, like a handheld\'s shell. In a game, tap the frame shortcut to switch between them.</string>
+    <string name="settings_description_shell_skins">Colour frames around the game, like a handheld\'s shell. In a game, the immersive shortcut (the dotted one) switches between them.</string>
     <string name="settings_pad_skin_1">Skin 1 · Original</string>
     <string name="settings_pad_skin_2">Skin 2 · Outline</string>
     <string name="settings_title_pad_skin">Touch pad skin</string>
