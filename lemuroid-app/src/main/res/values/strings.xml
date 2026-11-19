@@ -313,10 +313,10 @@
     <string name="game_filter_smooth">Smooth</string>
     <string name="game_filter_crt">CRT</string>
     <string name="game_filter_lcd">LCD</string>
-    <string name="game_filter_scan_25">Scan 25</string>
-    <string name="game_filter_scan_50">Scan 50</string>
-    <string name="game_filter_scan_75">Scan 75</string>
-    <string name="game_filter_scan_mask">Scan + mask</string>
+    <string name="game_filter_scan_25" formatted="false">Scanlines 25%</string>
+    <string name="game_filter_scan_50" formatted="false">Scanlines 50%</string>
+    <string name="game_filter_scan_75" formatted="false">Scanlines 75%</string>
+    <string name="game_filter_scan_mask">Scanlines + mask</string>
     <string name="game_scaling_fit">Fit</string>
     <string name="game_scaling_integer">Integer</string>
     <string name="game_scaling_pixel_perfect">Pixel-perfect</string>
