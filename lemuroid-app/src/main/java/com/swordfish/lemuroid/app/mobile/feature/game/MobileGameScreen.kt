@@ -1,9 +1,10 @@
 package com.swordfish.lemuroid.app.mobile.feature.game
 
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.layout.height
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.animateFloat
@@ -427,7 +428,10 @@ private fun GameOverlayButtons(
     // its left; tapping it again while open does nothing (no double-tap surprises). They slide
     // back in after the idle time.
     val fade = tween<Float>(durationMillis = NEST_FADE_MILLIS)
-    val slide = tween<IntSize>(durationMillis = NEST_FADE_MILLIS)
+    // Smooth open/close: the shortcuts fade while drifting a short way from the grid button.
+    // No clipping or growing box (that made them look cut off at an edge).
+    val glideFade = tween<Float>(durationMillis = NEST_GLIDE_MILLIS, easing = FastOutSlowInEasing)
+    val glide = tween<IntOffset>(durationMillis = NEST_GLIDE_MILLIS, easing = FastOutSlowInEasing)
     // Room for every shortcut plus the grid button.
     val openRowSize = openWithHub.coerceAtLeast(24.dp)
     // Fixed height: the shortcuts can be taller than the grid button, and a row that grows when
@@ -439,8 +443,8 @@ private fun GameOverlayButtons(
     ) {
         AnimatedVisibility(
             visible = open,
-            enter = expandHorizontally(slide, expandFrom = Alignment.End) + fadeIn(fade),
-            exit = shrinkHorizontally(slide, shrinkTowards = Alignment.End) + fadeOut(fade),
+            enter = fadeIn(glideFade) + slideInHorizontally(glide) { it / 6 },
+            exit = fadeOut(glideFade) + slideOutHorizontally(glide) { it / 6 },
         ) {
             CompositionLocalProvider(LocalOverlayButtonSize provides openRowSize, LocalSaveFlash provides saveFlash) {
                 Row(
@@ -800,6 +804,7 @@ private val LocalSaveFlash = compositionLocalOf<Color?> { null }
 
 /** Touches only wake the shortcuts in this top part of the screen (owner: about the top 30%). */
 private const val TOUCH_WAKE_TOP_FRACTION = 0.30f
+private const val NEST_GLIDE_MILLIS = 320
 private const val NEST_FADE_MILLIS = 220
 
 // Padding around the shortcut row (8 dp each side) plus a little room.
