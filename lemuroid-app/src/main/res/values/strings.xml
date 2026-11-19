@@ -210,26 +210,21 @@
     <string name="mobile_settings_help">Help</string>
     <string name="mobile_settings_support">Support</string>
     <string name="lemuroid_help_content"><![CDATA[
-        <b>Getting started</b><br/>
-        Pick your ROM folder in Settings and allow "All files access". Every emulator is built in, so no internet is needed. After adding games, tap <b>Rescan</b>.<br/><br/>
-        <b>The Lemuroid folder</b><br/>
-        On your main storage, <i>Lemuroid/</i> holds <i>saves</i>, <i>states</i>, <i>bios</i> (all BIOS files together) and <i>artwork</i> (one image per game, named like the ROM; turn it on in Settings &#8594; Show artwork).<br/><br/>
         <b>Games not showing up?</b><br/>
-        Unzip them, or put each system in its own folder named like: $SYSTEMS.<br/>
+        Allow "All files access", unzip console games, and put each system in its own folder named like: $SYSTEMS. Then tap <b>Rescan</b>.<br/>
         &#8226; PlayStation also works with <i>PS</i>, <i>PS1</i> or <i>PlayStation</i> folders.<br/>
-        &#8226; Arcade zips go in an <i>Arcade</i>, <i>MAME</i>, <i>FBNeo</i> or <i>Neo Geo</i> folder.<br/><br/>
-        <b>In-game shortcuts (top right)</b><br/>
-        Filter (1&#8211;7: sharp, smooth, LCD and scanlines) &#183; Scaling (1&#8211;3) &#183; Immersive (glow, and colour frames if Shell skins is on) &#183; Save state &#183; 2&#215; speed &#183; Sound &#183; Menu.<br/>
-        They fade after a few seconds. Touch the top part of the screen to bring them back. In Settings &#8594; Game shortcuts you can tuck them behind one grid button instead.<br/><br/>
-        <b>Saving</b><br/>
-        The game saves by itself every 5 minutes and when you leave (the save button blinks). That save is the <b>Auto</b> slot in <b>Menu &#8594; Load</b>; your newest own save says <b>Latest</b>.<br/>
-        Settings &#8594; <b>Resume where you left off</b> decides if tapping a game continues from there. Hold a game for Resume or Restart either way.<br/><br/>
+        &#8226; Arcade zips stay zipped, in an <i>Arcade</i>, <i>MAME</i>, <i>FBNeo</i> or <i>Neo Geo</i> folder.<br/><br/>
+        <b>The Lemuroid folder</b><br/>
+        On your main storage: <i>saves</i>, <i>states</i>, <i>bios</i> (all BIOS files together) and <i>artwork</i> (your own game pictures, named exactly like the game file; needs Settings &#8594; Show artwork).<br/><br/>
         <b>Multi-disc games</b><br/>
-        Make an <i>.m3u</i> file listing the discs, then use <b>Menu &#8594; Change Disk</b>.<br/><br/>
-        <b>Home screen mode</b><br/>
-        Settings &#8594; Home screen makes Lemuroid Plus your launcher. Your Android apps are in the Apps tab.<br/><br/>
+        Make an <i>.m3u</i> text file listing the disc files, one per line, and keep it next to them. The game shows once; swap with <b>Menu &#8594; Change Disk</b>.<br/><br/>
+        <b>Hidden tricks</b><br/>
+        &#8226; Shortcuts asleep? Touch the top part of the screen. Touches lower down don't wake them.<br/>
+        &#8226; Muted? A volume key brings up just the sound button.<br/>
+        &#8226; Hold a game for Restart, to start fresh instead of from the auto-save.<br/>
+        &#8226; Scanlines and Pixel-perfect look most even together (every line the same height).<br/><br/>
         <b>Backups</b><br/>
-        Settings &#8594; Backup exports everything to one zip, and imports saves from other emulators (.sav / .srm).
+        Settings &#8594; Backup makes one zip with everything, and imports saves from other emulators (.sav / .srm).
     ]]></string>
 
     <string name="lemuroid_crash_disclamer">The emulator ran into a problem and stopped. If it keeps happening, try these:\n
