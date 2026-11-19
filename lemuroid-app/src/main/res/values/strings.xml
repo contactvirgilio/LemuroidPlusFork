@@ -68,24 +68,24 @@
     <string name="settings_bios_category_not_detected">Supported</string>
 
     <string name="settings_title_reset_settings">Factory reset</string>
-    <string name="settings_description_reset_settings">Reset Lemuroid to its factory settings</string>
+    <string name="settings_description_reset_settings">Puts every setting back to how it was. Your saves stay.</string>
 
     <string name="settings_title_advanced_settings">Advanced settings</string>
     <string name="settings_description_advanced_settings">Shows extra settings for experienced users.</string>
     <string name="settings_title_low_latency_audio">Prefer low-latency audio</string>
-    <string name="settings_description_low_latency_audio">Reduce audio latency on supported devices. Might increase audio glitches.</string>
+    <string name="settings_description_low_latency_audio">Sound comes out a little sooner. If you hear crackles, turn it off.</string>
 
     <string name="settings_title_direct_game_load">Direct game load</string>
-    <string name="settings_description_direct_game_load">(Experimental) Reduce loading time and cache usage on supported consoles.</string>
+    <string name="settings_description_direct_game_load">Big PS1, PSP and 3DS games start faster because they aren\'t copied first. If one won\'t start, turn this off.</string>
 
     <string name="settings_title_enable_rumble">Rumble</string>
-    <string name="settings_description_enable_rumble">Enable rumble in supported games and controllers</string>
+    <string name="settings_description_enable_rumble">Controllers shake in games that support it.</string>
 
     <string name="settings_title_enable_device_rumble">Device rumble</string>
-    <string name="settings_description_enable_device_rumble">When no controller is connected vibrate the device instead</string>
+    <string name="settings_description_enable_device_rumble">No controller? The phone shakes instead.</string>
 
     <string name="reset_settings_warning_message_title">Are you sure?</string>
-    <string name="reset_settings_warning_message_description">This will reset Lemuroid to its factory settings. Saves and States will be preserved.</string>
+    <string name="reset_settings_warning_message_description">This puts every setting back to how it was. Your saves and states are kept.</string>
 
     <string name="settings_title_save_sync">Cloud saves</string>
     <string name="settings_description_save_sync">Back up and Sync your saves on the cloud</string>
@@ -133,12 +133,12 @@
     <string name="game_menu_state">State %1$s</string>
     <string name="game_menu_state_empty">Empty</string>
     <string name="game_menu_state_no_save">No save yet</string>
-    <string name="game_menu_change_disk_button">Change Disk</string>
-    <string name="game_menu_edit_touch_controls">Edit Controls</string>
+    <string name="game_menu_change_disk_button">Change disc</string>
+    <string name="game_menu_edit_touch_controls">Edit controls</string>
     <string name="game_menu_mute_audio">Mute</string>
-    <string name="game_menu_fast_forward">Fast-Forward</string>
-    <string name="game_menu_change_disk_disk">Disk %1$s</string>
-    <string name="game_menu_tilt_sensor">Tilt Sensor</string>
+    <string name="game_menu_fast_forward">Fast forward</string>
+    <string name="game_menu_change_disk_disk">Disc %1$s</string>
+    <string name="game_menu_tilt_sensor">Tilt sensor</string>
 
     <string name="game_loading_preparing_game">Preparing game…</string>
 
@@ -217,7 +217,7 @@
         <b>The Lemuroid folder</b><br/>
         On your main storage: <i>saves</i>, <i>states</i>, <i>bios</i> (all BIOS files together) and <i>artwork</i> (your own game pictures, named exactly like the game file; needs Settings &#8594; Show artwork).<br/><br/>
         <b>Multi-disc games</b><br/>
-        Make an <i>.m3u</i> text file listing the disc files, one per line, and keep it next to them. The game shows once; swap with <b>Menu &#8594; Change Disk</b>.<br/><br/>
+        Make an <i>.m3u</i> text file listing the disc files, one per line, and keep it next to them. The game shows once; swap with <b>Menu &#8594; Change disc</b>.<br/><br/>
         <b>Hidden tricks</b><br/>
         &#8226; Shortcuts asleep? Touch the top part of the screen. Touches lower down don't wake them.<br/>
         &#8226; Muted? A volume key brings up just the sound button.<br/>
