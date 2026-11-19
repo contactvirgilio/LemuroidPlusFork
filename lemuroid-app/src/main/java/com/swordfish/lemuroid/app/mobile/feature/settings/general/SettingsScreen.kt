@@ -227,22 +227,18 @@ private fun GeneralSettings() {
         ShellSkinsPreview(enabled = shellSkins.value)
         val padOutline = booleanPreferenceState(PadSkinSetting.KEY, true)
         PadSkinPicker(outline = padOutline.value, onPick = { padOutline.value = it })
+        // One choice for how games look: regular tiles, soft tiles, or cartridges and discs.
         val softTiles = booleanPreferenceState(SystemTileColors.PASTEL_PREF_KEY, false)
         val context = LocalContext.current
         val cartridges = booleanPreferenceState(MediaViewSetting.KEY, false)
         GameStylePicker(
             cartridges = cartridges.value,
             soft = softTiles.value,
-            onPick = {
-                cartridges.value = it
-                MediaViewSetting.set(context, it)
-            },
-        )
-        TileColorsPicker(
-            soft = softTiles.value,
-            onPick = {
-                softTiles.value = it
-                SystemTileColors.pastelEnabled = it
+            onPick = { media, soft ->
+                softTiles.value = soft
+                SystemTileColors.pastelEnabled = soft
+                cartridges.value = media
+                MediaViewSetting.set(context, media)
             },
         )
         // HD mode is hidden (owner, 2026-11-19): the in-game Filter shortcut covers the look.

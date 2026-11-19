@@ -1,5 +1,6 @@
 package com.swordfish.lemuroid.app.mobile.feature.settings.general
 
+import androidx.compose.foundation.layout.height
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.layout.fillMaxSize
@@ -106,14 +107,14 @@ private fun ChoiceCard(
     selected: Boolean,
     label: String,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier.size(width = 120.dp, height = 84.dp),
     content: @Composable () -> Unit,
 ) {
     val shape = RoundedCornerShape(10.dp)
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             modifier =
-                Modifier
-                    .size(width = 120.dp, height = 84.dp)
+                modifier
                     .clip(shape)
                     .background(Color.Black)
                     .border(if (selected) 2.dp else 0.5.dp, if (selected) TEAL else Color(0xFF444441), shape)
@@ -131,109 +132,51 @@ private fun ChoiceCard(
     }
 }
 
-/** Tiles or cartridges and discs for the game lists, each with a small preview. */
+/** How games look in the lists: regular tiles, soft tiles, or cartridges and discs. */
 @Composable
 fun GameStylePicker(
     cartridges: Boolean,
     soft: Boolean,
-    onPick: (Boolean) -> Unit,
+    onPick: (cartridges: Boolean, soft: Boolean) -> Unit,
 ) {
-    val colors = SystemTileColors.previewColors(soft, PREVIEW_SYSTEMS)
+    val regular = SystemTileColors.previewColors(false, PREVIEW_SYSTEMS)
+    val pastel = SystemTileColors.previewColors(true, PREVIEW_SYSTEMS)
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
         Text(
             text = stringResource(R.string.settings_title_game_style),
             style = MaterialTheme.typography.titleMedium,
         )
         Row(
-            modifier = Modifier.padding(top = 10.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            ChoiceCard(!cartridges, stringResource(R.string.settings_game_style_tiles), { onPick(false) }) {
-                Canvas(modifier = Modifier.fillMaxSize()) { drawTileWall(colors) }
-            }
-            ChoiceCard(cartridges, stringResource(R.string.settings_game_style_media), { onPick(true) }) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    listOf(R.drawable.media_snes, R.drawable.media_gba, R.drawable.media_psx).forEach {
-                        Image(
-                            painter = painterResource(it),
-                            contentDescription = null,
-                            modifier = Modifier.size(34.dp),
-                            contentScale = ContentScale.Fit,
-                        )
-                    }
+            val card = Modifier.fillMaxWidth().height(72.dp)
+            Box(modifier = Modifier.weight(1f)) {
+                ChoiceCard(!cartridges && !soft, stringResource(R.string.settings_game_style_tiles), { onPick(false, false) }, card) {
+                    Canvas(modifier = Modifier.fillMaxSize()) { drawTileWall(regular) }
                 }
             }
-        }
-    }
-}
-
-private fun DrawScope.drawClassicPad() {
-    val fill = Color.White.copy(alpha = 0.35f)
-    drawRoundRect(Color(0xFF5F5E5A).copy(alpha = 0.4f), Offset(6.dp.toPx(), 6.dp.toPx()), Size(size.width - 12.dp.toPx(), size.height - 12.dp.toPx()), CornerRadius(8.dp.toPx()))
-    val cx = size.width * 0.27f
-    val cy = size.height * 0.52f
-    drawCircle(fill, radius = size.height * 0.24f, center = Offset(cx, cy))
-    val arm = size.height * 0.2f
-    val thick = size.height * 0.1f
-    drawRect(Color.White.copy(alpha = 0.6f), Offset(cx - thick / 2, cy - arm), Size(thick, arm * 2))
-    drawRect(Color.White.copy(alpha = 0.6f), Offset(cx - arm, cy - thick / 2), Size(arm * 2, thick))
-    drawCircle(Color.White.copy(alpha = 0.5f), radius = size.height * 0.12f, center = Offset(size.width * 0.68f, size.height * 0.62f))
-    drawCircle(Color.White.copy(alpha = 0.5f), radius = size.height * 0.12f, center = Offset(size.width * 0.84f, size.height * 0.42f))
-}
-
-private fun DrawScope.drawOutlinePad() {
-    val line = Color(0xFF9A9A96)
-    val stroke = Stroke(width = 2.dp.toPx())
-    val cx = size.width * 0.27f
-    val cy = size.height * 0.52f
-    val a = size.height * 0.1f
-    val b = size.height * 0.3f
-    val plus =
-        Path().apply {
-            moveTo(cx - a, cy - b)
-            lineTo(cx + a, cy - b)
-            lineTo(cx + a, cy - a)
-            lineTo(cx + b, cy - a)
-            lineTo(cx + b, cy + a)
-            lineTo(cx + a, cy + a)
-            lineTo(cx + a, cy + b)
-            lineTo(cx - a, cy + b)
-            lineTo(cx - a, cy + a)
-            lineTo(cx - b, cy + a)
-            lineTo(cx - b, cy - a)
-            lineTo(cx - a, cy - a)
-            close()
-        }
-    drawPath(plus, line, style = stroke)
-    drawCircle(line, radius = size.height * 0.12f, center = Offset(size.width * 0.68f, size.height * 0.62f), style = stroke)
-    drawCircle(line, radius = size.height * 0.12f, center = Offset(size.width * 0.84f, size.height * 0.42f), style = stroke)
-}
-
-/** Two little tile walls to pick normal or soft tile colors; the chosen one has a teal outline. */
-@Composable
-fun TileColorsPicker(
-    soft: Boolean,
-    onPick: (Boolean) -> Unit,
-) {
-    val normal = SystemTileColors.previewColors(false, PREVIEW_SYSTEMS)
-    val pastel = SystemTileColors.previewColors(true, PREVIEW_SYSTEMS)
-    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
-        Text(
-            text = stringResource(R.string.settings_title_pastel_tiles),
-            style = MaterialTheme.typography.titleMedium,
-        )
-        Row(
-            modifier = Modifier.padding(top = 10.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            PadCard(selected = !soft, label = stringResource(R.string.settings_tiles_normal), onClick = { onPick(false) }) {
-                drawTileWall(normal)
+            Box(modifier = Modifier.weight(1f)) {
+                ChoiceCard(!cartridges && soft, stringResource(R.string.settings_game_style_soft), { onPick(false, true) }, card) {
+                    Canvas(modifier = Modifier.fillMaxSize()) { drawTileWall(pastel) }
+                }
             }
-            PadCard(selected = soft, label = stringResource(R.string.settings_tiles_soft), onClick = { onPick(true) }) {
-                drawTileWall(pastel)
+            Box(modifier = Modifier.weight(1f)) {
+                ChoiceCard(cartridges, stringResource(R.string.settings_game_style_media), { onPick(true, false) }, card) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(2.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        listOf(R.drawable.media_snes, R.drawable.media_gba, R.drawable.media_psx).forEach {
+                            Image(
+                                painter = painterResource(it),
+                                contentDescription = null,
+                                modifier = Modifier.size(28.dp),
+                                contentScale = ContentScale.Fit,
+                            )
+                        }
+                    }
+                }
             }
         }
     }

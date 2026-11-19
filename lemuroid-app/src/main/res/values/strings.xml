@@ -361,9 +361,10 @@
     <string name="game_menu_on">On</string>
     <string name="game_menu_off">Off</string>
     <string name="settings_title_pastel_tiles">Colors</string>
-    <string name="settings_title_game_style">Game style</string>
+    <string name="settings_title_game_style">Style</string>
     <string name="settings_game_style_tiles">Tiles</string>
-    <string name="settings_game_style_media">Cartridges and discs</string>
+    <string name="settings_game_style_soft">Soft tiles</string>
+    <string name="settings_game_style_media">Cartridges</string>
     <string name="settings_tiles_normal">Normal</string>
     <string name="settings_tiles_soft">Soft</string>
     <string name="settings_description_pastel_tiles">Lighter colors for system cards and game tiles</string>
