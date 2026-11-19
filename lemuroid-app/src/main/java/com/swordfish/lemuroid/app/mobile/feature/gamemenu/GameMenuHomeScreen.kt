@@ -248,6 +248,9 @@ private fun coreOptionEntries(gameMenuRequest: GameMenuActivity.GameMenuRequest)
 
     for (option in gameMenuRequest.coreOptions + gameMenuRequest.advancedCoreOptions) {
         if (option.getKey() == dsLayoutKey) continue
+        // Only the essentials the owner picked get a tile (with a plain name); the rest are gone
+        // from the menu and keep their defaults.
+        val plainName = MENU_CORE_OPTIONS[option.getKey()] ?: continue
         val values = option.getEntriesValues()
         if (values.isEmpty()) continue
         val key = com.swordfish.lemuroid.lib.core.CoreVariablesManager.computeSharedPreferenceKey(option.getKey(), systemId)
@@ -256,7 +259,7 @@ private fun coreOptionEntries(gameMenuRequest: GameMenuActivity.GameMenuRequest)
         var current by remember(key) {
             mutableStateOf(option.getCurrentValue().takeIf { it in values } ?: values.first())
         }
-        val label = option.getDisplayName(context)
+        val label = stringResource(plainName)
         result +=
             MenuEntry(
                 label = label,
@@ -310,3 +313,31 @@ private fun coreOptionEntries(gameMenuRequest: GameMenuActivity.GameMenuRequest)
     }
     return result
 }
+
+/** Core options shown as game menu tiles (owner's pick, 2026-11-19) and their plain names. */
+private val MENU_CORE_OPTIONS =
+    mapOf(
+        // Crop edges (overscan)
+        "fceumm_overscan_h" to R.string.menu_option_crop_sides,
+        "fceumm_overscan_v" to R.string.menu_option_crop_top_bottom,
+        "stella_crop_hoverscan" to R.string.menu_option_crop_edges,
+        "genesis_plus_gx_overscan" to R.string.menu_option_show_edges,
+        // No sprite flicker
+        "fceumm_nospritelimit" to R.string.menu_option_no_flicker,
+        "genesis_plus_gx_no_sprite_limit" to R.string.menu_option_no_flicker,
+        // Game Boy colours
+        "gambatte_gb_colorization" to R.string.menu_option_colorize,
+        "gambatte_gb_internal_palette" to R.string.menu_option_palette,
+        // Screen layout (DS has its own Screens tile)
+        "citra_layout_option" to R.string.game_menu_ds_screens,
+        // Rotate screen
+        "handy_rot" to R.string.menu_option_rotate,
+        "wswan_rotate_display" to R.string.menu_option_rotate,
+        // Frameskip
+        "pcsx_rearmed_frameskip" to R.string.menu_option_frameskip,
+        "ppsspp_frameskip" to R.string.menu_option_frameskip,
+        "ppsspp_auto_frameskip" to R.string.menu_option_auto_frameskip,
+        "fbneo-frameskip" to R.string.menu_option_frameskip,
+        "desmume_frameskip" to R.string.menu_option_frameskip,
+        "mgba_frameskip" to R.string.menu_option_frameskip,
+    )
