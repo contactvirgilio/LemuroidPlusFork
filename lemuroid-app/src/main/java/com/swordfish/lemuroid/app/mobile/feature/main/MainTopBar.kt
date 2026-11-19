@@ -1,10 +1,5 @@
 package com.swordfish.lemuroid.app.mobile.feature.main
 
-import com.swordfish.lemuroid.app.shared.tiles.SystemTileColors
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberMediaView
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.MediaViewSetting
-import androidx.compose.material.icons.outlined.Palette
-import androidx.compose.material.icons.outlined.SdCard
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -153,9 +148,6 @@ fun LemuroidTopBarActions(
         if (route == MainRoute.HOME || route == MainRoute.FAVORITES) {
             HomeTileSizeButtons()
         }
-        if (route == MainRoute.HOME || route == MainRoute.FAVORITES || route == MainRoute.SYSTEM_GAMES) {
-            GameStyleButton()
-        }
         IconButton(
             onClick = { onHelpPressed() },
         ) {
@@ -288,50 +280,6 @@ private fun LemuroidSearchView(
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                 ),
-        )
-    }
-}
-
-/**
- * Style button: each tap moves to the next look for the game lists, Tiles, Soft tiles, then
- * Cartridges (the same choice as Settings > Style). The icon shows the current one.
- */
-@Composable
-internal fun GameStyleButton() {
-    val context = LocalContext.current
-    val cartridges = rememberMediaView()
-    val soft = SystemTileColors.pastelEnabled
-    val label = stringResource(R.string.settings_title_game_style)
-    IconButton(
-        onClick = {
-            val prefs = com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper.getSharedPreferences(context)
-            when {
-                cartridges -> {
-                    MediaViewSetting.set(context, false)
-                    SystemTileColors.pastelEnabled = false
-                    prefs.edit().putBoolean(SystemTileColors.PASTEL_PREF_KEY, false).apply()
-                }
-                soft -> {
-                    SystemTileColors.pastelEnabled = false
-                    prefs.edit().putBoolean(SystemTileColors.PASTEL_PREF_KEY, false).apply()
-                    MediaViewSetting.set(context, true)
-                }
-                else -> {
-                    SystemTileColors.pastelEnabled = true
-                    prefs.edit().putBoolean(SystemTileColors.PASTEL_PREF_KEY, true).apply()
-                }
-            }
-        },
-    ) {
-        Icon(
-            imageVector =
-                when {
-                    cartridges -> Icons.Outlined.SdCard
-                    soft -> Icons.Outlined.Palette
-                    else -> Icons.Outlined.GridView
-                },
-            contentDescription = label,
-            tint = MaterialTheme.colorScheme.primary,
         )
     }
 }
