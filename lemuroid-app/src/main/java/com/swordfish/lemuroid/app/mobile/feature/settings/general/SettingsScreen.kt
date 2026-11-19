@@ -227,12 +227,17 @@ private fun GeneralSettings() {
         ShellSkinsPreview(enabled = shellSkins.value)
         val padOutline = booleanPreferenceState(PadSkinSetting.KEY, true)
         PadSkinPicker(outline = padOutline.value, onPick = { padOutline.value = it })
-        LemuroidSettingsSwitch(
-            state = booleanPreferenceState(MediaViewSetting.KEY, false),
-            title = { Text(text = stringResource(id = R.string.settings_title_media_view)) },
-            subtitle = { Text(text = stringResource(id = R.string.settings_description_media_view)) },
-        )
         val softTiles = booleanPreferenceState(SystemTileColors.PASTEL_PREF_KEY, false)
+        val context = LocalContext.current
+        val cartridges = booleanPreferenceState(MediaViewSetting.KEY, false)
+        GameStylePicker(
+            cartridges = cartridges.value,
+            soft = softTiles.value,
+            onPick = {
+                cartridges.value = it
+                MediaViewSetting.set(context, it)
+            },
+        )
         TileColorsPicker(
             soft = softTiles.value,
             onPick = {

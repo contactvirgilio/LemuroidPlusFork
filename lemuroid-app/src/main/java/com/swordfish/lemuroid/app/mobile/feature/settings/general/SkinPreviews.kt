@@ -1,5 +1,11 @@
 package com.swordfish.lemuroid.app.mobile.feature.settings.general
 
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -89,18 +95,32 @@ private fun PadCard(
     onClick: () -> Unit,
     draw: DrawScope.() -> Unit,
 ) {
+    ChoiceCard(selected, label, onClick) {
+        Canvas(modifier = Modifier.fillMaxSize()) { draw() }
+    }
+}
+
+/** A small tappable preview with a label; the chosen one has a teal outline. */
+@Composable
+private fun ChoiceCard(
+    selected: Boolean,
+    label: String,
+    onClick: () -> Unit,
+    content: @Composable () -> Unit,
+) {
     val shape = RoundedCornerShape(10.dp)
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Canvas(
+        Box(
             modifier =
                 Modifier
                     .size(width = 120.dp, height = 84.dp)
                     .clip(shape)
+                    .background(Color.Black)
                     .border(if (selected) 2.dp else 0.5.dp, if (selected) TEAL else Color(0xFF444441), shape)
                     .clickable(onClick = onClick),
+            contentAlignment = Alignment.Center,
         ) {
-            drawRect(Color.Black)
-            draw()
+            content()
         }
         Text(
             modifier = Modifier.padding(top = 4.dp),
@@ -108,6 +128,45 @@ private fun PadCard(
             style = MaterialTheme.typography.bodySmall,
             color = if (selected) TEAL else MaterialTheme.colorScheme.onSurfaceVariant,
         )
+    }
+}
+
+/** Tiles or cartridges and discs for the game lists, each with a small preview. */
+@Composable
+fun GameStylePicker(
+    cartridges: Boolean,
+    soft: Boolean,
+    onPick: (Boolean) -> Unit,
+) {
+    val colors = SystemTileColors.previewColors(soft, PREVIEW_SYSTEMS)
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
+        Text(
+            text = stringResource(R.string.settings_title_game_style),
+            style = MaterialTheme.typography.titleMedium,
+        )
+        Row(
+            modifier = Modifier.padding(top = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            ChoiceCard(!cartridges, stringResource(R.string.settings_game_style_tiles), { onPick(false) }) {
+                Canvas(modifier = Modifier.fillMaxSize()) { drawTileWall(colors) }
+            }
+            ChoiceCard(cartridges, stringResource(R.string.settings_game_style_media), { onPick(true) }) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    listOf(R.drawable.media_snes, R.drawable.media_gba, R.drawable.media_psx).forEach {
+                        Image(
+                            painter = painterResource(it),
+                            contentDescription = null,
+                            modifier = Modifier.size(34.dp),
+                            contentScale = ContentScale.Fit,
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 

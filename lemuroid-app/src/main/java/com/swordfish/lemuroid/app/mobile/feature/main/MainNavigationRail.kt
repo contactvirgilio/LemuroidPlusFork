@@ -138,7 +138,6 @@ fun MainNavigationRail(
         if (currentRoute == MainRoute.HOME || currentRoute == MainRoute.FAVORITES) {
             Row {
                 HomeTileSizeCycleButton()
-                MediaViewButton()
             }
             Text(
                 text = stringResource(R.string.rail_view),
