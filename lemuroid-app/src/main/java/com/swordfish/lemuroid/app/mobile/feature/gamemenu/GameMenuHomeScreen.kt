@@ -220,21 +220,28 @@ private fun coreOptionEntries(gameMenuRequest: GameMenuActivity.GameMenuRequest)
             null
         }
     if (dsLayoutKey != null) {
-        var single by remember {
-            mutableStateOf(com.swordfish.lemuroid.app.shared.game.DsSingleScreen.isSingleChosen(context, gameMenuRequest.coreConfig))
-        }
+        val ds = com.swordfish.lemuroid.app.shared.game.DsSingleScreen
+        var layout by remember { mutableStateOf(ds.chosenLayout(context, gameMenuRequest.coreConfig)) }
         val label = stringResource(R.string.game_menu_ds_screens)
         result +=
             MenuEntry(
                 label = label,
-                sublabel = stringResource(if (single) R.string.game_menu_ds_screens_single else R.string.game_menu_ds_screens_both),
-                active = single,
+                sublabel =
+                    stringResource(
+                        when (layout) {
+                            com.swordfish.lemuroid.app.shared.game.DsSingleScreen.Layout.BOTH -> R.string.game_menu_ds_screens_both
+                            com.swordfish.lemuroid.app.shared.game.DsSingleScreen.Layout.SINGLE -> R.string.game_menu_ds_screens_single
+                            com.swordfish.lemuroid.app.shared.game.DsSingleScreen.Layout.SIDE_BY_SIDE -> R.string.game_menu_ds_screens_side
+                        },
+                    ),
+                active = layout != com.swordfish.lemuroid.app.shared.game.DsSingleScreen.Layout.BOTH,
                 icon = { tint ->
                     Icon(Icons.Outlined.Splitscreen, contentDescription = label, tint = tint, modifier = Modifier.size(28.dp))
                 },
                 onClick = {
-                    single = !single
-                    com.swordfish.lemuroid.app.shared.game.DsSingleScreen.choose(context, gameMenuRequest.coreConfig, single)
+                    val all = com.swordfish.lemuroid.app.shared.game.DsSingleScreen.Layout.values()
+                    layout = all[(layout.ordinal + 1) % all.size]
+                    ds.choose(context, gameMenuRequest.coreConfig, layout)
                 },
             )
     }

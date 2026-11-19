@@ -11,17 +11,17 @@ import com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper
 
 /**
  * Nintendo DS "Single screen" layout: one screen at a time, full size, and R2 flips between the
- * top and the bottom screen. It is the default when a gamepad is present (built-in controls count);
- * without one there is no R2 to flip with, so the default stays two stacked screens.
+ * top and the bottom screen. It is the default on every device (owner); the game menu's Screens tile
+ * switches to Both (stacked) or Side by side.
  */
 object DsSingleScreen {
-    private class Values(val key: String, val top: String, val bottom: String, val stacked: String)
+    private class Values(val key: String, val top: String, val bottom: String, val stacked: String, val side: String)
 
     private fun values(coreId: CoreID): Values? =
         when (coreId) {
             // melonDS DS core
-            CoreID.MELONDS -> Values("melonds_screen_layout1", "top", "bottom", "top-bottom")
-            CoreID.DESMUME -> Values("desmume_screens_layout", "top only", "bottom only", "top/bottom")
+            CoreID.MELONDS -> Values("melonds_screen_layout1", "top", "bottom", "top-bottom", "left-right")
+            CoreID.DESMUME -> Values("desmume_screens_layout", "top only", "bottom only", "top/bottom", "left/right")
             else -> null
         }
 
@@ -79,22 +79,44 @@ object DsSingleScreen {
     /** The core option key this mode drives (hidden from the game menu's option tiles). */
     fun layoutKey(coreId: CoreID): String? = values(coreId)?.key
 
-    /** Game menu "Screens" tile: whether single-screen is chosen (or the default for this device). */
-    fun isSingleChosen(
+    /** The game menu's Screens choices, in tile order. */
+    enum class Layout { BOTH, SINGLE, SIDE_BY_SIDE }
+
+    /** Game menu "Screens" tile: the chosen layout (or the default for this device). */
+    fun chosenLayout(
         context: Context,
         config: SystemCoreConfig,
-    ): Boolean = isSingle(effectiveLayout(context, config))
+    ): Layout {
+        val v = values(config.coreID) ?: return Layout.BOTH
+        val layout = effectiveLayout(context, config)
+        return when {
+            isSingle(layout) -> Layout.SINGLE
+            layout == v.side -> Layout.SIDE_BY_SIDE
+            else -> Layout.BOTH
+        }
+    }
 
-    /** Game menu "Screens" tile: Both (stacked) or Single (R2 flips). Applies when the menu closes. */
+    /** Side by side: the picture is twice as wide, so its size comes from the core (see scaling). */
+    fun isSideBySide(
+        context: Context,
+        config: SystemCoreConfig,
+    ): Boolean = chosenLayout(context, config) == Layout.SIDE_BY_SIDE
+
+    /** Game menu "Screens" tile: Both, Single (R2 flips) or Side by side. Applies when the menu closes. */
     fun choose(
         context: Context,
         config: SystemCoreConfig,
-        single: Boolean,
+        layout: Layout,
     ) {
         val v = values(config.coreID) ?: return
         val prefKey = CoreVariablesManager.computeSharedPreferenceKey(v.key, SystemID.NDS.dbname)
-        SharedPreferencesHelper.getSharedPreferences(context).edit()
-            .putString(prefKey, if (single) v.top else v.stacked).apply()
+        val value =
+            when (layout) {
+                Layout.BOTH -> v.stacked
+                Layout.SINGLE -> v.top
+                Layout.SIDE_BY_SIDE -> v.side
+            }
+        SharedPreferencesHelper.getSharedPreferences(context).edit().putString(prefKey, value).apply()
         showingBottom = false
     }
 
@@ -106,7 +128,8 @@ object DsSingleScreen {
         val prefKey = CoreVariablesManager.computeSharedPreferenceKey(v.key, SystemID.NDS.dbname)
         val saved = SharedPreferencesHelper.getSharedPreferences(context).getString(prefKey, null)
         if (saved != null) return saved
-        return if (hasGamePad()) v.top else v.stacked
+        // Single screen is the default everywhere (owner, 2026-11-19).
+        return v.top
     }
 
     private fun hasGamePad(): Boolean =

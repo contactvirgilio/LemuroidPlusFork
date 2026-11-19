@@ -469,10 +469,15 @@ class BaseGameScreenViewModel(
     // resolution changes all stay right); the fixed per-system size is only the first guess.
     // Settings > Advanced > "Picture size from the emulator" off: fixed sizes only (failsafe).
     // The DS keeps its fixed size: our single-screen mode crops what the core sends.
-    private val useCoreSize =
-        system.id != com.swordfish.lemuroid.lib.library.SystemID.NDS &&
-            com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper.getSharedPreferences(appContext)
-                .getBoolean(CORE_PICTURE_SIZE_KEY, true)
+    // DS side by side is twice as wide, so it takes the core's size (and shape) too.
+    private val isDs = system.id == com.swordfish.lemuroid.lib.library.SystemID.NDS
+    private val coreSizeSetting =
+        com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper.getSharedPreferences(appContext)
+            .getBoolean(CORE_PICTURE_SIZE_KEY, true)
+
+    // Read each time: the DS layout can change from the game menu while playing.
+    private val useCoreSize: Boolean
+        get() = coreSizeSetting && (!isDs || DsSingleScreen.isSideBySide(appContext, systemCoreConfig))
 
     private val scalingProfile: GameDisplayOptions.Companion.Profile?
         get() =
@@ -693,7 +698,7 @@ class BaseGameScreenViewModel(
     // Arcade and DOS: read the picture size from the core while the game runs (it is only known
     // once the game has loaded, and a few games change it).
     init {
-        if (staticProfile == null || useCoreSize) {
+        if (staticProfile == null || coreSizeSetting) {
             viewModelScope.launch {
                 while (true) {
                     delay(RUNTIME_SIZE_POLL_MILLIS)
@@ -711,7 +716,7 @@ class BaseGameScreenViewModel(
         // Consoles keep their usual shape (today's look); only the size in pixels comes from the
         // core. Arcade and DOS take the core's shape too.
         val aspect =
-            staticProfile?.aspectRatio
+            staticProfile?.aspectRatio?.takeIf { !isDs }
                 ?: com.swordfish.libretrodroid.LibretroDroid.getGameAspectRatio().takeIf { it > 0f }
                 ?: (width.toFloat() / height)
         // A core that asks for a quarter turn (vertical arcade, Lynx, WonderSwan) is shown on its side.
