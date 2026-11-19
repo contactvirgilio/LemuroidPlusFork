@@ -218,8 +218,12 @@
         Unzip them, or put each system in its own folder named like: $SYSTEMS.<br/>
         &#8226; PlayStation also works with <i>PS</i>, <i>PS1</i> or <i>PlayStation</i> folders.<br/>
         &#8226; Arcade zips go in an <i>Arcade</i>, <i>MAME</i>, <i>FBNeo</i> or <i>Neo Geo</i> folder.<br/><br/>
-        <b>In-game buttons (top right)</b><br/>
-        Save state &#183; Mute &#183; 2&#215; speed &#183; Filter (1&#8211;7) &#183; Scaling (1&#8211;3) &#183; Menu. They fade after 15 seconds; touch to bring them back.<br/><br/>
+        <b>In-game shortcuts (top right)</b><br/>
+        Filter (1&#8211;7: sharp, smooth, LCD and scanlines) &#183; Scaling (1&#8211;3) &#183; Immersive (glow, and colour frames if Shell skins is on) &#183; Save state &#183; 2&#215; speed &#183; Sound &#183; Menu.<br/>
+        They fade after a few seconds. Touch the top part of the screen to bring them back. In Settings &#8594; Game shortcuts you can tuck them behind one grid button instead.<br/><br/>
+        <b>Saving</b><br/>
+        The game saves by itself every 5 minutes and when you leave (the save button blinks). That save is the <b>Auto</b> slot in <b>Menu &#8594; Load</b>; your newest own save says <b>Latest</b>.<br/>
+        Settings &#8594; <b>Resume where you left off</b> decides if tapping a game continues from there. Hold a game for Resume or Restart either way.<br/><br/>
         <b>Multi-disc games</b><br/>
         Make an <i>.m3u</i> file listing the discs, then use <b>Menu &#8594; Change Disk</b>.<br/><br/>
         <b>Home screen mode</b><br/>
@@ -228,11 +232,11 @@
         Settings &#8594; Backup exports everything to one zip, and imports saves from other emulators (.sav / .srm).
     ]]></string>
 
-    <string name="lemuroid_crash_disclamer">It looks like the Libretro core has experienced an unexpected issue. If it\'s persistent please try the following:\n
-        \n\u2022 Disable auto-save and re-run the game
-        \n\u2022 Go into Android settings and clear the app cache
-        \n\u2022 Go into Lemuroid settings and perform a Factory Reset
-        \n\n If none of the above works, it might be possible that this Game/Core is not supported by this device.
+    <string name="lemuroid_crash_disclamer">The emulator ran into a problem and stopped. If it keeps happening, try these:\n
+        \n\u2022 Hold the game and pick Restart, so it starts fresh instead of from the auto-save
+        \n\u2022 Try another core in Settings \u2192 Change cores
+        \n\u2022 Clear the app\'s cache in Android settings
+        \n\nIf nothing helps, this game may not work with this core on your device.
     </string>
 
     <string name="error_message_incompatible_state">This save state is not compatible with the current core version. Please load the latest in-game save or use a previous Lemuroid version.</string>
