@@ -94,7 +94,8 @@ class GameViewModelRetroGameView(
 
         val autoSaveEnabled = settingsManager.autoSave()
         val filter = settingsManager.screenFilter()
-        val hdMode = settingsManager.hdMode()
+        // HD mode is hidden in Settings, so it is always off (a saved "on" would block the filters).
+        val hdMode = false
         val hdModeQuality = settingsManager.hdModeQuality()
         val alignment = settingsManager.viewportAlignment()
         val lowLatencyAudio = settingsManager.lowLatencyAudio()
