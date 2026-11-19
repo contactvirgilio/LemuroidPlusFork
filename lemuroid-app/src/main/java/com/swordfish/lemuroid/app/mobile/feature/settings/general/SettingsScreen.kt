@@ -221,15 +221,15 @@ private fun GeneralSettings() {
             title = { Text(text = stringResource(id = R.string.settings_title_nested_shortcuts)) },
             subtitle = { Text(text = stringResource(id = R.string.settings_description_nested_shortcuts)) },
         )
+        val shellSkins = booleanPreferenceState(GameShellSkin.SETTING_KEY, false)
         LemuroidSettingsSwitch(
-            state = booleanPreferenceState(GameShellSkin.SETTING_KEY, false),
+            state = shellSkins,
             title = { Text(text = stringResource(id = R.string.settings_title_shell_skins)) },
+            subtitle = { Text(text = stringResource(id = R.string.settings_description_shell_skins)) },
         )
-        LemuroidSettingsSwitch(
-            state = booleanPreferenceState(PadSkinSetting.KEY, true),
-            title = { Text(text = stringResource(id = R.string.settings_title_pad_skin)) },
-            subtitle = { Text(text = stringResource(id = R.string.settings_description_pad_skin)) },
-        )
+        ShellSkinsPreview(enabled = shellSkins.value)
+        val padOutline = booleanPreferenceState(PadSkinSetting.KEY, true)
+        PadSkinPicker(outline = padOutline.value, onPick = { padOutline.value = it })
         LemuroidSettingsSwitch(
             state = booleanPreferenceState(MediaViewSetting.KEY, false),
             title = { Text(text = stringResource(id = R.string.settings_title_media_view)) },
