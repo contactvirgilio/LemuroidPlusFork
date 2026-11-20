@@ -1,5 +1,8 @@
 package com.swordfish.lemuroid.app.mobile.feature.games
 
+import androidx.compose.foundation.layout.wrapContentHeight
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberCarouselView
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.GameCarousel
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,6 +33,18 @@ fun GamesScreen(
 
     if (games.itemCount == 0) {
         LemuroidEmptyView()
+        return
+    }
+
+    if (rememberCarouselView()) {
+        GameCarousel(
+            modifier = modifier.fillMaxSize().wrapContentHeight(),
+            count = games.itemCount,
+            gameAt = { games[it] },
+            key = { games.peek(it)?.id ?: it },
+            onClick = onGameClick,
+            onLongClick = onGameLongClick,
+        )
         return
     }
 

@@ -1,5 +1,6 @@
 package com.swordfish.lemuroid.app.mobile.feature.settings.general
 
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.CarouselViewSetting
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.SportsEsports
@@ -252,14 +253,18 @@ private fun LibraryLookSettings() {
         val softTiles = booleanPreferenceState(SystemTileColors.PASTEL_PREF_KEY, false)
         val context = LocalContext.current
         val cartridges = booleanPreferenceState(MediaViewSetting.KEY, false)
+        val carousel = booleanPreferenceState(CarouselViewSetting.KEY, false)
         GameStylePicker(
             cartridges = cartridges.value,
             soft = softTiles.value,
-            onPick = { media, soft ->
+            carousel = carousel.value,
+            onPick = { media, soft, wheel ->
                 softTiles.value = soft
                 SystemTileColors.pastelEnabled = soft
                 cartridges.value = media
                 MediaViewSetting.set(context, media)
+                carousel.value = wheel
+                CarouselViewSetting.set(context, wheel)
             },
         )
         // HD mode is hidden (owner, 2026-11-19): the in-game Filter shortcut covers the look.

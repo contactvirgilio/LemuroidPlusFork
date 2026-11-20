@@ -441,4 +441,5 @@
     <string name="settings_group_library_look">Library look</string>
     <string name="settings_group_controls">Controls</string>
     <string name="settings_group_system">System</string>
+    <string name="settings_game_style_carousel">Carousel</string>
 </resources>
