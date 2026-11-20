@@ -283,10 +283,99 @@ object CartLabels {
 
         val art =
             withContext(Dispatchers.Default) {
-                if (disc) photo.asImageBitmap() else masked(context, photo, labelRes!!)?.asImageBitmap()
+                if (disc) photo.asImageBitmap() else masked(context, game, photo, labelRes!!)?.asImageBitmap()
             } ?: return null
         artCache.put(key, art)
         return art
+    }
+
+    /** Where the sticker roughly sits on each system's cart photo (left, top, right, bottom, in %). */
+    private val STICKER_AREA =
+        mapOf(
+            "nes" to intArrayOf(8, 4, 92, 62),
+            "snes" to intArrayOf(18, 6, 82, 58),
+            "md" to intArrayOf(8, 4, 92, 60),
+            "gb" to intArrayOf(10, 18, 90, 80),
+            "gbc" to intArrayOf(10, 18, 90, 80),
+            "gba" to intArrayOf(14, 14, 86, 84),
+            "n64" to intArrayOf(14, 6, 86, 62),
+            "nds" to intArrayOf(10, 14, 90, 84),
+            "gg" to intArrayOf(10, 10, 90, 75),
+            "sms" to intArrayOf(8, 6, 92, 70),
+            "pce" to intArrayOf(8, 8, 92, 70),
+            "atari2600" to intArrayOf(8, 4, 92, 55),
+            "atari7800" to intArrayOf(8, 4, 92, 55),
+            "lynx" to intArrayOf(10, 10, 90, 80),
+            "ngp" to intArrayOf(10, 14, 90, 80),
+            "ngc" to intArrayOf(10, 14, 90, 80),
+            "ws" to intArrayOf(10, 14, 90, 80),
+            "wsc" to intArrayOf(10, 14, 90, 80),
+            "neogeo" to intArrayOf(8, 6, 92, 60),
+        )
+
+    /**
+     * The sticker's box on a cart photo: start from the system's rough area, then trim rows and
+     * columns that are mostly the shell's colour (the most common colour in the photo).
+     */
+    private fun findSticker(
+        photo: Bitmap,
+        systemId: String,
+    ): Rect {
+        val area = STICKER_AREA[systemId] ?: intArrayOf(12, 8, 88, 70)
+        val pw = photo.width
+        val ph = photo.height
+        val rough = Rect(pw * area[0] / 100, ph * area[1] / 100, pw * area[2] / 100, ph * area[3] / 100)
+
+        // Work on a small copy: it's quick and enough to see where the sticker is.
+        val sw = 120
+        val sh = maxOf(1, ph * sw / maxOf(1, pw))
+        val small = Bitmap.createScaledBitmap(photo, sw, sh, true)
+        val px = IntArray(sw * sh)
+        small.getPixels(px, 0, sw, 0, 0, sw, sh)
+
+        // Shell colour: the most common (coarse) opaque colour.
+        val counts = HashMap<Int, Int>()
+        for (c in px) {
+            if ((c ushr 24) < 200) continue
+            val q = ((c shr 16 and 0xFF) / 24 shl 16) or ((c shr 8 and 0xFF) / 24 shl 8) or ((c and 0xFF) / 24)
+            counts[q] = (counts[q] ?: 0) + 1
+        }
+        val shell = counts.maxByOrNull { it.value }?.key ?: return rough
+        val sr = (shell shr 16 and 0xFF) * 24 + 12
+        val sg = (shell shr 8 and 0xFF) * 24 + 12
+        val sb = (shell and 0xFF) * 24 + 12
+
+        fun isSticker(c: Int): Boolean {
+            if ((c ushr 24) < 200) return false
+            val dr = (c shr 16 and 0xFF) - sr
+            val dg = (c shr 8 and 0xFF) - sg
+            val db = (c and 0xFF) - sb
+            return dr * dr + dg * dg + db * db > 60 * 60
+        }
+
+        var l = rough.left * sw / pw
+        var t = rough.top * sh / ph
+        var r = (rough.right * sw / pw).coerceAtMost(sw) - 1
+        var b = (rough.bottom * sh / ph).coerceAtMost(sh) - 1
+        fun rowShare(y: Int) = (l..r).count { isSticker(px[y * sw + it]) }.toFloat() / (r - l + 1)
+        fun colShare(x: Int) = (t..b).count { isSticker(px[it * sw + x]) }.toFloat() / (b - t + 1)
+        val need = 0.5f
+        while (t < b && rowShare(t) < need) t++
+        while (b > t && rowShare(b) < need) b--
+        while (l < r && colShare(l) < need) l++
+        while (r > l && colShare(r) < need) r--
+        small.recycle()
+
+        // Too small means the trim failed (e.g. a sticker the same colour as the shell): keep the rough area.
+        if ((r - l) < sw / 6 || (b - t) < sh / 8) return rough
+        // A small inset hides the sticker's rounded corners and edge shadow.
+        val inset = 2
+        return Rect(
+            (l + inset) * pw / sw,
+            (t + inset) * ph / sh,
+            (r + 1 - inset) * pw / sw,
+            (b + 1 - inset) * ph / sh,
+        )
     }
 
     private fun download(
@@ -311,6 +400,7 @@ object CartLabels {
     /** The photo's middle, cropped to the label's shape and kept only where the label is. */
     private fun masked(
         context: Context,
+        game: Game,
         photo: Bitmap,
         @DrawableRes labelRes: Int,
     ): Bitmap? {
@@ -337,8 +427,8 @@ object CartLabels {
         if (right < left || bottom < top) return null
         val box = Rect(left, top, right + 1, bottom + 1)
 
-        // Cart photos show the whole shell: skip its edges, then crop the rest to the label's shape.
-        val inner = Rect(photo.width * 12 / 100, photo.height * 8 / 100, photo.width * 88 / 100, photo.height * 70 / 100)
+        // Cart photos show the whole shell: find just the sticker on it, then crop to the label's shape.
+        val inner = findSticker(photo, keyOf(game))
         val boxRatio = box.width().toFloat() / box.height()
         val innerRatio = inner.width().toFloat() / inner.height()
         val src =
