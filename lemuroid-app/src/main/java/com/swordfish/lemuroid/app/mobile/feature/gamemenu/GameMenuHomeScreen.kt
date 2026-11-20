@@ -2,7 +2,6 @@ package com.swordfish.lemuroid.app.mobile.feature.gamemenu
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.unit.sp
-import androidx.compose.material3.Text
 import androidx.compose.material.icons.outlined.Splitscreen
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
