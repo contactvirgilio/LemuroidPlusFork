@@ -3,7 +3,6 @@ package com.swordfish.lemuroid.app.mobile.feature.gamemenu
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Text
-import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.material.icons.outlined.Splitscreen
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -47,12 +46,12 @@ private class MenuEntry(
     val group: MenuGroup = MenuGroup.GAME,
 )
 
-/** Groups of the game menu, in order, each with a heading and a colour strip on its tiles. */
-private enum class MenuGroup(val title: Int, val color: Color) {
-    GAME(R.string.game_menu_group_game, Color(0xFFB4B2A9)),
-    PICTURE(R.string.game_menu_group_picture, Color(0xFF85B7EB)),
-    CONTROLS(R.string.game_menu_group_controls, Color(0xFF5DCAA5)),
-    PERFORMANCE(R.string.game_menu_group_performance, Color(0xFFEF9F27)),
+/** Kind of a game menu tile, shown as a colour strip on its left edge. */
+private enum class MenuGroup(val color: Color) {
+    GAME(Color(0xFFB4B2A9)),
+    PICTURE(Color(0xFF85B7EB)),
+    CONTROLS(Color(0xFF5DCAA5)),
+    PERFORMANCE(Color(0xFFEF9F27)),
 }
 
 private fun drawableIcon(
@@ -196,41 +195,25 @@ fun GameMenuHomeScreen(
         horizontalArrangement = Arrangement.spacedBy(14.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        // Grouped: a heading per group (only groups with tiles), then its tiles with a colour strip.
-        var index = 0
-        MenuGroup.values().forEach { group ->
-            val tiles = entries.filter { it.group == group }
-            if (tiles.isEmpty()) return@forEach
-            item(key = "group-" + group.name, span = { GridItemSpan(maxLineSpan) }) {
-                Text(
-                    modifier = Modifier.padding(top = 4.dp),
-                    text = stringResource(group.title).uppercase(),
-                    color = group.color,
-                    fontSize = 12.sp,
-                    letterSpacing = 1.5.sp,
-                )
-            }
-            tiles.forEach { entry ->
-                val first = index == 0
-                index++
-                item(key = entry.label) {
-                    MenuTile(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .height(96.dp)
-                                .then(if (first) Modifier.focusRequester(firstTile) else Modifier),
-                        onClick = entry.onClick,
-                        accent = group.color,
-                    ) { focused ->
-                        MenuTileLabel(
-                            icon = entry.icon,
-                            label = entry.label,
-                            focused = focused,
-                            sublabel = entry.sublabel,
-                            active = entry.active,
-                        )
-                    }
+        // One flat grid in the usual order; a straight colour strip marks each tile's kind.
+        entries.forEachIndexed { index, entry ->
+            item(key = entry.label) {
+                MenuTile(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(96.dp)
+                            .then(if (index == 0) Modifier.focusRequester(firstTile) else Modifier),
+                    onClick = entry.onClick,
+                    accent = entry.group.color,
+                ) { focused ->
+                    MenuTileLabel(
+                        icon = entry.icon,
+                        label = entry.label,
+                        focused = focused,
+                        sublabel = entry.sublabel,
+                        active = entry.active,
+                    )
                 }
             }
         }

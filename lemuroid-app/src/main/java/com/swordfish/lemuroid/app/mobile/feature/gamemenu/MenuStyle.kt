@@ -144,7 +144,13 @@ fun MenuTile(
                 .then(
                     if (accent != null) {
                         Modifier.drawBehind {
-                            drawRect(accent, size = androidx.compose.ui.geometry.Size(4.dp.toPx(), size.height))
+                            // Straight bar, kept clear of the rounded corners.
+                            val inset = 12.dp.toPx()
+                            drawRect(
+                                accent,
+                                topLeft = androidx.compose.ui.geometry.Offset(0f, inset),
+                                size = androidx.compose.ui.geometry.Size(4.dp.toPx(), size.height - 2 * inset),
+                            )
                         }
                     } else {
                         Modifier
