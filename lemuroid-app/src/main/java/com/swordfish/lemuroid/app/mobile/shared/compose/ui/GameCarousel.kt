@@ -111,7 +111,6 @@ fun GameCarousel(
             modifier = Modifier.fillMaxWidth(),
             pageSize = PageSize.Fixed(pageWidth),
             contentPadding = PaddingValues(horizontal = side),
-            beyondBoundsPageCount = 2,
             key = key,
         ) { page ->
             val game = gameAt(page)
