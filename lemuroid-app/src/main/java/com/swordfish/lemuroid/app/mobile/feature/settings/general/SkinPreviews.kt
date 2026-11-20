@@ -1,5 +1,7 @@
 package com.swordfish.lemuroid.app.mobile.feature.settings.general
 
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.focusHighlight
+import com.swordfish.lemuroid.app.mobile.feature.games.GamesViewMode
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.material.icons.outlined.VolumeUp
 import androidx.compose.material.icons.outlined.FastForward
@@ -142,52 +144,145 @@ private fun ChoiceCard(
     }
 }
 
-/** How games look in the lists: regular tiles, soft tiles, or cartridges and discs. */
+/**
+ * How the library looks, all in one place (2026-11-20): game style (tiles or cartridges), layout
+ * of a system's games, and colours (original or pastel), with a live preview on top.
+ */
 @Composable
-fun GameStylePicker(
+fun LibraryLookPicker(
     cartridges: Boolean,
-    soft: Boolean,
-    onPick: (cartridges: Boolean, soft: Boolean) -> Unit,
+    pastel: Boolean,
+    layout: GamesViewMode,
+    onCartridges: (Boolean) -> Unit,
+    onPastel: (Boolean) -> Unit,
+    onLayout: (GamesViewMode) -> Unit,
 ) {
-    val regular = SystemTileColors.previewColors(false, PREVIEW_SYSTEMS)
-    val pastel = SystemTileColors.previewColors(true, PREVIEW_SYSTEMS)
+    val colors = SystemTileColors.previewColors(pastel, PREVIEW_SYSTEMS).map { Color(it) }
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
-        Text(
-            text = stringResource(R.string.settings_title_game_style),
-            style = MaterialTheme.typography.titleMedium,
+        LibraryPreview(cartridges, colors, layout)
+
+        PickerRow(
+            title = stringResource(R.string.settings_title_game_style),
+            options = listOf(stringResource(R.string.settings_game_style_tiles), stringResource(R.string.settings_game_style_media)),
+            selected = if (cartridges) 1 else 0,
+            onPick = { onCartridges(it == 1) },
         )
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            val card = Modifier.fillMaxWidth().height(72.dp)
-            Box(modifier = Modifier.weight(1f)) {
-                ChoiceCard(!cartridges && !soft, stringResource(R.string.settings_game_style_tiles), { onPick(false, false) }, card) {
-                    Canvas(modifier = Modifier.fillMaxSize()) { drawTileWall(regular) }
-                }
+        val layouts = listOf(GamesViewMode.LIST, GamesViewMode.GRID_SMALL, GamesViewMode.GRID_LARGE, GamesViewMode.CAROUSEL)
+        PickerRow(
+            title = stringResource(R.string.settings_title_layout),
+            options =
+                listOf(
+                    stringResource(R.string.games_view_list),
+                    stringResource(R.string.games_view_grid_small),
+                    stringResource(R.string.games_view_grid_large),
+                    stringResource(R.string.games_view_carousel),
+                ),
+            selected = layouts.indexOf(layout).coerceAtLeast(0),
+            onPick = { onLayout(layouts[it]) },
+        )
+        PickerRow(
+            title = stringResource(R.string.settings_title_colours),
+            options = listOf(stringResource(R.string.settings_colours_original), stringResource(R.string.settings_colours_pastel)),
+            selected = if (pastel) 1 else 0,
+            onPick = { onPastel(it == 1) },
+        )
+    }
+}
+
+@Composable
+private fun PickerRow(
+    title: String,
+    options: List<String>,
+    selected: Int,
+    onPick: (Int) -> Unit,
+) {
+    Text(
+        modifier = Modifier.padding(top = 14.dp, bottom = 6.dp),
+        text = title,
+        style = MaterialTheme.typography.titleMedium,
+    )
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        options.forEachIndexed { index, label ->
+            val on = index == selected
+            Box(
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .height(40.dp)
+                        .background(Color(0xFF1D2126))
+                        .border(if (on) 2.dp else 0.5.dp, if (on) TEAL else Color(0xFF444441))
+                        .focusHighlight(shape = androidx.compose.ui.graphics.RectangleShape, zoom = 1f)
+                        .clickable { onPick(index) },
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (on) TEAL else MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                )
             }
-            Box(modifier = Modifier.weight(1f)) {
-                ChoiceCard(!cartridges && soft, stringResource(R.string.settings_game_style_soft), { onPick(false, true) }, card) {
-                    Canvas(modifier = Modifier.fillMaxSize()) { drawTileWall(pastel) }
-                }
-            }
-            Box(modifier = Modifier.weight(1f)) {
-                ChoiceCard(cartridges, stringResource(R.string.settings_game_style_media), { onPick(true, false) }, card) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(2.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        listOf(R.drawable.media_snes, R.drawable.media_gba, R.drawable.media_psx).forEach {
-                            Image(
-                                painter = painterResource(it),
-                                contentDescription = null,
-                                modifier = Modifier.size(28.dp),
-                                contentScale = ContentScale.Fit,
-                            )
+        }
+    }
+}
+
+/** A small live picture of the library with the current choices. */
+@Composable
+private fun LibraryPreview(
+    cartridges: Boolean,
+    colors: List<Color>,
+    layout: GamesViewMode,
+) {
+    @Composable
+    fun Item(
+        index: Int,
+        size: androidx.compose.ui.unit.Dp,
+        alpha: Float = 1f,
+    ) {
+        if (cartridges) {
+            val res = listOf(R.drawable.media_snes, R.drawable.media_gba, R.drawable.media_genesis, R.drawable.media_psx, R.drawable.media_gb, R.drawable.media_n64)
+            Image(
+                painter = painterResource(res[index % res.size]),
+                contentDescription = null,
+                modifier = Modifier.size(size).alpha(alpha),
+                contentScale = ContentScale.Fit,
+            )
+        } else {
+            Box(modifier = Modifier.size(size).alpha(alpha).background(colors[index % colors.size], RoundedCornerShape(4.dp)))
+        }
+    }
+
+    Box(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(140.dp)
+                .background(Color.Black)
+                .border(0.5.dp, Color(0xFF444441)),
+        contentAlignment = Alignment.Center,
+    ) {
+        when (layout) {
+            GamesViewMode.LIST ->
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    repeat(3) { i ->
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Item(i, 30.dp)
+                            Box(modifier = Modifier.size(width = 120.dp, height = 8.dp).background(Color(0xFF3A3F45)))
                         }
                     }
                 }
-            }
+            GamesViewMode.GRID_SMALL ->
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    repeat(2) { row -> Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) { repeat(6) { Item(row * 6 + it, 38.dp) } } }
+                }
+            GamesViewMode.GRID_LARGE ->
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) { repeat(4) { Item(it, 64.dp) } }
+            GamesViewMode.CAROUSEL ->
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                    Item(0, 52.dp, 0.4f)
+                    Item(1, 100.dp)
+                    Item(2, 52.dp, 0.4f)
+                }
         }
     }
 }

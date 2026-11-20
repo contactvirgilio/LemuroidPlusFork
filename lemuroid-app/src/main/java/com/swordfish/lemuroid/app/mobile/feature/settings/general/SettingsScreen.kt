@@ -1,5 +1,9 @@
 package com.swordfish.lemuroid.app.mobile.feature.settings.general
 
+import com.swordfish.lemuroid.app.mobile.feature.games.HomeTileSize
+import com.swordfish.lemuroid.app.mobile.feature.games.HomeTileSizeStore
+import com.swordfish.lemuroid.app.mobile.feature.games.GamesViewMode
+import com.swordfish.lemuroid.app.mobile.feature.games.GamesViewModeStore
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.SportsEsports
@@ -248,18 +252,27 @@ private fun LibraryLookSettings() {
         accent = SettingsGroupColors.LIBRARY,
         icon = Icons.Outlined.GridView,
     ) {
-        // One choice for how games look: regular tiles, soft tiles, or cartridges and discs.
-        val softTiles = booleanPreferenceState(SystemTileColors.PASTEL_PREF_KEY, false)
+        // Game style, layout and colours in one place, with a live preview (2026-11-20).
+        val pastel = booleanPreferenceState(SystemTileColors.PASTEL_PREF_KEY, false)
         val context = LocalContext.current
         val cartridges = booleanPreferenceState(MediaViewSetting.KEY, false)
-        GameStylePicker(
+        val layout by GamesViewModeStore.get(context).collectAsState()
+        LibraryLookPicker(
             cartridges = cartridges.value,
-            soft = softTiles.value,
-            onPick = { media, soft ->
-                softTiles.value = soft
-                SystemTileColors.pastelEnabled = soft
-                cartridges.value = media
-                MediaViewSetting.set(context, media)
+            pastel = pastel.value,
+            layout = layout,
+            onCartridges = {
+                cartridges.value = it
+                MediaViewSetting.set(context, it)
+            },
+            onPastel = {
+                pastel.value = it
+                SystemTileColors.pastelEnabled = it
+            },
+            onLayout = {
+                GamesViewModeStore.set(context, it)
+                // Home and Favorites only have small and large tiles.
+                HomeTileSizeStore.set(context, if (it == GamesViewMode.GRID_LARGE) HomeTileSize.LARGE else HomeTileSize.SMALL)
             },
         )
         // HD mode is hidden (owner, 2026-11-19): the in-game Filter shortcut covers the look.

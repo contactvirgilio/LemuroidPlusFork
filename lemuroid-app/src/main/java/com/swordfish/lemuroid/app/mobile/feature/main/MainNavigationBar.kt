@@ -1,5 +1,10 @@
 package com.swordfish.lemuroid.app.mobile.feature.main
 
+import com.swordfish.lemuroid.R
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.Icons
+import androidx.compose.ui.platform.LocalContext
+import com.swordfish.lemuroid.app.shared.game.GameShortcutsSetting
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -84,5 +89,15 @@ private fun LemuroidNavigationBar(
                     },
                 )
             }
+        // 4:3 screens (RPC) have no top bar, so Settings is the bar's last item.
+        if (GameShortcutsSetting.defaultNested(LocalContext.current)) {
+            NavigationBarItem(
+                modifier = Modifier.focusHighlight(shape = RoundedCornerShape(16.dp), zoom = 1f),
+                icon = { Icon(Icons.Outlined.Settings, contentDescription = stringResource(R.string.settings)) },
+                label = { Text(stringResource(R.string.settings)) },
+                selected = false,
+                onClick = { navController.navigate(MainRoute.SETTINGS.route) },
+            )
+        }
     }
 }

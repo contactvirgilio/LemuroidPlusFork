@@ -1,5 +1,8 @@
 package com.swordfish.lemuroid.app.mobile.feature.main
 
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.BoxWithConstraints
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.compose.foundation.background
@@ -97,69 +100,71 @@ fun MainNavigationRail(
         }
     }
 
-    Column(
+    // The items are centred and spread over the bar's height; it scrolls only if they don't fit.
+    BoxWithConstraints(
         modifier =
             Modifier
                 .fillMaxHeight()
                 .width(84.dp)
-                .background(BottomAppBarDefaults.containerColor)
-                .verticalScroll(rememberScrollState())
-                .padding(vertical = 4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+                .background(BottomAppBarDefaults.containerColor),
     ) {
-        MainNavigationRoutes.values()
-            .filter { it != MainNavigationRoutes.APPS || appsTabVisible }
-            .forEach { destination ->
-                val isSelected = currentRoute?.root == destination.route
-                NavigationRailItem(
-                    modifier =
-                        Modifier
-                            .height(52.dp)
-                            .focusHighlight(shape = RoundedCornerShape(16.dp), zoom = 1f),
-                    selected = isSelected,
-                    onClick = {
-                        navController.navigate(destination.route.route) {
-                            popUpTo(navController.graph.findStartDestination().id) { saveState = false }
-                            launchSingleTop = true
-                            restoreState = false
-                        }
-                    },
-                    icon = {
-                        Icon(
-                            imageVector = if (isSelected) destination.selectedIcon else destination.unselectedIcon,
-                            contentDescription = stringResource(destination.titleId),
-                        )
-                    },
-                    label = { Text(stringResource(destination.titleId), fontSize = 11.sp, maxLines = 1) },
-                    alwaysShowLabel = true,
-                )
-            }
-
-        Divider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
-
-        // View options of the page (the top bar holds them in the horizontal layout).
-        if (currentRoute == MainRoute.HOME || currentRoute == MainRoute.FAVORITES) {
-            Row {
-                HomeTileSizeCycleButton()
-            }
-            Text(
-                text = stringResource(R.string.rail_view),
-                fontSize = 10.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Divider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
-        }
-
-        // Settings, without a label, to fit short screens.
-        Row(horizontalArrangement = Arrangement.Center) {
-            IconButton(
-                modifier = Modifier.focusHighlight(shape = RoundedCornerShape(16.dp), zoom = 1f),
+        val barHeight = maxHeight
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .heightIn(min = barHeight)
+                    .padding(vertical = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceEvenly,
+        ) {
+            MainNavigationRoutes.values()
+                .filter { it != MainNavigationRoutes.APPS || appsTabVisible }
+                .forEach { destination ->
+                    val isSelected = currentRoute?.root == destination.route
+                    RailItem(
+                        selected = isSelected,
+                        icon = if (isSelected) destination.selectedIcon else destination.unselectedIcon,
+                        label = stringResource(destination.titleId),
+                        onClick = {
+                            navController.navigate(destination.route.route) {
+                                popUpTo(navController.graph.findStartDestination().id) { saveState = false }
+                                launchSingleTop = true
+                                restoreState = false
+                            }
+                        },
+                    )
+                }
+            // The view options moved to Settings > Library look (2026-11-20).
+            RailItem(
+                selected = false,
+                icon = Icons.Outlined.Settings,
+                label = stringResource(R.string.settings),
                 onClick = { navController.navigate(MainRoute.SETTINGS.route) },
-            ) {
-                Icon(Icons.Outlined.Settings, stringResource(R.string.settings))
-            }
+            )
         }
     }
+}
+
+@Composable
+private fun RailItem(
+    selected: Boolean,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    onClick: () -> Unit,
+) {
+    NavigationRailItem(
+        modifier =
+            Modifier
+                .height(56.dp)
+                .focusHighlight(shape = RoundedCornerShape(16.dp), zoom = 1f),
+        selected = selected,
+        onClick = onClick,
+        icon = { Icon(imageVector = icon, contentDescription = label) },
+        label = { Text(label, fontSize = 11.sp, maxLines = 1) },
+        alwaysShowLabel = true,
+    )
 }
 
 /** Small / large tiles in one button: each tap switches, the icon shows the current size. */

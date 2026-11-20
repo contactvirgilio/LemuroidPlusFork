@@ -325,7 +325,7 @@
     <string name="game_scaling_fine_integer">Fine integer</string>
     <string name="game_scaling_stretch">Stretch to fill</string>
     <string name="game_button_states">Save state</string>
-    <string name="games_view_list">List view</string>
+    <string name="games_view_list">List</string>
     <string name="games_view_grid_small">Small grid</string>
     <string name="games_view_grid_large">Large grid</string>
     <string name="settings_category_backup">Backup</string>
@@ -442,4 +442,8 @@
     <string name="settings_group_controls">Controls</string>
     <string name="settings_group_system">System</string>
     <string name="games_view_carousel">Carousel</string>
+    <string name="settings_title_layout">Layout</string>
+    <string name="settings_title_colours">Colours</string>
+    <string name="settings_colours_original">Original</string>
+    <string name="settings_colours_pastel">Pastel</string>
 </resources>

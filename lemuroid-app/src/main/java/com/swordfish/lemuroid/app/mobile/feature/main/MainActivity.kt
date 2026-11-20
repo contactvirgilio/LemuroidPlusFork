@@ -1,5 +1,6 @@
 package com.swordfish.lemuroid.app.mobile.feature.main
 
+import com.swordfish.lemuroid.app.shared.game.GameShortcutsSetting
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
@@ -260,10 +261,13 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
             // Vertical layout: one bar on the left for the main pages. The top bar stays on Search (it
             // holds the search box) and on the inner pages (title and back button).
             val railVisible = rememberVerticalBar() && currentRoute.showBottomNavigation
+            // 4:3 screens (RPC): no top bar on the main pages either way; Settings sits in the bar.
+            val fourThree = remember { GameShortcutsSetting.defaultNested(applicationContext) }
+            val noTopBar = (railVisible || fourThree) && currentRoute.showBottomNavigation
 
             Scaffold(
                 topBar = {
-                    if (!railVisible || currentRoute == MainRoute.SEARCH) {
+                    if (!noTopBar || currentRoute == MainRoute.SEARCH) {
                         MainTopBar(
                             currentRoute = currentRoute,
                             navController = navController,
@@ -277,7 +281,7 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
             ) { padding ->
                 Row(
                     modifier =
-                        if (railVisible && currentRoute != MainRoute.SEARCH) {
+                        if (noTopBar && currentRoute != MainRoute.SEARCH) {
                             Modifier.fillMaxSize().windowInsetsPadding(topSafeInsets())
                         } else {
                             Modifier.fillMaxSize()

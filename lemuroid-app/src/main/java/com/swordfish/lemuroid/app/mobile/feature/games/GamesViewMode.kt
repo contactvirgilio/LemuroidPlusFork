@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
-import com.swordfish.lemuroid.app.mobile.feature.main.rememberVerticalBar
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -52,6 +51,6 @@ object GamesViewModeStore {
 fun rememberGamesViewMode(): GamesViewMode {
     val context = LocalContext.current
     val mode by GamesViewModeStore.get(context).collectAsState()
-    // The vertical layout has only the small tiles, with no list view.
-    return if (rememberVerticalBar()) GamesViewMode.GRID_SMALL else mode
+    // Chosen in Settings > Library look (and on phones also in the top bar).
+    return mode
 }
