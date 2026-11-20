@@ -1,5 +1,8 @@
 package com.swordfish.lemuroid.app.mobile.feature.settings.general
 
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.compose.rememberLauncherForActivityResult
+import com.swordfish.lemuroid.app.shared.labels.CartLabels
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.SportsEsports
@@ -261,6 +264,17 @@ private fun LibraryLookSettings() {
                 cartridges.value = media
                 MediaViewSetting.set(context, media)
             },
+        )
+        // Test (2026-11-20): real cartridge labels read from LaunchBox's Metadata.zip.
+        remember { CartLabels.loadStatus(context) }
+        val pickLabels =
+            rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+                if (uri != null) CartLabels.import(context, uri)
+            }
+        LemuroidSettingsMenuLink(
+            title = { Text(text = stringResource(id = R.string.settings_title_cart_labels)) },
+            subtitle = { Text(text = CartLabels.status ?: stringResource(id = R.string.settings_description_cart_labels)) },
+            onClick = { pickLabels.launch(arrayOf("application/zip", "application/x-zip-compressed", "application/octet-stream")) },
         )
         // HD mode is hidden (owner, 2026-11-19): the in-game Filter shortcut covers the look.
         LemuroidSettingsSwitch(
