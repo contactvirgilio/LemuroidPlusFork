@@ -1,5 +1,6 @@
 package com.swordfish.lemuroid.app.mobile.feature.main
 
+import androidx.compose.material.icons.outlined.ViewCarousel
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -211,6 +212,7 @@ private fun GamesViewModeButtons() {
             Triple(GamesViewMode.LIST, Icons.AutoMirrored.Outlined.ViewList, R.string.games_view_list),
             Triple(GamesViewMode.GRID_SMALL, Icons.Outlined.ViewModule, R.string.games_view_grid_small),
             Triple(GamesViewMode.GRID_LARGE, Icons.Outlined.GridView, R.string.games_view_grid_large),
+            Triple(GamesViewMode.CAROUSEL, Icons.Outlined.ViewCarousel, R.string.games_view_carousel),
         )
 
     options.forEach { (mode, icon, labelId) ->

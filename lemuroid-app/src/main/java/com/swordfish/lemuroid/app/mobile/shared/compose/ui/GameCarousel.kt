@@ -1,7 +1,5 @@
 package com.swordfish.lemuroid.app.mobile.shared.compose.ui
 
-import android.content.Context
-import android.content.SharedPreferences
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.focusable
@@ -21,70 +19,25 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.swordfish.lemuroid.lib.library.db.entity.Game
-import com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.min
 
 /**
- * "Carousel" game style (test, 2026-11-20): games drawn as their cartridge or disc, one big in the
- * middle, the neighbours smaller and faded. Swipes snap one game at a time; the D-pad moves one.
+ * Carousel view of a system's games (test, 2026-11-20): each game drawn as its cartridge or disc,
+ * one big in the middle, the neighbours smaller and faded. Swipes snap one game at a time.
  */
-object CarouselViewSetting {
-    const val KEY = "pref_key_carousel_view"
-
-    var enabled by mutableStateOf(false)
-        private set
-
-    private var listener: SharedPreferences.OnSharedPreferenceChangeListener? = null
-
-    fun ensureWatching(context: Context) {
-        if (listener != null) return
-        val preferences = SharedPreferencesHelper.getSharedPreferences(context.applicationContext)
-        enabled = preferences.getBoolean(KEY, false)
-        val created =
-            SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-                if (key == KEY) enabled = preferences.getBoolean(KEY, false)
-            }
-        // Kept in a field: preferences only hold listeners weakly.
-        listener = created
-        preferences.registerOnSharedPreferenceChangeListener(created)
-    }
-
-    fun set(
-        context: Context,
-        value: Boolean,
-    ) {
-        ensureWatching(context)
-        enabled = value
-        SharedPreferencesHelper.getSharedPreferences(context.applicationContext)
-            .edit().putBoolean(KEY, value).apply()
-    }
-}
-
-/** Whether the carousel style is on; recomposes when it changes. */
-@Composable
-fun rememberCarouselView(): Boolean {
-    val context = LocalContext.current
-    remember { CarouselViewSetting.ensureWatching(context) }
-    return CarouselViewSetting.enabled
-}
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GameCarousel(

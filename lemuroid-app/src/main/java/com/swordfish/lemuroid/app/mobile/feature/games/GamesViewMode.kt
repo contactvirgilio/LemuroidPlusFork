@@ -14,6 +14,8 @@ enum class GamesViewMode {
     LIST,
     GRID_SMALL,
     GRID_LARGE,
+    // Big cartridges and discs, one at a time (test).
+    CAROUSEL,
 }
 
 /** Remembers the chosen view mode across screens and app restarts. */

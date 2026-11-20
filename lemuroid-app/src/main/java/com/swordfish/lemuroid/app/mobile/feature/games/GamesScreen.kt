@@ -1,7 +1,6 @@
 package com.swordfish.lemuroid.app.mobile.feature.games
 
 import androidx.compose.foundation.layout.wrapContentHeight
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberCarouselView
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.GameCarousel
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
@@ -36,18 +35,6 @@ fun GamesScreen(
         return
     }
 
-    if (rememberCarouselView()) {
-        GameCarousel(
-            modifier = modifier.fillMaxSize().wrapContentHeight(),
-            count = games.itemCount,
-            gameAt = { games[it] },
-            key = { games.peek(it)?.id ?: it },
-            onClick = onGameClick,
-            onLongClick = onGameLongClick,
-        )
-        return
-    }
-
     when (rememberGamesViewMode()) {
         GamesViewMode.LIST ->
             GamesList(modifier, games, onGameClick, onGameLongClick, onGameFavoriteToggle)
@@ -55,6 +42,15 @@ fun GamesScreen(
             GamesGrid(modifier, games, SMALL_TILE_SIZE, onGameClick, onGameLongClick)
         GamesViewMode.GRID_LARGE ->
             GamesGrid(modifier, games, LARGE_TILE_SIZE, onGameClick, onGameLongClick)
+        GamesViewMode.CAROUSEL ->
+            GameCarousel(
+                modifier = modifier.fillMaxSize().wrapContentHeight(),
+                count = games.itemCount,
+                gameAt = { games[it] },
+                key = { games.peek(it)?.id ?: it },
+                onClick = onGameClick,
+                onLongClick = onGameLongClick,
+            )
     }
 }
 

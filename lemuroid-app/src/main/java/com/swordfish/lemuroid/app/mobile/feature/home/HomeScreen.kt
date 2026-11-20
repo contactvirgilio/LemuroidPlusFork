@@ -1,7 +1,5 @@
 package com.swordfish.lemuroid.app.mobile.feature.home
 
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.rememberCarouselView
-import com.swordfish.lemuroid.app.mobile.shared.compose.ui.GameCarousel
 import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -101,7 +99,6 @@ private fun HomeScreen(
 ) {
     val tileSize = rememberHomeTileSize().size
     val gridState = rememberLazyGridState()
-    val carousel = rememberCarouselView()
 
     // Sections load separately; when one appears above what's on screen the grid would keep its
     // position and hide the "Recents" title. Stay at the top while the user hasn't scrolled.
@@ -149,8 +146,8 @@ private fun HomeScreen(
                 )
             }
         }
-        homeSection(R.string.recent, "recent", state.recentGames, carousel, onGameClicked, onGameLongClick)
-        homeSection(R.string.discover, "discover", state.discoveryGames, carousel, onGameClicked, onGameLongClick)
+        homeSection(R.string.recent, "recent", state.recentGames, onGameClicked, onGameLongClick)
+        homeSection(R.string.discover, "discover", state.discoveryGames, onGameClicked, onGameLongClick)
     }
 }
 
@@ -158,7 +155,6 @@ private fun LazyGridScope.homeSection(
     titleId: Int,
     keyPrefix: String,
     games: List<Game>,
-    carousel: Boolean,
     onGameClicked: (Game) -> Unit,
     onGameLongClick: (Game) -> Unit,
 ) {
@@ -171,20 +167,6 @@ private fun LazyGridScope.homeSection(
             fontSize = 20.sp,
             fontWeight = FontWeight.SemiBold,
         )
-    }
-    if (carousel) {
-        // Carousel style: one row per section instead of a grid of tiles.
-        item(key = "$keyPrefix-carousel", span = { GridItemSpan(maxLineSpan) }) {
-            GameCarousel(
-                count = games.size,
-                gameAt = { games.getOrNull(it) },
-                key = { games.getOrNull(it)?.id ?: it },
-                maxItemSize = 170.dp,
-                onClick = onGameClicked,
-                onLongClick = onGameLongClick,
-            )
-        }
-        return
     }
     items(games, key = { "$keyPrefix-${it.id}" }) { game ->
         LemuroidGameCard(

@@ -147,8 +147,7 @@ private fun ChoiceCard(
 fun GameStylePicker(
     cartridges: Boolean,
     soft: Boolean,
-    carousel: Boolean,
-    onPick: (cartridges: Boolean, soft: Boolean, carousel: Boolean) -> Unit,
+    onPick: (cartridges: Boolean, soft: Boolean) -> Unit,
 ) {
     val regular = SystemTileColors.previewColors(false, PREVIEW_SYSTEMS)
     val pastel = SystemTileColors.previewColors(true, PREVIEW_SYSTEMS)
@@ -163,17 +162,17 @@ fun GameStylePicker(
         ) {
             val card = Modifier.fillMaxWidth().height(72.dp)
             Box(modifier = Modifier.weight(1f)) {
-                ChoiceCard(!carousel && !cartridges && !soft, stringResource(R.string.settings_game_style_tiles), { onPick(false, false, false) }, card) {
+                ChoiceCard(!cartridges && !soft, stringResource(R.string.settings_game_style_tiles), { onPick(false, false) }, card) {
                     Canvas(modifier = Modifier.fillMaxSize()) { drawTileWall(regular) }
                 }
             }
             Box(modifier = Modifier.weight(1f)) {
-                ChoiceCard(!carousel && !cartridges && soft, stringResource(R.string.settings_game_style_soft), { onPick(false, true, false) }, card) {
+                ChoiceCard(!cartridges && soft, stringResource(R.string.settings_game_style_soft), { onPick(false, true) }, card) {
                     Canvas(modifier = Modifier.fillMaxSize()) { drawTileWall(pastel) }
                 }
             }
             Box(modifier = Modifier.weight(1f)) {
-                ChoiceCard(!carousel && cartridges, stringResource(R.string.settings_game_style_media), { onPick(true, false, false) }, card) {
+                ChoiceCard(cartridges, stringResource(R.string.settings_game_style_media), { onPick(true, false) }, card) {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(2.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -183,24 +182,6 @@ fun GameStylePicker(
                                 painter = painterResource(it),
                                 contentDescription = null,
                                 modifier = Modifier.size(28.dp),
-                                contentScale = ContentScale.Fit,
-                            )
-                        }
-                    }
-                }
-            }
-            // Test (2026-11-20): one big cartridge with smaller, faded neighbours.
-            Box(modifier = Modifier.weight(1f)) {
-                ChoiceCard(carousel, stringResource(R.string.settings_game_style_carousel), { onPick(false, false, true) }, card) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(1.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        listOf(R.drawable.media_gba to 18.dp, R.drawable.media_snes to 40.dp, R.drawable.media_psx to 18.dp).forEach { (res, size) ->
-                            Image(
-                                painter = painterResource(res),
-                                contentDescription = null,
-                                modifier = Modifier.size(size).alpha(if (size < 30.dp) 0.45f else 1f),
                                 contentScale = ContentScale.Fit,
                             )
                         }
