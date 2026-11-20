@@ -45,8 +45,13 @@ private class MenuEntry(
     val group: MenuGroup = MenuGroup.GAME,
 )
 
-/** Kind of a game menu tile; tiles are kept together by kind, in this order. */
-private enum class MenuGroup { GAME, PICTURE, CONTROLS, PERFORMANCE }
+/** Kind of a game menu tile; tiles are kept together by kind, in this order, with a strip in its colour. */
+private enum class MenuGroup(val color: Color) {
+    GAME(Color(0xFFB4B2A9)),
+    PICTURE(Color(0xFF85B7EB)),
+    CONTROLS(Color(0xFF5DCAA5)),
+    PERFORMANCE(Color(0xFFEF9F27)),
+}
 
 private fun drawableIcon(
     id: Int,
@@ -189,7 +194,7 @@ fun GameMenuHomeScreen(
         horizontalArrangement = Arrangement.spacedBy(14.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        // One flat grid, no headings or colours; tiles of the same kind sit next to each other.
+        // One flat grid, no headings; tiles of the same kind sit together, square, with a colour strip.
         entries.sortedBy { it.group.ordinal }.forEachIndexed { index, entry ->
             item(key = entry.label) {
                 MenuTile(
@@ -199,6 +204,8 @@ fun GameMenuHomeScreen(
                             .height(96.dp)
                             .then(if (index == 0) Modifier.focusRequester(firstTile) else Modifier),
                     onClick = entry.onClick,
+                    shape = androidx.compose.ui.graphics.RectangleShape,
+                    accent = entry.group.color,
                 ) { focused ->
                     MenuTileLabel(
                         icon = entry.icon,
