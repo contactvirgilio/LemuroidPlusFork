@@ -164,8 +164,8 @@ fun GameMediaImage(
     }
 
     val context = LocalContext.current
-    val shell = remember(media.res, style) { CartridgeRecolor.shell(context, media.res, media.label, style) }
-    val label = remember(media.label) { media.label?.let { CartridgeRecolor.decode(context, it) } }
+    // Test (2026-11-20): no blank label; the whole cart, label area included, takes the colour.
+    val shell = remember(media.res, style) { CartridgeRecolor.shell(context, media.res, null, style) }
     // Sparkly cartridges: a soft band of light drifts slowly across the shell.
     val shimmer: State<Float>? =
         if (style.sparkly) {
@@ -203,10 +203,6 @@ fun GameMediaImage(
                 size = Size(dw.toFloat(), dh.toFloat()),
                 blendMode = BlendMode.SrcAtop,
             )
-        }
-        // The label keeps its own pixels, whatever the shell color or shimmer.
-        if (label != null) {
-            drawImage(label, dstOffset = offset, dstSize = dst, filterQuality = FilterQuality.High)
         }
     }
 }

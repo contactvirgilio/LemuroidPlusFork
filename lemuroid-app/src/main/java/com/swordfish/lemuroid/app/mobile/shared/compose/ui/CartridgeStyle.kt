@@ -117,7 +117,7 @@ object CartridgeRecolor {
         @DrawableRes labelRes: Int?,
         style: CartridgeStyle,
     ): ImageBitmap {
-        val key = "shell:$res:${style.encode()}"
+        val key = "shell:$res:${labelRes ?: 0}:${style.encode()}"
         cache.get(key)?.let { return it }
         val image = paint(context, res, labelRes, style).asImageBitmap()
         cache.put(key, image)
