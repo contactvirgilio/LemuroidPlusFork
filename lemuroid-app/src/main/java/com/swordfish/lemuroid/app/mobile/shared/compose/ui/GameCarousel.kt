@@ -35,7 +35,7 @@ import kotlin.math.abs
 import kotlin.math.min
 
 /**
- * Carousel view of a system's games (test, 2026-11-20): each game drawn as its cartridge or disc,
+ * Carousel view of a system's games (test, 2026-11-20): each game drawn in the chosen game style,
  * one big in the middle, the neighbours smaller and faded. Swipes snap one game at a time.
  */
 @OptIn(ExperimentalFoundationApi::class)
@@ -104,7 +104,8 @@ fun GameCarousel(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    if (game != null) GameMediaImage(modifier = Modifier.fillMaxSize(), game = game)
+                    // Follows the game style: cartridges and discs, or the normal (or soft) tiles.
+                    if (game != null) LemuroidGameImage(modifier = Modifier.fillMaxSize(), game = game)
                 }
                 Text(
                     modifier =
