@@ -135,29 +135,21 @@ private fun HomeScreenSettings(navController: NavController) {
             },
             onClick = { (context as? Activity)?.let { HomeLauncher.openHomeScreenChooser(it) } },
         )
-        // A plain switch; while Lemuroid Plus is the home screen it is always on (and locked).
-        val appsTab = booleanPreferenceState(AppsTabSettings.SHOW_KEY, AppsTabSettings.isSwitchOn(context))
-        val lockedOn = remember { com.swordfish.lemuroid.app.utils.settings.FixedSettingValueState(true) }
-        LemuroidSettingsSwitch(
-            enabled = !isHome,
-            state = if (isHome) lockedOn else appsTab,
-            title = { Text(text = stringResource(id = R.string.settings_title_apps_tab)) },
-            subtitle = {
-                Text(
-                    text =
-                        stringResource(
-                            if (isHome) R.string.settings_description_apps_tab_home else R.string.settings_description_apps_tab,
-                        ),
-                )
-            },
-        )
-        // Only when the Apps tab is on, so it doesn't get in the way.
-        if (isHome || appsTab.value) {
-            LemuroidSettingsMenuLink(
-                title = { Text(text = stringResource(id = R.string.settings_title_hidden_apps)) },
-                subtitle = { Text(text = stringResource(id = R.string.settings_description_hidden_apps)) },
-                onClick = { navController.navigateToRoute(MainRoute.SETTINGS_HIDDEN_APPS) },
+        // The Apps tab settings unlock only once Lemuroid Plus is the home screen.
+        if (isHome) {
+            val appsTab = booleanPreferenceState(AppsTabSettings.SHOW_KEY, AppsTabSettings.isSwitchOn(context))
+            LemuroidSettingsSwitch(
+                state = appsTab,
+                title = { Text(text = stringResource(id = R.string.settings_title_apps_tab)) },
+                subtitle = { Text(text = stringResource(id = R.string.settings_description_apps_tab)) },
             )
+            if (appsTab.value) {
+                LemuroidSettingsMenuLink(
+                    title = { Text(text = stringResource(id = R.string.settings_title_hidden_apps)) },
+                    subtitle = { Text(text = stringResource(id = R.string.settings_description_hidden_apps)) },
+                    onClick = { navController.navigateToRoute(MainRoute.SETTINGS_HIDDEN_APPS) },
+                )
+            }
         }
     }
 }

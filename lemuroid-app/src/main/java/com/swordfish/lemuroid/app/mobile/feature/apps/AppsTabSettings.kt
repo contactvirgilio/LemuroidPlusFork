@@ -37,11 +37,11 @@ object AppsTabSettings {
     /** On/off switch in Settings (replaces the Automatic / Always show / Hide list). */
     const val SHOW_KEY = "pref_key_apps_tab_show"
 
-    /** Whether the switch is on; until it is used, the old list's "Always show" counts as on. */
-    fun isSwitchOn(context: Context): Boolean = preferences(context).getBoolean(SHOW_KEY, mode(context) == MODE_ON)
+    /** Whether the switch is on (on until the user turns it off). */
+    fun isSwitchOn(context: Context): Boolean = preferences(context).getBoolean(SHOW_KEY, true)
 
-    /** Always shown while Lemuroid Plus is the home screen (owner); otherwise the switch decides. */
-    fun isTabVisible(context: Context): Boolean = HomeLauncher.isDefaultHome(context) || isSwitchOn(context)
+    /** Only while Lemuroid Plus is the home screen (owner, 2026-11-20); then the switch decides. */
+    fun isTabVisible(context: Context): Boolean = HomeLauncher.isDefaultHome(context) && isSwitchOn(context)
 
     fun hiddenApps(context: Context): Set<String> {
         return preferences(context).getStringSet(HIDDEN_KEY, emptySet())?.toSet() ?: emptySet()
