@@ -5,7 +5,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Row
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Arrangement
@@ -136,7 +136,9 @@ fun LemuroidCardSettingsGroup(
                 shape = RectangleShape,
                 modifier =
                     if (accent != null) {
-                        Modifier.drawBehind {
+                        // Drawn on top: behind, the card's own background would hide it.
+                        Modifier.drawWithContent {
+                            drawContent()
                             // Full-height bar on the left edge.
                             drawRect(accent, size = Size(5.dp.toPx(), size.height))
                         }
