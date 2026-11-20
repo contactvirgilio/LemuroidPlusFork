@@ -1,8 +1,5 @@
 package com.swordfish.lemuroid.app.mobile.shared.compose.ui
 
-import com.swordfish.lemuroid.app.shared.labels.CartLabels
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.runtime.produceState
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.annotation.DrawableRes
@@ -156,37 +153,17 @@ fun GameMediaImage(
     style: CartridgeStyle?,
 ) {
     val media = remember(game.systemId, game.fileName) { mediaFor(game) }
-    val context = LocalContext.current
-    // Test: a real label from LaunchBox, cropped into the label area (discs: the disc photo).
-    val labelArt by produceState<ImageBitmap?>(null, game.id, game.title, CartLabels.generation) {
-        value = CartLabels.art(context, game, media.label)
-    }
-    val art = labelArt
-    if (art != null && CartLabels.isDisc(game)) {
-        Image(bitmap = art, contentDescription = game.displayName(), modifier = modifier, contentScale = ContentScale.Fit)
-        return
-    }
     if (style == null || !media.recolor) {
-        if (art == null) {
-            Image(
-                painter = painterResource(media.res),
-                contentDescription = game.displayName(),
-                modifier = modifier,
-                contentScale = ContentScale.Fit,
-            )
-        } else {
-            val base = remember(media.res) { CartridgeRecolor.decode(context, media.res) }
-            Canvas(modifier = modifier) {
-                val scale = minOf(size.width / base.width, size.height / base.height)
-                val dst = IntSize((base.width * scale).toInt(), (base.height * scale).toInt())
-                val offset = IntOffset(((size.width - dst.width) / 2f).toInt(), ((size.height - dst.height) / 2f).toInt())
-                drawImage(base, dstOffset = offset, dstSize = dst, filterQuality = FilterQuality.High)
-                drawImage(art, dstOffset = offset, dstSize = dst, filterQuality = FilterQuality.High)
-            }
-        }
+        Image(
+            painter = painterResource(media.res),
+            contentDescription = game.displayName(),
+            modifier = modifier,
+            contentScale = ContentScale.Fit,
+        )
         return
     }
 
+    val context = LocalContext.current
     val shell = remember(media.res, style) { CartridgeRecolor.shell(context, media.res, media.label, style) }
     val label = remember(media.label) { media.label?.let { CartridgeRecolor.decode(context, it) } }
     // Sparkly cartridges: a soft band of light drifts slowly across the shell.
@@ -230,9 +207,6 @@ fun GameMediaImage(
         // The label keeps its own pixels, whatever the shell color or shimmer.
         if (label != null) {
             drawImage(label, dstOffset = offset, dstSize = dst, filterQuality = FilterQuality.High)
-        }
-        if (art != null) {
-            drawImage(art, dstOffset = offset, dstSize = dst, filterQuality = FilterQuality.High)
         }
     }
 }

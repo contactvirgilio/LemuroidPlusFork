@@ -442,6 +442,4 @@
     <string name="settings_group_controls">Controls</string>
     <string name="settings_group_system">System</string>
     <string name="games_view_carousel">Carousel</string>
-    <string name="settings_title_cart_labels">Cartridge labels (test)</string>
-    <string name="settings_description_cart_labels">Pick LaunchBox\'s Metadata.zip to put real labels on cartridges and discs.</string>
 </resources>

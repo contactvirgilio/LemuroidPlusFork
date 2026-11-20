@@ -32,6 +32,9 @@ class LemuroidApplication : DaggerApplication(), HasWorkerInjector {
 
         AppInitializer.getInstance(this).initializeComponent(initializeComponent)
 
+        // The cartridge labels test was scrapped (2026-11-20): remove what it downloaded.
+        if (isMainProcess()) Thread { java.io.File(filesDir, "labels").deleteRecursively() }.start()
+
         DynamicColors.applyToActivitiesIfAvailable(this)
     }
 
