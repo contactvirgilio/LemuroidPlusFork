@@ -204,7 +204,6 @@ fun GameMenuHomeScreen(
                             .height(96.dp)
                             .then(if (index == 0) Modifier.focusRequester(firstTile) else Modifier),
                     onClick = entry.onClick,
-                    shape = androidx.compose.ui.graphics.RectangleShape,
                     accent = entry.group.color,
                 ) { focused ->
                     MenuTileLabel(

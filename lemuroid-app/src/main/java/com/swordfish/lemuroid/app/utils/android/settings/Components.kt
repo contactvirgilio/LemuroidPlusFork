@@ -5,7 +5,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Row
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.Color
@@ -132,17 +131,14 @@ fun LemuroidCardSettingsGroup(
                     .fillMaxWidth()
                     .padding(start = 16.dp, end = 16.dp),
         ) {
+            // Square corners are the standard for menus (owner, 2026-11-20).
             OutlinedCard(
+                shape = RectangleShape,
                 modifier =
                     if (accent != null) {
                         Modifier.drawBehind {
-                            // Straight bar, kept clear of the rounded corners.
-                            val inset = 12.dp.toPx()
-                            drawRect(
-                                accent,
-                                topLeft = Offset(0f, inset),
-                                size = Size(4.dp.toPx(), size.height - 2 * inset),
-                            )
+                            // Full-height bar on the left edge.
+                            drawRect(accent, size = Size(5.dp.toPx(), size.height))
                         }
                     } else {
                         Modifier

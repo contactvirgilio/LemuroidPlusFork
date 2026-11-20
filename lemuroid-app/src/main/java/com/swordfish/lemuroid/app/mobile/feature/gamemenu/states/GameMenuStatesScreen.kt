@@ -225,7 +225,6 @@ private fun StateSlot(
     ) {
         MenuTile(
             modifier = Modifier.fillMaxWidth().aspectRatio(aspect),
-            shape = RoundedCornerShape(8.dp),
             enabled = entry.enabled,
             onClick = onClick,
         ) { _ ->

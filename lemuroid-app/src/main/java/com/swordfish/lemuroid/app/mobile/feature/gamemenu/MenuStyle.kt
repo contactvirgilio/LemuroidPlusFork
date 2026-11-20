@@ -86,7 +86,6 @@ fun MenuCard(
                 Modifier
                     .width(cardWidth)
                     .height(cardHeight)
-                    .clip(RoundedCornerShape(16.dp))
                     .background(MenuColors.Card)
                     // Taps on the card itself must not close the menu.
                     .pointerInput(Unit) { detectTapGestures { } },
@@ -129,7 +128,8 @@ fun MenuTile(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: androidx.compose.ui.graphics.Shape = RoundedCornerShape(12.dp),
+    // Square corners are the standard for menus (owner, 2026-11-20).
+    shape: androidx.compose.ui.graphics.Shape = androidx.compose.ui.graphics.RectangleShape,
     // A thin strip down the left edge in the tile's group colour (game menu home).
     accent: Color? = null,
     content: @Composable (focused: Boolean) -> Unit,
