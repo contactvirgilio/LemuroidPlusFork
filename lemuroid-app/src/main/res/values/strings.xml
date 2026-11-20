@@ -437,4 +437,9 @@
     <string name="settings_description_pad_skin">Skin 1: original. Skin 2: grey outline</string>
     <string name="settings_description_nested_shortcuts">Hides the in-game shortcuts behind one button. Off: they\'re always shown in a row.</string>
     <string name="rail_view">View</string>
+    <string name="settings_group_games">Games</string>
+    <string name="settings_group_in_game_look">In-game look</string>
+    <string name="settings_group_library_look">Library look</string>
+    <string name="settings_group_controls">Controls</string>
+    <string name="settings_group_system">System</string>
 </resources>

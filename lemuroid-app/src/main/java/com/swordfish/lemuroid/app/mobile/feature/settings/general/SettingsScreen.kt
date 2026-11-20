@@ -1,5 +1,13 @@
 package com.swordfish.lemuroid.app.mobile.feature.settings.general
 
+import androidx.compose.material.icons.outlined.Folder
+import androidx.compose.material.icons.outlined.GridView
+import androidx.compose.material.icons.outlined.SportsEsports
+import androidx.compose.material.icons.outlined.TouchApp
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Build
+import androidx.compose.material.icons.Icons
+import androidx.compose.ui.graphics.Color
 import android.app.Activity
 import android.net.Uri
 import androidx.compose.material3.Text
@@ -73,14 +81,18 @@ fun SettingsScreen(
             indexingInProgress = indexingInProgress,
             scanInProgress = scanInProgress,
         )
-        GeneralSettings()
-        HomeScreenSettings(navController = navController)
+        InGameLookSettings()
+        LibraryLookSettings()
         InputSettings(navController = navController)
-        BackupSettings(retrogradeDb)
-        MiscSettings(
-            indexingInProgress = indexingInProgress,
-            navController = navController,
-        )
+        HomeScreenSettings(navController = navController)
+        BackupSettings(
+            retrogradeDb,
+            title = { GroupTitle(R.string.settings_group_system) },
+            accent = SettingsGroupColors.SYSTEM,
+            icon = Icons.Outlined.Build,
+        ) {
+            MiscRows(indexingInProgress = indexingInProgress, navController = navController)
+        }
     }
 }
 
@@ -101,7 +113,11 @@ private fun HomeScreenSettings(navController: NavController) {
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    LemuroidCardSettingsGroup(title = { Text(text = stringResource(id = R.string.settings_category_home_screen)) }) {
+    LemuroidCardSettingsGroup(
+        title = { GroupTitle(R.string.settings_category_home_screen) },
+        accent = SettingsGroupColors.HOME,
+        icon = Icons.Outlined.Home,
+    ) {
         LemuroidSettingsMenuLink(
             title = { Text(text = stringResource(id = R.string.settings_title_use_as_home_screen)) },
             subtitle = {
@@ -147,42 +163,40 @@ private fun HomeScreenSettings(navController: NavController) {
 }
 
 @Composable
-private fun MiscSettings(
+private fun MiscRows(
     indexingInProgress: Boolean,
     navController: NavController,
 ) {
-    LemuroidCardSettingsGroup(
-        title = { Text(text = stringResource(id = R.string.settings_category_misc)) },
-    ) {
-        LemuroidSettingsMenuLink(
-            title = { Text(text = stringResource(id = R.string.settings_title_open_cores_selection)) },
-            subtitle = {
-                Text(text = stringResource(id = R.string.settings_description_open_cores_selection))
-            },
-            onClick = { navController.navigateToRoute(MainRoute.SETTINGS_CORES_SELECTION) },
-        )
-        LemuroidSettingsMenuLink(
-            title = { Text(text = stringResource(id = R.string.settings_title_display_bios_info)) },
-            subtitle = {
-                Text(text = stringResource(id = R.string.settings_description_display_bios_info))
-            },
-            enabled = !indexingInProgress,
-            onClick = { navController.navigateToRoute(MainRoute.SETTINGS_BIOS) },
-        )
-        LemuroidSettingsMenuLink(
-            title = { Text(text = stringResource(id = R.string.settings_title_advanced_settings)) },
-            subtitle = {
-                Text(text = stringResource(id = R.string.settings_description_advanced_settings))
-            },
-            onClick = { navController.navigateToRoute(MainRoute.SETTINGS_ADVANCED) },
-        )
-    }
+    LemuroidSettingsMenuLink(
+        title = { Text(text = stringResource(id = R.string.settings_title_open_cores_selection)) },
+        subtitle = {
+            Text(text = stringResource(id = R.string.settings_description_open_cores_selection))
+        },
+        onClick = { navController.navigateToRoute(MainRoute.SETTINGS_CORES_SELECTION) },
+    )
+    LemuroidSettingsMenuLink(
+        title = { Text(text = stringResource(id = R.string.settings_title_display_bios_info)) },
+        subtitle = {
+            Text(text = stringResource(id = R.string.settings_description_display_bios_info))
+        },
+        enabled = !indexingInProgress,
+        onClick = { navController.navigateToRoute(MainRoute.SETTINGS_BIOS) },
+    )
+    LemuroidSettingsMenuLink(
+        title = { Text(text = stringResource(id = R.string.settings_title_advanced_settings)) },
+        subtitle = {
+            Text(text = stringResource(id = R.string.settings_description_advanced_settings))
+        },
+        onClick = { navController.navigateToRoute(MainRoute.SETTINGS_ADVANCED) },
+    )
 }
 
 @Composable
 private fun InputSettings(navController: NavController) {
     LemuroidCardSettingsGroup(
-        title = { Text(text = stringResource(id = R.string.settings_category_input)) },
+        title = { GroupTitle(R.string.settings_group_controls) },
+        accent = SettingsGroupColors.CONTROLS,
+        icon = Icons.Outlined.TouchApp,
     ) {
         LemuroidSettingsList(
             state =
@@ -207,24 +221,12 @@ private fun InputSettings(navController: NavController) {
 }
 
 @Composable
-private fun GeneralSettings() {
-
+private fun InGameLookSettings() {
     LemuroidCardSettingsGroup(
-        title = { Text(text = stringResource(id = R.string.settings_category_general)) },
+        title = { GroupTitle(R.string.settings_group_in_game_look) },
+        accent = SettingsGroupColors.IN_GAME,
+        icon = Icons.Outlined.SportsEsports,
     ) {
-        LemuroidSettingsSwitch(
-            state = booleanPreferenceState(R.string.pref_key_autosave, true),
-            title = { Text(text = stringResource(id = R.string.settings_title_enable_autosave)) },
-            subtitle = { Text(text = stringResource(id = R.string.settings_description_enable_autosave)) },
-        )
-        // Vertical bar: only on 4:3-ish screens like the Retroid Pocket Classic.
-        if (GameShortcutsSetting.defaultNested(LocalContext.current)) {
-            LemuroidSettingsSwitch(
-                state = booleanPreferenceState(VERTICAL_BAR_KEY, false),
-                title = { Text(text = stringResource(id = R.string.settings_title_vertical_bar)) },
-                subtitle = { Text(text = stringResource(id = R.string.settings_description_vertical_bar)) },
-            )
-        }
         val nestedShortcuts = booleanPreferenceState(GameShortcutsSetting.KEY, GameShortcutsSetting.defaultNested(LocalContext.current))
         ShortcutsPicker(nested = nestedShortcuts.value, onPick = { nestedShortcuts.value = it })
         val shellSkins = booleanPreferenceState(GameShellSkin.SETTING_KEY, false)
@@ -236,6 +238,24 @@ private fun GeneralSettings() {
         ShellSkinsPreview(enabled = shellSkins.value)
         val padOutline = booleanPreferenceState(PadSkinSetting.KEY, true)
         PadSkinPicker(outline = padOutline.value, onPick = { padOutline.value = it })
+        // Vertical bar: only on 4:3-ish screens like the Retroid Pocket Classic.
+        if (GameShortcutsSetting.defaultNested(LocalContext.current)) {
+            LemuroidSettingsSwitch(
+                state = booleanPreferenceState(VERTICAL_BAR_KEY, false),
+                title = { Text(text = stringResource(id = R.string.settings_title_vertical_bar)) },
+                subtitle = { Text(text = stringResource(id = R.string.settings_description_vertical_bar)) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun LibraryLookSettings() {
+    LemuroidCardSettingsGroup(
+        title = { GroupTitle(R.string.settings_group_library_look) },
+        accent = SettingsGroupColors.LIBRARY,
+        icon = Icons.Outlined.GridView,
+    ) {
         // One choice for how games look: regular tiles, soft tiles, or cartridges and discs.
         val softTiles = booleanPreferenceState(SystemTileColors.PASTEL_PREF_KEY, false)
         val context = LocalContext.current
@@ -252,16 +272,31 @@ private fun GeneralSettings() {
         )
         // HD mode is hidden (owner, 2026-11-19): the in-game Filter shortcut covers the look.
         LemuroidSettingsSwitch(
-            state = booleanPreferenceState(NavigationSounds.ENABLED_KEY, true),
-            title = { Text(text = stringResource(id = R.string.settings_title_navigation_sounds)) },
-            subtitle = { Text(text = stringResource(id = R.string.settings_description_navigation_sounds)) },
-        )
-        LemuroidSettingsSwitch(
             state = booleanPreferenceState(ArtworkManager.SHOW_ARTWORK_KEY, false),
             title = { Text(text = stringResource(id = R.string.settings_title_show_artwork)) },
             subtitle = { Text(text = stringResource(id = R.string.settings_description_show_artwork)) },
         )
+        LemuroidSettingsSwitch(
+            state = booleanPreferenceState(NavigationSounds.ENABLED_KEY, true),
+            title = { Text(text = stringResource(id = R.string.settings_title_navigation_sounds)) },
+            subtitle = { Text(text = stringResource(id = R.string.settings_description_navigation_sounds)) },
+        )
     }
+}
+
+/** Colours of the settings cards; they match the strips on the game menu tiles. */
+private object SettingsGroupColors {
+    val GAMES = Color(0xFFB4B2A9)
+    val IN_GAME = Color(0xFF85B7EB)
+    val LIBRARY = Color(0xFFED93B1)
+    val CONTROLS = Color(0xFF5DCAA5)
+    val HOME = Color(0xFFAFA9EC)
+    val SYSTEM = Color(0xFFEF9F27)
+}
+
+@Composable
+private fun GroupTitle(id: Int) {
+    Text(text = stringResource(id = id).uppercase())
 }
 
 @Composable
@@ -301,7 +336,11 @@ private fun RomsSettings(
             }
         }
 
-    LemuroidCardSettingsGroup(title = { Text(text = stringResource(id = R.string.roms)) }) {
+    LemuroidCardSettingsGroup(
+        title = { GroupTitle(R.string.settings_group_games) },
+        accent = SettingsGroupColors.GAMES,
+        icon = Icons.Outlined.Folder,
+    ) {
         LemuroidSettingsMenuLink(
             title = { Text(text = stringResource(id = R.string.directory)) },
             subtitle = { Text(text = currentDirectoryName) },
@@ -333,5 +372,10 @@ private fun RomsSettings(
                 enabled = !indexingInProgress,
             )
         }
+        LemuroidSettingsSwitch(
+            state = booleanPreferenceState(R.string.pref_key_autosave, true),
+            title = { Text(text = stringResource(id = R.string.settings_title_enable_autosave)) },
+            subtitle = { Text(text = stringResource(id = R.string.settings_description_enable_autosave)) },
+        )
     }
 }

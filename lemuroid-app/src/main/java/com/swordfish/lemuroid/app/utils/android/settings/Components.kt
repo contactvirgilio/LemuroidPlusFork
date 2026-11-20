@@ -1,5 +1,14 @@
 package com.swordfish.lemuroid.app.utils.android.settings
 
+import androidx.compose.ui.unit.sp
+import androidx.compose.material3.Icon
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -111,6 +120,9 @@ fun LemuroidSettingsGroup(
 fun LemuroidCardSettingsGroup(
     modifier: Modifier = Modifier,
     title: @Composable (() -> Unit)? = null,
+    // Lemuroid Plus: colour of the straight strip on the card's left edge and of its heading.
+    accent: Color? = null,
+    icon: ImageVector? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Surface {
@@ -120,8 +132,34 @@ fun LemuroidCardSettingsGroup(
                     .fillMaxWidth()
                     .padding(start = 16.dp, end = 16.dp),
         ) {
-            OutlinedCard {
-                if (title != null) {
+            OutlinedCard(
+                modifier =
+                    if (accent != null) {
+                        Modifier.drawBehind {
+                            // Straight bar, kept clear of the rounded corners.
+                            val inset = 12.dp.toPx()
+                            drawRect(
+                                accent,
+                                topLeft = Offset(0f, inset),
+                                size = Size(4.dp.toPx(), size.height - 2 * inset),
+                            )
+                        }
+                    } else {
+                        Modifier
+                    },
+            ) {
+                if (title != null && accent != null) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        if (icon != null) Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(18.dp))
+                        ProvideTextStyle(MaterialTheme.typography.labelLarge.copy(color = accent, letterSpacing = 1.5.sp)) {
+                            title()
+                        }
+                    }
+                } else if (title != null) {
                     SettingsGroupTitleSmall(title)
                 }
                 content()

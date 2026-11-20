@@ -48,7 +48,14 @@ import java.util.Locale
  * entry that accepts backup zips as well as single in-game save files (.sav/.srm) from other emulators.
  */
 @Composable
-fun BackupSettings(retrogradeDb: RetrogradeDatabase) {
+fun BackupSettings(
+    retrogradeDb: RetrogradeDatabase,
+    // Lemuroid Plus: the card is shared with the other System rows, added after the backup ones.
+    title: @Composable () -> Unit = { Text(text = stringResource(id = R.string.settings_category_backup)) },
+    accent: androidx.compose.ui.graphics.Color? = null,
+    icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
+    extra: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit = {},
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val backupManager = remember { SavesBackupManager(context.applicationContext) }
@@ -178,9 +185,7 @@ fun BackupSettings(retrogradeDb: RetrogradeDatabase) {
             }
         }
 
-    LemuroidCardSettingsGroup(
-        title = { Text(text = stringResource(id = R.string.settings_category_backup)) },
-    ) {
+    LemuroidCardSettingsGroup(title = title, accent = accent, icon = icon) {
         val progress = exportProgress
         if (progress != null) {
             ExportProgressRow(done = progress.first, total = progress.second)
@@ -198,6 +203,7 @@ fun BackupSettings(retrogradeDb: RetrogradeDatabase) {
             enabled = !busy,
             onClick = { importLauncher.launch(arrayOf("*/*")) },
         )
+        extra()
     }
 
     if (pendingZips.isNotEmpty()) {
