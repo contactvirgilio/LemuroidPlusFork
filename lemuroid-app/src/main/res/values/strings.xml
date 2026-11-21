@@ -446,4 +446,7 @@
     <string name="settings_title_colours">Colours</string>
     <string name="settings_colours_original">Original</string>
     <string name="settings_colours_pastel">Pastel</string>
+    <string name="settings_title_button_mapping">Button mapping</string>
+    <string name="settings_description_button_mapping">Choose which button does what, for each system. In a game, the menu can also do it just for that game.</string>
+    <string name="game_menu_map_buttons">Map buttons</string>
 </resources>

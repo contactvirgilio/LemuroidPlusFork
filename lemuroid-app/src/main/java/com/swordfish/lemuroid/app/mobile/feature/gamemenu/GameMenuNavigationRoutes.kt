@@ -39,6 +39,11 @@ enum class GameMenuRoute(
         titleId = R.string.game_menu_load,
         parent = HOME,
     ),
+    BUTTONS(
+        route = "buttons",
+        titleId = R.string.settings_title_button_mapping,
+        parent = HOME,
+    ),
     OPTIONS(
         route = "options",
         titleId = R.string.game_menu_settings,

@@ -213,6 +213,12 @@ private fun InputSettings(navController: NavController) {
             },
             onClick = { navController.navigateToRoute(MainRoute.SETTINGS_INPUT_DEVICES) },
         )
+        // Lemuroid Plus: which button does what, per system (and per game from the game menu).
+        LemuroidSettingsMenuLink(
+            title = { Text(text = stringResource(id = R.string.settings_title_button_mapping)) },
+            subtitle = { Text(text = stringResource(id = R.string.settings_description_button_mapping)) },
+            onClick = { navController.navigateToRoute(MainRoute.SETTINGS_BUTTON_MAPPING) },
+        )
     }
 }
 

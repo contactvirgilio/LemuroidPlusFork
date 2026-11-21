@@ -60,7 +60,11 @@ class GameViewModelInput(
     private val tilt: GameViewModelTilt,
     private val sideEffects: GameViewModelSideEffects,
     private val scope: CoroutineScope,
+    // Lemuroid Plus: button mapping of this game, or of its system.
+    private val game: com.swordfish.lemuroid.lib.library.db.entity.Game,
 ) : DefaultLifecycleObserver {
+    private val buttonMapping = com.swordfish.lemuroid.app.shared.input.ButtonMapping.Runtime(appContext, game.systemId, game.fileName)
+
     private data class SingleAxisEvent(val axis: Int, val action: Int, val keyCode: Int, val port: Int)
 
     private val controllerConfigsState = MutableStateFlow<Map<Int, ControllerConfig>>(mapOf())
@@ -346,7 +350,7 @@ class GameViewModelInput(
                 }
 
                 port?.let {
-                    retroGameView.retroGameView?.sendKeyEvent(action, bindKeyCode, it)
+                    retroGameView.retroGameView?.sendKeyEvent(action, buttonMapping.apply(bindKeyCode), it)
                 }
             }
     }
@@ -379,7 +383,7 @@ class GameViewModelInput(
             .scan(emptySet<SingleAxisEvent>()) { prev, next ->
                 next.minus(prev).forEach {
                     if (it.port == 0 && handleDsScreenKey(it.action, it.keyCode)) return@forEach
-                    retroGameView.retroGameView?.sendKeyEvent(it.action, it.keyCode, it.port)
+                    retroGameView.retroGameView?.sendKeyEvent(it.action, buttonMapping.apply(it.keyCode), it.port)
                 }
                 next
             }

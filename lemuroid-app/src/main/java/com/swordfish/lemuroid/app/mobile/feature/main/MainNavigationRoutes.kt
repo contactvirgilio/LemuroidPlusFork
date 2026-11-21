@@ -103,6 +103,12 @@ enum class MainRoute(
         parent = SETTINGS,
         showBottomNavigation = false,
     ),
+    SETTINGS_BUTTON_MAPPING(
+        route = "settings/buttonmapping",
+        titleId = R.string.settings_title_button_mapping,
+        parent = SETTINGS,
+        showBottomNavigation = false,
+    ),
     SETTINGS_HIDDEN_APPS(
         route = "settings/hiddenapps",
         titleId = R.string.settings_title_hidden_apps,

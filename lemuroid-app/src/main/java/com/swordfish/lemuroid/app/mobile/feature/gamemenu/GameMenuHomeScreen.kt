@@ -134,6 +134,18 @@ fun GameMenuHomeScreen(
             )
     }
 
+    // Button mapping for this game or its system (with a gamepad, e.g. the RPC's own buttons).
+    if (com.swordfish.lemuroid.app.mobile.feature.buttonmapping.ControllerSpecs.forSystem(gameMenuRequest.game.systemId) != null) {
+        val buttons = stringResource(id = R.string.game_menu_map_buttons)
+        entries +=
+            MenuEntry(
+                label = buttons,
+                icon = drawableIcon(R.drawable.ic_menu_controls, buttons),
+                onClick = { navController.navigateToRoute(GameMenuRoute.BUTTONS) },
+                group = MenuGroup.CONTROLS,
+            )
+    }
+
     if (gameMenuRequest.colorCorrection >= 0) {
         val colorCorrection = stringResource(id = R.string.game_menu_color_correction)
         val isOn = gameMenuRequest.colorCorrection == 1

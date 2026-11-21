@@ -1,5 +1,8 @@
 package com.swordfish.lemuroid.app.mobile.feature.main
 
+import kotlinx.coroutines.flow.first
+import com.swordfish.lemuroid.app.shared.input.InputKey
+import com.swordfish.lemuroid.app.mobile.feature.buttonmapping.ButtonMappingSettingsScreen
 import com.swordfish.lemuroid.app.shared.game.GameShortcutsSetting
 import android.app.Activity
 import android.content.Intent
@@ -441,6 +444,15 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
                                             coresSelection,
                                         ),
                                 ),
+                        )
+                    }
+                    composable(MainRoute.SETTINGS_BUTTON_MAPPING) {
+                        ButtonMappingSettingsScreen(
+                            modifier = Modifier.padding(padding),
+                            translate = { event ->
+                                inputDeviceManager.getInputBindingsObservable().first()(event.device)[InputKey(event.keyCode)]?.keyCode
+                                    ?: event.keyCode
+                            },
                         )
                     }
                     composable(MainRoute.SETTINGS_INPUT_DEVICES) {

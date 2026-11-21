@@ -2,6 +2,10 @@
 
 package com.swordfish.lemuroid.app.mobile.feature.gamemenu
 
+import kotlinx.coroutines.flow.first
+import com.swordfish.lemuroid.app.shared.input.InputKey
+import com.swordfish.lemuroid.app.mobile.feature.buttonmapping.ControllerSpecs
+import com.swordfish.lemuroid.app.mobile.feature.buttonmapping.ButtonMappingEditor
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -250,6 +254,20 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                                 onResult { putExtra(GameMenuContract.RESULT_LOAD, it) }
                             },
                         )
+                    }
+                    composable(GameMenuRoute.BUTTONS) {
+                        val spec = ControllerSpecs.forSystem(gameMenuRequest.game.systemId)
+                        if (spec != null) {
+                            ButtonMappingEditor(
+                                spec = spec,
+                                systemIds = listOf(gameMenuRequest.game.systemId),
+                                fileName = gameMenuRequest.game.fileName,
+                                translate = { event ->
+                                    inputDeviceManager.getInputBindingsObservable().first()(event.device)[InputKey(event.keyCode)]?.keyCode
+                                        ?: event.keyCode
+                                },
+                            )
+                        }
                     }
                     composable(GameMenuRoute.OPTIONS) {
                         GameMenuCoreOptionsScreen(
