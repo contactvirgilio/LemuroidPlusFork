@@ -66,6 +66,42 @@ private val TILE = Color(0xFF1D2126)
 private val TILE_BORDER = Color(0xFF2C3137)
 private val MUTED = Color(0xFF8A8F95)
 
+/** Whether a gamepad (or the device's own buttons, like the RPC's) is connected; follows plugging in and out. */
+@Composable
+fun rememberHasGamepad(): Boolean {
+    val context = LocalContext.current
+    val manager = remember { context.getSystemService(android.content.Context.INPUT_SERVICE) as android.hardware.input.InputManager }
+    fun check(): Boolean =
+        manager.inputDeviceIds.any { id ->
+            val device = manager.getInputDevice(id) ?: return@any false
+            !device.isVirtual &&
+                (
+                    (device.sources and android.view.InputDevice.SOURCE_GAMEPAD) == android.view.InputDevice.SOURCE_GAMEPAD ||
+                        (device.sources and android.view.InputDevice.SOURCE_JOYSTICK) == android.view.InputDevice.SOURCE_JOYSTICK
+                )
+        }
+    var has by remember { mutableStateOf(check()) }
+    androidx.compose.runtime.DisposableEffect(manager) {
+        val listener =
+            object : android.hardware.input.InputManager.InputDeviceListener {
+                override fun onInputDeviceAdded(deviceId: Int) {
+                    has = check()
+                }
+
+                override fun onInputDeviceRemoved(deviceId: Int) {
+                    has = check()
+                }
+
+                override fun onInputDeviceChanged(deviceId: Int) {
+                    has = check()
+                }
+            }
+        manager.registerInputDeviceListener(listener, null)
+        onDispose { manager.unregisterInputDeviceListener(listener) }
+    }
+    return has
+}
+
 /** Settings > Controls > Button mapping: a tile per system, then that system's controller. */
 @Composable
 fun ButtonMappingSettingsScreen(

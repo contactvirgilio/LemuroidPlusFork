@@ -135,7 +135,7 @@ fun GameMenuHomeScreen(
     }
 
     // Button mapping for this game or its system (with a gamepad, e.g. the RPC's own buttons).
-    if (com.swordfish.lemuroid.app.mobile.feature.buttonmapping.ControllerSpecs.forSystem(gameMenuRequest.game.systemId) != null) {
+    if (LocalMenuHasGamepad.current && com.swordfish.lemuroid.app.mobile.feature.buttonmapping.ControllerSpecs.forSystem(gameMenuRequest.game.systemId) != null) {
         val buttons = stringResource(id = R.string.game_menu_map_buttons)
         entries +=
             MenuEntry(
