@@ -10,11 +10,15 @@ import java.util.Properties
  * preferences: the menu and the game run in different processes, and a file is always read fresh.
  *
  * A mapping says, for a button you press (in RetroPad terms, after the gamepad's own bindings),
- * which button the game receives. Only changed buttons are stored. A game's mapping replaces its
- * system's.
+ * which button the game receives; [UNBOUND] means nothing. The logic follows Cannoli's (2026-11-21):
+ * no swapping, a button can be unbound, two buttons may send the same thing, and a game stores
+ * only what differs from its system, laid over the system's mapping when playing.
  */
 object ButtonMapping {
     private const val FILE = "button_mapping.properties"
+
+    /** "Sends nothing." */
+    const val UNBOUND = 0
 
     fun systemKey(systemId: String) = "sys:$systemId"
 
@@ -50,7 +54,7 @@ object ButtonMapping {
             if (from != null && to != null) from to to else null
         }.toMap()
 
-    private fun encode(map: Map<Int, Int>): String = map.filter { it.key != it.value }.entries.joinToString(",") { "${it.key}:${it.value}" }
+    private fun encode(map: Map<Int, Int>): String = map.entries.joinToString(",") { "${it.key}:${it.value}" }
 
     /** The stored mapping (pressed -> sent) for [key], or empty. */
     fun get(
@@ -63,6 +67,7 @@ object ButtonMapping {
         key: String,
     ): Boolean = load(context).getProperty(key)?.isNotEmpty() == true
 
+    /** Saves [map] as is: callers drop the entries that need no storing (see [systemDelta], [gameDelta]). */
     fun set(
         context: Context,
         key: String,
@@ -74,23 +79,32 @@ object ButtonMapping {
         save(context, props)
     }
 
-    /**
-     * Makes [target] (a button the game knows) come from [pressed]. The button that used to give
-     * [target] takes over whatever [pressed] gave before, so nothing gets lost: a swap.
-     */
-    fun assign(
+    /** What a system needs stored: buttons that don't send themselves. */
+    fun systemDelta(map: Map<Int, Int>): Map<Int, Int> = map.filter { it.key != it.value }
+
+    /** What a game needs stored: buttons that send something else than they do for its system. */
+    fun gameDelta(
         map: Map<Int, Int>,
-        buttons: List<Int>,
-        target: Int,
-        pressed: Int,
+        system: Map<Int, Int>,
     ): Map<Int, Int> {
-        val out = map.toMutableMap()
-        fun sentBy(key: Int) = out[key] ?: key
-        val oldSource = (buttons + out.keys + pressed).distinct().firstOrNull { sentBy(it) == target } ?: target
-        val pressedSent = sentBy(pressed)
-        out[pressed] = target
-        if (oldSource != pressed) out[oldSource] = pressedSent
-        return out.filter { it.key != it.value }
+        val keys = map.keys + system.keys
+        return keys.mapNotNull { k ->
+            val game = map[k] ?: k
+            val sys = system[k] ?: k
+            if (game != sys) k to game else null
+        }.toMap()
+    }
+
+    /** The mapping in effect for a game: its system's, with the game's own differences on top. */
+    fun effective(
+        context: Context,
+        systemId: String,
+        fileName: String?,
+    ): Map<Int, Int> {
+        val props = load(context)
+        val system = decode(props.getProperty(systemKey(systemId)))
+        val game = fileName?.let { decode(props.getProperty(gameKey(systemId, it))) }.orEmpty()
+        return system + game
     }
 
     /** Short name of a RetroPad button, as printed on the RPC and most pads. */
@@ -108,16 +122,22 @@ object ButtonMapping {
             KeyEvent.KEYCODE_BUTTON_THUMBR -> "R3"
             KeyEvent.KEYCODE_BUTTON_START -> "Start"
             KeyEvent.KEYCODE_BUTTON_SELECT -> "Select"
+            KeyEvent.KEYCODE_DPAD_UP -> "Up"
+            KeyEvent.KEYCODE_DPAD_DOWN -> "Down"
+            KeyEvent.KEYCODE_DPAD_LEFT -> "Left"
+            KeyEvent.KEYCODE_DPAD_RIGHT -> "Right"
+            UNBOUND -> "—"
             else -> KeyEvent.keyCodeToString(keyCode).removePrefix("KEYCODE_")
         }
 
-    /** Buttons that can be mapped (the D-pad stays as it is). */
+    /** Buttons that can be mapped, in list order: face, shoulders, sticks, Start/Select, D-pad. */
     val MAPPABLE =
-        setOf(
+        listOf(
             KeyEvent.KEYCODE_BUTTON_A, KeyEvent.KEYCODE_BUTTON_B, KeyEvent.KEYCODE_BUTTON_X, KeyEvent.KEYCODE_BUTTON_Y,
             KeyEvent.KEYCODE_BUTTON_L1, KeyEvent.KEYCODE_BUTTON_R1, KeyEvent.KEYCODE_BUTTON_L2, KeyEvent.KEYCODE_BUTTON_R2,
             KeyEvent.KEYCODE_BUTTON_THUMBL, KeyEvent.KEYCODE_BUTTON_THUMBR,
             KeyEvent.KEYCODE_BUTTON_START, KeyEvent.KEYCODE_BUTTON_SELECT,
+            KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT,
         )
 
     /** Used while a game runs: re-reads the file only when it changed. */
@@ -134,10 +154,9 @@ object ButtonMapping {
             val now = if (f.exists()) f.lastModified() else 0L
             if (now != stamp) {
                 stamp = now
-                val props = load(context)
-                val game = decode(props.getProperty(gameKey(systemId, fileName)))
-                map = game.ifEmpty { decode(props.getProperty(systemKey(systemId))) }
+                map = effective(context, systemId, fileName)
             }
+            // UNBOUND (0) means: don't send anything.
             return map[keyCode] ?: keyCode
         }
     }

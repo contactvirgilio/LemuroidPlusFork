@@ -266,6 +266,7 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                                     inputDeviceManager.getInputBindingsObservable().first()(event.device)[InputKey(event.keyCode)]?.keyCode
                                         ?: event.keyCode
                                 },
+                                onDone = { navController.popBackStack() },
                             )
                         }
                     }

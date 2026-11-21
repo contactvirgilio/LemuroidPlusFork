@@ -350,7 +350,10 @@ class GameViewModelInput(
                 }
 
                 port?.let {
-                    retroGameView.retroGameView?.sendKeyEvent(action, buttonMapping.apply(bindKeyCode), it)
+                    val sent = buttonMapping.apply(bindKeyCode)
+                    if (sent != com.swordfish.lemuroid.app.shared.input.ButtonMapping.UNBOUND) {
+                        retroGameView.retroGameView?.sendKeyEvent(action, sent, it)
+                    }
                 }
             }
     }
@@ -383,7 +386,10 @@ class GameViewModelInput(
             .scan(emptySet<SingleAxisEvent>()) { prev, next ->
                 next.minus(prev).forEach {
                     if (it.port == 0 && handleDsScreenKey(it.action, it.keyCode)) return@forEach
-                    retroGameView.retroGameView?.sendKeyEvent(it.action, buttonMapping.apply(it.keyCode), it.port)
+                    val sent = buttonMapping.apply(it.keyCode)
+                    if (sent != com.swordfish.lemuroid.app.shared.input.ButtonMapping.UNBOUND) {
+                        retroGameView.retroGameView?.sendKeyEvent(it.action, sent, it.port)
+                    }
                 }
                 next
             }
