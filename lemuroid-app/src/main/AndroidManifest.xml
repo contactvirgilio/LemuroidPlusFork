@@ -55,12 +55,106 @@
         android:theme="@style/LemuroidMaterialTheme">
         <activity
             android:name="com.swordfish.lemuroid.app.mobile.feature.main.MainActivity"
-            android:exported="true">
+            android:exported="true" />
+
+        <!-- Lemuroid Plus: the app icon, one entry per colour; Settings > Home screen > App icon
+             turns on the chosen one. Orange is the default. -->
+        <activity-alias
+            android:name="com.swordfish.lemuroid.app.mobile.feature.main.AppIconOrange"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@mipmap/app_icon_orange"
+            android:roundIcon="@mipmap/app_icon_orange"
+            android:targetActivity="com.swordfish.lemuroid.app.mobile.feature.main.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity-alias>
+        <activity-alias
+            android:name="com.swordfish.lemuroid.app.mobile.feature.main.AppIconGreen"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/app_icon_green"
+            android:roundIcon="@mipmap/app_icon_green"
+            android:targetActivity="com.swordfish.lemuroid.app.mobile.feature.main.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name="com.swordfish.lemuroid.app.mobile.feature.main.AppIconRed"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/app_icon_red"
+            android:roundIcon="@mipmap/app_icon_red"
+            android:targetActivity="com.swordfish.lemuroid.app.mobile.feature.main.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name="com.swordfish.lemuroid.app.mobile.feature.main.AppIconYellow"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/app_icon_yellow"
+            android:roundIcon="@mipmap/app_icon_yellow"
+            android:targetActivity="com.swordfish.lemuroid.app.mobile.feature.main.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name="com.swordfish.lemuroid.app.mobile.feature.main.AppIconBlue"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/app_icon_blue"
+            android:roundIcon="@mipmap/app_icon_blue"
+            android:targetActivity="com.swordfish.lemuroid.app.mobile.feature.main.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name="com.swordfish.lemuroid.app.mobile.feature.main.AppIconPurple"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/app_icon_purple"
+            android:roundIcon="@mipmap/app_icon_purple"
+            android:targetActivity="com.swordfish.lemuroid.app.mobile.feature.main.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name="com.swordfish.lemuroid.app.mobile.feature.main.AppIconPink"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/app_icon_pink"
+            android:roundIcon="@mipmap/app_icon_pink"
+            android:targetActivity="com.swordfish.lemuroid.app.mobile.feature.main.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name="com.swordfish.lemuroid.app.mobile.feature.main.AppIconGrey"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/app_icon_grey"
+            android:roundIcon="@mipmap/app_icon_grey"
+            android:targetActivity="com.swordfish.lemuroid.app.mobile.feature.main.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
 
         <!-- Lemuroid Plus: home screen (launcher) entry. Disabled until the user chooses
              "Use as home screen" in Settings, so installing never prompts for a home app. -->

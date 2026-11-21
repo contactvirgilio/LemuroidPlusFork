@@ -449,4 +449,6 @@
     <string name="settings_title_button_mapping">Button mapping</string>
     <string name="settings_description_button_mapping">Choose which button does what, for each system. In a game, the menu can also do it just for that game.</string>
     <string name="game_menu_map_buttons">Map buttons</string>
+    <string name="settings_title_app_icon">App icon</string>
+    <string name="settings_description_app_icon">The colour of the icon on your home screen. Some launchers take a moment to update it.</string>
 </resources>

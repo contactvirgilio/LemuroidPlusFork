@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="app_icon_orange">#EC8428</color>
+    <color name="app_icon_green">#00C64E</color>
+    <color name="app_icon_red">#E5534B</color>
+    <color name="app_icon_yellow">#F2C94C</color>
+    <color name="app_icon_blue">#3C6EDC</color>
+    <color name="app_icon_purple">#8C50D2</color>
+    <color name="app_icon_pink">#E864AA</color>
+    <color name="app_icon_grey">#8A8D93</color>
+</resources>

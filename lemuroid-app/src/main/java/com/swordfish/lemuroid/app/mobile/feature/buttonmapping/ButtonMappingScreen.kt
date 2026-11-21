@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.sp
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.focusHighlight
 import com.swordfish.lemuroid.app.shared.input.ButtonMapping
 import kotlinx.coroutines.launch
+import com.swordfish.touchinput.controller.R as TouchR
 
 private val LINE = Color(0xFF9A9A96)
 private val TEAL = Color(0xFF5DCAA5)
@@ -113,7 +114,7 @@ fun ButtonMappingSettingsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                MiniPad(spec, Modifier.size(width = 64.dp, height = 32.dp))
+                MiniPad(spec, Modifier.size(width = 70.dp, height = 44.dp))
                 Text(text = spec.name, fontSize = 13.sp, color = Color(0xFFE8E8E8), modifier = Modifier.padding(top = 6.dp))
                 if (edited) Text(text = "edited", fontSize = 11.sp, color = TEAL)
             }
@@ -286,9 +287,9 @@ private fun PadButton(
 ) {
     val (bw, bh) =
         when (button.kind) {
-            Kind.ROUND -> unit * 0.085f to unit * 0.085f
-            Kind.SHOULDER -> unit * 0.16f to unit * 0.045f
-            Kind.PILL -> unit * 0.09f to unit * 0.035f
+            Kind.ROUND -> unit * 0.095f to unit * 0.095f
+            Kind.SHOULDER -> unit * 0.18f to unit * 0.05f
+            Kind.PILL -> if (button.icon != null) unit * 0.1f to unit * 0.055f else unit * 0.09f to unit * 0.04f
         }
     val shape = if (button.kind == Kind.ROUND) CircleShape else RoundedCornerShape(50)
     val changed = changedFrom != null
@@ -304,7 +305,14 @@ private fun PadButton(
                 .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        if (button.kind == Kind.ROUND) {
+        if (button.icon != null) {
+            androidx.compose.material3.Icon(
+                painter = androidx.compose.ui.res.painterResource(button.icon),
+                contentDescription = button.label,
+                tint = if (changed) TEAL_DARK else Color(0xFFC9C8D2),
+                modifier = Modifier.fillMaxSize().padding(if (button.kind == Kind.ROUND) 7.dp else 3.dp),
+            )
+        } else if (button.kind == Kind.ROUND) {
             Text(
                 text = button.label,
                 fontSize = 11.sp,
@@ -319,7 +327,7 @@ private fun PadButton(
         when {
             changed && button.kind == Kind.ROUND -> "← $changedFrom"
             changed -> "${button.label} ← $changedFrom"
-            button.kind != Kind.ROUND -> button.label
+            button.kind != Kind.ROUND && button.icon == null -> button.label
             else -> null
         }
     if (caption != null) {
@@ -338,23 +346,16 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPadBody(spec: C
     val stroke = Stroke(width = 2.dp.toPx())
     val w = size.width
     val h = size.height
-    // A generic pad outline: a wide rounded body.
-    drawRoundRect(
-        color = LINE,
-        topLeft = Offset(w * 0.06f, h * 0.18f),
-        size = Size(w * 0.88f, h * 0.70f),
-        cornerRadius = androidx.compose.ui.geometry.CornerRadius(h * 0.33f),
-        style = stroke,
-    )
+    // Like the Outline touch skin: no controller body, just the D-pad (or stick) and the buttons.
     // D-pad (or a stick for arcade).
     val cx = w * 0.2f
     val cy = h * 0.52f
     if (spec.stick) {
-        drawCircle(LINE, radius = h * 0.14f, center = Offset(cx, cy), style = stroke)
-        drawCircle(LINE, radius = h * 0.05f, center = Offset(cx, cy))
+        drawCircle(LINE, radius = h * 0.2f, center = Offset(cx, cy), style = stroke)
+        drawCircle(LINE, radius = h * 0.07f, center = Offset(cx, cy))
     } else {
-        val a = h * 0.045f
-        val b = h * 0.14f
+        val a = h * 0.07f
+        val b = h * 0.2f
         val plus =
             Path().apply {
                 moveTo(cx - a, cy - b)
@@ -375,16 +376,41 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPadBody(spec: C
     }
 }
 
-/** Tiny version for the grid tiles. */
+/** The tile picture: the system's face buttons, drawn like the touch controls. */
 @Composable
 private fun MiniPad(
     spec: ControllerSpec,
     modifier: Modifier,
 ) {
-    Canvas(modifier = modifier) {
-        drawPadBody(spec)
-        spec.buttons.filter { it.kind == Kind.ROUND }.forEach {
-            drawCircle(LINE, radius = size.width * 0.035f, center = Offset(size.width * it.x, size.height * it.y), style = Stroke(1.dp.toPx()))
+    val round = spec.buttons.filter { it.kind == Kind.ROUND }
+    val minX = round.minOf { it.x }
+    val maxX = round.maxOf { it.x }
+    val minY = round.minOf { it.y }
+    val maxY = round.maxOf { it.y }
+    BoxWithConstraints(modifier = modifier) {
+        val d = minOf(maxWidth, maxHeight) * 0.34f
+        round.forEach { button ->
+            val fx = if (maxX > minX) (button.x - minX) / (maxX - minX) else 0.5f
+            val fy = if (maxY > minY) (button.y - minY) / (maxY - minY) else 0.5f
+            Box(
+                modifier =
+                    Modifier
+                        .offset(x = (maxWidth - d) * fx, y = (maxHeight - d) * fy)
+                        .size(d)
+                        .border(1.5.dp, LINE, CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (button.icon != null) {
+                    androidx.compose.material3.Icon(
+                        painter = androidx.compose.ui.res.painterResource(button.icon),
+                        contentDescription = null,
+                        tint = Color(0xFFC9C8D2),
+                        modifier = Modifier.fillMaxSize().padding(3.dp),
+                    )
+                } else {
+                    Text(text = button.label, fontSize = 8.sp, color = Color(0xFFC9C8D2), maxLines = 1)
+                }
+            }
         }
     }
 }
@@ -392,7 +418,15 @@ private fun MiniPad(
 enum class Kind { ROUND, SHOULDER, PILL }
 
 /** A button of a system's controller: its name, the RetroPad key the core reads, and where it sits. */
-data class ButtonSpec(val label: String, val key: Int, val x: Float, val y: Float, val kind: Kind = Kind.ROUND)
+data class ButtonSpec(
+    val label: String,
+    val key: Int,
+    val x: Float,
+    val y: Float,
+    val kind: Kind = Kind.ROUND,
+    // The touch controls' own icon for this button (PlayStation symbols, Start, Select, Coin).
+    val icon: Int? = null,
+)
 
 data class ControllerSpec(
     val name: String,
@@ -420,8 +454,8 @@ object ControllerSpecs {
         start: String = "Start",
         select: String? = "Select",
     ) = listOfNotNull(
-        select?.let { ButtonSpec(it, SELECT, 0.42f, 0.56f, Kind.PILL) },
-        ButtonSpec(start, START, 0.56f, 0.56f, Kind.PILL),
+        select?.let { ButtonSpec(it, SELECT, 0.42f, 0.56f, Kind.PILL, icon = if (it == "Select") TouchR.drawable.button_select else null) },
+        ButtonSpec(start, START, 0.56f, 0.56f, Kind.PILL, icon = if (start == "Start") TouchR.drawable.button_start else null),
     )
 
     private fun shoulders(
@@ -476,10 +510,10 @@ object ControllerSpecs {
                 "PlayStation",
                 listOf("psx"),
                 listOf(
-                    ButtonSpec("△", X, 0.78f, 0.32f),
-                    ButtonSpec("□", Y, 0.70f, 0.52f),
-                    ButtonSpec("○", A, 0.86f, 0.52f),
-                    ButtonSpec("✕", B, 0.78f, 0.72f),
+                    ButtonSpec("△", X, 0.78f, 0.32f, icon = TouchR.drawable.psx_triangle),
+                    ButtonSpec("□", Y, 0.70f, 0.52f, icon = TouchR.drawable.psx_square),
+                    ButtonSpec("○", A, 0.86f, 0.52f, icon = TouchR.drawable.psx_circle),
+                    ButtonSpec("✕", B, 0.78f, 0.72f, icon = TouchR.drawable.psx_cross),
                     ButtonSpec("L1", L1, 0.22f, 0.10f, Kind.SHOULDER),
                     ButtonSpec("R1", R1, 0.78f, 0.10f, Kind.SHOULDER),
                     ButtonSpec("L2", L2, 0.22f, 0.02f, Kind.SHOULDER),
@@ -492,10 +526,10 @@ object ControllerSpecs {
                 "PSP",
                 listOf("psp"),
                 listOf(
-                    ButtonSpec("△", X, 0.78f, 0.32f),
-                    ButtonSpec("□", Y, 0.70f, 0.52f),
-                    ButtonSpec("○", A, 0.86f, 0.52f),
-                    ButtonSpec("✕", B, 0.78f, 0.72f),
+                    ButtonSpec("△", X, 0.78f, 0.32f, icon = TouchR.drawable.psx_triangle),
+                    ButtonSpec("□", Y, 0.70f, 0.52f, icon = TouchR.drawable.psx_square),
+                    ButtonSpec("○", A, 0.86f, 0.52f, icon = TouchR.drawable.psx_circle),
+                    ButtonSpec("✕", B, 0.78f, 0.72f, icon = TouchR.drawable.psx_cross),
                 ) + shoulders() + startSelect(),
             ),
             ControllerSpec("DS", listOf("nds"), diamond + shoulders() + startSelect()),
@@ -524,8 +558,8 @@ object ControllerSpecs {
                     ButtonSpec("4", X, 0.74f, 0.34f),
                     ButtonSpec("5", L1, 0.86f, 0.30f),
                     ButtonSpec("6", R1, 0.86f, 0.54f),
-                    ButtonSpec("Coin", SELECT, 0.42f, 0.56f, Kind.PILL),
-                    ButtonSpec("Start", START, 0.50f, 0.72f, Kind.PILL),
+                    ButtonSpec("Coin", SELECT, 0.42f, 0.56f, Kind.PILL, icon = TouchR.drawable.button_coin),
+                    ButtonSpec("Start", START, 0.50f, 0.72f, Kind.PILL, icon = TouchR.drawable.button_start),
                 ),
                 stick = true,
             ),

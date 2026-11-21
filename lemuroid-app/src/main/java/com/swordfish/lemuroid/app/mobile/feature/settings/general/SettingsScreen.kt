@@ -122,6 +122,7 @@ private fun HomeScreenSettings(navController: NavController) {
         accent = SettingsGroupColors.HOME,
         icon = Icons.Outlined.Home,
     ) {
+        AppIconPicker()
         LemuroidSettingsMenuLink(
             title = { Text(text = stringResource(id = R.string.settings_title_use_as_home_screen)) },
             subtitle = {
