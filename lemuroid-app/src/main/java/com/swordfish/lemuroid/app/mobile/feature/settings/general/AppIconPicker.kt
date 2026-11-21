@@ -38,15 +38,15 @@ import com.swordfish.lemuroid.app.mobile.shared.compose.ui.focusHighlight
  * one is turned on and the others off. Orange is on by default.
  */
 object AppIcon {
-    enum class Choice(val alias: String, val color: Color) {
-        ORANGE("AppIconOrange", Color(0xFFEC8428)),
-        GREEN("AppIconGreen", Color(0xFF00C64E)),
-        RED("AppIconRed", Color(0xFFE5534B)),
-        YELLOW("AppIconYellow", Color(0xFFF2C94C)),
-        BLUE("AppIconBlue", Color(0xFF3C6EDC)),
-        PURPLE("AppIconPurple", Color(0xFF8C50D2)),
-        PINK("AppIconPink", Color(0xFFE864AA)),
-        GREY("AppIconGrey", Color(0xFF8A8D93)),
+    enum class Choice(val alias: String, val background: Int) {
+        ORANGE("AppIconOrange", R.drawable.app_icon_bg_orange),
+        GREEN("AppIconGreen", R.drawable.app_icon_bg_green),
+        RED("AppIconRed", R.drawable.app_icon_bg_red),
+        YELLOW("AppIconYellow", R.drawable.app_icon_bg_yellow),
+        BLUE("AppIconBlue", R.drawable.app_icon_bg_blue),
+        PURPLE("AppIconPurple", R.drawable.app_icon_bg_purple),
+        PINK("AppIconPink", R.drawable.app_icon_bg_pink),
+        GREY("AppIconGrey", R.drawable.app_icon_bg_grey),
     }
 
     private fun component(
@@ -98,8 +98,7 @@ fun AppIconPicker() {
                                 .border(3.dp, if (choice == current) Color(0xFF5DCAA5) else Color.Transparent, shape)
                                 .padding(4.dp)
                                 .clip(shape)
-                                .background(choice.color)
-                                .focusHighlight(shape = shape, zoom = 1f)
+                                                                .focusHighlight(shape = shape, zoom = 1f)
                                 .clickable {
                                     if (choice != current) {
                                         AppIcon.set(context, choice)
@@ -108,7 +107,12 @@ fun AppIconPicker() {
                                 },
                     ) {
                         Image(
-                            painter = painterResource(R.drawable.lemuroid_launcher_foreground),
+                            painter = painterResource(choice.background),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                        Image(
+                            painter = painterResource(R.drawable.app_icon_face),
                             contentDescription = choice.name.lowercase(),
                             modifier = Modifier.fillMaxSize(),
                         )
