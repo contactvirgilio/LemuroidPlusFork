@@ -1,5 +1,6 @@
 package com.swordfish.lemuroid.app.mobile.feature.buttonmapping
 
+import androidx.compose.foundation.layout.widthIn
 import android.view.KeyEvent
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
@@ -404,15 +405,56 @@ private fun ButtonChip(
                         modifier = Modifier.fillMaxSize().padding(size * 0.22f),
                     )
                 } else {
-                    Text(text = button.label, fontSize = (size.value * (if (button.label.length > 1) 0.36f else 0.46f)).sp, fontWeight = FontWeight.Medium, color = ink, maxLines = 1)
+                    val fs = (size.value * (if (button.label.length > 1) 0.36f else 0.46f)).sp
+                    Text(
+                        text = button.label,
+                        color = ink,
+                        maxLines = 1,
+                        style =
+                            androidx.compose.ui.text.TextStyle(
+                                fontSize = fs,
+                                lineHeight = fs,
+                                fontWeight = FontWeight.Medium,
+                                platformStyle = androidx.compose.ui.text.PlatformTextStyle(includeFontPadding = false),
+                                lineHeightStyle =
+                                    androidx.compose.ui.text.style.LineHeightStyle(
+                                        alignment = androidx.compose.ui.text.style.LineHeightStyle.Alignment.Center,
+                                        trim = androidx.compose.ui.text.style.LineHeightStyle.Trim.Both,
+                                    ),
+                            ),
+                    )
                 }
             }
+        // Text only, truly centred: no font padding, and the same width for every pill so they line up.
         Kind.PILL ->
             Box(
-                modifier = Modifier.height(size * 0.62f).background(fill, RoundedCornerShape(50)).padding(horizontal = 9.dp),
+                modifier =
+                    Modifier
+                        .height(size * 0.7f)
+                        .widthIn(min = size * 2.3f)
+                        .background(fill, RoundedCornerShape(50))
+                        .padding(horizontal = 8.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(text = button.label.uppercase(), fontSize = (size.value * 0.36f).sp, color = ink, maxLines = 1)
+                Text(
+                    text = button.label.uppercase(),
+                    color = ink,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
+                    style =
+                        androidx.compose.ui.text.TextStyle(
+                            fontSize = (size.value * 0.38f).sp,
+                            lineHeight = (size.value * 0.38f).sp,
+                            fontWeight = FontWeight.Medium,
+                            letterSpacing = 0.5.sp,
+                            platformStyle = androidx.compose.ui.text.PlatformTextStyle(includeFontPadding = false),
+                            lineHeightStyle =
+                                androidx.compose.ui.text.style.LineHeightStyle(
+                                    alignment = androidx.compose.ui.text.style.LineHeightStyle.Alignment.Center,
+                                    trim = androidx.compose.ui.text.style.LineHeightStyle.Trim.Both,
+                                ),
+                        ),
+                )
             }
     }
 }
