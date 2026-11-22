@@ -191,6 +191,7 @@
             android:process=":game"
             android:autoRemoveFromRecents="true"
             android:taskAffinity="${applicationId}.game"
+            android:screenOrientation="fullSensor"
             android:theme="@style/LemuroidMaterialTheme.Game" />
 
         <service
@@ -206,6 +207,7 @@
         <activity
             android:name="com.swordfish.lemuroid.app.mobile.feature.gamemenu.GameMenuActivity"
             android:process=":game"
+            android:screenOrientation="fullSensor"
             android:theme="@style/LemuroidMaterialTheme.Menu" />
 
         <activity
