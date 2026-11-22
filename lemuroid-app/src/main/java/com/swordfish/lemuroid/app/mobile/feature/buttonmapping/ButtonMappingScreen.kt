@@ -59,7 +59,6 @@ import com.swordfish.lemuroid.app.shared.input.ButtonMapping
 import kotlinx.coroutines.launch
 import com.swordfish.touchinput.controller.R as TouchR
 import androidx.compose.ui.graphics.luminance
-import com.swordfish.touchinput.controller.R as TouchR
 
 private val TEAL = Color(0xFF5DCAA5)
 private val GOLD = Color(0xFFF2C94C)
