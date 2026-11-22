@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.widthIn
 import android.view.KeyEvent
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -391,10 +392,31 @@ private fun ButtonChip(
     val fill = button.color?.let { Color(it) } ?: CHIP_GREY
     val ink = if (fill.luminance() > 0.5f) Color(0xFF412402) else Color.White
     when (button.kind) {
-        Kind.DPAD ->
-            Box(modifier = Modifier.size(size), contentAlignment = Alignment.Center) {
-                Text(text = button.label, fontSize = (size.value * 0.6f).sp, color = Color(0xFFB4B2A9))
+        // A bold filled arrow (owner picked "B", 2026-11-22), drawn pointing up and turned.
+        Kind.DPAD -> {
+            val turn =
+                when (button.key) {
+                    KeyEvent.KEYCODE_DPAD_RIGHT -> 90f
+                    KeyEvent.KEYCODE_DPAD_DOWN -> 180f
+                    KeyEvent.KEYCODE_DPAD_LEFT -> 270f
+                    else -> 0f
+                }
+            Canvas(modifier = Modifier.size(size)) {
+                val u = this.size.width / 26f
+                val arrow =
+                    androidx.compose.ui.graphics.Path().apply {
+                        moveTo(13f * u, 4f * u)
+                        lineTo(22f * u, 13f * u)
+                        lineTo(16f * u, 13f * u)
+                        lineTo(16f * u, 22f * u)
+                        lineTo(10f * u, 22f * u)
+                        lineTo(10f * u, 13f * u)
+                        lineTo(4f * u, 13f * u)
+                        close()
+                    }
+                rotate(turn) { drawPath(arrow, Color(0xFFD3D1C7)) }
             }
+        }
         Kind.ROUND ->
             Box(modifier = Modifier.size(size).background(fill, CircleShape), contentAlignment = Alignment.Center) {
                 if (button.icon != null) {
