@@ -220,7 +220,18 @@ fun ButtonMappingEditor(
     }
     BackHandler(enabled = prompt) { prompt = false }
     LaunchedEffect(Unit) { runCatching { firstRow.requestFocus() } }
-    LaunchedEffect(listening) { if (listening != null) runCatching { root.requestFocus() } }
+    // While waiting for a button: a 5-second countdown, then it gives up on its own (like Cannoli),
+    // so a controller alone can back out (B is a real button and would be taken as the answer).
+    var secondsLeft by remember { mutableIntStateOf(0) }
+    LaunchedEffect(listening) {
+        val waitingFor = listening ?: return@LaunchedEffect
+        runCatching { root.requestFocus() }
+        for (left in 5 downTo 1) {
+            secondsLeft = left
+            kotlinx.coroutines.delay(1000)
+        }
+        if (listening == waitingFor) listening = null
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(
@@ -307,7 +318,7 @@ fun ButtonMappingEditor(
                         }
                         Box(modifier = Modifier.weight(1f))
                         when {
-                            isListening -> Text(text = "Press a button…", fontSize = 13.sp, color = GOLD)
+                            isListening -> Text(text = "Press a button… $secondsLeft", fontSize = 13.sp, color = GOLD)
                             sources.isEmpty() -> Text(text = "—", fontSize = 14.sp, color = MUTED)
                             else ->
                                 Text(
