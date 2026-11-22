@@ -450,18 +450,21 @@ class BaseGameScreenViewModel(
 
     fun getFilter(): Flow<GameDisplayOptions.Filter?> = filterState
 
+    /** The filter's number on the button: its place in this system's list. */
+    fun filterNumber(filter: GameDisplayOptions.Filter): Int = displayOptions.filters().indexOf(filter) + 1
+
     fun cycleFilter() {
         val gameView = retroGameView.retroGameView ?: return
-        val filters = GameDisplayOptions.Filter.values()
-        val next = filters[((filterState.value?.ordinal ?: -1) + 1) % filters.size]
+        val filters = displayOptions.filters()
+        val next = filters[(filters.indexOf(filterState.value) + 1) % filters.size]
         gameView.shader = next.shader
         filterState.value = next
         displayOptions.saveFilter(next)
         overlayCardState.value =
             OverlayCard(
-                appContext.getString(R.string.game_overlay_filter_title, next.ordinal + 1),
+                appContext.getString(R.string.game_overlay_filter_title, filters.indexOf(next) + 1),
                 appContext.getString(next.labelRes),
-                next.ordinal,
+                filters.indexOf(next),
                 filters.size,
             )
     }
@@ -568,7 +571,14 @@ class BaseGameScreenViewModel(
                 gameView.shader = saved.shader
                 filterState.value = saved
             } else {
-                filterState.value = GameDisplayOptions.Filter.fromShader(gameView.shader)
+                val fromSettings = GameDisplayOptions.Filter.fromShader(gameView.shader)
+                // No LCD outside GB/GBC/GBA: Sharp instead.
+                if (fromSettings == GameDisplayOptions.Filter.LCD && fromSettings !in displayOptions.filters()) {
+                    gameView.shader = GameDisplayOptions.Filter.SHARP.shader
+                    filterState.value = GameDisplayOptions.Filter.SHARP
+                } else {
+                    filterState.value = fromSettings
+                }
             }
             // Glow follows the look (an arcade game saved with a colour falls back to Glow).
             gameView.immersivePlus = lookState.value == GameShellSkin.GLOW_PLUS

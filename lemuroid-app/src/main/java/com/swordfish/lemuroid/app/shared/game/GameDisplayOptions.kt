@@ -62,11 +62,16 @@ class GameDisplayOptions(
         STRETCH(R.string.game_scaling_stretch),
     }
 
+    /** The filters this system offers: LCD only for Game Boy, Game Boy Color and GBA (owner, 2026-11-22). */
+    fun filters(): List<Filter> = Filter.values().filter { it != Filter.LCD || hasLcd(systemId) }
+
     fun savedFilter(): Filter? {
         val name = sharedPreferences.getString(key(FILTER_KEY), null) ?: return null
         // The old CRT filter was removed (owner, 2026-11-19): Scanlines 25% replaces it.
         if (name == "CRT") return Filter.SCAN_25
-        return Filter.values().firstOrNull { it.name == name }
+        val filter = Filter.values().firstOrNull { it.name == name }
+        // LCD saved earlier on a system that no longer offers it: Sharp instead.
+        return if (filter == Filter.LCD && !hasLcd(systemId)) Filter.SHARP else filter
     }
 
     fun saveFilter(filter: Filter) {
@@ -239,3 +244,6 @@ class GameDisplayOptions(
         }
     }
 }
+
+/** Systems whose real screen was an LCD with a visible grid: only these get the LCD filter. */
+fun hasLcd(systemId: SystemID): Boolean = systemId == SystemID.GB || systemId == SystemID.GBC || systemId == SystemID.GBA

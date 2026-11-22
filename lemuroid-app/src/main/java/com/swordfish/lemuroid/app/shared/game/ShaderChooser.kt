@@ -30,7 +30,7 @@ object ShaderChooser {
             else ->
                 when (screenFilter) {
                     "crt" -> SCANLINES
-                    "lcd" -> ShaderConfig.LCD
+                    "lcd" -> if (hasLcd(system.id)) ShaderConfig.LCD else ShaderConfig.Sharp
                     "smooth" -> ShaderConfig.Default
                     "sharp" -> ShaderConfig.Sharp
                     else -> getDefaultShaderForSystem(system)
@@ -41,6 +41,7 @@ object ShaderChooser {
     // The old CRT filter was replaced by Scanlines 25% (also the automatic choice for TV consoles).
     private val SCANLINES get() = GameDisplayOptions.Filter.SCAN_25.shader
 
+    // LCD only for GB/GBC/GBA (owner, 2026-11-22); other handhelds default to Sharp.
     private fun getDefaultShaderForSystem(system: GameSystem): ShaderConfig {
         return when (system.id) {
             SystemID.GBA -> ShaderConfig.LCD
@@ -53,21 +54,21 @@ object ShaderChooser {
             SystemID.SNES -> SCANLINES
             SystemID.FBNEO -> SCANLINES
             SystemID.SMS -> SCANLINES
-            SystemID.PSP -> ShaderConfig.LCD
-            SystemID.NDS -> ShaderConfig.LCD
-            SystemID.GG -> ShaderConfig.LCD
+            SystemID.PSP -> ShaderConfig.Sharp
+            SystemID.NDS -> ShaderConfig.Sharp
+            SystemID.GG -> ShaderConfig.Sharp
             SystemID.ATARI2600 -> SCANLINES
             SystemID.PSX -> SCANLINES
             SystemID.MAME2003PLUS -> SCANLINES
             SystemID.ATARI7800 -> SCANLINES
             SystemID.PC_ENGINE -> SCANLINES
-            SystemID.LYNX -> ShaderConfig.LCD
+            SystemID.LYNX -> ShaderConfig.Sharp
             SystemID.DOS -> SCANLINES
-            SystemID.NGP -> ShaderConfig.LCD
-            SystemID.NGC -> ShaderConfig.LCD
-            SystemID.WS -> ShaderConfig.LCD
-            SystemID.WSC -> ShaderConfig.LCD
-            SystemID.NINTENDO_3DS -> ShaderConfig.LCD
+            SystemID.NGP -> ShaderConfig.Sharp
+            SystemID.NGC -> ShaderConfig.Sharp
+            SystemID.WS -> ShaderConfig.Sharp
+            SystemID.WSC -> ShaderConfig.Sharp
+            SystemID.NINTENDO_3DS -> ShaderConfig.Sharp
         }
     }
 

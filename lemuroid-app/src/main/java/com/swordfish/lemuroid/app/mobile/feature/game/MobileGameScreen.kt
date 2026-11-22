@@ -591,13 +591,13 @@ private fun MenuButton(viewModel: BaseGameScreenViewModel) {
     }
 }
 
-/** Switches to the next filter; the tiny screen shows its number (1 Sharp, 2 Smooth, 3 CRT, 4 LCD). */
+/** Switches to the next filter; the tiny screen shows its number in this system's list. */
 @Composable
 private fun FilterButton(viewModel: BaseGameScreenViewModel) {
     val filter = viewModel.getFilter().collectAsState(null).value
     val label = stringResource(com.swordfish.lemuroid.R.string.game_button_filter)
     OverlayButton(active = false, label = label, onClick = { viewModel.cycleFilter() }) {
-        MiniScreenIcon(text = filter?.let { "${it.ordinal + 1}" } ?: "HD", stand = true)
+        MiniScreenIcon(text = filter?.let { "${viewModel.filterNumber(it)}" } ?: "HD", stand = true)
     }
 }
 
