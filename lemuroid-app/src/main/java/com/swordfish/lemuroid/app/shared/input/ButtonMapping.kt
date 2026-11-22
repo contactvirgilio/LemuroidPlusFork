@@ -79,7 +79,7 @@ object ButtonMapping {
         save(context, props)
     }
 
-    /** What a system needs stored: buttons that don't send themselves. */
+    /** What a system needs stored: buttons that don't send themselves (defaults included, harmless). */
     fun systemDelta(map: Map<Int, Int>): Map<Int, Int> = map.filter { it.key != it.value }
 
     /** What a game needs stored: buttons that send something else than they do for its system. */
@@ -95,7 +95,21 @@ object ButtonMapping {
         }.toMap()
     }
 
-    /** The mapping in effect for a game: its system's, with the game's own differences on top. */
+    /**
+     * Systems whose real controller has no X or Y: some cores put hidden rapid fire there
+     * (mGBA and Gambatte: X/Y = turbo A/B; FCEUmm's turbo buttons), so X and Y send nothing by
+     * default (owner, 2026-11-22). Mapping X or Y in Button mapping brings it back.
+     */
+    private val NO_XY = setOf("gb", "gbc", "gba", "nes", "sms", "gg", "pce", "ngp", "ngc", "lynx", "atari2600", "atari7800")
+
+    fun defaults(systemId: String): Map<Int, Int> =
+        if (systemId in NO_XY) {
+            mapOf(KeyEvent.KEYCODE_BUTTON_X to UNBOUND, KeyEvent.KEYCODE_BUTTON_Y to UNBOUND)
+        } else {
+            emptyMap()
+        }
+
+    /** The mapping in effect for a game: the defaults, its system's, then the game's own differences. */
     fun effective(
         context: Context,
         systemId: String,
@@ -104,7 +118,7 @@ object ButtonMapping {
         val props = load(context)
         val system = decode(props.getProperty(systemKey(systemId)))
         val game = fileName?.let { decode(props.getProperty(gameKey(systemId, it))) }.orEmpty()
-        return system + game
+        return defaults(systemId) + system + game
     }
 
     /** Short name of a RetroPad button, as printed on the RPC and most pads. */
