@@ -296,8 +296,6 @@ class BaseGameScreenViewModel(
 
     fun isFastForwardEnabled(): Flow<Boolean> = fastForwardSpeedState.map { it > 1 }
 
-    fun getFastForwardSpeed(): Flow<Int> = fastForwardSpeedState
-
     fun toggleFastForward() {
         val currentIndex = FAST_FORWARD_SPEEDS.indexOf(fastForwardSpeedState.value)
         val next = FAST_FORWARD_SPEEDS[(currentIndex + 1) % FAST_FORWARD_SPEEDS.size]
@@ -377,8 +375,6 @@ class BaseGameScreenViewModel(
         )
 
     private val immersiveState = MutableStateFlow(lookState.value == GameShellSkin.GLOW)
-
-    fun isImmersiveEnabled(): StateFlow<Boolean> = immersiveState
 
     /** Shape of the game picture (width / height), or null when it varies (arcade). */
     fun pictureAspectRatio(): Float? = scalingProfile?.aspectRatio

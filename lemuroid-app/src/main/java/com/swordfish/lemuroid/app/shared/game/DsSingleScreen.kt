@@ -131,5 +131,4 @@ object DsSingleScreen {
         // Single screen is the default everywhere (owner, 2026-11-19).
         return v.top
     }
-
 }

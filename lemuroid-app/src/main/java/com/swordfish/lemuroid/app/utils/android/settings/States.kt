@@ -43,23 +43,3 @@ fun indexPreferenceState(
     defaultValue = default,
     preferences = SharedPreferencesHelper.getSharedPreferences(LocalContext.current),
 )
-
-@Composable
-fun stringsSetPreferenceState(
-    key: String,
-    default: Set<String>,
-) = rememberSafePreferenceStringsSetSettingState(
-    key = key,
-    defaultValue = default,
-    preferences = SharedPreferencesHelper.getSharedPreferences(LocalContext.current),
-)
-
-@Composable
-fun intPreferenceState(
-    key: String,
-    default: Int,
-) = rememberSafePreferenceIntSettingState(
-    key = key,
-    defaultValue = default,
-    preferences = SharedPreferencesHelper.getSharedPreferences(LocalContext.current),
-)

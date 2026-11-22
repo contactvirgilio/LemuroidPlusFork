@@ -167,38 +167,6 @@ fun LemuroidCardSettingsGroup(
 }
 
 @Composable
-fun LemuroidSettingsSlider(
-    modifier: Modifier = Modifier,
-    state: SettingValueState<Int>,
-    steps: Int,
-    enabled: Boolean,
-    valueRange: ClosedFloatingPointRange<Float>,
-    title: @Composable () -> Unit,
-    subtitle: @Composable () -> Unit = { },
-) {
-    val defaultColors = ListItemDefaults.colors()
-    val disabledColors =
-        ListItemDefaults.colors(
-            headlineColor = defaultColors.disabledHeadlineColor,
-            leadingIconColor = defaultColors.disabledLeadingIconColor,
-            trailingIconColor = defaultColors.disabledTrailingIconColor,
-            supportingColor = defaultColors.supportingTextColor.copy(alpha = 0.3f),
-        )
-
-    SettingsSlider(
-        modifier = modifier.focusHighlight(shape = RectangleShape, zoom = 1f),
-        steps = steps,
-        value = state.value.toFloat(),
-        onValueChange = { state.value = it.roundToInt() },
-        valueRange = valueRange,
-        title = title,
-        subtitle = subtitle,
-        enabled = enabled,
-        colors = if (enabled) defaultColors else disabledColors,
-    )
-}
-
-@Composable
 private fun SettingsGroupTitleSmall(title: @Composable () -> Unit) {
     Box(
         modifier =

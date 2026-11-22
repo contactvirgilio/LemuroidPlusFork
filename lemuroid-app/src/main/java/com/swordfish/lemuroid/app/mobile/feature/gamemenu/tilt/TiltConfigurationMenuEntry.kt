@@ -34,12 +34,4 @@ enum class TiltConfigurationMenuEntry(val configuration: TiltConfiguration, val 
         R.string.tilt_configuration_buttons_l2_r2,
     ),
     ;
-
-    companion object {
-        fun fromTiltConfiguration(tiltConfiguration: TiltConfiguration): TiltConfigurationMenuEntry {
-            return TiltConfigurationMenuEntry.entries
-                .firstOrNull { it.configuration == tiltConfiguration }
-                ?: TILT_CONFIGURATION_DISABLED
-        }
-    }
 }
