@@ -215,6 +215,7 @@ abstract class BaseGameActivity : ImmersiveActivity() {
                     baseGameScreenViewModel.retroGameView.retroGameView?.getAvailableDisks() ?: 0,
                 )
                 this.putExtra(GameMenuContract.EXTRA_GAME, game)
+                this.putExtra(GameMenuContract.EXTRA_OPEN_LOAD, openMenuOnLoad)
                 this.putExtra(GameMenuContract.EXTRA_SYSTEM_CORE_CONFIG, systemCoreConfig)
                 this.putExtra(
                     GameMenuContract.EXTRA_AUDIO_ENABLED,
@@ -274,11 +275,14 @@ abstract class BaseGameActivity : ImmersiveActivity() {
         baseGameScreenViewModel.getSideEffects()
             .collect {
                 when (it) {
-                    is GameViewModelSideEffects.UiEffect.ShowMenu ->
+                    is GameViewModelSideEffects.UiEffect.ShowMenu -> {
+                        openMenuOnLoad = it.openLoad
                         displayOptionsDialog(
                             it.currentTiltConfiguration,
                             it.tiltConfigurations,
                         )
+                    }
+                    is GameViewModelSideEffects.UiEffect.SaveToNextSlot -> baseGameScreenViewModel.quickSaveToNextSlot()
                     is GameViewModelSideEffects.UiEffect.ShowCard -> baseGameScreenViewModel.showCard(it.title, it.value)
                     is GameViewModelSideEffects.UiEffect.SuccessfulFinish -> performSuccessfulActivityFinish()
                     is GameViewModelSideEffects.UiEffect.FailureFinish -> performErrorFinish(it.message)
@@ -351,6 +355,9 @@ abstract class BaseGameActivity : ImmersiveActivity() {
 
     // Set when the user leaves the game with Home or Recents (not when the game opens its menu).
     private var leftByUser = false
+
+    // Lemuroid Plus: the load-menu shortcut opens the game menu on its load screen.
+    private var openMenuOnLoad = false
 
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()

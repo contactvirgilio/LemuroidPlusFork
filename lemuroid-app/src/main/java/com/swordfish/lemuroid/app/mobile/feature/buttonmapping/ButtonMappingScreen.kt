@@ -1,5 +1,8 @@
 package com.swordfish.lemuroid.app.mobile.feature.buttonmapping
 
+import androidx.compose.material.icons.outlined.Save
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.foundation.layout.widthIn
 import android.view.KeyEvent
 import androidx.activity.compose.BackHandler
@@ -69,6 +72,7 @@ private val TILE_BORDER = Color(0xFF2C3137)
 private val MUTED = Color(0xFF8A8F95)
 private val CHIP_GREY = Color(0xFF5F5E5A)
 private val TEXT = Color(0xFFE8E8E8)
+private val AMBER = Color(0xFFEF9F27)
 
 /** Whether a gamepad (or the device's own buttons, like the RPC's) is connected; follows plugging in and out. */
 @Composable
@@ -114,8 +118,15 @@ fun ButtonMappingSettingsScreen(
 ) {
     val context = LocalContext.current
     var selected by remember { mutableStateOf<ControllerSpec?>(null) }
+    var shortcutsOpen by remember { mutableStateOf(false) }
     var refresh by remember { mutableIntStateOf(0) }
     val current = selected
+
+    if (shortcutsOpen) {
+        BackHandler { shortcutsOpen = false }
+        ShortcutsEditor(modifier = modifier, translate = translate, onDone = { shortcutsOpen = false })
+        return
+    }
 
     if (current != null) {
         BackHandler { selected = null }
@@ -139,6 +150,26 @@ fun ButtonMappingSettingsScreen(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+        // The shortcuts for every system, as one wide line on top.
+        item(key = "shortcuts", span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) {
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .background(TILE)
+                        .border(2.dp, AMBER)
+                        .focusHighlight(shape = RectangleShape, zoom = 1f)
+                        .clickable { shortcutsOpen = true }
+                        .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                ShortcutChip(ButtonMapping.Shortcut.MENU, 26.dp)
+                Column(modifier = Modifier.padding(start = 12.dp)) {
+                    Text(text = "Shortcuts", fontSize = 14.sp, color = TEXT)
+                    Text(text = "Game menu, fast forward, save and load · all systems", fontSize = 11.sp, color = MUTED)
+                }
+            }
+        }
         items(ControllerSpecs.all, key = { it.name }) { spec ->
             val edited = remember(refresh) { spec.systemIds.any { ButtonMapping.has(context, ButtonMapping.systemKey(it)) } }
             Column(
@@ -196,29 +227,44 @@ fun ButtonMappingEditor(
     val dualShock = remember { systemId != "psx" || ButtonMapping.psxDualShock(context) }
     val rows = remember { spec.buttons.filter { !it.dualShockOnly || dualShock } + DPAD_ROWS }
     val yours = ButtonMapping.MAPPABLE
+    val savedShortcuts = remember { ButtonMapping.effectiveShortcuts(context, systemId, fileName) }
+    var shortcuts by remember { mutableStateOf(savedShortcuts) }
+    var listeningShortcut by remember { mutableStateOf<ButtonMapping.Shortcut?>(null) }
+    var focusedShortcut by remember { mutableStateOf<ButtonMapping.Shortcut?>(null) }
+    val captured = remember { mutableStateListOf<Int>() }
+    val shortcutsChanged = shortcuts != savedShortcuts
 
     fun sends(button: Int) = map[button] ?: button
 
     fun sourcesOf(target: Int) = yours.filter { sends(it) == target }
 
     fun leave() {
-        if (changed) prompt = true else onDone()
+        if (changed || shortcutsChanged) prompt = true else onDone()
     }
 
     fun saveSystem() {
         val delta = ButtonMapping.systemDelta(map)
-        systemIds.forEach { ButtonMapping.set(context, ButtonMapping.systemKey(it), delta) }
+        systemIds.forEach {
+            ButtonMapping.set(context, ButtonMapping.systemKey(it), delta)
+            if (shortcutsChanged) ButtonMapping.setShortcuts(context, ButtonMapping.shortcutsKey(ButtonMapping.systemKey(it)), shortcuts)
+        }
         onDone()
     }
 
     fun saveGame() {
         val system = ButtonMapping.defaults(systemId) + ButtonMapping.get(context, ButtonMapping.systemKey(systemId))
         ButtonMapping.set(context, ButtonMapping.gameKey(systemId, fileName!!), ButtonMapping.gameDelta(map, system))
+        if (shortcutsChanged) ButtonMapping.setShortcuts(context, ButtonMapping.shortcutsKey(ButtonMapping.gameKey(systemId, fileName)), shortcuts)
         onDone()
     }
 
     BackHandler(enabled = !prompt) {
-        if (listening != null) listening = null else leave()
+        if (listening != null || listeningShortcut != null) {
+            listening = null
+            listeningShortcut = null
+        } else {
+            leave()
+        }
     }
     BackHandler(enabled = prompt) { prompt = false }
     LaunchedEffect(Unit) { runCatching { firstRow.requestFocus() } }
@@ -234,6 +280,15 @@ fun ButtonMappingEditor(
         }
         if (listening == waitingFor) listening = null
     }
+    LaunchedEffect(listeningShortcut) {
+        val waitingFor = listeningShortcut ?: return@LaunchedEffect
+        captured.clear()
+        for (left in 5 downTo 1) {
+            secondsLeft = left
+            kotlinx.coroutines.delay(1000)
+        }
+        if (listeningShortcut == waitingFor) listeningShortcut = null
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(
@@ -245,6 +300,21 @@ fun ButtonMappingEditor(
                         if (prompt) return@onPreviewKeyEvent false
                         val native = event.nativeKeyEvent
                         if (native.keyCode == KeyEvent.KEYCODE_BACK) return@onPreviewKeyEvent false
+                        val shortcut = listeningShortcut
+                        if (shortcut != null) {
+                            // A combo: every button held down; it's set when the first one is let go.
+                            if (native.repeatCount > 0) return@onPreviewKeyEvent true
+                            if (event.type == KeyEventType.KeyDown) {
+                                scope.launch {
+                                    val pressed = translate(native)
+                                    if (pressed in yours && pressed !in captured) captured.add(pressed)
+                                }
+                            } else if (event.type == KeyEventType.KeyUp && captured.size >= 2) {
+                                shortcuts = shortcuts + (shortcut to captured.toSet())
+                                listeningShortcut = null
+                            }
+                            return@onPreviewKeyEvent true
+                        }
                         val target = listening
                         if (target != null) {
                             if (event.type != KeyEventType.KeyDown || native.repeatCount > 0) return@onPreviewKeyEvent true
@@ -264,12 +334,17 @@ fun ButtonMappingEditor(
                         if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
                         when (native.keyCode) {
                             KeyEvent.KEYCODE_BUTTON_Y -> {
+                                focusedShortcut?.let {
+                                    shortcuts = shortcuts + (it to emptySet())
+                                    return@onPreviewKeyEvent true
+                                }
                                 val target = rows.getOrNull(focused)?.key ?: return@onPreviewKeyEvent true
                                 map = map + sourcesOf(target).associateWith { ButtonMapping.UNBOUND }
                                 true
                             }
                             KeyEvent.KEYCODE_BUTTON_X -> {
                                 map = ButtonMapping.defaults(systemId)
+                                shortcuts = ButtonMapping.effectiveShortcuts(context, null, null)
                                 true
                             }
                             else -> false
@@ -308,7 +383,12 @@ fun ButtonMappingEditor(
                                 .background(TILE)
                                 .border(1.dp, if (isListening) GOLD else TILE_BORDER)
                                 .then(if (index == 0) Modifier.focusRequester(firstRow) else Modifier)
-                                .onFocusChanged { if (it.isFocused) focused = index }
+                                .onFocusChanged {
+                                    if (it.isFocused) {
+                                        focused = index
+                                        focusedShortcut = null
+                                    }
+                                }
                                 .focusHighlight(shape = RectangleShape, zoom = 1f)
                                 .clickable { listening = button.key }
                                 .padding(horizontal = 10.dp),
@@ -331,6 +411,18 @@ fun ButtonMappingEditor(
                         }
                     }
                 }
+
+                ShortcutSection(
+                    shortcuts = shortcuts,
+                    listening = listeningShortcut,
+                    captured = captured,
+                    secondsLeft = secondsLeft,
+                    onFocus = { focusedShortcut = it },
+                    onPick = {
+                        listening = null
+                        listeningShortcut = it
+                    },
+                )
             }
 
             Row(modifier = Modifier.fillMaxWidth().padding(16.dp, 8.dp, 16.dp, 12.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -369,6 +461,225 @@ fun ButtonMappingEditor(
                                     .background(TILE)
                                     .border(1.dp, TILE_BORDER)
                                     .then(if (i == 0) Modifier.focusRequester(promptFirst) else Modifier)
+                                    .focusHighlight(shape = RectangleShape, zoom = 1f)
+                                    .clickable { action() }
+                                    .padding(horizontal = 12.dp),
+                            contentAlignment = Alignment.CenterStart,
+                        ) {
+                            Text(text = label, fontSize = 14.sp, color = Color(0xFFC9C8D2))
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** "SHORTCUTS" and a row per shortcut: amber icon chip, name, and the combo (or "—"). */
+@Composable
+private fun ShortcutSection(
+    shortcuts: Map<ButtonMapping.Shortcut, Set<Int>>,
+    listening: ButtonMapping.Shortcut?,
+    captured: List<Int>,
+    secondsLeft: Int,
+    onFocus: (ButtonMapping.Shortcut) -> Unit,
+    onPick: (ButtonMapping.Shortcut) -> Unit,
+) {
+    Text(text = "SHORTCUTS", fontSize = 11.sp, letterSpacing = 1.5.sp, color = AMBER, modifier = Modifier.padding(top = 12.dp, bottom = 2.dp, start = 2.dp))
+    ButtonMapping.Shortcut.values().forEach { type ->
+        val keys = shortcuts[type].orEmpty()
+        val isListening = listening == type
+        val isDefault = keys == ButtonMapping.DEFAULT_SHORTCUTS[type]
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(42.dp)
+                    .background(TILE)
+                    .border(1.dp, if (isListening) GOLD else TILE_BORDER)
+                    .onFocusChanged { if (it.isFocused) onFocus(type) }
+                    .focusHighlight(shape = RectangleShape, zoom = 1f)
+                    .clickable { onPick(type) }
+                    .padding(horizontal = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            ShortcutChip(type, 26.dp)
+            Text(text = shortcutName(type), fontSize = 14.sp, color = TEXT, modifier = Modifier.padding(start = 10.dp).weight(1f))
+            when {
+                isListening ->
+                    Text(
+                        text = if (captured.isEmpty()) "Hold two buttons… $secondsLeft" else captured.joinToString(" + ") { ButtonMapping.keyName(it) },
+                        fontSize = 13.sp,
+                        color = GOLD,
+                    )
+                keys.isEmpty() -> Text(text = "—", fontSize = 14.sp, color = MUTED)
+                else -> Combo(keys, if (isDefault) Color(0xFFC9C8D2) else TEAL)
+            }
+        }
+    }
+}
+
+private fun shortcutName(type: ButtonMapping.Shortcut) =
+    when (type) {
+        ButtonMapping.Shortcut.MENU -> "Game menu"
+        ButtonMapping.Shortcut.FAST_FORWARD -> "Fast forward"
+        ButtonMapping.Shortcut.SAVE_STATE -> "Save state"
+        ButtonMapping.Shortcut.LOAD_MENU -> "Load menu"
+    }
+
+/** Keys of a combo in small boxes: Select + R1. Select is listed first. */
+@Composable
+private fun Combo(
+    keys: Set<Int>,
+    color: Color,
+) {
+    val ordered = keys.sortedBy { if (it == KeyEvent.KEYCODE_BUTTON_SELECT) 0 else 1 }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        ordered.forEachIndexed { i, key ->
+            if (i > 0) Text(text = " + ", fontSize = 12.sp, color = MUTED)
+            Box(modifier = Modifier.border(1.dp, CHIP_GREY).padding(horizontal = 6.dp, vertical = 1.dp)) {
+                Text(text = ButtonMapping.keyName(key), fontSize = 12.sp, color = color)
+            }
+        }
+    }
+}
+
+/** The shortcut's icon, the same ones the in-game shortcut buttons and game menu use, on amber. */
+@Composable
+private fun ShortcutChip(
+    type: ButtonMapping.Shortcut,
+    size: Dp,
+) {
+    val ink = Color(0xFF412402)
+    Box(modifier = Modifier.size(size).background(AMBER, RoundedCornerShape(6.dp)), contentAlignment = Alignment.Center) {
+        val iconModifier = Modifier.size(size * 0.68f)
+        when (type) {
+            ButtonMapping.Shortcut.MENU ->
+                androidx.compose.material3.Icon(androidx.compose.material.icons.Icons.Filled.Settings, contentDescription = null, tint = ink, modifier = iconModifier)
+            ButtonMapping.Shortcut.SAVE_STATE ->
+                androidx.compose.material3.Icon(androidx.compose.material.icons.Icons.Outlined.Save, contentDescription = null, tint = ink, modifier = iconModifier)
+            ButtonMapping.Shortcut.FAST_FORWARD ->
+                androidx.compose.material3.Icon(
+                    androidx.compose.ui.res.painterResource(com.swordfish.lemuroid.R.drawable.ic_menu_fast_forward),
+                    contentDescription = null,
+                    tint = ink,
+                    modifier = iconModifier,
+                )
+            ButtonMapping.Shortcut.LOAD_MENU ->
+                androidx.compose.material3.Icon(
+                    androidx.compose.ui.res.painterResource(com.swordfish.lemuroid.R.drawable.ic_menu_load),
+                    contentDescription = null,
+                    tint = ink,
+                    modifier = iconModifier,
+                )
+        }
+    }
+}
+
+/** Settings > Button mapping > Shortcuts: the shortcuts for every system. */
+@Composable
+private fun ShortcutsEditor(
+    modifier: Modifier,
+    translate: suspend (KeyEvent) -> Int,
+    onDone: () -> Unit,
+) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val saved = remember { ButtonMapping.effectiveShortcuts(context, null, null) }
+    var shortcuts by remember { mutableStateOf(saved) }
+    var listening by remember { mutableStateOf<ButtonMapping.Shortcut?>(null) }
+    var focused by remember { mutableStateOf<ButtonMapping.Shortcut?>(null) }
+    val captured = remember { mutableStateListOf<Int>() }
+    var secondsLeft by remember { mutableIntStateOf(0) }
+    var prompt by remember { mutableStateOf(false) }
+
+    BackHandler(enabled = !prompt) {
+        if (listening != null) listening = null else if (shortcuts != saved) prompt = true else onDone()
+    }
+    BackHandler(enabled = prompt) { prompt = false }
+    LaunchedEffect(listening) {
+        val waitingFor = listening ?: return@LaunchedEffect
+        captured.clear()
+        for (left in 5 downTo 1) {
+            secondsLeft = left
+            kotlinx.coroutines.delay(1000)
+        }
+        if (listening == waitingFor) listening = null
+    }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .onPreviewKeyEvent { event ->
+                        if (prompt) return@onPreviewKeyEvent false
+                        val native = event.nativeKeyEvent
+                        if (native.keyCode == KeyEvent.KEYCODE_BACK) return@onPreviewKeyEvent false
+                        val shortcut = listening
+                        if (shortcut != null) {
+                            if (native.repeatCount > 0) return@onPreviewKeyEvent true
+                            if (event.type == KeyEventType.KeyDown) {
+                                scope.launch {
+                                    val pressed = translate(native)
+                                    if (pressed in ButtonMapping.MAPPABLE && pressed !in captured) captured.add(pressed)
+                                }
+                            } else if (event.type == KeyEventType.KeyUp && captured.size >= 2) {
+                                shortcuts = shortcuts + (shortcut to captured.toSet())
+                                listening = null
+                            }
+                            return@onPreviewKeyEvent true
+                        }
+                        if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                        when (native.keyCode) {
+                            KeyEvent.KEYCODE_BUTTON_Y -> {
+                                focused?.let { shortcuts = shortcuts + (it to emptySet()) }
+                                true
+                            }
+                            KeyEvent.KEYCODE_BUTTON_X -> {
+                                shortcuts = ButtonMapping.DEFAULT_SHORTCUTS
+                                true
+                            }
+                            else -> false
+                        }
+                    }
+                    .padding(16.dp),
+        ) {
+            Text(text = "Shortcuts · all systems", fontSize = 16.sp, color = TEXT, modifier = Modifier.padding(bottom = 4.dp))
+            Text(text = "Hold the buttons together. A system or a game can have its own in its button list.", fontSize = 11.sp, color = MUTED)
+            ShortcutSection(
+                shortcuts = shortcuts,
+                listening = listening,
+                captured = captured,
+                secondsLeft = secondsLeft,
+                onFocus = { focused = it },
+                onPick = { listening = it },
+            )
+        }
+        if (prompt) {
+            Box(modifier = Modifier.fillMaxSize().background(Color(0xCC000000)), contentAlignment = Alignment.Center) {
+                val first = remember { FocusRequester() }
+                LaunchedEffect(Unit) { runCatching { first.requestFocus() } }
+                Column(
+                    modifier = Modifier.fillMaxWidth(0.8f).background(Color(0xFF111417)).border(1.dp, TILE_BORDER).padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Text(text = "Save changes?", fontSize = 15.sp, color = TEXT, modifier = Modifier.padding(bottom = 4.dp))
+                    listOf(
+                        "Save for all systems" to {
+                            ButtonMapping.setShortcuts(context, ButtonMapping.GLOBAL_SHORTCUTS, shortcuts)
+                            onDone()
+                        },
+                        "Discard" to { onDone() },
+                    ).forEachIndexed { i, (label, action) ->
+                        Box(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .height(40.dp)
+                                    .background(TILE)
+                                    .border(1.dp, TILE_BORDER)
+                                    .then(if (i == 0) Modifier.focusRequester(first) else Modifier)
                                     .focusHighlight(shape = RectangleShape, zoom = 1f)
                                     .clickable { action() }
                                     .padding(horizontal = 12.dp),

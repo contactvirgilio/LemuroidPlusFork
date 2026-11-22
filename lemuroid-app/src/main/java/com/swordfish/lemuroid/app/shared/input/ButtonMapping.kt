@@ -176,6 +176,64 @@ object ButtonMapping {
             key.startsWith("pref_key_controller_type_psx_") && key.endsWith("_0") && value.toString().contains("dualshock", ignoreCase = true)
         }
 
+    // ---- Shortcuts (2026-11-22): button combos for the game menu, fast forward, save, load menu.
+
+    enum class Shortcut { MENU, FAST_FORWARD, SAVE_STATE, LOAD_MENU }
+
+    /** Defaults: hold Select and press another button. */
+    val DEFAULT_SHORTCUTS: Map<Shortcut, Set<Int>> =
+        mapOf(
+            Shortcut.MENU to setOf(KeyEvent.KEYCODE_BUTTON_SELECT, KeyEvent.KEYCODE_BUTTON_START),
+            Shortcut.FAST_FORWARD to setOf(KeyEvent.KEYCODE_BUTTON_SELECT, KeyEvent.KEYCODE_BUTTON_R2),
+            Shortcut.SAVE_STATE to setOf(KeyEvent.KEYCODE_BUTTON_SELECT, KeyEvent.KEYCODE_BUTTON_R1),
+            Shortcut.LOAD_MENU to setOf(KeyEvent.KEYCODE_BUTTON_SELECT, KeyEvent.KEYCODE_BUTTON_L1),
+        )
+
+    const val GLOBAL_SHORTCUTS = "sc:all"
+
+    fun shortcutsKey(mappingKey: String) = "sc:$mappingKey"
+
+    private fun decodeShortcuts(text: String?): Map<Shortcut, Set<Int>>? {
+        if (text == null) return null
+        return text.split(';').mapNotNull { entry ->
+            val name = entry.substringBefore('=', "")
+            val type = Shortcut.values().firstOrNull { it.name == name } ?: return@mapNotNull null
+            val keys = entry.substringAfter('=', "").split('+').mapNotNull { it.toIntOrNull() }.toSet()
+            type to keys
+        }.toMap()
+    }
+
+    private fun encodeShortcuts(map: Map<Shortcut, Set<Int>>): String =
+        map.entries.joinToString(";") { "${it.key.name}=${it.value.joinToString("+")}" }
+
+    fun getShortcuts(
+        context: Context,
+        key: String,
+    ): Map<Shortcut, Set<Int>>? = decodeShortcuts(load(context).getProperty(key))
+
+    fun setShortcuts(
+        context: Context,
+        key: String,
+        map: Map<Shortcut, Set<Int>>?,
+    ) {
+        val props = load(context)
+        if (map == null) props.remove(key) else props.setProperty(key, encodeShortcuts(map))
+        save(context, props)
+    }
+
+    /** Shortcuts in effect: the game's, else its system's, else the ones for all systems, else the defaults. */
+    fun effectiveShortcuts(
+        context: Context,
+        systemId: String?,
+        fileName: String?,
+    ): Map<Shortcut, Set<Int>> {
+        val props = load(context)
+        val game = if (systemId != null && fileName != null) decodeShortcuts(props.getProperty(shortcutsKey(gameKey(systemId, fileName)))) else null
+        val system = systemId?.let { decodeShortcuts(props.getProperty(shortcutsKey(systemKey(it)))) }
+        val all = decodeShortcuts(props.getProperty(GLOBAL_SHORTCUTS))
+        return DEFAULT_SHORTCUTS + (all ?: emptyMap()) + (system ?: emptyMap()) + (game ?: emptyMap())
+    }
+
     /** Used while a game runs: re-reads the file only when it changed. */
     class Runtime(
         private val context: Context,
@@ -197,5 +255,27 @@ object ButtonMapping {
             // UNBOUND (0) means: don't send anything.
             return map[keyCode] ?: keyCode
         }
+
+        /** The shortcut whose combo is complete now that [keyCode] went down, if any. */
+        fun shortcutFor(
+            keyCode: Int,
+            held: Set<Int>,
+        ): Shortcut? {
+            apply(keyCode) // refreshes the file if it changed
+            return shortcuts.entries.firstOrNull { (_, keys) ->
+                keys.size >= 2 && keyCode in keys && held.containsAll(keys)
+            }?.key
+        }
+
+        private val shortcuts: Map<Shortcut, Set<Int>>
+            get() {
+                if (shortcutsStamp != stamp) {
+                    shortcutsStamp = stamp
+                    shortcutsCache = effectiveShortcuts(context, systemId, fileName)
+                }
+                return shortcutsCache
+            }
+        private var shortcutsStamp = -2L
+        private var shortcutsCache: Map<Shortcut, Set<Int>> = DEFAULT_SHORTCUTS
     }
 }

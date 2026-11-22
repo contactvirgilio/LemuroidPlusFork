@@ -14,7 +14,11 @@ class GameViewModelSideEffects(private val scope: CoroutineScope) {
         data class ShowMenu(
             val currentTiltConfiguration: TiltConfiguration,
             val tiltConfigurations: List<TiltConfiguration>,
+            // Lemuroid Plus: open the menu straight on the load screen (shortcut).
+            val openLoad: Boolean = false,
         ) : UiEffect
+
+        data object SaveToNextSlot : UiEffect
 
         data class ShowCard(val title: String, val value: String) : UiEffect
 
@@ -49,13 +53,14 @@ class GameViewModelSideEffects(private val scope: CoroutineScope) {
     fun showMenu(
         tilt: GameViewModelTilt,
         inputs: GameViewModelInput,
+        openLoad: Boolean = false,
     ) {
         scope.launch {
             val currentTiltConfiguration = tilt.getTiltConfiguration().firstOrNull() ?: return@launch
             val tiltConfigurations = inputs.getAllTiltConfigurations()
 
             withContext(Dispatchers.Main) {
-                uiEffects.emit(UiEffect.ShowMenu(currentTiltConfiguration, tiltConfigurations))
+                uiEffects.emit(UiEffect.ShowMenu(currentTiltConfiguration, tiltConfigurations, openLoad))
             }
         }
     }
@@ -88,6 +93,14 @@ class GameViewModelSideEffects(private val scope: CoroutineScope) {
         scope.launch {
             withContext(Dispatchers.Main) {
                 uiEffects.emit(UiEffect.SaveQuickSave)
+            }
+        }
+    }
+
+    fun saveToNextSlot() {
+        scope.launch {
+            withContext(Dispatchers.Main) {
+                uiEffects.emit(UiEffect.SaveToNextSlot)
             }
         }
     }

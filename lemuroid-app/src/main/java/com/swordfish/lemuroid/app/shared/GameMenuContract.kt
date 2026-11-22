@@ -2,6 +2,7 @@ package com.swordfish.lemuroid.app.shared
 
 object GameMenuContract {
     const val EXTRA_GAME = "EXTRA_GAME"
+    const val EXTRA_OPEN_LOAD = "EXTRA_OPEN_LOAD"
     const val EXTRA_SYSTEM_CORE_CONFIG = "EXTRA_SYSTEM_CORE_CONFIG"
     const val EXTRA_CURRENT_DISK = "EXTRA_CURRENT_DISK"
     const val EXTRA_DISKS = "EXTRA_DISKS"

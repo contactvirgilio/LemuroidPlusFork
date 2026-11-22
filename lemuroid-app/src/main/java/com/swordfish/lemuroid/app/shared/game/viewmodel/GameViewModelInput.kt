@@ -297,6 +297,8 @@ class GameViewModelInput(
 
     private suspend fun initializeGamePadKeysFlow() {
         val pressedKeys = mutableSetOf<Int>()
+        // Lemuroid Plus shortcuts work on bound keys (what the RetroPad sees), like button mapping.
+        val heldBound = mutableSetOf<Int>()
 
         val filteredKeyEvents =
             keyEventsFlow
@@ -315,8 +317,14 @@ class GameViewModelInput(
             )
 
         combinedObservable
-            .onStart { pressedKeys.clear() }
-            .onCompletion { pressedKeys.clear() }
+            .onStart {
+                pressedKeys.clear()
+                heldBound.clear()
+            }
+            .onCompletion {
+                pressedKeys.clear()
+                heldBound.clear()
+            }
             .safeCollect { (shortcuts, ports, bindings, event) ->
                 val (device, action, keyCode) = event
                 val port = ports(device)
@@ -332,8 +340,33 @@ class GameViewModelInput(
 
                     if (action == KeyEvent.ACTION_DOWN) {
                         pressedKeys.add(keyCode)
+                        heldBound.add(bindKeyCode)
                     } else if (action == KeyEvent.ACTION_UP) {
                         pressedKeys.remove(keyCode)
+                        heldBound.remove(bindKeyCode)
+                    }
+
+                    // Our shortcuts (Settings > Button mapping): the key completing a combo isn't sent to the game.
+                    if (action == KeyEvent.ACTION_DOWN) {
+                        when (buttonMapping.shortcutFor(bindKeyCode, heldBound)) {
+                            com.swordfish.lemuroid.app.shared.input.ButtonMapping.Shortcut.MENU -> {
+                                sideEffects.showMenu(tilt, this)
+                                return@safeCollect
+                            }
+                            com.swordfish.lemuroid.app.shared.input.ButtonMapping.Shortcut.FAST_FORWARD -> {
+                                sideEffects.toggleFastForward()
+                                return@safeCollect
+                            }
+                            com.swordfish.lemuroid.app.shared.input.ButtonMapping.Shortcut.SAVE_STATE -> {
+                                sideEffects.saveToNextSlot()
+                                return@safeCollect
+                            }
+                            com.swordfish.lemuroid.app.shared.input.ButtonMapping.Shortcut.LOAD_MENU -> {
+                                sideEffects.showMenu(tilt, this, openLoad = true)
+                                return@safeCollect
+                            }
+                            null -> Unit
+                        }
                     }
 
                     shortcuts[device]?.forEach { shortcut ->

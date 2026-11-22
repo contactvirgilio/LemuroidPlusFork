@@ -212,6 +212,14 @@ class GameMenuActivity : RetrogradeComponentActivity() {
                     onBack = { navController.popBackStack() },
                     onClose = { onResult { } },
                 ) {
+                if (intent.getBooleanExtra(GameMenuContract.EXTRA_OPEN_LOAD, false)) {
+                    androidx.compose.runtime.LaunchedEffect(Unit) {
+                        intent.removeExtra(GameMenuContract.EXTRA_OPEN_LOAD)
+                        // Waits until the menu's screens are set up, then goes to Load.
+                        navController.currentBackStackEntryFlow.first()
+                        navController.navigate(GameMenuRoute.LOAD.route)
+                    }
+                }
                 NavHost(
                     modifier = Modifier.fillMaxSize(),
                     navController = navController,
