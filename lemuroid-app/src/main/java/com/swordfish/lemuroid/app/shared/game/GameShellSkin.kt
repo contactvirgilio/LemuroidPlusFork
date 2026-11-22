@@ -7,11 +7,18 @@ import com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper
 
 /**
  * The look around the picture, cycled by the immersive shortcut and remembered per game:
- * Off, Glow (immersive mode), then flat shell colours with a dark bezel round the picture.
+ * Off, Glow (immersive mode), Glow+ (the glow favours the game's colourful pixels), then flat
+ * shell colours with a dark bezel round the picture.
  */
 object GameShellSkin {
     const val OFF = 0
     const val GLOW = 1
+
+    /** Glow+, added 2026-11-22 as an extra option while it's tested next to Glow. */
+    const val GLOW_PLUS = 2
+    private const val FIRST_SHELL = 3
+
+    fun isGlow(look: Int) = look == GLOW || look == GLOW_PLUS
 
     class Shell(val nameRes: Int, val color: Long, val bezel: Long)
 
@@ -25,20 +32,26 @@ object GameShellSkin {
             Shell(R.string.game_skin_dark_grey, 0xFF444441, 0xFF1A1A1A),
         )
 
-    /** Off, Glow and every shell. */
-    val count = 2 + shells.size
+    /** Off, Glow, Glow+ and every shell. */
+    val count = FIRST_SHELL + shells.size
 
-    /** The shell for a look, or null for Off and Glow. */
-    fun shellFor(look: Int): Shell? = shells.getOrNull(look - 2)
+    /** Looks without shells: Off, Glow, Glow+. */
+    const val BASIC_COUNT = FIRST_SHELL
+
+    /** The shell for a look, or null for Off, Glow and Glow+. */
+    fun shellFor(look: Int): Shell? = if (look >= FIRST_SHELL) shells.getOrNull(look - FIRST_SHELL) else null
 
     fun nameRes(look: Int): Int =
         when (look) {
             OFF -> R.string.game_skin_off
             GLOW -> R.string.game_skin_glow
-            else -> shells[look - 2].nameRes
+            GLOW_PLUS -> R.string.game_skin_glow_plus
+            else -> shells[look - FIRST_SHELL].nameRes
         }
 
     private fun key(game: Game) = "pref_key_game_shell_skin_${game.id}"
+
+    private fun plusKey(game: Game) = "pref_key_game_glow_plus_${game.id}"
 
     /** Settings switch: off (default) the immersive shortcut only toggles OLED and Glow. */
     const val SETTING_KEY = "pref_key_shell_skins"
@@ -52,8 +65,10 @@ object GameShellSkin {
         game: Game,
     ): Int {
         val shell = SharedPreferencesHelper.getSharedPreferences(context).getInt(key(game), -1)
-        if (shell in shells.indices) return 2 + shell
-        return if (GameImmersiveMode.isEnabled(context, game)) GLOW else OFF
+        if (shell in shells.indices) return FIRST_SHELL + shell
+        if (!GameImmersiveMode.isEnabled(context, game)) return OFF
+        val plus = SharedPreferencesHelper.getSharedPreferences(context).getBoolean(plusKey(game), false)
+        return if (plus) GLOW_PLUS else GLOW
     }
 
     fun save(
@@ -61,8 +76,11 @@ object GameShellSkin {
         game: Game,
         look: Int,
     ) {
-        GameImmersiveMode.set(context, game, look == GLOW)
-        SharedPreferencesHelper.getSharedPreferences(context).edit().putInt(key(game), look - 2).apply()
+        GameImmersiveMode.set(context, game, isGlow(look))
+        SharedPreferencesHelper.getSharedPreferences(context).edit()
+            .putInt(key(game), look - FIRST_SHELL)
+            .putBoolean(plusKey(game), look == GLOW_PLUS)
+            .apply()
     }
 
     private const val BEZEL = 0xFF2C2C2A

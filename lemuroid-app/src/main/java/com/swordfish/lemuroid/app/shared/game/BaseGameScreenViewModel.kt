@@ -364,17 +364,17 @@ class BaseGameScreenViewModel(
     // Only OLED and Glow unless shell skins are on in Settings, or while the picture's shape is
     // still unknown (a colour has to hug the picture).
     private fun lookCount(): Int =
-        if (!GameShellSkin.isEnabled(appContext) || pictureAspectRatio() == null) 2 else GameShellSkin.count
+        if (!GameShellSkin.isEnabled(appContext) || pictureAspectRatio() == null) GameShellSkin.BASIC_COUNT else GameShellSkin.count
 
     private val lookState =
         MutableStateFlow(
             GameShellSkin.load(appContext, game).let {
                 // A colour saved for a game whose shape comes later (arcade) is applied once known.
-                if (it >= GameShellSkin.count || (it >= 2 && !GameShellSkin.isEnabled(appContext))) GameShellSkin.GLOW else it
+                if (it >= GameShellSkin.count || (it >= GameShellSkin.BASIC_COUNT && !GameShellSkin.isEnabled(appContext))) GameShellSkin.GLOW else it
             },
         )
 
-    private val immersiveState = MutableStateFlow(lookState.value == GameShellSkin.GLOW)
+    private val immersiveState = MutableStateFlow(GameShellSkin.isGlow(lookState.value))
 
     /** Shape of the game picture (width / height), or null when it varies (arcade). */
     fun pictureAspectRatio(): Float? = scalingProfile?.aspectRatio
@@ -387,8 +387,9 @@ class BaseGameScreenViewModel(
         val count = lookCount()
         val next = (lookState.value + 1) % count
         lookState.value = next
-        val glow = next == GameShellSkin.GLOW
+        val glow = GameShellSkin.isGlow(next)
         immersiveState.value = glow
+        retroGameView.retroGameView?.immersivePlus = next == GameShellSkin.GLOW_PLUS
         retroGameView.retroGameView?.immersiveModeEnabled = glow
         GameShellSkin.save(appContext, game, next)
         overlayCardState.value =
@@ -559,7 +560,8 @@ class BaseGameScreenViewModel(
                 filterState.value = GameDisplayOptions.Filter.fromShader(gameView.shader)
             }
             // Glow follows the look (an arcade game saved with a colour falls back to Glow).
-            gameView.immersiveModeEnabled = lookState.value == GameShellSkin.GLOW
+            gameView.immersivePlus = lookState.value == GameShellSkin.GLOW_PLUS
+            gameView.immersiveModeEnabled = GameShellSkin.isGlow(lookState.value)
             // Starts muted if this game was left muted last time.
             applyAudio()
         }

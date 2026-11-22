@@ -554,7 +554,7 @@ private fun ImmersiveButton(viewModel: BaseGameScreenViewModel) {
                 modifier = Modifier.size(LocalOverlayButtonSize.current * 0.5f),
                 imageVector = Icons.Outlined.BlurOn,
                 contentDescription = label,
-                tint = if (look == GameShellSkin.GLOW) FAST_FORWARD_ACTIVE_COLOR else Color.White,
+                tint = if (GameShellSkin.isGlow(look)) FAST_FORWARD_ACTIVE_COLOR else Color.White,
             )
         } else {
             // A tiny shell in the skin's colour, with its dark screen.

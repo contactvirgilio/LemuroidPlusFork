@@ -101,7 +101,7 @@ class GameViewModelRetroGameView(
         val lowLatencyAudio = settingsManager.lowLatencyAudio()
         val enableRumble = settingsManager.enableRumble()
         val directLoad = settingsManager.allowDirectGameLoad()
-        val enableImmersiveMode = GameShellSkin.load(appContext, game) == GameShellSkin.GLOW
+        val enableImmersiveMode = GameShellSkin.isGlow(GameShellSkin.load(appContext, game))
 
         val hasMicrophonePermission =
             ContextCompat.checkSelfPermission(
