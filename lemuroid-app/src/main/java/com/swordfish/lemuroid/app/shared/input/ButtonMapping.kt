@@ -22,6 +22,22 @@ object ButtonMapping {
 
     fun systemKey(systemId: String) = "sys:$systemId"
 
+    /**
+     * The id mappings are kept under: the game's system, except Neo Geo and CPS2 games, which run on
+     * the arcade cores but have their own button layouts (and their own tile in Settings).
+     */
+    fun mappingId(
+        systemId: String,
+        fileName: String,
+    ): String {
+        if (systemId != "fbneo" && systemId != "mame2003plus") return systemId
+        return when {
+            com.swordfish.lemuroid.app.shared.game.NeoGeoSets.isNeoGeo(fileName) -> "neogeo"
+            com.swordfish.lemuroid.app.shared.game.Cps2Sets.isCps2(fileName) -> "cps2"
+            else -> systemId
+        }
+    }
+
     fun gameKey(
         systemId: String,
         fileName: String,
@@ -154,12 +170,20 @@ object ButtonMapping {
             KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent.KEYCODE_DPAD_RIGHT,
         )
 
+    /** Whether PlayStation player 1 is set to the DualShock (the only pad with L3/R3). */
+    fun psxDualShock(context: Context): Boolean =
+        com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper.getSharedPreferences(context).all.any { (key, value) ->
+            key.startsWith("pref_key_controller_type_psx_") && key.endsWith("_0") && value.toString().contains("dualshock", ignoreCase = true)
+        }
+
     /** Used while a game runs: re-reads the file only when it changed. */
     class Runtime(
         private val context: Context,
-        private val systemId: String,
+        gameSystemId: String,
         private val fileName: String,
     ) {
+        private val systemId = mappingId(gameSystemId, fileName)
+
         private var stamp = -1L
         private var map: Map<Int, Int> = emptyMap()
 

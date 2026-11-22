@@ -58,14 +58,16 @@ import com.swordfish.lemuroid.app.mobile.shared.compose.ui.focusHighlight
 import com.swordfish.lemuroid.app.shared.input.ButtonMapping
 import kotlinx.coroutines.launch
 import com.swordfish.touchinput.controller.R as TouchR
+import androidx.compose.ui.graphics.luminance
+import com.swordfish.touchinput.controller.R as TouchR
 
-private val LINE = Color(0xFF9A9A96)
 private val TEAL = Color(0xFF5DCAA5)
-private val TEAL_DARK = Color(0xFF04342C)
 private val GOLD = Color(0xFFF2C94C)
 private val TILE = Color(0xFF1D2126)
 private val TILE_BORDER = Color(0xFF2C3137)
 private val MUTED = Color(0xFF8A8F95)
+private val CHIP_GREY = Color(0xFF5F5E5A)
+private val TEXT = Color(0xFFE8E8E8)
 
 /** Whether a gamepad (or the device's own buttons, like the RPC's) is connected; follows plugging in and out. */
 @Composable
@@ -103,7 +105,7 @@ fun rememberHasGamepad(): Boolean {
     return has
 }
 
-/** Settings > Controls > Button mapping: a tile per system, then that system's controller. */
+/** Settings > Controls > Button mapping: a tile per system, then that system's list. */
 @Composable
 fun ButtonMappingSettingsScreen(
     modifier: Modifier = Modifier,
@@ -151,8 +153,11 @@ fun ButtonMappingSettingsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                MiniPad(spec, Modifier.size(width = 70.dp, height = 44.dp))
-                Text(text = spec.name, fontSize = 13.sp, color = Color(0xFFE8E8E8), modifier = Modifier.padding(top = 6.dp))
+                // The system's face buttons as small chips, in their colours.
+                Row(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                    spec.buttons.filter { it.kind == Kind.ROUND && !it.dualShockOnly }.take(6).forEach { ButtonChip(it, size = 18.dp) }
+                }
+                Text(text = spec.name, fontSize = 13.sp, color = TEXT, modifier = Modifier.padding(top = 8.dp))
                 if (edited) Text(text = "edited", fontSize = 11.sp, color = TEAL)
             }
         }
@@ -160,16 +165,17 @@ fun ButtonMappingSettingsScreen(
 }
 
 /**
- * One system's buttons as a list (Cannoli's logic, our look, 2026-11-21). Each row is one of your
- * buttons and shows what the game gets. A on a row, then press the button whose job it should
- * take. Y unbinds the row, X resets all. Changes apply when you leave: with [fileName] (from a game)
- * you pick Save for the system / Save for this game / Discard; from Settings, Save / Discard.
+ * One system's buttons as a list (Cannoli's logic, our look, 2026-11-22). Left: the system's button,
+ * as a chip in its touch-control colour (grey otherwise). Right: which of your buttons triggers it.
+ * A on a row, then press the button you want for it; if that button had another job, that row shows
+ * "—". Y unbinds the row, X resets all. Changes apply when you leave: with [fileName] (from a game)
+ * Save for the system / Save for this game / Discard; from Settings, Save / Discard.
  */
 @Composable
 fun ButtonMappingEditor(
     modifier: Modifier = Modifier,
     spec: ControllerSpec,
-    // The game's system first; a system save goes to all of them (e.g. GB and GBC).
+    // The mapping id first (a system, or "neogeo" / "cps2"); a system save goes to all of them.
     systemIds: List<String>,
     fileName: String?,
     translate: suspend (KeyEvent) -> Int,
@@ -186,9 +192,13 @@ fun ButtonMappingEditor(
     val changed = map.filter { it.key != it.value } != saved.filter { it.key != it.value }
     val root = remember { FocusRequester() }
     val firstRow = remember { FocusRequester() }
-    val rows = ButtonMapping.MAPPABLE
+    val dualShock = remember { systemId != "psx" || ButtonMapping.psxDualShock(context) }
+    val rows = remember { spec.buttons.filter { !it.dualShockOnly || dualShock } + DPAD_ROWS }
+    val yours = ButtonMapping.MAPPABLE
 
-    fun sends(row: Int) = map[row] ?: row
+    fun sends(button: Int) = map[button] ?: button
+
+    fun sourcesOf(target: Int) = yours.filter { sends(it) == target }
 
     fun leave() {
         if (changed) prompt = true else onDone()
@@ -201,7 +211,7 @@ fun ButtonMappingEditor(
     }
 
     fun saveGame() {
-        val system = ButtonMapping.get(context, ButtonMapping.systemKey(systemId))
+        val system = ButtonMapping.defaults(systemId) + ButtonMapping.get(context, ButtonMapping.systemKey(systemId))
         ButtonMapping.set(context, ButtonMapping.gameKey(systemId, fileName!!), ButtonMapping.gameDelta(map, system))
         onDone()
     }
@@ -213,129 +223,147 @@ fun ButtonMappingEditor(
     LaunchedEffect(Unit) { runCatching { firstRow.requestFocus() } }
     LaunchedEffect(listening) { if (listening != null) runCatching { root.requestFocus() } }
 
-    Column(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .focusRequester(root)
-                .onPreviewKeyEvent { event ->
-                    if (prompt) return@onPreviewKeyEvent false
-                    val native = event.nativeKeyEvent
-                    if (native.keyCode == KeyEvent.KEYCODE_BACK) return@onPreviewKeyEvent false
-                    val row = listening
-                    if (row != null) {
-                        // Capture: the next button pressed sets what this row sends.
-                        if (event.type != KeyEventType.KeyDown || native.repeatCount > 0) return@onPreviewKeyEvent true
-                        scope.launch {
-                            val pressed = translate(native)
-                            if (pressed in rows) {
-                                map = map + (row to pressed)
-                                listening = null
-                            }
-                        }
-                        return@onPreviewKeyEvent true
-                    }
-                    // Y unbinds the focused row, X resets all (only gamepad face buttons).
-                    if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
-                    when (native.keyCode) {
-                        KeyEvent.KEYCODE_BUTTON_Y -> {
-                            map = map + (rows[focused] to ButtonMapping.UNBOUND)
-                            true
-                        }
-                        KeyEvent.KEYCODE_BUTTON_X -> {
-                            map = emptyMap()
-                            true
-                        }
-                        else -> false
-                    }
-                },
-    ) {
-        Row(modifier = Modifier.fillMaxWidth().padding(16.dp, 12.dp, 16.dp, 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(text = "Map buttons · ${spec.name}", fontSize = 16.sp, color = Color(0xFFE8E8E8), modifier = Modifier.weight(1f))
-            Text(text = "Applies when you leave", fontSize = 11.sp, color = MUTED)
-        }
-
+    Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier =
                 Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+                    .fillMaxSize()
+                    .focusRequester(root)
+                    .onPreviewKeyEvent { event ->
+                        if (prompt) return@onPreviewKeyEvent false
+                        val native = event.nativeKeyEvent
+                        if (native.keyCode == KeyEvent.KEYCODE_BACK) return@onPreviewKeyEvent false
+                        val target = listening
+                        if (target != null) {
+                            if (event.type != KeyEventType.KeyDown || native.repeatCount > 0) return@onPreviewKeyEvent true
+                            scope.launch {
+                                val pressed = translate(native)
+                                if (pressed in yours) {
+                                    // Your button now triggers this one; whatever triggered it before stops.
+                                    val next = map.toMutableMap()
+                                    sourcesOf(target).filter { it != pressed }.forEach { next[it] = ButtonMapping.UNBOUND }
+                                    next[pressed] = target
+                                    map = next
+                                    listening = null
+                                }
+                            }
+                            return@onPreviewKeyEvent true
+                        }
+                        if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                        when (native.keyCode) {
+                            KeyEvent.KEYCODE_BUTTON_Y -> {
+                                val target = rows.getOrNull(focused)?.key ?: return@onPreviewKeyEvent true
+                                map = map + sourcesOf(target).associateWith { ButtonMapping.UNBOUND }
+                                true
+                            }
+                            KeyEvent.KEYCODE_BUTTON_X -> {
+                                map = ButtonMapping.defaults(systemId)
+                                true
+                            }
+                            else -> false
+                        }
+                    },
         ) {
-            rows.forEachIndexed { index, row ->
-                val out = sends(row)
-                val target = spec.buttons.firstOrNull { it.key == out }
-                val isListening = listening == row
-                val isChanged = out != row
-                Row(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(40.dp)
-                            .background(TILE)
-                            .border(1.dp, if (isListening) GOLD else TILE_BORDER)
-                            .then(if (index == 0) Modifier.focusRequester(firstRow) else Modifier)
-                            .onFocusChanged { if (it.isFocused) focused = index }
-                            .focusHighlight(shape = RectangleShape, zoom = 1f)
-                            .clickable { listening = row }
-                            .padding(horizontal = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(text = ButtonMapping.keyName(row), fontSize = 14.sp, color = Color(0xFFE8E8E8), modifier = Modifier.weight(1f))
-                    when {
-                        isListening -> Text(text = "Press a button…", fontSize = 13.sp, color = GOLD)
-                        out == ButtonMapping.UNBOUND -> Text(text = "—", fontSize = 14.sp, color = MUTED)
-                        else -> SendsLabel(target, out, isChanged)
-                    }
-                }
+            Text(
+                text = "Map buttons · ${spec.name}",
+                fontSize = 16.sp,
+                color = TEXT,
+                modifier = Modifier.fillMaxWidth().padding(16.dp, 12.dp, 16.dp, 4.dp),
+            )
+            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 26.dp, vertical = 4.dp)) {
+                Text(text = "${spec.name} button", fontSize = 11.sp, color = MUTED, modifier = Modifier.weight(1f))
+                Text(text = "Your button", fontSize = 11.sp, color = MUTED)
             }
-        }
 
-        // Hints, like Cannoli's bottom bar.
-        Row(modifier = Modifier.fillMaxWidth().padding(16.dp, 8.dp, 16.dp, 12.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            listOf("A" to "Change", "Y" to "Unbind", "X" to "Reset all", "B" to "Leave").forEach { (key, label) ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(modifier = Modifier.border(1.dp, Color(0xFF5F5E5A)).padding(horizontal = 4.dp)) {
-                        Text(text = key, fontSize = 11.sp, color = Color(0xFFC9C8D2))
-                    }
-                    Text(text = " $label", fontSize = 11.sp, color = MUTED)
-                }
-            }
-        }
-    }
-
-    if (prompt) {
-        Box(modifier = Modifier.fillMaxSize().background(Color(0xCC000000)), contentAlignment = Alignment.Center) {
-            val promptFirst = remember { FocusRequester() }
-            LaunchedEffect(Unit) { runCatching { promptFirst.requestFocus() } }
             Column(
-                modifier = Modifier.fillMaxWidth(0.8f).background(Color(0xFF111417)).border(1.dp, TILE_BORDER).padding(14.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                Text(text = "Save changes?", fontSize = 15.sp, color = Color(0xFFE8E8E8), modifier = Modifier.padding(bottom = 4.dp))
-                val options =
-                    buildList {
-                        add("Save for ${spec.name}" to { saveSystem() })
-                        if (fileName != null) add("Save for this game" to { saveGame() })
-                        add("Discard" to { onDone() })
-                    }
-                options.forEachIndexed { i, (label, action) ->
-                    Box(
+                rows.forEachIndexed { index, button ->
+                    val sources = sourcesOf(button.key)
+                    val isListening = listening == button.key
+                    val isDefault = sources == listOf(button.key) || (sources.isEmpty() && ButtonMapping.defaults(systemId)[button.key] == ButtonMapping.UNBOUND)
+                    Row(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .height(40.dp)
+                                .height(42.dp)
                                 .background(TILE)
-                                .border(1.dp, TILE_BORDER)
-                                .then(if (i == 0) Modifier.focusRequester(promptFirst) else Modifier)
+                                .border(1.dp, if (isListening) GOLD else TILE_BORDER)
+                                .then(if (index == 0) Modifier.focusRequester(firstRow) else Modifier)
+                                .onFocusChanged { if (it.isFocused) focused = index }
                                 .focusHighlight(shape = RectangleShape, zoom = 1f)
-                                .clickable { action() }
-                                .padding(horizontal = 12.dp),
-                        contentAlignment = Alignment.CenterStart,
+                                .clickable { listening = button.key }
+                                .padding(horizontal = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(text = label, fontSize = 14.sp, color = Color(0xFFC9C8D2))
+                        ButtonChip(button, size = 26.dp)
+                        if (button.note != null) {
+                            Text(text = button.note, fontSize = 11.sp, color = MUTED, modifier = Modifier.padding(start = 10.dp))
+                        }
+                        Box(modifier = Modifier.weight(1f))
+                        when {
+                            isListening -> Text(text = "Press a button…", fontSize = 13.sp, color = GOLD)
+                            sources.isEmpty() -> Text(text = "—", fontSize = 14.sp, color = MUTED)
+                            else ->
+                                Text(
+                                    text = sources.joinToString(", ") { ButtonMapping.keyName(it) },
+                                    fontSize = 14.sp,
+                                    color = if (isDefault) Color(0xFFC9C8D2) else TEAL,
+                                )
+                        }
+                    }
+                }
+            }
+
+            Row(modifier = Modifier.fillMaxWidth().padding(16.dp, 8.dp, 16.dp, 12.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                listOf("A" to "Change", "Y" to "Unbind", "X" to "Reset all", "B" to "Leave").forEach { (key, label) ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(modifier = Modifier.border(1.dp, CHIP_GREY).padding(horizontal = 4.dp)) {
+                            Text(text = key, fontSize = 11.sp, color = Color(0xFFC9C8D2))
+                        }
+                        Text(text = " $label", fontSize = 11.sp, color = MUTED)
+                    }
+                }
+            }
+        }
+
+        if (prompt) {
+            Box(modifier = Modifier.fillMaxSize().background(Color(0xCC000000)), contentAlignment = Alignment.Center) {
+                val promptFirst = remember { FocusRequester() }
+                LaunchedEffect(Unit) { runCatching { promptFirst.requestFocus() } }
+                Column(
+                    modifier = Modifier.fillMaxWidth(0.8f).background(Color(0xFF111417)).border(1.dp, TILE_BORDER).padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Text(text = "Save changes?", fontSize = 15.sp, color = TEXT, modifier = Modifier.padding(bottom = 4.dp))
+                    val options =
+                        buildList {
+                            add("Save for ${spec.name}" to { saveSystem() })
+                            if (fileName != null) add("Save for this game" to { saveGame() })
+                            add("Discard" to { onDone() })
+                        }
+                    options.forEachIndexed { i, (label, action) ->
+                        Box(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .height(40.dp)
+                                    .background(TILE)
+                                    .border(1.dp, TILE_BORDER)
+                                    .then(if (i == 0) Modifier.focusRequester(promptFirst) else Modifier)
+                                    .focusHighlight(shape = RectangleShape, zoom = 1f)
+                                    .clickable { action() }
+                                    .padding(horizontal = 12.dp),
+                            contentAlignment = Alignment.CenterStart,
+                        ) {
+                            Text(text = label, fontSize = 14.sp, color = Color(0xFFC9C8D2))
+                        }
                     }
                 }
             }
@@ -343,96 +371,72 @@ fun ButtonMappingEditor(
     }
 }
 
-/** What a row sends: the system's name for it, in its touch-control colour where it has one. */
+/** A system button drawn as a chip: round for face buttons, a pill for the rest, arrows for the D-pad. */
 @Composable
-private fun SendsLabel(
-    target: ButtonSpec?,
-    out: Int,
-    changed: Boolean,
+private fun ButtonChip(
+    button: ButtonSpec,
+    size: Dp,
 ) {
-    val color = target?.color?.let { Color(it) }
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        if (color != null) {
-            Box(modifier = Modifier.size(10.dp).background(color, CircleShape))
-            Box(modifier = Modifier.size(6.dp))
-        }
-        if (target?.icon != null) {
-            androidx.compose.material3.Icon(
-                painter = androidx.compose.ui.res.painterResource(target.icon),
-                contentDescription = target.label,
-                tint = color ?: if (changed) TEAL else Color(0xFFC9C8D2),
-                modifier = Modifier.size(18.dp),
-            )
-        } else {
-            Text(
-                text = target?.label ?: ButtonMapping.keyName(out),
-                fontSize = 14.sp,
-                color = if (changed) TEAL else if (target == null) MUTED else Color(0xFFC9C8D2),
-            )
-        }
-    }
-}
-
-/** The tile picture: the system's face buttons, drawn like the touch controls. */
-@Composable
-private fun MiniPad(
-    spec: ControllerSpec,
-    modifier: Modifier,
-) {
-    val round = spec.buttons.filter { it.kind == Kind.ROUND }
-    val minX = round.minOf { it.x }
-    val maxX = round.maxOf { it.x }
-    val minY = round.minOf { it.y }
-    val maxY = round.maxOf { it.y }
-    BoxWithConstraints(modifier = modifier) {
-        val d = minOf(maxWidth, maxHeight) * 0.34f
-        round.forEach { button ->
-            val fx = if (maxX > minX) (button.x - minX) / (maxX - minX) else 0.5f
-            val fy = if (maxY > minY) (button.y - minY) / (maxY - minY) else 0.5f
-            Box(
-                modifier =
-                    Modifier
-                        .offset(x = (maxWidth - d) * fx, y = (maxHeight - d) * fy)
-                        .size(d)
-                        .border(1.5.dp, LINE, CircleShape),
-                contentAlignment = Alignment.Center,
-            ) {
+    val fill = button.color?.let { Color(it) } ?: CHIP_GREY
+    val ink = if (fill.luminance() > 0.5f) Color(0xFF412402) else Color.White
+    when (button.kind) {
+        Kind.DPAD ->
+            Box(modifier = Modifier.size(size), contentAlignment = Alignment.Center) {
+                Text(text = button.label, fontSize = (size.value * 0.6f).sp, color = Color(0xFFB4B2A9))
+            }
+        Kind.ROUND ->
+            Box(modifier = Modifier.size(size).background(fill, CircleShape), contentAlignment = Alignment.Center) {
                 if (button.icon != null) {
                     androidx.compose.material3.Icon(
                         painter = androidx.compose.ui.res.painterResource(button.icon),
-                        contentDescription = null,
-                        tint = Color(0xFFC9C8D2),
-                        modifier = Modifier.fillMaxSize().padding(3.dp),
+                        contentDescription = button.label,
+                        tint = ink,
+                        modifier = Modifier.fillMaxSize().padding(size * 0.22f),
                     )
                 } else {
-                    Text(text = button.label, fontSize = 8.sp, color = Color(0xFFC9C8D2), maxLines = 1)
+                    Text(text = button.label, fontSize = (size.value * (if (button.label.length > 1) 0.36f else 0.46f)).sp, fontWeight = FontWeight.Medium, color = ink, maxLines = 1)
                 }
             }
-        }
+        Kind.PILL ->
+            Box(
+                modifier = Modifier.height(size * 0.62f).background(fill, RoundedCornerShape(50)).padding(horizontal = 9.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(text = button.label.uppercase(), fontSize = (size.value * 0.36f).sp, color = ink, maxLines = 1)
+            }
     }
 }
 
-enum class Kind { ROUND, SHOULDER, PILL }
+enum class Kind { ROUND, PILL, DPAD }
 
-/** A button of a system's controller: its name, the RetroPad key the core reads, and where it sits. */
+/**
+ * A button of a system: its name, the RetroPad key the core reads for it, how it's drawn, and its
+ * colour (the touch controls' press colour, or the real buttons' for Neo Geo and CPS2).
+ */
 data class ButtonSpec(
     val label: String,
     val key: Int,
-    val x: Float,
-    val y: Float,
     val kind: Kind = Kind.ROUND,
-    // The touch controls' own icon for this button (PlayStation symbols, Start, Select, Coin).
     val icon: Int? = null,
-    // The touch controls' press colour, for systems with coloured buttons.
     val color: Long? = null,
+    val note: String? = null,
+    // PlayStation L3/R3: only on the DualShock.
+    val dualShockOnly: Boolean = false,
 )
 
 data class ControllerSpec(
     val name: String,
     val systemIds: List<String>,
     val buttons: List<ButtonSpec>,
-    val stick: Boolean = false,
 )
+
+private val DPAD_ROWS =
+    listOf(
+        ButtonSpec("↑", KeyEvent.KEYCODE_DPAD_UP, Kind.DPAD),
+        ButtonSpec("↓", KeyEvent.KEYCODE_DPAD_DOWN, Kind.DPAD),
+        ButtonSpec("←", KeyEvent.KEYCODE_DPAD_LEFT, Kind.DPAD),
+        ButtonSpec("→", KeyEvent.KEYCODE_DPAD_RIGHT, Kind.DPAD),
+    )
 
 /** Every system's buttons; the RetroPad keys come from the touch layouts, so they match the cores. */
 object ControllerSpecs {
@@ -449,129 +453,100 @@ object ControllerSpecs {
     private const val START = KeyEvent.KEYCODE_BUTTON_START
     private const val SELECT = KeyEvent.KEYCODE_BUTTON_SELECT
 
-    private fun startSelect(
-        start: String = "Start",
-        select: String? = "Select",
-    ) = listOfNotNull(
-        select?.let { ButtonSpec(it, SELECT, 0.42f, 0.56f, Kind.PILL, icon = if (it == "Select") TouchR.drawable.button_select else null) },
-        ButtonSpec(start, START, 0.56f, 0.56f, Kind.PILL, icon = if (start == "Start") TouchR.drawable.button_start else null),
-    )
+    private const val RED = 0xFFD6403F
+    private const val BLUE = 0xFF306ED6
+    private const val GREEN = 0xFF34A85C
+    private const val YELLOW = 0xFFF5C828
 
-    private fun shoulders(
-        l: String = "L",
-        r: String = "R",
-    ) = listOf(ButtonSpec(l, L1, 0.22f, 0.08f, Kind.SHOULDER), ButtonSpec(r, R1, 0.78f, 0.08f, Kind.SHOULDER))
+    private fun round(label: String, key: Int, color: Long? = null, note: String? = null) = ButtonSpec(label, key, Kind.ROUND, color = color, note = note)
 
-    private val diamond =
+    private fun pill(label: String, key: Int) = ButtonSpec(label, key, Kind.PILL)
+
+    private fun startSelect(start: String = "Start", select: String? = "Select") = listOfNotNull(select?.let { pill(it, SELECT) }, pill(start, START))
+
+    private val psSymbols =
         listOf(
-            ButtonSpec("X", X, 0.78f, 0.32f),
-            ButtonSpec("Y", Y, 0.70f, 0.52f),
-            ButtonSpec("A", A, 0.86f, 0.52f),
-            ButtonSpec("B", B, 0.78f, 0.72f),
+            Triple("△", X, TouchR.drawable.psx_triangle),
+            Triple("○", A, TouchR.drawable.psx_circle),
+            Triple("✕", B, TouchR.drawable.psx_cross),
+            Triple("□", Y, TouchR.drawable.psx_square),
         )
-
-    private fun twoButtons(
-        left: Pair<String, Int>,
-        right: Pair<String, Int>,
-    ) = listOf(ButtonSpec(left.first, left.second, 0.72f, 0.60f), ButtonSpec(right.first, right.second, 0.85f, 0.48f))
 
     val all: List<ControllerSpec> =
         listOf(
-            ControllerSpec("NES", listOf("nes"), twoButtons("B" to B, "A" to A).map { it.copy(color = 0xFFD6403F) } + startSelect()),
+            ControllerSpec("NES", listOf("nes"), listOf(round("B", B, RED), round("A", A, RED)) + startSelect()),
             ControllerSpec(
                 "SNES",
                 listOf("snes"),
-                listOf(
-                    ButtonSpec("X", X, 0.78f, 0.32f, color = 0xFF306ED6),
-                    ButtonSpec("Y", Y, 0.70f, 0.52f, color = 0xFF34A85C),
-                    ButtonSpec("A", A, 0.86f, 0.52f, color = 0xFFDE343C),
-                    ButtonSpec("B", B, 0.78f, 0.72f, color = 0xFFF5C828),
-                ) + shoulders() + startSelect(),
+                listOf(round("A", A, 0xFFDE343C), round("B", B, YELLOW), round("X", X, BLUE), round("Y", Y, GREEN), pill("L", L1), pill("R", R1)) + startSelect(),
             ),
             ControllerSpec(
                 "Genesis",
                 listOf("md", "scd"),
-                listOf(
-                    ButtonSpec("X", L1, 0.64f, 0.38f),
-                    ButtonSpec("Y", X, 0.75f, 0.34f),
-                    ButtonSpec("Z", R1, 0.86f, 0.30f),
-                    ButtonSpec("A", Y, 0.64f, 0.62f),
-                    ButtonSpec("B", B, 0.75f, 0.58f),
-                    ButtonSpec("C", A, 0.86f, 0.54f),
-                    ButtonSpec("Mode", SELECT, 0.45f, 0.40f, Kind.PILL),
-                    ButtonSpec("Start", START, 0.45f, 0.60f, Kind.PILL),
-                ),
+                listOf(round("A", Y), round("B", B), round("C", A), round("X", L1), round("Y", X), round("Z", R1)) + startSelect(select = "Mode"),
             ),
-            ControllerSpec("Game Boy", listOf("gb", "gbc"), twoButtons("B" to B, "A" to A).map { it.copy(color = 0xFF9B2257) } + startSelect()),
-            ControllerSpec("GBA", listOf("gba"), twoButtons("B" to B, "A" to A) + shoulders() + startSelect()),
+            ControllerSpec("Game Boy", listOf("gb", "gbc"), listOf(round("A", A, 0xFF9B2257), round("B", B, 0xFF9B2257)) + startSelect()),
+            ControllerSpec("GBA", listOf("gba"), listOf(round("A", A), round("B", B), pill("L", L1), pill("R", R1)) + startSelect()),
             ControllerSpec(
                 "N64",
                 listOf("n64"),
-                listOf(
-                    ButtonSpec("A", B, 0.74f, 0.64f, color = 0xFF306ED6),
-                    ButtonSpec("B", Y, 0.65f, 0.50f, color = 0xFF34A85C),
-                    ButtonSpec("Z", L2, 0.50f, 0.80f, Kind.SHOULDER),
-                    ButtonSpec("Start", START, 0.50f, 0.42f, Kind.PILL),
-                ) + shoulders(),
+                listOf(round("A", B, BLUE), round("B", Y, GREEN), pill("Z", L2), pill("L", L1), pill("R", R1), pill("Start", START)),
             ),
             ControllerSpec(
                 "PlayStation",
                 listOf("psx"),
-                listOf(
-                    ButtonSpec("△", X, 0.78f, 0.32f, icon = TouchR.drawable.psx_triangle, color = 0xFF2FB57A),
-                    ButtonSpec("□", Y, 0.70f, 0.52f, icon = TouchR.drawable.psx_square, color = 0xFFD66FA8),
-                    ButtonSpec("○", A, 0.86f, 0.52f, icon = TouchR.drawable.psx_circle, color = 0xFFD6403F),
-                    ButtonSpec("✕", B, 0.78f, 0.72f, icon = TouchR.drawable.psx_cross, color = 0xFF4C7BE0),
-                    ButtonSpec("L1", L1, 0.22f, 0.10f, Kind.SHOULDER),
-                    ButtonSpec("R1", R1, 0.78f, 0.10f, Kind.SHOULDER),
-                    ButtonSpec("L2", L2, 0.22f, 0.02f, Kind.SHOULDER),
-                    ButtonSpec("R2", R2, 0.78f, 0.02f, Kind.SHOULDER),
-                    ButtonSpec("L3", L3, 0.38f, 0.80f, Kind.PILL),
-                    ButtonSpec("R3", R3, 0.62f, 0.80f, Kind.PILL),
-                ) + startSelect(),
+                psSymbols.map { (label, key, icon) ->
+                    val color =
+                        when (label) {
+                            "△" -> 0xFF2FB57A
+                            "○" -> RED
+                            "✕" -> 0xFF4C7BE0
+                            else -> 0xFFD66FA8
+                        }
+                    ButtonSpec(label, key, Kind.ROUND, icon = icon, color = color)
+                } + listOf(pill("L1", L1), pill("R1", R1), pill("L2", L2), pill("R2", R2)) +
+                    listOf(ButtonSpec("L3", L3, dualShockOnly = true), ButtonSpec("R3", R3, dualShockOnly = true)) + startSelect(),
             ),
             ControllerSpec(
                 "PSP",
                 listOf("psp"),
-                listOf(
-                    ButtonSpec("△", X, 0.78f, 0.32f, icon = TouchR.drawable.psx_triangle),
-                    ButtonSpec("□", Y, 0.70f, 0.52f, icon = TouchR.drawable.psx_square),
-                    ButtonSpec("○", A, 0.86f, 0.52f, icon = TouchR.drawable.psx_circle),
-                    ButtonSpec("✕", B, 0.78f, 0.72f, icon = TouchR.drawable.psx_cross),
-                ) + shoulders() + startSelect(),
+                psSymbols.map { (label, key, icon) -> ButtonSpec(label, key, Kind.ROUND, icon = icon) } + listOf(pill("L", L1), pill("R", R1)) + startSelect(),
             ),
-            ControllerSpec("DS", listOf("nds"), diamond + shoulders() + startSelect()),
-            ControllerSpec("3DS", listOf("3ds"), diamond + shoulders() + startSelect()),
-            ControllerSpec("Master System", listOf("sms"), twoButtons("1" to B, "2" to A)),
-            ControllerSpec("Game Gear", listOf("gg"), twoButtons("1" to B, "2" to A) + startSelect(select = null)),
-            ControllerSpec("PC Engine", listOf("pce"), twoButtons("II" to A, "I" to B) + startSelect(start = "Run")),
+            ControllerSpec("DS", listOf("nds"), listOf(round("A", A), round("B", B), round("X", X), round("Y", Y), pill("L", L1), pill("R", R1)) + startSelect()),
+            ControllerSpec("3DS", listOf("3ds"), listOf(round("A", A), round("B", B), round("X", X), round("Y", Y), pill("L", L1), pill("R", R1)) + startSelect()),
+            ControllerSpec("Master System", listOf("sms"), listOf(round("1", B), round("2", A), pill("Pause", START))),
+            ControllerSpec("Game Gear", listOf("gg"), listOf(round("1", B), round("2", A), pill("Start", START))),
+            ControllerSpec("PC Engine", listOf("pce"), listOf(round("II", A), round("I", B)) + startSelect(start = "Run")),
+            ControllerSpec("Atari 2600", listOf("atari2600"), listOf(round("Fire", B), pill("Diff. A", L1), pill("Diff. B", L2)) + startSelect(start = "Reset")),
+            ControllerSpec("Atari 7800", listOf("atari7800"), listOf(round("1", B), round("2", A)) + startSelect(start = "Pause")),
+            ControllerSpec("Lynx", listOf("lynx"), listOf(round("A", A), round("B", B), pill("Option 1", L1), pill("Option 2", R1), pill("Pause", START))),
+            ControllerSpec("Neo Geo Pocket", listOf("ngp", "ngc"), listOf(round("A", B), round("B", A), pill("Option", START))),
+            ControllerSpec("WonderSwan", listOf("ws", "wsc"), listOf(round("A", A), round("B", B), pill("Start", START))),
             ControllerSpec(
-                "Atari 2600",
-                listOf("atari2600"),
-                listOf(ButtonSpec("Fire", B, 0.80f, 0.55f)) + shoulders("Diff. A", "Diff. B").let {
-                    listOf(it[0], it[1].copy(key = L2))
-                } + startSelect(start = "Reset"),
+                "Neo Geo",
+                listOf("neogeo"),
+                listOf(round("A", B, RED), round("B", A, YELLOW), round("C", Y, GREEN), round("D", X, BLUE), pill("Coin", SELECT), pill("Start", START)),
             ),
-            ControllerSpec("Atari 7800", listOf("atari7800"), twoButtons("1" to B, "2" to A) + startSelect(start = "Pause")),
-            ControllerSpec("Lynx", listOf("lynx"), twoButtons("B" to B, "A" to A) + shoulders("Option 1", "Option 2") + startSelect(start = "Pause", select = null)),
-            ControllerSpec("Neo Geo Pocket", listOf("ngp", "ngc"), twoButtons("A" to B, "B" to A) + startSelect(start = "Option", select = null)),
-            ControllerSpec("WonderSwan", listOf("ws", "wsc"), twoButtons("B" to B, "A" to A) + startSelect(select = null)),
+            ControllerSpec(
+                "CPS2",
+                listOf("cps2"),
+                listOf(
+                    round("1", Y, RED, "Light punch"),
+                    round("2", X, RED, "Medium punch"),
+                    round("3", L1, RED, "Heavy punch"),
+                    round("4", B, BLUE, "Light kick"),
+                    round("5", A, BLUE, "Medium kick"),
+                    round("6", R1, BLUE, "Heavy kick"),
+                    pill("Coin", SELECT),
+                    pill("Start", START),
+                ),
+            ),
             ControllerSpec(
                 "Arcade",
                 listOf("fbneo", "mame2003plus"),
-                listOf(
-                    ButtonSpec("1", B, 0.62f, 0.62f),
-                    ButtonSpec("2", A, 0.74f, 0.58f),
-                    ButtonSpec("3", Y, 0.62f, 0.38f),
-                    ButtonSpec("4", X, 0.74f, 0.34f),
-                    ButtonSpec("5", L1, 0.86f, 0.30f),
-                    ButtonSpec("6", R1, 0.86f, 0.54f),
-                    ButtonSpec("Coin", SELECT, 0.42f, 0.56f, Kind.PILL, icon = TouchR.drawable.button_coin),
-                    ButtonSpec("Start", START, 0.50f, 0.72f, Kind.PILL, icon = TouchR.drawable.button_start),
-                ),
-                stick = true,
+                listOf(round("1", B), round("2", A), round("3", Y), round("4", X), round("5", L1), round("6", R1), pill("Coin", SELECT), pill("Start", START)),
             ),
         )
 
-    fun forSystem(systemId: String): ControllerSpec? = all.firstOrNull { systemId in it.systemIds }
+    fun forSystem(mappingId: String): ControllerSpec? = all.firstOrNull { mappingId in it.systemIds }
 }
