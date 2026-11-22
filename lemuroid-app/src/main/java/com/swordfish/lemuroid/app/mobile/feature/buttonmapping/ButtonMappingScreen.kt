@@ -227,7 +227,7 @@ fun ButtonMappingEditor(
     var secondsLeft by remember { mutableIntStateOf(0) }
     LaunchedEffect(listening) {
         val waitingFor = listening ?: return@LaunchedEffect
-        runCatching { root.requestFocus() }
+        // Focus stays on the row being changed: the list catches the next press anyway.
         for (left in 5 downTo 1) {
             secondsLeft = left
             kotlinx.coroutines.delay(1000)
