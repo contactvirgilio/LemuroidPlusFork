@@ -437,6 +437,9 @@ abstract class BaseGameActivity : ImmersiveActivity() {
     override fun onDestroy() {
         if (!isChangingConfigurations) {
             GameService.requestTermination()
+        } else {
+            // Android rebuilds this screen (the game keeps running): keep the game's state for it.
+            baseGameScreenViewModel.stashForRebuild()
         }
         super.onDestroy()
     }

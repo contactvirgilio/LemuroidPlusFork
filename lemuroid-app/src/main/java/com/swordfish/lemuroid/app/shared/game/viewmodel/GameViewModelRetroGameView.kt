@@ -75,6 +75,10 @@ class GameViewModelRetroGameView(
 
     private val gameState: MutableStateFlow<GameState> = MutableStateFlow(GameState.Uninitialized)
 
+    // Lemuroid Plus: kept so the game view can be built again if Android recreates the screen
+    // (e.g. after locking the phone) while the game keeps running in this view model.
+    private var loaded: GameState.Loaded? = null
+
     private val retroGameViewFlow = MutableStateFlow<GLRetroView?>(null)
     var retroGameView: GLRetroView? by MutableStateProperty(retroGameViewFlow)
 
@@ -160,12 +164,21 @@ class GameViewModelRetroGameView(
             }
     }
 
+    /** True once the game view has been built; a second build means the screen was recreated. */
+    fun isViewBuilt(): Boolean = gameState.value == GameState.Ready
+
     fun createRetroView(
         context: Context,
         lifecycle: LifecycleOwner,
+        sramForRebuild: ByteArray? = null,
     ): Pair<GameLoader.GameData, GLRetroView> {
-        val currentState = gameState.value
-        if (currentState !is GameState.Loaded) throw IllegalStateException("Game is not loaded.")
+        val currentState =
+            when (val state = gameState.value) {
+                is GameState.Loaded -> state.also { loaded = it }
+                // Screen recreated: build the view again from the same data, with the latest save RAM.
+                GameState.Ready -> loaded?.also { previous -> sramForRebuild?.let { previous.retroViewData.saveRAMState = it } }
+                else -> null
+            } ?: throw IllegalStateException("Game is not loaded.")
 
         val result =
             GLRetroView(context, currentState.retroViewData)

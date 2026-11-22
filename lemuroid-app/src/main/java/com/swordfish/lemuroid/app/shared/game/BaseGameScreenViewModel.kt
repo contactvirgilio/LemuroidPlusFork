@@ -187,13 +187,24 @@ class BaseGameScreenViewModel(
         context: Context,
         lifecycle: LifecycleOwner,
     ): GLRetroView {
-        val (gameData, result) = retroGameView.createRetroView(context, lifecycle)
+        val rebuild = retroGameView.isViewBuilt()
+        val stash = rebuildSnapshot
+        rebuildSnapshot = null
+        val (gameData, result) = retroGameView.createRetroView(context, lifecycle, if (rebuild) stash?.sram else null)
         viewModelScope.launch {
-            gameData.quickSaveData?.let {
-                saves.restoreAutoSaveAsync(it)
-            }
+            // A rebuilt screen carries on from where the game was a moment ago, not from the start.
+            val state = if (rebuild) stash?.autoSave else gameData.quickSaveData
+            state?.let { saves.restoreAutoSaveAsync(it) }
         }
         return result
+    }
+
+    // Lemuroid Plus: the game as it was when Android tore the screen down to rebuild it.
+    private var rebuildSnapshot: GameViewModelSaves.SaveSnapshot? = null
+
+    /** Called when the screen is about to be recreated (configuration change): remember the game. */
+    fun stashForRebuild() {
+        rebuildSnapshot = runCatching { kotlinx.coroutines.runBlocking { saves.captureSaveSnapshot(false) } }.getOrNull()
     }
 
     suspend fun loadGame(
