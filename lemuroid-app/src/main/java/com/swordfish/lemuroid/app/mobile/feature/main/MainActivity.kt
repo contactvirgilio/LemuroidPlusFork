@@ -409,6 +409,7 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
                                 ),
                             navController = navController,
                             retrogradeDb = retrogradeDb,
+                            onHelp = onHelpPressed,
                         )
                     }
                     composable(MainRoute.SETTINGS_ADVANCED) {

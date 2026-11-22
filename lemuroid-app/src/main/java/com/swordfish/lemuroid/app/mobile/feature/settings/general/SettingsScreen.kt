@@ -60,6 +60,8 @@ fun SettingsScreen(
     viewModel: SettingsViewModel,
     navController: NavController,
     retrogradeDb: RetrogradeDatabase,
+    // Lemuroid Plus: Help as a row (4:3 screens have no top bar with its "i" button).
+    onHelp: () -> Unit = {},
 ) {
     val state =
         viewModel.uiState
@@ -96,6 +98,11 @@ fun SettingsScreen(
             icon = Icons.Outlined.Build,
         ) {
             MiscRows(indexingInProgress = indexingInProgress, navController = navController)
+            LemuroidSettingsMenuLink(
+                title = { Text(text = stringResource(id = R.string.settings_title_help)) },
+                subtitle = { Text(text = stringResource(id = R.string.settings_description_help)) },
+                onClick = onHelp,
+            )
         }
     }
 }

@@ -422,4 +422,6 @@
     <string name="settings_title_shortcuts">Shortcuts</string>
     <string name="settings_description_shortcuts">Button combos for the game menu, fast forward, save and load.</string>
     <string name="settings_title_set_shortcuts">Set shortcuts</string>
+    <string name="settings_title_help">Help</string>
+    <string name="settings_description_help">Tips for the less obvious features.</string>
 </resources>
