@@ -425,39 +425,43 @@ private fun ButtonChip(
                     )
                 }
             }
-        // Text only, truly centred: no font padding, and the same width for every pill so they line up.
+        // Start and Select: just their name, no pill (owner, 2026-11-22). Other pills: tall enough
+        // for the text to sit in the middle, the same width so they line up.
         Kind.PILL ->
-            Box(
-                modifier =
-                    Modifier
-                        .height(size * 0.7f)
-                        .widthIn(min = size * 2.3f)
-                        .background(fill, RoundedCornerShape(50))
-                        .padding(horizontal = 8.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = button.label.uppercase(),
-                    color = ink,
-                    maxLines = 1,
-                    textAlign = TextAlign.Center,
-                    style =
-                        androidx.compose.ui.text.TextStyle(
-                            fontSize = (size.value * 0.38f).sp,
-                            lineHeight = (size.value * 0.38f).sp,
-                            fontWeight = FontWeight.Medium,
-                            letterSpacing = 0.5.sp,
-                            platformStyle = androidx.compose.ui.text.PlatformTextStyle(includeFontPadding = false),
-                            lineHeightStyle =
-                                androidx.compose.ui.text.style.LineHeightStyle(
-                                    alignment = androidx.compose.ui.text.style.LineHeightStyle.Alignment.Center,
-                                    trim = androidx.compose.ui.text.style.LineHeightStyle.Trim.Both,
-                                ),
-                        ),
-                )
+            if (button.label == "Start" || button.label == "Select") {
+                Box(modifier = Modifier.height(size).widthIn(min = size * 2.3f), contentAlignment = Alignment.CenterStart) {
+                    Text(text = button.label.uppercase(), color = Color(0xFFC9C8D2), maxLines = 1, style = centredText(12.sp))
+                }
+            } else {
+                Box(
+                    modifier =
+                        Modifier
+                            .height(size * 0.85f)
+                            .widthIn(min = size * 2.3f)
+                            .background(fill, RoundedCornerShape(50))
+                            .padding(horizontal = 10.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(text = button.label.uppercase(), color = ink, maxLines = 1, textAlign = TextAlign.Center, style = centredText(11.sp))
+                }
             }
     }
 }
+
+/** Text that sits exactly in the middle of its box: no font padding, line height = font size. */
+private fun centredText(size: androidx.compose.ui.unit.TextUnit) =
+    androidx.compose.ui.text.TextStyle(
+        fontSize = size,
+        lineHeight = size,
+        fontWeight = FontWeight.Medium,
+        letterSpacing = 0.5.sp,
+        platformStyle = androidx.compose.ui.text.PlatformTextStyle(includeFontPadding = false),
+        lineHeightStyle =
+            androidx.compose.ui.text.style.LineHeightStyle(
+                alignment = androidx.compose.ui.text.style.LineHeightStyle.Alignment.Center,
+                trim = androidx.compose.ui.text.style.LineHeightStyle.Trim.Both,
+            ),
+    )
 
 enum class Kind { ROUND, PILL, DPAD }
 
