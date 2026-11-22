@@ -17,7 +17,6 @@
     <string name="folders_card_title">ROM folders</string>
     <string name="folders_card_overlap">That folder is the same as, or inside, your other ROM folder</string>
     <string name="display_filter">Display filter</string>
-    <string name="roms">ROMs</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="settings">Settings</string>
@@ -34,7 +33,6 @@
     <string name="settings_title_enable_autosave">Resume where you left off</string>
     <string name="settings_description_enable_autosave">Opening a game takes you back to where you stopped. Off: games start from the beginning, and your auto-save waits in Load.</string>
     <string name="settings_title_enable_touch_feedback">Vibrate on touch</string>
-    <string name="settings_title_tilt_sensitivity">Tilt sensor sensitivity</string>
     <string name="settings_title_hd_quality">HD mode quality</string>
     <string name="settings_title_maximum_cache_usage">Cache size limit</string>
 
@@ -42,8 +40,6 @@
     <string name="settings_description_hd_mode">Smooths and sharpens the picture so it looks better on big screens.</string>
     <string name="settings_description_hd_quality">Higher looks better but uses more battery.</string>
 
-    <string name="settings_title_viewport_alignment">Viewport alignment</string>
-    <string name="settings_description_viewport_alignment">Where the game sits on the screen when there\'s space left over: top, middle or bottom.</string>
 
     <string name="settings_title_immersive_mode">Immersive mode</string>
     <string name="settings_description_immersive_mode">Dynamically colors the background based on game visuals</string>
@@ -56,7 +52,6 @@
     <string name="settings_gamepad_category_enabled">Enabled devices</string>
     <string name="settings_gamepad_category_general">General</string>
     <string name="settings_gamepad_title_reset_bindings">Reset bindings</string>
-    <string name="settings_gamepad_title_game_menu">Menu</string>
 
     <string name="settings_title_open_cores_selection">Change cores</string>
     <string name="settings_description_open_cores_selection">Pick which emulator runs each system.</string>
@@ -107,9 +102,6 @@
     <string name="game_context_menu_restart">Restart</string>
     <string name="game_context_menu_create_shortcut">Pin to launcher</string>
 
-    <string name="game_context_menu_add_custom_name">Add custom name</string>
-    <string name="game_context_menu_remove_custom_name">Remove custom name</string>
-    <string name="game_context_menu_custom_name_dialog_title">Set custom name</string>
 
     <string name="home_notification_title">Enable notifications</string>
     <string name="home_notification_message">Lemuroid uses notifications to let you know when a game or operation is running in background.</string>
@@ -123,9 +115,6 @@
     <string name="home_empty_message">Lemuroid needs to scan a directory containing ROM files.\nThis might take up to a few minutes.</string>
     <string name="home_empty_action">Select Directory</string>
 
-    <string name="home_notification_desmume_deprecated_title">DeSmuME is being retired</string>
-    <string name="home_notification_desmume_deprecated_message">Save in-game, then switch to melonDS to keep your progress. Save states won\’t transfer and will remain usable only in DeSmuME.</string>
-    <string name="home_notification_desmume_deprecated_action">Switch to melonDS</string>
 
     <string name="game_menu_save">Save</string>
     <string name="game_menu_load">Load</string>
@@ -140,14 +129,12 @@
     <string name="game_menu_mute_audio">Mute</string>
     <string name="game_menu_fast_forward">Fast forward</string>
     <string name="game_menu_change_disk_disk">Disc %1$s</string>
-    <string name="game_menu_tilt_sensor">Tilt sensor</string>
 
     <string name="game_loading_preparing_game">Preparing game…</string>
 
 
     <string name="empty_view_default">No Items</string>
 
-    <string name="core_settings_title">Core Settings</string>
     <string name="core_settings_category_preferences">Preferences</string>
     <string name="core_settings_category_controllers">Controllers</string>
     <string name="core_settings_controller">Controller %1$s</string>
@@ -177,7 +164,6 @@
 
     <string name="game_loader_error_missing_bios">It looks like you\'re missing the required BIOS, put them in the Lemuroid/bios folder (or your ROMs folder) and rescan. Required files: %1$s</string>
 
-    <string name="game_shortcut_error">Something bad happened while loading your game. Please make sure this game still exists in your library.</string>
 
     <string name="dialog_saf_not_found">This device does not support the StorageAccessFramework file picker. Please manually copy uncompressed ROM files into %1$s and hit Rescan.</string>
 
@@ -203,14 +189,12 @@
     <string name="tv_search_results">Games</string>
     <string name="tv_game_message_missing_gamepad">Gamepads are required to play. Please connect one.</string>
 
-    <string name="game_edit_touch_controls_error_not_visible">Disconnect your pad to edit your touch controls</string>
 
     <string name="game_interactory_busy">Wait for the pending operations to complete</string>
     <string name="game_interactor_notification_permission_required">Please enable notifications from Home to continue</string>
 
 
     <string name="mobile_settings_help">Help</string>
-    <string name="mobile_settings_support">Support</string>
     <string name="lemuroid_help_content"><![CDATA[
         <b>Games not showing up?</b><br/>
         Allow "All files access", unzip console games, and put each system in its own folder named like: $SYSTEMS. Then tap <b>Rescan</b>.<br/>
@@ -236,7 +220,6 @@
         \n\nIf nothing helps, this game may not work with this core on your device.
     </string>
 
-    <string name="error_message_incompatible_state">This save state is not compatible with the current core version. Please load the latest in-game save or use a previous Lemuroid version.</string>
 
     <string name="shader_filter_names_auto">Auto</string>
     <string name="shader_filter_names_sharp">Sharp</string>
@@ -267,9 +250,6 @@
     <string name="settings_description_home_screen_on">Lemuroid Plus opens when you press Home. Tap to pick a different home screen.</string>
     <string name="settings_title_apps_tab">Apps tab</string>
     <string name="settings_description_apps_tab">Shows your Android apps in a tab next to your games.</string>
-    <string name="settings_value_apps_tab_auto">Automatic</string>
-    <string name="settings_value_apps_tab_on">Always show</string>
-    <string name="settings_value_apps_tab_off">Hide</string>
     <string name="settings_title_hidden_apps">Hidden apps</string>
     <string name="settings_description_hidden_apps">Pick which apps show in the Apps tab. You can also press and hold an app to hide it.</string>
     <string name="settings_description_hidden_apps_screen">Apps that are switched off don\'t appear in the Apps tab. They stay installed.</string>
@@ -281,12 +261,10 @@
     <string name="title_activity">Activity</string>
     <string name="activity_empty">Play a game and your activity shows up here.</string>
     <string name="activity_this_week">This week</string>
-    <string name="activity_games_this_week">Games this week</string>
     <string name="activity_all_time">All time</string>
     <string name="activity_most_played">Most played</string>
     <string name="activity_by_system">By system</string>
     <string name="activity_this_month">This month</string>
-    <string name="activity_nothing_this_month">Nothing played yet this month.</string>
     <string name="activity_nothing_period">Nothing played in this period yet.</string>
     <string name="activity_this_year">This year</string>
     <string name="activity_week">Week</string>
@@ -313,7 +291,6 @@
     <string name="game_overlay_scaling_title">Scaling %1$d</string>
     <string name="game_filter_sharp">Sharp</string>
     <string name="game_filter_smooth">Smooth</string>
-    <string name="game_filter_crt">CRT</string>
     <string name="game_filter_lcd">LCD</string>
     <string name="game_filter_scan_25" formatted="false">Scanlines 25%</string>
     <string name="game_filter_scan_50" formatted="false">Scanlines 50%</string>
@@ -380,14 +357,9 @@
     <string name="game_skin_dark_grey">Dark grey</string>
     <string name="game_menu_on">On</string>
     <string name="game_menu_off">Off</string>
-    <string name="settings_title_pastel_tiles">Colors</string>
     <string name="settings_title_game_style">Style</string>
     <string name="settings_game_style_tiles">Tiles</string>
-    <string name="settings_game_style_soft">Soft tiles</string>
     <string name="settings_game_style_media">Cartridges</string>
-    <string name="settings_tiles_normal">Normal</string>
-    <string name="settings_tiles_soft">Soft</string>
-    <string name="settings_description_pastel_tiles">Lighter colors for system cards and game tiles</string>
     <string name="game_card_load_title">Load</string>
     <string name="game_card_load_failed">Can\'t load this state</string>
     <string name="game_card_load_incompatible">State not compatible with this core</string>
@@ -411,8 +383,6 @@
     <string name="backup_card_export_title">Export</string>
     <string name="backup_card_exported">%1$d files saved</string>
     <string name="backup_card_export_failed_title">Export failed</string>
-    <string name="settings_title_media_view">Cartridge view</string>
-    <string name="settings_description_media_view">Shows games as cartridges and discs instead of tiles.</string>
     <string name="settings_title_vertical_bar">Vertical bar</string>
     <string name="settings_description_vertical_bar">One bar down the left side instead of bars at the top and bottom.</string>
     <string name="game_context_menu_cartridge_color">Cartridge color</string>
@@ -433,9 +403,6 @@
     <string name="settings_pad_skin_1">Skin 1 · Original</string>
     <string name="settings_pad_skin_2">Skin 2 · Outline</string>
     <string name="settings_title_pad_skin">Touch pad skin</string>
-    <string name="settings_description_pad_skin">Skin 1: original. Skin 2: grey outline</string>
-    <string name="settings_description_nested_shortcuts">Hides the in-game shortcuts behind one button. Off: they\'re always shown in a row.</string>
-    <string name="rail_view">View</string>
     <string name="settings_group_games">Games</string>
     <string name="settings_group_in_game_look">In-game look</string>
     <string name="settings_group_library_look">Library look</string>

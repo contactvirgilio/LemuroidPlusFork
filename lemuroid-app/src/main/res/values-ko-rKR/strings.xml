@@ -13,7 +13,6 @@
     <string name="none">없음</string>
     <string name="directory">디렉토리</string>
     <string name="display_filter">디스플레이 필터</string>
-    <string name="roms">ROM</string>
     <string name="ok">확인</string>
     <string name="cancel">취소</string>
     <string name="settings">설정</string>
@@ -28,7 +27,6 @@
     <string name="settings_title_enable_autosave">상태 자동 저장</string>
     <string name="settings_description_enable_autosave">게임 메뉴를 통해 종료 시 상태저장 생성</string>
     <string name="settings_title_enable_touch_feedback">터치 시 진동</string>
-    <string name="settings_title_tilt_sensitivity">기울임 센서 감도</string>
     <string name="settings_title_hd_quality">HD 모드 품질</string>
     <string name="settings_title_maximum_cache_usage">캐시 크기 제한</string>
     <string name="settings_title_hd_mode">HD 모드</string>
@@ -42,7 +40,6 @@
     <string name="settings_gamepad_category_enabled">활성화된 장치</string>
     <string name="settings_gamepad_category_general">일반</string>
     <string name="settings_gamepad_title_reset_bindings">매핑 초기화</string>
-    <string name="settings_gamepad_title_game_menu">메뉴</string>
     <string name="settings_title_open_cores_selection">코어 변경</string>
     <string name="settings_description_open_cores_selection">시스템에 연결된 코어를 변경합니다</string>
     <string name="settings_title_display_bios_info">BIOS</string>
@@ -88,9 +85,6 @@
     <string name="home_empty_title">ROM 디렉토리 선택</string>
     <string name="home_empty_message">Lemuroid가 검색할 ROM 파일이 담긴 디렉토리가 필요합니다.\n이 과정은 몇 분 정도 걸립니다.</string>
     <string name="home_empty_action">디렉토리 선택</string>
-    <string name="home_notification_desmume_deprecated_title">DeSmuME의 지원이 중단됩니다</string>
-    <string name="home_notification_desmume_deprecated_message">게임 내에서 저장하고, melonDS로 갈아타 진행 상황을 보존하세요. 상태저장은 다른 코어로 가져갈 수 없으며 DeSmuME에서밖에 사용할 수 없습니다.</string>
-    <string name="home_notification_desmume_deprecated_action">melonDS로 갈아타기</string>
     <string name="game_menu_save">저장</string>
     <string name="game_menu_load">불러오기</string>
     <string name="game_menu_restart">다시 시작</string>
@@ -102,14 +96,12 @@
     <string name="game_menu_mute_audio">음소거</string>
     <string name="game_menu_fast_forward">빨리 감기</string>
     <string name="game_menu_change_disk_disk">디스크 %1$s</string>
-    <string name="game_menu_tilt_sensor">기울기 센서</string>
     <string name="game_loading_preparing_game">게임 준비 중…</string>
     <string name="game_toast_settings_button_using_gamepad">게임패드가 감지되었습니다. %1$s(으)로 설정 메뉴를 열 수 있습니다.</string>
     <string name="game_toast_load_state_failed">이 상태저장을 열 수 없습니다</string>
     <string name="game_toast_quick_save_loaded">빠른 저장 불러옴</string>
     <string name="game_toast_quick_save_saved">빠른 저장 생성됨</string>
     <string name="empty_view_default">항목 없음</string>
-    <string name="core_settings_title">코어 설정</string>
     <string name="core_settings_category_preferences">설정</string>
     <string name="core_settings_category_controllers">컨트롤러</string>
     <string name="core_settings_controller">컨트롤러 %1$s</string>
@@ -132,7 +124,6 @@
         \n\n이후에도 계속 문제가 발생할 경우, 이 장치에서 이 게임 또는 코어가 지원되지 않는 것일 수도 있습니다.
     </string>
     <string name="game_loader_error_missing_bios">필요한 BIOS 파일이 없는 것 같습니다. ROM 디렉토리에 필요한 파일을 추가한 뒤 게임을 다시 검색해주세요. 필요한 파일: %1$s</string>
-    <string name="game_shortcut_error">게임을 불러오는 중 문제가 발생했습니다. 게임이 아직 라이브러리에 존재하는지 확인해주세요.</string>
     <string name="dialog_saf_not_found">이 장치에서는 저장소 액세스 프레임워크 파일 선택기가 지원되지 않습니다. 압축되지 않은 ROM 파일을 %1$s에 복사한 뒤 게임을 다시 검색해주세요.</string>
     <string name="system_grid_details">%1$s개의 게임</string>
     <string name="tv_folder_picker_title">ROM 디렉토리 선택</string>
@@ -151,19 +142,16 @@
     <string name="shortcut_binding_update_description">\"%1$s\"에서 첫 번째 버튼을 누른 뒤, 두 번째 버튼을 눌러 단축키를 설정하세요</string>
     <string name="tv_search_results">게임</string>
     <string name="tv_game_message_missing_gamepad">게임패드가 필요합니다. 게임패드를 연결해주세요.</string>
-    <string name="game_edit_touch_controls_error_not_visible">터치 컨트롤을 변경하려면 게임패드 연결을 해제해주세요</string>
     <string name="game_interactory_busy">현재 작업이 완료될 때까지 기다려주세요</string>
     <string name="game_interactor_notification_permission_required">계속하려면 홈에서 알림 사용을 허용해주세요</string>
     <string name="game_process_another_game_running">다른 게임을 시작하려면 먼저 실행중인 게임을 종료해주세요</string>
     <string name="mobile_settings_help">도움말</string>
-    <string name="mobile_settings_support">지원</string>
     <string name="lemuroid_crash_disclamer">Libretro 코어에서 예기치 못한 문제가 발생했습니다. 문제가 지속된다면 다음 조치를 취해보세요:\n
         \n\u2022 자동 저장을 비활성화하고 게임 다시 실행
         \n\u2022 안드로이드 설정에서 앱 캐시 초기화
         \n\u2022 Lemuroid 설정에서 설정 초기화
         \n\n 이후에도 계속 문제가 발생할 경우, 이 장치에서 이 게임 또는 코어가 지원되지 않는 것일 수도 있습니다.
     </string>
-    <string name="error_message_incompatible_state">이 상태저장은 현재 코어 버전과 호환되지 않습니다. 가장 최근의 인게임 세이브 데이터를 사용하거나 이전 버전의 Lemuroid를 사용하세요.</string>
     <string name="shader_filter_names_auto">자동</string>
     <string name="shader_filter_names_sharp">선명하게</string>
     <string name="shader_filter_names_smooth">부드럽게</string>

@@ -13,7 +13,6 @@
     <string name="none">Niciunul</string>
     <string name="directory">Dosar</string>
     <string name="display_filter">Filtru ecran</string>
-    <string name="roms">ROM-uri</string>
     <string name="ok">OK</string>
     <string name="cancel">Anulare</string>
     <string name="settings">Setări</string>
@@ -28,7 +27,6 @@
     <string name="settings_title_enable_autosave">Autosalvare in curs</string>
     <string name="settings_description_enable_autosave">Salvează starea la ieșirea din meniul jocului</string>
     <string name="settings_title_enable_touch_feedback">Vibrează la atingere</string>
-    <string name="settings_title_tilt_sensitivity">Sensibilitate senzor înclinare</string>
     <string name="settings_title_hd_quality">Calitate mod HD</string>
     <string name="settings_title_maximum_cache_usage">Dimensiune limita cache</string>
     <string name="settings_title_hd_mode">Modul HD</string>
@@ -42,7 +40,6 @@
     <string name="settings_gamepad_category_enabled">Dispozitive activate</string>
     <string name="settings_gamepad_category_general">Setări generale</string>
     <string name="settings_gamepad_title_reset_bindings">Resetare legături</string>
-    <string name="settings_gamepad_title_game_menu">Meniu</string>
     <string name="settings_title_open_cores_selection">Schimbă Nucleele</string>
     <string name="settings_description_open_cores_selection">Selectați care nucleu este asociat unui sistem</string>
     <string name="settings_title_display_bios_info">BIOS</string>
@@ -88,9 +85,6 @@
     <string name="home_empty_title">Alege directorul de ROM-uri</string>
     <string name="home_empty_message">Lemuroid trebuie să scaneze un director care conține fișiere ROM.\nAcest lucru ar putea dura până la câteva minute.</string>
     <string name="home_empty_action">Selectare director</string>
-    <string name="home_notification_desmume_deprecated_title">DeSmuME se pensionează în curând</string>
-    <string name="home_notification_desmume_deprecated_message">Salvați în joc, comutați la melonDS, iar progresul dvs. va continua. Salvați statele rămân legate pe DeSmuME.</string>
-    <string name="home_notification_desmume_deprecated_action">Comutați la melonDS</string>
     <string name="game_menu_save">Salvare</string>
     <string name="game_menu_load">Încărcare</string>
     <string name="game_menu_restart">Reporniţi</string>
@@ -102,14 +96,12 @@
     <string name="game_menu_mute_audio">Mut</string>
     <string name="game_menu_fast_forward">Derulați rapid înainte</string>
     <string name="game_menu_change_disk_disk">Discul %1$s</string>
-    <string name="game_menu_tilt_sensor">Senzor de înclinare</string>
     <string name="game_loading_preparing_game">Se pregătește jocul…</string>
     <string name="game_toast_settings_button_using_gamepad">Gamepad detectat. Acces la meniul Setări cu %1$s.</string>
     <string name="game_toast_load_state_failed">Nu se poate încărca această stare</string>
     <string name="game_toast_quick_save_loaded">Încărcare rapidă</string>
     <string name="game_toast_quick_save_saved">Salvat rapid</string>
     <string name="empty_view_default">Nu există articole</string>
-    <string name="core_settings_title">Setări nucleu</string>
     <string name="core_settings_category_preferences">Preferințe</string>
     <string name="core_settings_category_controllers">Controlori</string>
     <string name="core_settings_controller">Controller %1$s</string>
@@ -126,7 +118,6 @@
     <string name="game_loader_error_save">Ceva rău s-a întâmplat cu fișierul de salvare. Dacă problema persistă, dezactivați salvarea automată.</string>
     <string name="game_loader_error_unsupported_architecture">Acest nucleu nu este acceptat de dispozitivul dvs.</string>
     <string name="game_loader_error_missing_bios">Se pare că nu ai BIOS necesar, pune-le în directorul ROM-uri și rescanează. Fișiere necesare: %1$s</string>
-    <string name="game_shortcut_error">Ceva rău s-a întâmplat în timpul încărcării jocului. Te rugăm să te asiguri că acest joc mai există în biblioteca ta.</string>
     <string name="dialog_saf_not_found">Acest dispozitiv nu acceptă selectorul de fișiere StorageAccessFramework copiați manual fișierele ROM necomprimate în %1$s și apăsați Rescan.</string>
     <string name="system_grid_details">Partide %1$s</string>
     <string name="tv_folder_picker_title">Selectează directorul ROM-urilor</string>
@@ -145,11 +136,8 @@
     <string name="shortcut_binding_update_description">Apăsați primul, apoi al doilea buton pentru a lega o combinație pe \"%1$s</string>
     <string name="tv_search_results">Jocuri</string>
     <string name="tv_game_message_missing_gamepad">Jocurile sunt necesare pentru a juca. Vă rugăm să conectați unul.</string>
-    <string name="game_edit_touch_controls_error_not_visible">Deconectează tastatura pentru a edita controalele de atingere</string>
     <string name="game_interactory_busy">Așteptați ca operațiunile în așteptare să se finalizeze</string>
     <string name="mobile_settings_help">Ajutor</string>
-    <string name="mobile_settings_support">Asistență</string>
-    <string name="error_message_incompatible_state">Această stare de salvare nu este compatibilă cu versiunea de bază curentă. Vă rugăm să încărcați ultima salvare din joc sau să folosiți o versiune Lemuroid anterioară.</string>
     <string name="shader_filter_names_auto">Auto</string>
     <string name="shader_filter_names_sharp">Ascuţit</string>
     <string name="shader_filter_names_smooth">Netezit</string>

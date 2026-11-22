@@ -132,10 +132,4 @@ object DsSingleScreen {
         return v.top
     }
 
-    private fun hasGamePad(): Boolean =
-        InputDevice.getDeviceIds().any { id ->
-            val device = InputDevice.getDevice(id) ?: return@any false
-            !device.isVirtual &&
-                (device.sources and InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD
-        }
 }

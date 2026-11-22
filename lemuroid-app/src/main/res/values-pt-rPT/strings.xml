@@ -13,7 +13,6 @@
     <string name="none">Nenhum</string>
     <string name="directory">Pasta</string>
     <string name="display_filter">Filtro de exibição</string>
-    <string name="roms">ROMs</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancelar</string>
     <string name="settings">Configurações</string>
@@ -28,7 +27,6 @@
     <string name="settings_title_enable_autosave">Auto-gravar estado</string>
     <string name="settings_description_enable_autosave">Guardar o estado do jogo quando sair para o menu</string>
     <string name="settings_title_enable_touch_feedback">Vibrar ao toque</string>
-    <string name="settings_title_tilt_sensitivity">Sensibilidade do sensor de inclinação</string>
     <string name="settings_title_hd_quality">Qualidade HD</string>
     <string name="settings_title_maximum_cache_usage">Tamanho máximo da cache</string>
     <string name="settings_title_hd_mode">Modo HD</string>
@@ -42,7 +40,6 @@
     <string name="settings_gamepad_category_enabled">Dispositivos habilitados</string>
     <string name="settings_gamepad_category_general">Geral</string>
     <string name="settings_gamepad_title_reset_bindings">Redefinir combinações</string>
-    <string name="settings_gamepad_title_game_menu">Menu</string>
     <string name="settings_title_open_cores_selection">Alterar Núcleos</string>
     <string name="settings_description_open_cores_selection">Seleccione o núcleo que quer associar ao sistema</string>
     <string name="settings_title_display_bios_info">BIOS</string>
@@ -88,9 +85,6 @@
     <string name="home_empty_title">Seleccionar directório de ROMs</string>
     <string name="home_empty_message">O Lemuroid precisa de verificar um directório contendo arquivos de ROM.\nIsto pode levar alguns minutos.</string>
     <string name="home_empty_action">Seleccionar Directório</string>
-    <string name="home_notification_desmume_deprecated_title">DeSmuME se aposentando em breve</string>
-    <string name="home_notification_desmume_deprecated_message">Salve no jogo, mude para melonDS, e seu progresso será transferido. Salve os estados permanecem vinculados ao DeSmuME.</string>
-    <string name="home_notification_desmume_deprecated_action">Alternar para melonDS</string>
     <string name="game_menu_save">Guardar</string>
     <string name="game_menu_load">Carregar</string>
     <string name="game_menu_restart">Reiniciar</string>
@@ -102,14 +96,12 @@
     <string name="game_menu_mute_audio">Silenciar</string>
     <string name="game_menu_fast_forward">Avançar-Rápido</string>
     <string name="game_menu_change_disk_disk">Disco %1$s</string>
-    <string name="game_menu_tilt_sensor">Inclinar sensor</string>
     <string name="game_loading_preparing_game">Preparando o jogo…</string>
     <string name="game_toast_settings_button_using_gamepad">Comando detectado. Aceda ao menu de configurações com %1$s.</string>
     <string name="game_toast_load_state_failed">Não é possível carregar este estado</string>
     <string name="game_toast_quick_save_loaded">Carregamento rápido</string>
     <string name="game_toast_quick_save_saved">Salvamento rápido</string>
     <string name="empty_view_default">Nenhum item</string>
-    <string name="core_settings_title">Configurações do Núcleo</string>
     <string name="core_settings_category_preferences">Preferências</string>
     <string name="core_settings_category_controllers">Controladores</string>
     <string name="core_settings_controller">Controlador %1$s</string>
@@ -132,7 +124,6 @@
         \n\n Se nenhuma destas sugestões funcionar, é possível que este Jogo/Núcleo não seja suportado pelo seu dispositivo.
     </string>
     <string name="game_loader_error_missing_bios">Parece que falta a BIOS necessária, coloque-a no directório das suas ROMs e tente novamente. Arquivos necessários: %1$s</string>
-    <string name="game_shortcut_error">Aconteceu algo errado durante o carregamento do seu jogo. Por favor, certifique-se de que este jogo ainda existe na sua biblioteca.</string>
     <string name="dialog_saf_not_found">Este dispositivo não suporta o seleccionador de arquivo StorageAccessFramework. Por favor copie manualmente arquivos da ROM descomprimida para %1$s e faça o Rescan.</string>
     <string name="system_grid_details">%1$s jogos</string>
     <string name="tv_folder_picker_title">Seleccionar directório de ROMs</string>
@@ -151,17 +142,14 @@
     <string name="shortcut_binding_update_description">Pressione o primeiro, depois o segundo botão para vincular um combo no seu \"%1$s\"</string>
     <string name="tv_search_results">Jogos</string>
     <string name="tv_game_message_missing_gamepad">É necessário comandos para jogar. Por favor, conecte um.</string>
-    <string name="game_edit_touch_controls_error_not_visible">Desconecte o seu comando para editar os seus controles de toque</string>
     <string name="game_interactory_busy">Aguarde pela conclusão das operações pendentes</string>
     <string name="mobile_settings_help">Ajuda</string>
-    <string name="mobile_settings_support">Suporte</string>
     <string name="lemuroid_crash_disclamer">Parece que o núcleo Libretro sofreu um erro inesperado. Se persistir, tente o seguinte por favor:\n
         \n\u2022 Desabilite a auto-gravação e corra o jogo de novo
         \n\u2022 Vá às configurações do Android e apague a cache da app
         \n\u2022 Vá às configurações do Lemuroid e faça uma Redefinição de Fábrica
         \n\n Se nenhuma destas sugestões funcionar, é possível que este Jogo/Núcleo não seja suportado pelo seu dispositivo.
     </string>
-    <string name="error_message_incompatible_state">Este estado de gravação não é compatível com a versão actual do núcleo. Por favor, carregue a última gravação dentro do jogo ou use uma versão anterior do Lemuroid.</string>
     <string name="shader_filter_names_auto">Automático</string>
     <string name="shader_filter_names_sharp">Afiado</string>
     <string name="shader_filter_names_smooth">Suave</string>

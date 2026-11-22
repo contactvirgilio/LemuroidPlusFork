@@ -13,7 +13,6 @@
     <string name="none">Cap</string>
     <string name="directory">Directori</string>
     <string name="display_filter">Filtre d\'imatge</string>
-    <string name="roms">ROMS</string>
     <string name="ok">D\'acord</string>
     <string name="cancel">Cancel·la</string>
     <string name="settings">Configuració</string>
@@ -32,7 +31,6 @@
     <string name="settings_retropad_button_name">RetroPad %1$s</string>
     <string name="settings_gamepad_category_enabled">Dispositius habilitats</string>
     <string name="settings_gamepad_category_general">General</string>
-    <string name="settings_gamepad_title_game_menu">Menú</string>
     <string name="settings_title_open_cores_selection">Canviar nuclis</string>
     <string name="settings_title_display_bios_info">BIOS</string>
     <string name="settings_bios_category_detected">Detectat</string>
@@ -84,5 +82,4 @@
     <string name="tv_home_section_settings">Configuració</string>
     <string name="tv_search_results">Jocs</string>
     <string name="mobile_settings_help">Ajuda</string>
-    <string name="mobile_settings_support">Assistència</string>
 </resources>

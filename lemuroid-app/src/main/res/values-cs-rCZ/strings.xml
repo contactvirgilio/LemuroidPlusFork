@@ -13,7 +13,6 @@
     <string name="none">Žádný</string>
     <string name="directory">Složka</string>
     <string name="display_filter">Filtr obrazovky</string>
-    <string name="roms">ROMky</string>
     <string name="ok">OK</string>
     <string name="cancel">Zrušit</string>
     <string name="settings">Nastavení</string>
@@ -28,7 +27,6 @@
     <string name="settings_title_enable_autosave">Stav automatického uložení</string>
     <string name="settings_description_enable_autosave">Uložit stav při ukončení v nabídce hry</string>
     <string name="settings_title_enable_touch_feedback">Vibrace při dotyku</string>
-    <string name="settings_title_tilt_sensitivity">Citlivost senzoru naklánění</string>
     <string name="settings_title_hd_quality">Kvalita HD režimu</string>
     <string name="settings_title_maximum_cache_usage">Limit velikosti cache</string>
     <string name="settings_title_hd_mode">HD režim</string>
@@ -42,7 +40,6 @@
     <string name="settings_gamepad_category_enabled">Povolená zařízení</string>
     <string name="settings_gamepad_category_general">Obecné</string>
     <string name="settings_gamepad_title_reset_bindings">Rezetovat nastavení kláves</string>
-    <string name="settings_gamepad_title_game_menu">Menu</string>
     <string name="settings_title_open_cores_selection">Změnit jádra</string>
     <string name="settings_description_open_cores_selection">Vyberte, které jádro je přiřazeno k systému</string>
     <string name="settings_title_display_bios_info">BIOS</string>
@@ -88,9 +85,6 @@
     <string name="home_empty_title">Zvolit složku s ROMkami</string>
     <string name="home_empty_message">Lemuroid potřebuje naskenovat složku obsahující ROM soubory.\nTo může trvat až několik minut.</string>
     <string name="home_empty_action">Vybrat adresář</string>
-    <string name="home_notification_desmume_deprecated_title">DeSmuME brzy odejde</string>
-    <string name="home_notification_desmume_deprecated_message">Uložte hru, přepněte se na melonDS, a váš postup bude pokračovat. Uložte stavy zůstávají vázány na DeSmuME.</string>
-    <string name="home_notification_desmume_deprecated_action">Přepnout na melonDS</string>
     <string name="game_menu_save">Uložit</string>
     <string name="game_menu_load">Načíst</string>
     <string name="game_menu_restart">Restartovat</string>
@@ -102,14 +96,12 @@
     <string name="game_menu_mute_audio">Ztlumit</string>
     <string name="game_menu_fast_forward">Rychlý posun vpřed</string>
     <string name="game_menu_change_disk_disk">Disk %1$s</string>
-    <string name="game_menu_tilt_sensor">Senzor naklonění</string>
     <string name="game_loading_preparing_game">Připravuji hru…</string>
     <string name="game_toast_settings_button_using_gamepad">Gamepad byl detekován. Můžete přistoupit do menu pomocí %1$s.</string>
     <string name="game_toast_load_state_failed">Nelze načíst tento stav</string>
     <string name="game_toast_quick_save_loaded">Rychlé načtení</string>
     <string name="game_toast_quick_save_saved">Rychlé uložení</string>
     <string name="empty_view_default">Žádné položky</string>
-    <string name="core_settings_title">Nastavení jádra</string>
     <string name="core_settings_category_preferences">Preference</string>
     <string name="core_settings_category_controllers">Ovladače</string>
     <string name="core_settings_controller">Ovladač %1$s</string>
@@ -132,7 +124,6 @@
         \n\nPokud nic z výše uvedeného nepomůže, je možné, že tato hra/jádro není podporováno vaším zařízením.
     </string>
     <string name="game_loader_error_missing_bios">Vypadá to, že vám chybí požadované BIOS soubory. Vložte je do složky s ROMkami a znovu naskenujte. Vyžadouvané soubory: %1$s</string>
-    <string name="game_shortcut_error">Nastala chyba při načítání vaší hry. Prosím, zkontrolujte, zda tato hra existuje ve vaší knihovně.</string>
     <string name="dialog_saf_not_found">Toto zařízení nepodporuje výběr souborů zapomocí StorageAccessFramework. Prosím, zkopírujte ručně nekomprimované ROM soubory do %1$s a znovu oskenujte.</string>
     <string name="system_grid_details">%1$s her</string>
     <string name="tv_folder_picker_title">Zvolit složku s ROMkami</string>
@@ -151,16 +142,13 @@
     <string name="shortcut_binding_update_description">Stiskněte první, poté druhé tlačítko pro navázání kombinace na \"%1$s\"</string>
     <string name="tv_search_results">Hry</string>
     <string name="tv_game_message_missing_gamepad">Gamepad je zapotřebí k hraní. Prosím připojte nějaký.</string>
-    <string name="game_edit_touch_controls_error_not_visible">Odpojte ovladač pro úpravu dotykového ovládání</string>
     <string name="game_interactory_busy">Vyčkejte pro dokončení zbývajících operací</string>
     <string name="mobile_settings_help">Nápověda</string>
-    <string name="mobile_settings_support">Podpora</string>
     <string name="lemuroid_crash_disclamer">Vypadá to, že jádro od Libretro narazylo na nečekaný problém. Pokud přetrvává zkuste následující:\n
         \n\u2022 Vypněte automatické ukládání a znovu spusťte hru
         \n\u2022 Přejděte do nastavení Androidu a vyčistěte mezipaměť aplikace
         \n\u2022 Přejděte do nastavení Lemuroidu a proveďte reset do továrního nastavení
         \n\u2022Pokud niz z výše uvedeného nepomůže, je možné, že tato hra/jádro není podporováno vaším zařízením.    </string>
-    <string name="error_message_incompatible_state">Tento save state není kompatibilní se současnou verzí jádra. Prosím načtěte nejnovější save nebo použijte předchozí verzi Lemuroidu.</string>
     <string name="shader_filter_names_auto">Automatický</string>
     <string name="shader_filter_names_sharp">Ostrý</string>
     <string name="shader_filter_names_smooth">Hladký</string>

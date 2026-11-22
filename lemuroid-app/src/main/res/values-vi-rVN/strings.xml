@@ -13,7 +13,6 @@
     <string name="none">Không có</string>
     <string name="directory">Thư mục</string>
     <string name="display_filter">Bộ lọc hiển thị</string>
-    <string name="roms">ROM</string>
     <string name="ok">OK</string>
     <string name="cancel">Hủy</string>
     <string name="settings">Cài đặt</string>
@@ -28,7 +27,6 @@
     <string name="settings_title_enable_autosave">Tự động lưu trạng thái</string>
     <string name="settings_description_enable_autosave">Lưu trạng thái khi thoát bằng menu trò chơi</string>
     <string name="settings_title_enable_touch_feedback">Rung khi chạm</string>
-    <string name="settings_title_tilt_sensitivity">Độ nhạy cảm biến nghiêng</string>
     <string name="settings_title_hd_quality">Chất lượng chế độ HD</string>
     <string name="settings_title_maximum_cache_usage">Giới hạn kích thước bộ nhớ đệm</string>
     <string name="settings_title_hd_mode">Chế độ HD</string>
@@ -40,7 +38,6 @@
     <string name="settings_gamepad_category_enabled">Thiết bị đã bật</string>
     <string name="settings_gamepad_category_general">Cài đặt chung</string>
     <string name="settings_gamepad_title_reset_bindings">Đặt lại các liên kết</string>
-    <string name="settings_gamepad_title_game_menu">Menu</string>
     <string name="settings_title_open_cores_selection">Đổi lõi</string>
     <string name="settings_description_open_cores_selection">Chọn xem lõi nào được liên kết với một hệ thống</string>
     <string name="settings_title_display_bios_info">BIOS</string>
@@ -98,7 +95,6 @@
     <string name="game_toast_settings_button_using_gamepad">Đã phát hiện gamepad. Hãy truy cập menu cài đặt bằng %1$s.</string>
     <string name="game_toast_load_state_failed">Không thể tải trạng thái này</string>
     <string name="empty_view_default">Không có mục nào</string>
-    <string name="core_settings_title">Cài đặt của lõi</string>
     <string name="core_settings_category_preferences">Tuỳ chọn</string>
     <string name="core_settings_category_controllers">Điều khiển</string>
     <string name="core_settings_controller">Điều khiển %1$s</string>
@@ -121,7 +117,6 @@
         \n\nNếu tất cả những điều trên không được, thì có thể là Trò chơi/Lõi này không được thiết bị hỗ trợ.
     </string>
     <string name="game_loader_error_missing_bios">Có vẻ như bạn thiếu BIOS được yêu cầu, hãy đặt chúng trong thư mục chứa các ROM của bạn và quét lại. Các tệp được yêu cầu: %1$s</string>
-    <string name="game_shortcut_error">Có gì đó tệ đã xảy ra khi đang tải trò chơi của bạn. Vui lòng đảm bảo rằng trò chơi này vẫn tồn tại trong thư viện của bạn.</string>
     <string name="dialog_saf_not_found">Thiết bị này không hỗ trợ trình chọn tệp StorageAccessFramework. Vui lòng sao chép các tệp ROM đã giải nén vào %1$s theo cách thủ công và nhấn Quét lại.</string>
     <string name="system_grid_details">%1$s trò chơi</string>
     <string name="tv_folder_picker_title">Chọn thư mục chứa ROM</string>
@@ -137,17 +132,14 @@
     <string name="gamepad_binding_update_description">Nhấn một nút trên \"%1$s\" của bạn</string>
     <string name="tv_search_results">Trò chơi</string>
     <string name="tv_game_message_missing_gamepad">Yêu cầu có gamepad để chơi. Vui lòng kết nối một cái.</string>
-    <string name="game_edit_touch_controls_error_not_visible">Ngắt kết nối pad của bạn để chỉnh sửa điều khiển bằng cảm ứng</string>
     <string name="game_interactory_busy">Hãy đợi các hoạt động đang chờ được hoàn tất</string>
     <string name="mobile_settings_help">Trợ giúp</string>
-    <string name="mobile_settings_support">Hỗ trợ</string>
     <string name="lemuroid_crash_disclamer">Có vẻ như lõi Libretro đã gặp một vấn đề không mong đợi. Nếu vấn đề vẫn tiếp diễn thì vui lòng thử những điều sau:\n
         \n\u2022 Tắt tự động lưu và chạy lại trò chơi
         \n\u2022 Đi đến cài đặt của Android và xoá bộ nhớ đệm của ứng dụng
         \n\u2022 Đi đến cài đặt của Lemuroid và thực hiện đặt lại dữ liệu gốc
         \n\nNếu tất cả những điều trên không được, thì có thể là Trò chơi/Lõi này không được thiết bị hỗ trợ.
     </string>
-    <string name="error_message_incompatible_state">Trạng thái lưu này không tương thích với phiên bản lõi hiện tại. Vui lòng tải bản lưu trong trò chơi mới nhất hoặc sử dụng phiên bản Lemuroid trước đó.</string>
     <string name="shader_filter_names_auto">Tự động</string>
     <string name="shader_filter_names_sharp">Sắc nét</string>
     <string name="shader_filter_names_smooth">Mịn</string>

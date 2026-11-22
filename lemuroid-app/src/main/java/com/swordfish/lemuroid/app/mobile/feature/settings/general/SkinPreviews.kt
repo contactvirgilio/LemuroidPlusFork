@@ -408,17 +408,4 @@ private fun MiniShortcut(icon: androidx.compose.ui.graphics.vector.ImageVector) 
 
 private val PREVIEW_SYSTEMS = listOf(SystemID.SNES, SystemID.GBA, SystemID.GENESIS, SystemID.PSX, SystemID.GB, SystemID.N64)
 
-private fun DrawScope.drawTileWall(colors: List<Int>) {
-    val cols = 3
-    val rows = 2
-    val gap = 6.dp.toPx()
-    val w = (size.width - gap * (cols + 1)) / cols
-    val h = (size.height - gap * (rows + 1)) / rows
-    colors.forEachIndexed { i, c ->
-        val x = gap + (i % cols) * (w + gap)
-        val y = gap + (i / cols) * (h + gap)
-        drawRoundRect(Color(c), Offset(x, y), Size(w, h), CornerRadius(5.dp.toPx()))
-    }
-}
-
 private val TEAL = Color(0xFF5DCAA5)

@@ -13,7 +13,6 @@
     <string name="none">Нiчого</string>
     <string name="directory">Каталог</string>
     <string name="display_filter">Відобразити фільтр</string>
-    <string name="roms">Прошивки</string>
     <string name="ok">ОК</string>
     <string name="cancel">Скасувати</string>
     <string name="settings">Налаштування</string>
@@ -28,7 +27,6 @@
     <string name="settings_title_enable_autosave">Стан автозбереження</string>
     <string name="settings_description_enable_autosave">Зберігати стан при виході з ігрового меню</string>
     <string name="settings_title_enable_touch_feedback">Вібрувати при дотику</string>
-    <string name="settings_title_tilt_sensitivity">Чутливість датчика нахилу</string>
     <string name="settings_title_hd_quality">HD якість</string>
     <string name="settings_title_maximum_cache_usage">Обмеження розміру кешу</string>
     <string name="settings_title_hd_mode">HD режим</string>
@@ -42,7 +40,6 @@
     <string name="settings_gamepad_category_enabled">Активні пристрої</string>
     <string name="settings_gamepad_category_general">Загальні</string>
     <string name="settings_gamepad_title_reset_bindings">Скинути прив\'язки клавіш</string>
-    <string name="settings_gamepad_title_game_menu">Меню</string>
     <string name="settings_title_open_cores_selection">Змінити ядра</string>
     <string name="settings_description_open_cores_selection">Виберіть, яке ядро пов’язане з системою</string>
     <string name="settings_title_display_bios_info">БІОС</string>
@@ -88,9 +85,6 @@
     <string name="home_empty_title">Виберіть каталог ROM</string>
     <string name="home_empty_message">Лемуроїд повинен сканувати каталог, що містить ROM файли.\nЦе може зайняти до декількох хвилин.</string>
     <string name="home_empty_action">Виберіть каталог</string>
-    <string name="home_notification_desmume_deprecated_title">DSmuME незабаром вийшло на пенсію</string>
-    <string name="home_notification_desmume_deprecated_message">Заощаджуйте в грі, перемикайтесь на melonDS, і ваш прогрес буде перенесений. Економна держава, яка залишиться прив\'язаною до DeSmuME.</string>
-    <string name="home_notification_desmume_deprecated_action">Перемкнути на динарії</string>
     <string name="game_menu_save">Зберегти</string>
     <string name="game_menu_load">Завантажити</string>
     <string name="game_menu_restart">Перезапуск</string>
@@ -102,14 +96,12 @@
     <string name="game_menu_mute_audio">Вимкнути звук</string>
     <string name="game_menu_fast_forward">Перемотати вперед</string>
     <string name="game_menu_change_disk_disk">Диск %1$s</string>
-    <string name="game_menu_tilt_sensor">Датчик нахилу</string>
     <string name="game_loading_preparing_game">Підготовка гри…</string>
     <string name="game_toast_settings_button_using_gamepad">Виявлено ґеймпад. Доступ до меню налаштувань через %1$s.</string>
     <string name="game_toast_load_state_failed">Не вдається завантажити цей стан</string>
     <string name="game_toast_quick_save_loaded">Швидко завантажити</string>
     <string name="game_toast_quick_save_saved">Швидке збереження</string>
     <string name="empty_view_default">Немає елементів</string>
-    <string name="core_settings_title">Налаштування ядра</string>
     <string name="core_settings_category_preferences">Налаштування</string>
     <string name="core_settings_category_controllers">Контролери</string>
     <string name="core_settings_controller">Контролер %1$s</string>
@@ -132,7 +124,6 @@
         \n\nЯкщо нічого з переліченого не допомогло, може бути що ця гра/ядро не підтримується на вашому приладі.
     </string>
     <string name="game_loader_error_missing_bios">Схоже, що у вас відсутній необхідний BIOS, помістіть його у папку з вашими ROM-ами і повторно проскануйте. Необхідні файли: %1$s</string>
-    <string name="game_shortcut_error">Щось пішло не так під час завантаження вашої гри. Переконайтеся, що ця гра все ще існує у вашій бібліотеці.</string>
     <string name="dialog_saf_not_found">Цей пристрій не підтримує вікно вибору файлів StorageAccessFramework. Будь ласка, скопіюйте розпаковані файли ROM в %1$s і натисніть \"Повторити сканування\".</string>
     <string name="system_grid_details">%1$s ігор</string>
     <string name="tv_folder_picker_title">Вибрати директорію з ROM</string>
@@ -151,18 +142,15 @@
     <string name="shortcut_binding_update_description">Натисніть першою, а потім другу кнопку, щоб пов\'язати комбо на вашому \"%1$s\"</string>
     <string name="tv_search_results">Ігри</string>
     <string name="tv_game_message_missing_gamepad">Для гри потрібен ґеймпад. Будь ласка, під\'єднайте його.</string>
-    <string name="game_edit_touch_controls_error_not_visible">Від\'єднайте ґеймпад для редагування сенсорних кнопок</string>
     <string name="game_interactory_busy">Дочекайтеся завершення операції</string>
     <string name="game_interactor_notification_permission_required">Будь ласка, увімкніть сповіщення з Головної, щоб продовжити</string>
     <string name="mobile_settings_help">Допомога</string>
-    <string name="mobile_settings_support">Підтримка</string>
     <string name="lemuroid_crash_disclamer">Схоже що ядро Libretro отримала неочікувану помилку. Якщо помилка залишається, спробуйте зробити наступне:\n
         \n\u2022 Вимкнути автозбереження і повторно запустити гру
         \n\u2022 В налаштуваннях Android очистити кеш програми
         \n\u2022 В налаштуваннях Лемуроїд виконати Скидання до заводських налаштувань
         \n\nЯкщо нічого з переліченого не допомогло, може бути що ця гра/ядро не підтримується на вашому приладі.
     </string>
-    <string name="error_message_incompatible_state">Цей стан збереження несумісний з поточною версією ядра. Будь ласка, завантажте останню версію в грі, або використовуйте попередню версію Лемуроїд.</string>
     <string name="shader_filter_names_auto">Автоматично</string>
     <string name="shader_filter_names_sharp">Різко</string>
     <string name="shader_filter_names_smooth">Згладжений</string>

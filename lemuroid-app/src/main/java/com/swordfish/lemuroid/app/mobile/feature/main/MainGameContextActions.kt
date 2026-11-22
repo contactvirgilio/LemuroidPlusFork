@@ -242,19 +242,3 @@ private fun ContextActionEntry(
     }
 }
 
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun FakeScrim(modalSheetState: SheetState) {
-    AnimatedVisibility(
-        visible = modalSheetState.targetValue != SheetValue.Hidden,
-        enter = fadeIn(),
-        exit = fadeOut(),
-    ) {
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .background(BottomSheetDefaults.ScrimColor),
-        )
-    }
-}

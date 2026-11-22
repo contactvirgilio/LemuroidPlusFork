@@ -167,23 +167,3 @@ private fun RailItem(
     )
 }
 
-/** Small / large tiles in one button: each tap switches, the icon shows the current size. */
-@Composable
-private fun HomeTileSizeCycleButton() {
-    val context = LocalContext.current
-    val size = rememberHomeTileSize()
-    val next = if (size == HomeTileSize.SMALL) HomeTileSize.LARGE else HomeTileSize.SMALL
-    IconButton(
-        modifier = Modifier.focusHighlight(shape = RoundedCornerShape(16.dp), zoom = 1f),
-        onClick = { HomeTileSizeStore.set(context, next) },
-    ) {
-        Icon(
-            imageVector = if (size == HomeTileSize.SMALL) Icons.Outlined.ViewModule else Icons.Outlined.GridView,
-            contentDescription =
-                stringResource(
-                    if (size == HomeTileSize.SMALL) R.string.games_view_grid_small else R.string.games_view_grid_large,
-                ),
-        )
-    }
-}
-

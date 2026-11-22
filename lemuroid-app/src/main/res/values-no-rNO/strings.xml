@@ -13,7 +13,6 @@
     <string name="none">Ingen</string>
     <string name="directory">Katalog</string>
     <string name="display_filter">Vis filter</string>
-    <string name="roms">ROM</string>
     <string name="ok">OK</string>
     <string name="cancel">Avbryt</string>
     <string name="settings">Innstillinger</string>
@@ -28,7 +27,6 @@
     <string name="settings_title_enable_autosave">Automatisk lagring av tilstand</string>
     <string name="settings_description_enable_autosave">Lagre status når du avslutter via spillmenyen</string>
     <string name="settings_title_enable_touch_feedback">Vibrer ved berøring</string>
-    <string name="settings_title_tilt_sensitivity">Følsomhet for tilt sensor</string>
     <string name="settings_title_hd_quality">HD-modus kvalitet</string>
     <string name="settings_title_maximum_cache_usage">Størrelsesgrense for mellomlager</string>
     <string name="settings_title_hd_mode">HD modus</string>
@@ -42,7 +40,6 @@
     <string name="settings_gamepad_category_enabled">Aktiverte enheter</string>
     <string name="settings_gamepad_category_general">Generelt</string>
     <string name="settings_gamepad_title_reset_bindings">Tilbakestill knappetildelinger</string>
-    <string name="settings_gamepad_title_game_menu">Meny</string>
     <string name="settings_title_open_cores_selection">Endre kjerner</string>
     <string name="settings_description_open_cores_selection">Velg hvilken kjerne som er tilknyttet et system</string>
     <string name="settings_title_display_bios_info">BIOS</string>
@@ -88,9 +85,6 @@
     <string name="home_empty_title">Velg ROM-katalog</string>
     <string name="home_empty_message">Lemuroid trenger å skanne en mappe som inneholder ROM-filer.\nDette kan ta opptil noen få minutter.</string>
     <string name="home_empty_action">Velg mappe</string>
-    <string name="home_notification_desmume_deprecated_title">DeSmuME injeksjonsvæske snart</string>
-    <string name="home_notification_desmume_deprecated_message">Lagre i spillet, bytt til melonDS, og fremgangen din vil fortsette. Lagre stater forblir knyttet til DeSmuME.</string>
-    <string name="home_notification_desmume_deprecated_action">Bytt til melonDS</string>
     <string name="game_menu_save">Lagre</string>
     <string name="game_menu_load">Last inn</string>
     <string name="game_menu_restart">Start på nytt</string>
@@ -102,14 +96,12 @@
     <string name="game_menu_mute_audio">Lydløs</string>
     <string name="game_menu_fast_forward">Spol fremover</string>
     <string name="game_menu_change_disk_disk">Disk %1$s</string>
-    <string name="game_menu_tilt_sensor">Vipp sensor</string>
     <string name="game_loading_preparing_game">Klargjør spill…</string>
     <string name="game_toast_settings_button_using_gamepad">Spillkontroller oppdaget. Gå til innstillings meny med %1$s.</string>
     <string name="game_toast_load_state_failed">Kunne ikke laste inn denne hurtiglagringen</string>
     <string name="game_toast_quick_save_loaded">Hurtig lastet</string>
     <string name="game_toast_quick_save_saved">Rask lagret</string>
     <string name="empty_view_default">Ingen elementer</string>
-    <string name="core_settings_title">Kjerne innstillinger</string>
     <string name="core_settings_category_preferences">Preferanser</string>
     <string name="core_settings_category_controllers">Kontrollere</string>
     <string name="core_settings_controller">Kontroller %1$s</string>
@@ -132,7 +124,6 @@
         \n\n Hvis ingen av de ovennevnte alternativene fungerer, kan det være mulig at dette spillet / kjernen ikke støttes av denne enheten.
     </string>
     <string name="game_loader_error_missing_bios">Det ser ut som om du mangler nødvendig BIOS. Legg dem i ROM-katalogen din og skann på nytt. Påkrevde filer: %1$s</string>
-    <string name="game_shortcut_error">Noe gikk galt mens spillet ble lastet inn. Sørg for at spillet fortsatt eksisterer i biblioteket ditt.</string>
     <string name="dialog_saf_not_found">Denne enheten støtter ikke filvelgeren for tilgangsrammeverk for lagring. Kopier ukomprimerte ROM-filer manuelt til %1$s og trykk Skann på nytt.</string>
     <string name="system_grid_details">%1$s spill</string>
     <string name="tv_folder_picker_title">Velg ROM katalog</string>
@@ -151,17 +142,14 @@
     <string name="shortcut_binding_update_description">Trykk først og så andre-knappen for å binde en combo på din \"%1$s\"</string>
     <string name="tv_search_results">Spill</string>
     <string name="tv_game_message_missing_gamepad">Spillkontroller er påkrevd for å spille. Vennligst koble til en.</string>
-    <string name="game_edit_touch_controls_error_not_visible">Koble fra kontrolleren for å redigere berøringsskjerm-kontrollene dine</string>
     <string name="game_interactory_busy">Vent på at pågående operasjoner fullføres</string>
     <string name="mobile_settings_help">Hjelp</string>
-    <string name="mobile_settings_support">Brukerstøtte</string>
     <string name="lemuroid_crash_disclamer">Det ser ut til at Libretro-kjernen har støtt på et uventet problem. Hvis dette vedvarer, kan du prøve følgende:\n
         \n\u2022 Deaktiver automatisk lagring og start spillet på nytt
         \n\u2022 Gå til Android-innstillinger og tøm appbufferen
         \n\u2022 Gå til Lemuroid-innstillinger og utfør en fabrikkgjenoppretting
         \n\n Hvis ingen av disse fungerer, kan det hende at denne spillkjernen ikke støttes av enheten din.
     </string>
-    <string name="error_message_incompatible_state">Denne lagrede tilstand er ikke kompatibel med gjeldende kjerneversjon. Vennligst last inn den nyeste lagringen inne i spillet, eller bruk en tidligere versjon av Lemuroid.</string>
     <string name="shader_filter_names_auto">Auto</string>
     <string name="shader_filter_names_sharp">Skarp</string>
     <string name="shader_filter_names_smooth">Jevn</string>
