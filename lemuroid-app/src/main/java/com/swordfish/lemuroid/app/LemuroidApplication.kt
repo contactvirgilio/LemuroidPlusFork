@@ -22,6 +22,8 @@ class LemuroidApplication : DaggerApplication(), HasWorkerInjector {
     @SuppressLint("CheckResult")
     override fun onCreate() {
         super.onCreate()
+        // Lemuroid Plus: write a crash log file if anything crashes (costs nothing otherwise).
+        com.swordfish.lemuroid.app.shared.CrashLog.install(this)
 
         val initializeComponent =
             if (isMainProcess()) {

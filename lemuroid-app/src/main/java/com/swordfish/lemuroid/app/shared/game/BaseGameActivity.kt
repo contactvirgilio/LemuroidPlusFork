@@ -99,6 +99,7 @@ abstract class BaseGameActivity : ImmersiveActivity() {
         setUpExceptionsHandler()
         GameService.startService(applicationContext, intent)
         game = intent.getSerializableExtra(EXTRA_GAME) as Game
+        com.swordfish.lemuroid.app.shared.CrashLog.currentGame = "${game.title} (${game.systemId}, ${game.fileName})"
         systemCoreConfig = intent.getSerializableExtra(EXTRA_SYSTEM_CORE_CONFIG) as SystemCoreConfig
         system = GameSystem.findById(game.systemId)
 
@@ -383,6 +384,7 @@ abstract class BaseGameActivity : ImmersiveActivity() {
 
     private fun performUnexpectedErrorFinish(exception: Throwable) {
         Timber.e(exception, "Handling java exception in BaseGameActivity")
+        com.swordfish.lemuroid.app.shared.CrashLog.write(applicationContext, exception, "Game screen")
         if (runsInOwnTask) {
             GameCrashActivity.launch(this, getString(R.string.lemuroid_crash_disclamer), exception.message)
         }
