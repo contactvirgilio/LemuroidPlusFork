@@ -191,6 +191,12 @@ object ButtonMapping {
 
     const val GLOBAL_SHORTCUTS = "sc:all"
 
+    /** Settings > Controls > Shortcuts switch (on by default). */
+    const val SHORTCUTS_ENABLED_KEY = "pref_key_shortcuts_enabled"
+
+    fun shortcutsEnabled(context: Context): Boolean =
+        com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper.getSharedPreferences(context).getBoolean(SHORTCUTS_ENABLED_KEY, true)
+
     fun shortcutsKey(mappingKey: String) = "sc:$mappingKey"
 
     private fun decodeShortcuts(text: String?): Map<Shortcut, Set<Int>>? {
@@ -261,6 +267,7 @@ object ButtonMapping {
             keyCode: Int,
             held: Set<Int>,
         ): Shortcut? {
+            if (!shortcutsEnabled(context)) return null
             apply(keyCode) // refreshes the file if it changed
             return shortcuts.entries.firstOrNull { (_, keys) ->
                 keys.size >= 2 && keyCode in keys && held.containsAll(keys)

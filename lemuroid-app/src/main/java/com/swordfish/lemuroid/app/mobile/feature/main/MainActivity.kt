@@ -1,5 +1,6 @@
 package com.swordfish.lemuroid.app.mobile.feature.main
 
+import com.swordfish.lemuroid.app.mobile.feature.buttonmapping.ShortcutsEditor
 import kotlinx.coroutines.flow.first
 import com.swordfish.lemuroid.app.shared.input.InputKey
 import com.swordfish.lemuroid.app.mobile.feature.buttonmapping.ButtonMappingSettingsScreen
@@ -444,6 +445,16 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
                                             coresSelection,
                                         ),
                                 ),
+                        )
+                    }
+                    composable(MainRoute.SETTINGS_SHORTCUTS) {
+                        ShortcutsEditor(
+                            modifier = Modifier.padding(padding),
+                            translate = { event ->
+                                inputDeviceManager.getInputBindingsObservable().first()(event.device)[InputKey(event.keyCode)]?.keyCode
+                                    ?: event.keyCode
+                            },
+                            onDone = { navController.popBackStack() },
                         )
                     }
                     composable(MainRoute.SETTINGS_BUTTON_MAPPING) {

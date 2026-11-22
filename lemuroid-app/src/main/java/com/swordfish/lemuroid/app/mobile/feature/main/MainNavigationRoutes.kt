@@ -109,6 +109,12 @@ enum class MainRoute(
         parent = SETTINGS,
         showBottomNavigation = false,
     ),
+    SETTINGS_SHORTCUTS(
+        route = "settings/shortcuts",
+        titleId = R.string.settings_title_shortcuts,
+        parent = SETTINGS,
+        showBottomNavigation = false,
+    ),
     SETTINGS_HIDDEN_APPS(
         route = "settings/hiddenapps",
         titleId = R.string.settings_title_hidden_apps,

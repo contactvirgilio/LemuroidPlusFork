@@ -222,6 +222,20 @@ private fun InputSettings(navController: NavController) {
                 subtitle = { Text(text = stringResource(id = R.string.settings_description_button_mapping)) },
                 onClick = { navController.navigateToRoute(MainRoute.SETTINGS_BUTTON_MAPPING) },
             )
+            // Shortcuts switch: on shows "Set shortcuts"; off turns them off in games and hides them.
+            val shortcutsOn = booleanPreferenceState(com.swordfish.lemuroid.app.shared.input.ButtonMapping.SHORTCUTS_ENABLED_KEY, true)
+            LemuroidSettingsSwitch(
+                state = shortcutsOn,
+                title = { Text(text = stringResource(id = R.string.settings_title_shortcuts)) },
+                subtitle = { Text(text = stringResource(id = R.string.settings_description_shortcuts)) },
+            )
+            if (shortcutsOn.value) {
+                LemuroidSettingsMenuLink(
+                    title = { Text(text = stringResource(id = R.string.settings_title_set_shortcuts)) },
+                    subtitle = { Text(text = shortcutsSummary(LocalContext.current)) },
+                    onClick = { navController.navigateToRoute(MainRoute.SETTINGS_SHORTCUTS) },
+                )
+            }
         }
     }
 }
@@ -296,6 +310,15 @@ private fun LibraryLookSettings() {
             title = { Text(text = stringResource(id = R.string.settings_title_navigation_sounds)) },
             subtitle = { Text(text = stringResource(id = R.string.settings_description_navigation_sounds)) },
         )
+    }
+}
+
+/** "Select+Start · Select+R2 · …" for the Set shortcuts row. */
+private fun shortcutsSummary(context: android.content.Context): String {
+    val map = com.swordfish.lemuroid.app.shared.input.ButtonMapping.effectiveShortcuts(context, null, null)
+    return com.swordfish.lemuroid.app.shared.input.ButtonMapping.Shortcut.values().joinToString(" · ") { type ->
+        val keys = map[type].orEmpty().sortedBy { if (it == android.view.KeyEvent.KEYCODE_BUTTON_SELECT) 0 else 1 }
+        if (keys.isEmpty()) "—" else keys.joinToString("+") { com.swordfish.lemuroid.app.shared.input.ButtonMapping.keyName(it) }
     }
 }
 

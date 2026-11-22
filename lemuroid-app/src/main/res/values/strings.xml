@@ -419,4 +419,7 @@
     <string name="game_menu_map_buttons">Map buttons</string>
     <string name="settings_title_app_icon">App icon</string>
     <string name="settings_description_app_icon">The colour of the icon on your home screen. Some launchers take a moment to update it.</string>
+    <string name="settings_title_shortcuts">Shortcuts</string>
+    <string name="settings_description_shortcuts">Button combos for the game menu, fast forward, save and load.</string>
+    <string name="settings_title_set_shortcuts">Set shortcuts</string>
 </resources>

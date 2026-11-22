@@ -150,8 +150,8 @@ fun ButtonMappingSettingsScreen(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        // The shortcuts for every system, as one wide line on top.
-        item(key = "shortcuts", span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) {
+        // The shortcuts for every system, as one wide line on top (only while shortcuts are on).
+        if (ButtonMapping.shortcutsEnabled(context)) item(key = "shortcuts", span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) {
             Row(
                 modifier =
                     Modifier
@@ -233,6 +233,7 @@ fun ButtonMappingEditor(
     var focusedShortcut by remember { mutableStateOf<ButtonMapping.Shortcut?>(null) }
     val captured = remember { mutableStateListOf<Int>() }
     val shortcutsChanged = shortcuts != savedShortcuts
+    val shortcutsOn = remember { ButtonMapping.shortcutsEnabled(context) }
 
     fun sends(button: Int) = map[button] ?: button
 
@@ -412,7 +413,7 @@ fun ButtonMappingEditor(
                     }
                 }
 
-                ShortcutSection(
+                if (shortcutsOn) ShortcutSection(
                     shortcuts = shortcuts,
                     listening = listeningShortcut,
                     captured = captured,
@@ -578,8 +579,8 @@ private fun ShortcutChip(
 
 /** Settings > Button mapping > Shortcuts: the shortcuts for every system. */
 @Composable
-private fun ShortcutsEditor(
-    modifier: Modifier,
+fun ShortcutsEditor(
+    modifier: Modifier = Modifier,
     translate: suspend (KeyEvent) -> Int,
     onDone: () -> Unit,
 ) {
