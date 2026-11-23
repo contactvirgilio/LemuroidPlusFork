@@ -286,7 +286,6 @@
     <string name="game_overlay_skin_title">Moldura %1$d de %2$d</string>
     <string name="game_skin_off">OLED</string>
     <string name="game_skin_glow_plus">Brilho+</string>
-    <string name="game_skin_glow">Brilho</string>
     <string name="game_skin_teal">Azul-petróleo</string>
     <string name="game_skin_purple">Roxo</string>
     <string name="game_skin_yellow">Amarelo</string>

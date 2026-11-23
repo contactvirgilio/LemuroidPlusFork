@@ -377,7 +377,7 @@ class BaseGameScreenViewModel(
 
     fun getRuntimeProfile(): StateFlow<GameDisplayOptions.Companion.Profile?> = runtimeProfile
 
-    // Only OLED and Glow unless shell skins are on in Settings, or while the picture's shape is
+    // Only OLED and Glow+ unless shell skins are on in Settings, or while the picture's shape is
     // still unknown (a colour has to hug the picture).
     private fun lookCount(): Int =
         if (!GameShellSkin.isEnabled(appContext) || pictureAspectRatio() == null) GameShellSkin.BASIC_COUNT else GameShellSkin.count
@@ -386,7 +386,7 @@ class BaseGameScreenViewModel(
         MutableStateFlow(
             GameShellSkin.load(appContext, game).let {
                 // A colour saved for a game whose shape comes later (arcade) is applied once known.
-                if (it >= GameShellSkin.count || (it >= GameShellSkin.BASIC_COUNT && !GameShellSkin.isEnabled(appContext))) GameShellSkin.GLOW else it
+                if (it >= GameShellSkin.count || (it >= GameShellSkin.BASIC_COUNT && !GameShellSkin.isEnabled(appContext))) GameShellSkin.GLOW_PLUS else it
             },
         )
 
@@ -395,10 +395,10 @@ class BaseGameScreenViewModel(
     /** Shape of the game picture (width / height), or null when it varies (arcade). */
     fun pictureAspectRatio(): Float? = scalingProfile?.aspectRatio
 
-    /** The look around the picture: Off, Glow, or a shell colour (see [GameShellSkin]). */
+    /** The look around the picture: Off, Glow+, or a shell colour (see [GameShellSkin]). */
     fun getLook(): StateFlow<Int> = lookState
 
-    /** Next look for this game: Off, Glow, Teal, ...; applies at once and is remembered for the game. */
+    /** Next look for this game: Off, Glow+, Teal, ...; applies at once and is remembered for the game. */
     fun toggleImmersive() {
         val count = lookCount()
         val next = (lookState.value + 1) % count
