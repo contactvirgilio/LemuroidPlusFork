@@ -153,8 +153,13 @@ class BaseGameScreenViewModel(
     private inline fun withLoading(block: () -> Unit) {
         loadingState.value = true
         block()
+        autoSaveTimerRestart = true
         loadingState.value = false
     }
+
+    /** Set after a load, save or restart, so the timed auto-save starts its 5 minutes again. */
+    @Volatile
+    private var autoSaveTimerRestart = false
 
     fun getGameState(): Flow<GameViewModelRetroGameView.GameState> {
         return retroGameView.getGameState()
@@ -776,7 +781,15 @@ class BaseGameScreenViewModel(
             var lastAutoSaveAt = 0L
             while (true) {
                 delay(AUTO_SAVE_TICK_MILLIS)
-                if (!gameResumed || loadingState.value) continue
+                if (!gameResumed) continue
+                // A load, save or restart just happened: start the 5 minutes again, so the game
+                // doesn't auto-save (and flash) right after you load.
+                if (loadingState.value || autoSaveTimerRestart) {
+                    autoSaveTimerRestart = false
+                    playedMillis = 0L
+                    lastAutoSaveAt = android.os.SystemClock.uptimeMillis()
+                    continue
+                }
                 playedMillis += AUTO_SAVE_TICK_MILLIS
                 if (playedMillis < AUTO_SAVE_INTERVAL_MILLIS) continue
                 if (lastPlayerInputAt <= lastAutoSaveAt) continue
