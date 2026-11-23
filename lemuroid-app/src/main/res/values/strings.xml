@@ -438,4 +438,5 @@
     <string name="menu_gamepad_hint">A  Choose        B  Back        ◀ ▶ ▲ ▼  Move</string>
     <string name="game_filter_sunlit">Sunlit</string>
     <string name="game_filter_lcd_sunlit">LCD + Sunlit</string>
+    <string name="menu_option_reduce_slowdown">Reduce slowdown</string>
 </resources>

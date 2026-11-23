@@ -381,6 +381,8 @@ private val MENU_CORE_OPTIONS =
         "wswan_rotate_display" to R.string.menu_option_rotate,
         // Frameskip
         "pcsx_rearmed_frameskip" to R.string.menu_option_frameskip,
+        "snes9x_overclock_cycles" to R.string.menu_option_reduce_slowdown,
+        "bsnes_cpu_overclock" to R.string.menu_option_reduce_slowdown,
         "ppsspp_frameskip" to R.string.menu_option_frameskip,
         "ppsspp_auto_frameskip" to R.string.menu_option_auto_frameskip,
         "fbneo-frameskip" to R.string.menu_option_frameskip,

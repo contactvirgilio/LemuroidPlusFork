@@ -385,4 +385,5 @@
     <string name="menu_gamepad_hint">A  Elegir        B  Atrás        ◀ ▶ ▲ ▼  Moverse</string>
     <string name="game_filter_sunlit">Luz solar</string>
     <string name="game_filter_lcd_sunlit">LCD + luz solar</string>
+    <string name="menu_option_reduce_slowdown">Reducir ralentizaciones</string>
 </resources>
