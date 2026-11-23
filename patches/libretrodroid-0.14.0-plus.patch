@@ -88,7 +88,7 @@ index 50f066e..7634c65 100644
      int blendFramebufferCurrent = 0;
  };
 diff --git a/libretrodroid/src/main/cpp/libretrodroid.cpp b/libretrodroid/src/main/cpp/libretrodroid.cpp
-index 60640c4..0de9246 100644
+index 60640c4..319610f 100644
 --- a/libretrodroid/src/main/cpp/libretrodroid.cpp
 +++ b/libretrodroid/src/main/cpp/libretrodroid.cpp
 @@ -19,6 +19,7 @@
@@ -132,7 +132,7 @@ index 60640c4..0de9246 100644
  }
  
  float LibretroDroid::findDefaultAspectRatio(const retro_system_av_info& system_av_info) {
-@@ -643,6 +656,30 @@ void LibretroDroid::setViewport(Rect viewportRect) {
+@@ -643,6 +656,36 @@ void LibretroDroid::setViewport(Rect viewportRect) {
      }
  }
  
@@ -152,6 +152,12 @@ index 60640c4..0de9246 100644
 +    }
 +}
 +
++bool LibretroDroid::captureRawFrame(std::vector<int32_t>& argb, int& width, int& height, int& quarterTurns) {
++    if (!video) return false;
++    quarterTurns = video->getQuarterTurns();
++    return video->captureRawFrame(argb, width, height);
++}
++
 +void LibretroDroid::setImmersivePlus(bool enabled) {
 +    immersivePlus = enabled;
 +
@@ -164,7 +170,7 @@ index 60640c4..0de9246 100644
      this-> viewportAlignment = viewportAlignment;
  
 diff --git a/libretrodroid/src/main/cpp/libretrodroid.h b/libretrodroid/src/main/cpp/libretrodroid.h
-index b507aee..11bbbf4 100644
+index b507aee..fd610ba 100644
 --- a/libretrodroid/src/main/cpp/libretrodroid.h
 +++ b/libretrodroid/src/main/cpp/libretrodroid.h
 @@ -108,6 +108,10 @@ public:
@@ -178,7 +184,7 @@ index b507aee..11bbbf4 100644
  
      bool requiresVideoRefresh() const;
      void clearRequiresVideoRefresh();
-@@ -134,6 +138,11 @@ public:
+@@ -134,6 +138,12 @@ public:
  
      void setViewportAlignment(unsigned int viewportAlignment);
  
@@ -186,11 +192,12 @@ index b507aee..11bbbf4 100644
 +
 +    void setImmersiveModeEnabled(bool enabled);
 +    void setImmersivePlus(bool enabled);
++    bool captureRawFrame(std::vector<int32_t>& argb, int& width, int& height, int& quarterTurns);
 +
      void resetGlobalVariables();
  
      // Handle callbacks
-@@ -171,9 +180,13 @@ private:
+@@ -171,9 +181,13 @@ private:
      int openglESVersion = 2;
      bool skipDuplicateFrames = false;
      bool immersiveModeEnabled = false;
@@ -205,10 +212,10 @@ index b507aee..11bbbf4 100644
  
      std::mutex coreLock;
 diff --git a/libretrodroid/src/main/cpp/libretrodroidjni.cpp b/libretrodroid/src/main/cpp/libretrodroidjni.cpp
-index 2ec15cf..8119f8b 100644
+index 2ec15cf..eff491d 100644
 --- a/libretrodroid/src/main/cpp/libretrodroidjni.cpp
 +++ b/libretrodroid/src/main/cpp/libretrodroidjni.cpp
-@@ -599,6 +599,30 @@ JNIEXPORT void JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_setViewpor
+@@ -599,6 +599,49 @@ JNIEXPORT void JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_setViewpor
      LibretroDroid::getInstance().setViewportAlignment(viewportAlignment);
  }
  
@@ -228,6 +235,25 @@ index 2ec15cf..8119f8b 100644
 +    LibretroDroid::getInstance().setImmersiveModeEnabled(enabled);
 +}
 +
++// Lemuroid Plus: [width, height, quarter turns, pixels...] of the game's own picture, or null.
++JNIEXPORT jintArray JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_captureRawFrame(
++    JNIEnv* env,
++    jclass obj
++) {
++    std::vector<int32_t> argb;
++    int width = 0;
++    int height = 0;
++    int quarterTurns = 0;
++    if (!LibretroDroid::getInstance().captureRawFrame(argb, width, height, quarterTurns)) return nullptr;
++    jsize size = (jsize) argb.size() + 3;
++    jintArray result = env->NewIntArray(size);
++    if (result == nullptr) return nullptr;
++    jint header[3] = { width, height, quarterTurns };
++    env->SetIntArrayRegion(result, 0, 3, header);
++    env->SetIntArrayRegion(result, 3, (jsize) argb.size(), argb.data());
++    return result;
++}
++
 +JNIEXPORT void JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_setImmersivePlus(
 +    JNIEnv* env,
 +    jclass obj,
@@ -239,7 +265,7 @@ index 2ec15cf..8119f8b 100644
  JNIEXPORT void JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_refreshAspectRatio(
      JNIEnv* env,
      jclass obj
-@@ -608,4 +632,21 @@ JNIEXPORT void JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_refreshAsp
+@@ -608,4 +651,21 @@ JNIEXPORT void JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_refreshAsp
  
  }
  
@@ -260,6 +286,39 @@ index 2ec15cf..8119f8b 100644
 +    return LibretroDroid::getInstance().getAspectRatio();
 +}
 +
+ }
+diff --git a/libretrodroid/src/main/cpp/renderers/es3/imagerendereres3.cpp b/libretrodroid/src/main/cpp/renderers/es3/imagerendereres3.cpp
+index eaa2343..b31b87f 100644
+--- a/libretrodroid/src/main/cpp/renderers/es3/imagerendereres3.cpp
++++ b/libretrodroid/src/main/cpp/renderers/es3/imagerendereres3.cpp
+@@ -99,6 +99,7 @@ void ImageRendererES3::setPixelFormat(int pixelFormat) {
+             this->glType = GL_UNSIGNED_BYTE;
+             this->bytesPerPixel = 4;
+             this->swapRedAndBlueChannels = true;
++            this->swapRedBlueOnRead = true;
+             break;
+ 
+         default:
+@@ -109,6 +110,7 @@ void ImageRendererES3::setPixelFormat(int pixelFormat) {
+             this->glType = GL_UNSIGNED_SHORT_5_6_5;
+             this->bytesPerPixel = 2;
+             this->swapRedAndBlueChannels = false;
++            this->swapRedBlueOnRead = false;
+             break;
+     }
+ }
+diff --git a/libretrodroid/src/main/cpp/renderers/renderer.h b/libretrodroid/src/main/cpp/renderers/renderer.h
+index dc8e5a9..4f748d1 100644
+--- a/libretrodroid/src/main/cpp/renderers/renderer.h
++++ b/libretrodroid/src/main/cpp/renderers/renderer.h
+@@ -50,6 +50,8 @@ public:
+ 
+ public:
+     std::pair<int, int> lastFrameSize;
++    // Lemuroid Plus: the texture holds blue in the red channel (fixed by a swizzle when drawing).
++    bool swapRedBlueOnRead = false;
+ };
+ 
  }
 diff --git a/libretrodroid/src/main/cpp/shadermanager.cpp b/libretrodroid/src/main/cpp/shadermanager.cpp
 index b853a6a..8dc1b12 100644
@@ -512,7 +571,7 @@ index 4407e8b..7783e67 100644
      static const std::string cutUpscaleVertex;
      static const std::string cutUpscaleFragment;
 diff --git a/libretrodroid/src/main/cpp/video.cpp b/libretrodroid/src/main/cpp/video.cpp
-index a75dbaf..f444252 100644
+index a75dbaf..bd15e28 100644
 --- a/libretrodroid/src/main/cpp/video.cpp
 +++ b/libretrodroid/src/main/cpp/video.cpp
 @@ -131,6 +131,8 @@ void Video::updateProgram() {
@@ -536,7 +595,7 @@ index a75dbaf..f444252 100644
          glDrawArrays(GL_TRIANGLES, 0, 6);
  
          glDisableVertexAttribArray(shader.gvPositionHandle);
-@@ -217,6 +224,17 @@ float Video::getScreenDensity() {
+@@ -217,6 +224,63 @@ float Video::getScreenDensity() {
      return std::min(videoLayout.getScreenWidth() / getTextureWidth(), videoLayout.getScreenHeight() / getTextureHeight());
  }
  
@@ -551,10 +610,65 @@ index a75dbaf..f444252 100644
 +    return { std::max(width / textureWidth, 1.0F), std::max(height / textureHeight, 1.0F) };
 +}
 +
++// Lemuroid Plus: reads the game's texture before any filter, for save pictures. Runs on the GL thread.
++bool Video::captureRawFrame(std::vector<int32_t>& argb, int& width, int& height) {
++    if (!renderer) return false;
++    width = renderer->lastFrameSize.first;
++    height = renderer->lastFrameSize.second;
++    if (width <= 0 || height <= 0) return false;
++
++    GLint previous = 0;
++    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &previous);
++    GLuint fbo = 0;
++    glGenFramebuffers(1, &fbo);
++    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
++    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, (GLuint) renderer->getTexture(), 0);
++    bool ok = glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
++    std::vector<uint8_t> rgba;
++    if (ok) {
++        rgba.resize((size_t) width * height * 4);
++        glPixelStorei(GL_PACK_ALIGNMENT, 4);
++        glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, rgba.data());
++        ok = glGetError() == GL_NO_ERROR;
++    }
++    glBindFramebuffer(GL_FRAMEBUFFER, previous);
++    glDeleteFramebuffers(1, &fbo);
++    if (!ok) return false;
++
++    bool swap = renderer->swapRedBlueOnRead;
++    argb.resize((size_t) width * height);
++    for (int y = 0; y < height; y++) {
++        // Hardware-rendered games draw upside down (bottom-left origin).
++        int sourceRow = rawBottomLeftOrigin ? height - 1 - y : y;
++        const uint8_t* in = rgba.data() + (size_t) sourceRow * width * 4;
++        int32_t* out = argb.data() + (size_t) y * width;
++        for (int x = 0; x < width; x++) {
++            uint32_t r = in[x * 4], g = in[x * 4 + 1], b = in[x * 4 + 2];
++            if (swap) std::swap(r, b);
++            out[x] = (int32_t) (0xFF000000u | (r << 16) | (g << 8) | b);
++        }
++    }
++    return true;
++}
++
++int Video::getQuarterTurns() {
++    int turns = (int) std::lround(videoLayout.getRotation() / (M_PI / 2.0));
++    return ((turns % 4) + 4) % 4;
++}
++
  float Video::getTextureWidth() {
      return renderer->lastFrameSize.first;
  }
-@@ -316,4 +334,19 @@ void Video::updateAspectRatio(float aspectRatio) {
+@@ -270,6 +334,8 @@ Video::Video(
+     immersiveMode(immersiveModeConfig),
+     videoLayout(bottomLeftOrigin, rotation, viewportRect, viewportAlignment) {
+ 
++    rawBottomLeftOrigin = bottomLeftOrigin;
++
+     printGLString("Version", GL_VERSION);
+     printGLString("Vendor", GL_VENDOR);
+     printGLString("Renderer", GL_RENDERER);
+@@ -316,4 +382,19 @@ void Video::updateAspectRatio(float aspectRatio) {
      videoLayout.updateAspectRatio(aspectRatio);
  }
  
@@ -575,10 +689,18 @@ index a75dbaf..f444252 100644
 +
  } //namespace libretrodroid
 diff --git a/libretrodroid/src/main/cpp/video.h b/libretrodroid/src/main/cpp/video.h
-index 05bd6b6..b1c423a 100644
+index 05bd6b6..19272f2 100644
 --- a/libretrodroid/src/main/cpp/video.h
 +++ b/libretrodroid/src/main/cpp/video.h
-@@ -50,6 +50,8 @@ public:
+@@ -18,6 +18,7 @@
+ #ifndef LIBRETRODROID_VIDEO_H
+ #define LIBRETRODROID_VIDEO_H
+ 
++#include <vector>
+ #include <GLES2/gl2.h>
+ #include <optional>
+ #include <array>
+@@ -50,6 +51,8 @@ public:
          GLint gTextureHandle = 0;
          GLint gPreviousPassTextureHandle = 0;
          GLint gScreenDensityHandle = 0;
@@ -587,17 +709,20 @@ index 05bd6b6..b1c423a 100644
          GLint gTextureSizeHandle = 0;
      };
  
-@@ -68,6 +70,9 @@ public:
+@@ -68,6 +71,12 @@ public:
      VideoLayout& getLayout() { return videoLayout; }
  
      void updateAspectRatio(float aspectRatio);
 +    void updateStretch(bool stretch);
 +    void setImmersiveModeEnabled(bool enabled);
 +    void setImmersivePlus(bool enabled);
++    // Lemuroid Plus: the game's own picture (no filter), as ARGB pixels at the game's resolution.
++    bool captureRawFrame(std::vector<int32_t>& argb, int& width, int& height);
++    int getQuarterTurns();
      void updateScreenSize(unsigned screenWidth, unsigned screenHeight);
      void updateViewportSize(Rect viewportRect);
      void updateViewportAlignment(unsigned int viewportAlignment);
-@@ -91,6 +96,7 @@ private:
+@@ -91,12 +100,14 @@ private:
      void updateProgram();
  
      float getScreenDensity();
@@ -605,6 +730,13 @@ index 05bd6b6..b1c423a 100644
      float getTextureWidth();
      float getTextureHeight();
  
+     void initializeRenderer(RenderingOptions renderingOptions);
+ 
+ private:
++    bool rawBottomLeftOrigin = false;
+     ShaderManager::Config requestedShaderConfig = ShaderManager::Config {
+         ShaderManager::Type::SHADER_DEFAULT
+     };
 diff --git a/libretrodroid/src/main/cpp/videolayout.cpp b/libretrodroid/src/main/cpp/videolayout.cpp
 index 8b89326..167223d 100644
 --- a/libretrodroid/src/main/cpp/videolayout.cpp
@@ -631,10 +763,19 @@ index 8b89326..167223d 100644
      LOGD("Updated aspect ratio to : %f", aspectRatio);
  
 diff --git a/libretrodroid/src/main/cpp/videolayout.h b/libretrodroid/src/main/cpp/videolayout.h
-index e567388..5f4fc9b 100644
+index e567388..8b715d2 100644
 --- a/libretrodroid/src/main/cpp/videolayout.h
 +++ b/libretrodroid/src/main/cpp/videolayout.h
-@@ -42,6 +42,9 @@ public:
+@@ -30,6 +30,8 @@ namespace libretrodroid {
+ 
+ class VideoLayout {
+ public:
++    // Lemuroid Plus: the core's rotation in radians (counter-clockwise quarter turns).
++    float getRotation() const { return rotation; }
+     VideoLayout(bool bottomLeftOrigin, float rotation, Rect viewportRect, unsigned int viewportAlignment);
+ 
+     void updateAspectRatio(float aspectRatio);
+@@ -42,6 +44,9 @@ public:
  
      void updateRotation(float rotation);
  
@@ -644,7 +785,7 @@ index e567388..5f4fc9b 100644
      std::array<float, 12>& getForegroundVertices() { return foregroundVertices; }
      std::array<float, 12>& getBackgroundVertices() { return backgroundVertices; }
      std::array<float, 12>& getFramebufferVertices() { return framebufferVertices; }
-@@ -55,6 +58,8 @@ public:
+@@ -55,6 +60,8 @@ public:
      std::pair<float, float> getRelativePosition(float touchX, float touchY);
  
  private:
@@ -654,7 +795,7 @@ index e567388..5f4fc9b 100644
  
      void updateForegroundVertices();
 diff --git a/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt b/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt
-index 7eb8602..94f19d6 100644
+index 7eb8602..531cd88 100644
 --- a/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt
 +++ b/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt
 @@ -71,6 +71,21 @@ class GLRetroView(
@@ -679,7 +820,44 @@ index 7eb8602..94f19d6 100644
      private val openGLESVersion: Int
  
      private var isGameLoaded = false
-@@ -413,6 +428,27 @@ class GLRetroView(
+@@ -247,6 +262,36 @@ class GLRetroView(
+         }
+     }
+ 
++    /**
++     * Lemuroid Plus: the game's own picture at its own resolution, before any filter or layout,
++     * for save pictures, turned upright like on screen. [callback] runs on the GL thread with null
++     * if it couldn't be read.
++     */
++    fun captureRawFrame(callback: (android.graphics.Bitmap?) -> Unit) {
++        queueEvent {
++            val data = runCatching { LibretroDroid.captureRawFrame() }.getOrNull()
++            val bitmap =
++                if (data == null || data.size < 3 || data[0] <= 0 || data[1] <= 0) {
++                    null
++                } else {
++                    runCatching {
++                        val raw =
++                            android.graphics.Bitmap.createBitmap(
++                                data, 3, data[0], data[0], data[1], android.graphics.Bitmap.Config.ARGB_8888,
++                            )
++                        if (data[2] == 0) {
++                            raw
++                        } else {
++                            // The core asks for counter-clockwise quarter turns (vertical arcade games).
++                            val matrix = android.graphics.Matrix().apply { postRotate(-90f * data[2]) }
++                            android.graphics.Bitmap.createBitmap(raw, 0, 0, raw.width, raw.height, matrix, false)
++                        }
++                    }.getOrNull()
++                }
++            callback(bitmap)
++        }
++    }
++
+     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+         val mappedKey = GamepadsManager.getGamepadKeyEvent(keyCode)
+         val port = (event?.device?.controllerNumber ?: 0) - 1
+@@ -413,6 +458,27 @@ class GLRetroView(
              is ShaderConfig.CRT -> GLRetroShader(LibretroDroid.SHADER_CRT)
              is ShaderConfig.LCD -> GLRetroShader(LibretroDroid.SHADER_LCD)
              is ShaderConfig.Sharp -> GLRetroShader(LibretroDroid.SHADER_SHARP)
@@ -708,7 +886,7 @@ index 7eb8602..94f19d6 100644
                  LibretroDroid.SHADER_UPSCALE_CUT,
                  buildParams(
 diff --git a/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java b/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java
-index 50eafa1..8d595b9 100644
+index 50eafa1..5ead3c0 100644
 --- a/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java
 +++ b/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java
 @@ -37,6 +37,21 @@ public class LibretroDroid {
@@ -733,7 +911,7 @@ index 50eafa1..8d595b9 100644
  
      public static final String SHADER_UPSCALE_CUT_PARAM_USE_DYNAMIC_BLEND = "USE_DYNAMIC_BLEND";
      public static final String SHADER_UPSCALE_CUT_PARAM_BLEND_MIN_CONTRAST_EDGE = "BLEND_MIN_CONTRAST_EDGE";
-@@ -139,6 +154,19 @@ public class LibretroDroid {
+@@ -139,6 +154,22 @@ public class LibretroDroid {
  
      public static native void refreshAspectRatio();
  
@@ -749,6 +927,9 @@ index 50eafa1..8d595b9 100644
 +    public static native void setImmersiveModeEnabled(boolean enabled);
 +
 +    public static native void setImmersivePlus(boolean enabled);
++
++    // Lemuroid Plus: [width, height, quarter turns, ARGB pixels...] of the game's own picture (no filter), or null.
++    public static native int[] captureRawFrame();
 +
      public static native Controller[][] getControllers();
      public static native void setControllerType(int port, int type);

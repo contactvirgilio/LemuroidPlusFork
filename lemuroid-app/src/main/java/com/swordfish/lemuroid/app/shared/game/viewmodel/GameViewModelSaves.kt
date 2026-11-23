@@ -18,7 +18,9 @@ import com.swordfish.lemuroid.lib.saves.StatesPreviewManager
 import com.swordfish.libretrodroid.GLRetroView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
 import kotlin.math.roundToInt
 
@@ -152,7 +154,82 @@ class GameViewModelSaves(
         return systemCoreConfig.statesSupported
     }
 
+    /**
+     * The game's own picture (no filter, no layout), refreshed every few seconds while playing, so
+     * saves made after the game left the screen (Home, screen lock) still get a picture.
+     */
+    @Volatile
+    private var lastRawFrame: Bitmap? = null
+
+    /** Reads the game's own picture from the emulator (no filter). Null if the view isn't running. */
+    private suspend fun captureRawFrame(): Bitmap? {
+        val gameView = retroGameView.retroGameView ?: return null
+        val frame =
+            withTimeoutOrNull(RAW_FRAME_TIMEOUT_MILLIS) {
+                suspendCancellableCoroutine<Bitmap?> { cont ->
+                    gameView.captureRawFrame { bitmap -> if (cont.isActive) cont.resumeWith(Result.success(bitmap)) }
+                }
+            }
+        if (frame != null) lastRawFrame = frame
+        return frame
+    }
+
+    /** Called every few seconds while the game is on screen. */
+    suspend fun refreshRawFrame() {
+        runCatching { captureRawFrame() }
+    }
+
+    /** Auto-save picture for saves made in the background, from the last frame seen while playing. */
+    suspend fun writeAutoSavePreviewFromLastFrame() {
+        val frame = lastRawFrame ?: return
+        runCatching {
+            val preview = withContext(Dispatchers.Default) { sharpPreview(frame) }
+            statesPreviewManager.setPreviewForSlot(game, preview, systemCoreConfig.coreID, GameMenuContract.AUTO_SLOT)
+        }.onFailure { Timber.w(it, "Auto-save picture from the last frame failed") }
+    }
+
+    // DS with one screen shown: the game's own picture has both screens, so use the screen capture.
+    private fun rawFrameFits(): Boolean = !(system.id == com.swordfish.lemuroid.lib.library.SystemID.NDS && com.swordfish.lemuroid.app.shared.game.DsSingleScreen.active)
+
+    /**
+     * Save picture from the game's own pixels, enlarged with crisp square pixels (whole-number
+     * enlargement, then a smooth shrink to the preview size) and the system's screen shape.
+     */
+    private fun sharpPreview(frame: Bitmap): Bitmap {
+        val sizeInDp = StatesPreviewManager.PREVIEW_SIZE_DP
+        val previewSize = GraphicsUtils.convertDpToPixel(sizeInDp, appContext).roundToInt().coerceAtLeast(16)
+        val aspect =
+            GamePreviewCropper.aspectRatioFor(system.id)
+                ?: if (frame.width >= frame.height) 4f / 3f else 3f / 4f
+        val width: Int
+        val height: Int
+        if (aspect >= 1f) {
+            width = previewSize
+            height = (previewSize / aspect).roundToInt().coerceAtLeast(1)
+        } else {
+            height = previewSize
+            width = (previewSize * aspect).roundToInt().coerceAtLeast(1)
+        }
+        val factor =
+            maxOf(
+                1,
+                kotlin.math.ceil(maxOf(width.toFloat() / frame.width, height.toFloat() / frame.height)).toInt(),
+            )
+        val enlarged =
+            if (factor == 1) frame else Bitmap.createScaledBitmap(frame, frame.width * factor, frame.height * factor, false)
+        return Bitmap.createScaledBitmap(enlarged, width, height, true)
+    }
+
     private suspend fun takeScreenshotPreview(index: Int) {
+        // Preferred: the game's own picture, with no filter (owner, 2026-11-23).
+        if (rawFrameFits()) {
+            val frame = runCatching { captureRawFrame() }.getOrNull()
+            if (frame != null) {
+                val preview = withContext(Dispatchers.Default) { sharpPreview(frame) }
+                statesPreviewManager.setPreviewForSlot(game, preview, systemCoreConfig.coreID, index)
+                return
+            }
+        }
         val gameView = retroGameView.retroGameView ?: return
         val sizeInDp = StatesPreviewManager.PREVIEW_SIZE_DP
         val previewSize = GraphicsUtils.convertDpToPixel(sizeInDp, appContext).roundToInt()
@@ -248,4 +325,5 @@ class GameViewModelSaves(
 }
 
 private const val SCREENSHOT_ATTEMPTS = 4
+private const val RAW_FRAME_TIMEOUT_MILLIS = 600L
 private const val SCREENSHOT_RETRY_MILLIS = 150L

@@ -672,6 +672,8 @@ class BaseGameScreenViewModel(
             runCatching {
                 val snapshot = saves.captureSaveSnapshot(false)
                 saves.writeSaveSnapshot(snapshot)
+                // The game is off screen: its picture comes from the last frame seen while playing.
+                if (snapshot?.autoSave != null) saves.writeAutoSavePreviewFromLastFrame()
             }.onFailure { Timber.e(it, "Save before closing the game failed") }
             sideEffects.requestSuccessfulFinish()
         }
@@ -682,6 +684,8 @@ class BaseGameScreenViewModel(
         GameService.schedule {
             val snapshot = saves.captureSaveSnapshot(false)
             saves.writeSaveSnapshot(snapshot)
+            // The game is off screen: its picture comes from the last frame seen while playing.
+            if (snapshot?.autoSave != null) saves.writeAutoSavePreviewFromLastFrame()
         }
     }
 
@@ -779,9 +783,12 @@ class BaseGameScreenViewModel(
         viewModelScope.launch {
             var playedMillis = 0L
             var lastAutoSaveAt = 0L
+            var ticks = 0
             while (true) {
                 delay(AUTO_SAVE_TICK_MILLIS)
                 if (!gameResumed) continue
+                // Keep a recent copy of the game's picture for saves made off screen (Home, lock).
+                if (++ticks % RAW_FRAME_EVERY_TICKS == 0 && !loadingState.value) saves.refreshRawFrame()
                 // A load, save or restart just happened: start the 5 minutes again, so the game
                 // doesn't auto-save (and flash) right after you load.
                 if (loadingState.value || autoSaveTimerRestart) {
@@ -812,6 +819,7 @@ class BaseGameScreenViewModel(
     companion object {
         private val FAST_FORWARD_SPEEDS = listOf(1, 2)
         private const val AUTO_SAVE_TICK_MILLIS = 1_000L
+        private const val RAW_FRAME_EVERY_TICKS = 3
         private const val RUNTIME_SIZE_POLL_MILLIS = 500L
         const val CORE_PICTURE_SIZE_KEY = "pref_key_core_picture_size"
         private const val AUTO_SAVE_INTERVAL_MILLIS = 5 * 60_000L
