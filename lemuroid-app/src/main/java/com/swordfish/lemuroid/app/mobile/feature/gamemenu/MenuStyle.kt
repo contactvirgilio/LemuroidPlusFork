@@ -112,7 +112,7 @@ fun MenuCard(
             if (LocalMenuHasGamepad.current) {
                 Text(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 22.dp, vertical = 10.dp),
-                    text = "A  Choose        B  Back        ◀ ▶ ▲ ▼  Select",
+                    text = androidx.compose.ui.res.stringResource(com.swordfish.lemuroid.R.string.menu_gamepad_hint),
                     color = MenuColors.Title,
                     fontSize = 12.sp,
                 )

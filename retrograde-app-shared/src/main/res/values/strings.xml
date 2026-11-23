@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="local_storage">Local Storage</string>
+    <string name="local_storage">This device</string>
 
     <string name="controller_arcade_4">Default (4 buttons)</string>
     <string name="controller_arcade_6">Default (6 buttons)</string>
@@ -9,137 +9,137 @@
     <string name="controller_genesis_6">Default (6 buttons)</string>
 
     <string name="controller_default">Default</string>
-    <string name="controller_dualshock">DualShock</string>
+    <string name="controller_dualshock">DualShock (with sticks)</string>
     <string name="controller_standard">Standard</string>
     <string name="controller_landscape">Landscape</string>
     <string name="controller_portrait">Portrait</string>
 
     <string name="controller_dos_auto">Auto</string>
-    <string name="controller_dos_mouse_left">Mouse with Left Stick</string>
-    <string name="controller_dos_mouse_right">Mouse with Right Stick</string>
+    <string name="controller_dos_mouse_left">Mouse on left stick</string>
+    <string name="controller_dos_mouse_right">Mouse on right stick</string>
 
     <!-- Core settings titles -->
     <string name="setting_stella_filter">TV effect</string>
-    <string name="setting_stella_crop_hoverscan">Crop horizontal overscan</string>
-    <string name="setting_fceumm_overscan_h">Crop horizontal overscan</string>
-    <string name="setting_fceumm_overscan_v">Crop vertical overscan</string>
-    <string name="setting_fceumm_nospritelimit">No sprite limit</string>
+    <string name="setting_stella_crop_hoverscan">Crop sides</string>
+    <string name="setting_fceumm_overscan_h">Crop sides</string>
+    <string name="setting_fceumm_overscan_v">Crop top and bottom</string>
+    <string name="setting_fceumm_nospritelimit">No sprite flicker</string>
     <string name="setting_genesis_plus_gx_blargg_ntsc_filter">TV effect</string>
-    <string name="setting_genesis_plus_gx_overscan">Borders</string>
+    <string name="setting_genesis_plus_gx_overscan">Show edges</string>
     <string name="setting_genesis_plus_gx_lcd_filter">Motion blur (like the real screen)</string>
-    <string name="setting_genesis_plus_gx_no_sprite_limit">No sprite limit</string>
+    <string name="setting_genesis_plus_gx_no_sprite_limit">No sprite flicker</string>
     <string name="setting_gambatte_gb_colorization">Colorization</string>
-    <string name="setting_gambatte_gb_internal_palette">Internal palette</string>
+    <string name="setting_gambatte_gb_internal_palette">Built-in palette</string>
     <string name="setting_gambatte_mix_frames">Motion blur (like the real screen)</string>
     <string name="setting_gambatte_dark_filter_level">Darken screen</string>
     <string name="setting_gambatte_gbc_color_correction">Color correction</string>
-    <string name="setting_mgba_solar_sensor_level">Solar sensor level</string>
+    <string name="setting_mgba_solar_sensor_level">Sunlight level</string>
     <string name="setting_mgba_interframe_blending">Motion blur (like the real screen)</string>
-    <string name="setting_mgba_frameskip">Frameskip</string>
+    <string name="setting_mgba_frameskip">Skip frames (faster)</string>
     <string name="setting_mgba_color_correction">Color correction</string>
-    <string name="setting_mupen64plus_43screensize">Screen size 4:3</string>
-    <string name="setting_mupen64plus_cpucore">Dynamic recompiler</string>
-    <string name="setting_mupen64plus_BilinearMode">Bilinear mode</string>
-    <string name="setting_mupen64plus_pak1">Player 1 Pak</string>
-    <string name="setting_mupen64plus_pak2">Player 2 Pak</string>
-    <string name="setting_pcsx_rearmed_frameskip">Frameskip</string>
-    <string name="setting_pcsx_rearmed_drc">Dynamic recompiler</string>
-    <string name="setting_ppsspp_auto_frameskip">Auto frameskip</string>
-    <string name="setting_ppsspp_frameskip">Frameskip</string>
-    <string name="setting_ppsspp_cpu_core">Dynamic recompiler</string>
-    <string name="setting_ppsspp_internal_resolution">Resolution</string>
-    <string name="setting_ppsspp_texture_scaling_level">Texture scaling level</string>
-    <string name="setting_ppsspp_texture_scaling_type">Texture scaling type</string>
-    <string name="setting_ppsspp_texture_filtering">Texture filtering</string>
-    <string name="setting_fbneo_frameskip">Frameskip</string>
-    <string name="setting_fbneo_cpu_speed_adjust">CPU speed</string>
+    <string name="setting_mupen64plus_43screensize">Classic 4:3 screen size</string>
+    <string name="setting_mupen64plus_cpucore">Speed boost</string>
+    <string name="setting_mupen64plus_BilinearMode">Texture smoothing</string>
+    <string name="setting_mupen64plus_pak1">Player 1 add-on</string>
+    <string name="setting_mupen64plus_pak2">Player 2 add-on</string>
+    <string name="setting_pcsx_rearmed_frameskip">Skip frames (faster)</string>
+    <string name="setting_pcsx_rearmed_drc">Speed boost</string>
+    <string name="setting_ppsspp_auto_frameskip">Skip frames when slow</string>
+    <string name="setting_ppsspp_frameskip">Skip frames (faster)</string>
+    <string name="setting_ppsspp_cpu_core">Speed boost</string>
+    <string name="setting_ppsspp_internal_resolution">Picture detail</string>
+    <string name="setting_ppsspp_texture_scaling_level">Texture sharpening level</string>
+    <string name="setting_ppsspp_texture_scaling_type">Texture sharpening style</string>
+    <string name="setting_ppsspp_texture_filtering">Texture smoothing</string>
+    <string name="setting_fbneo_frameskip">Skip frames (faster)</string>
+    <string name="setting_fbneo_cpu_speed_adjust">Game speed</string>
     <string name="setting_desmume_screens_layout">Screens layout</string>
-    <string name="setting_desmume_frameskip">Frameskip</string>
+    <string name="setting_desmume_frameskip">Skip frames (faster)</string>
     <string name="setting_melonds_screen_layout">Screens layout</string>
-    <string name="setting_melonds_threaded_renderer">Threaded renderer</string>
-    <string name="setting_melonds_jit_enable">Dynamic recompiler</string>
+    <string name="setting_melonds_threaded_renderer">Faster drawing</string>
+    <string name="setting_melonds_jit_enable">Speed boost</string>
     <string name="setting_melonds_mic_input">Microphone mode</string>
-    <string name="setting_wswan_rotate_display">Orientation</string>
+    <string name="setting_wswan_rotate_display">Hold the console</string>
     <string name="setting_wswan_mono_palette">Colorization</string>
-    <string name="setting_handy_rot">Display rotation</string>
+    <string name="setting_handy_rot">Rotate screen</string>
     <string name="setting_citra_layout_option">Screens layout</string>
-    <string name="setting_citra_resolution_factor">Resolution scaling</string>
-    <string name="setting_citra_use_acc_mul">Accurate shaders multiplication</string>
-    <string name="setting_citra_use_acc_geo_shaders">Accurate geometry shaders</string>
+    <string name="setting_citra_resolution_factor">Picture detail</string>
+    <string name="setting_citra_use_acc_mul">More accurate lighting (slower)</string>
+    <string name="setting_citra_use_acc_geo_shaders">More accurate effects (slower)</string>
 
     <!-- Core settings values. Duplicated here to ease the translation process. -->
-    <string name="value_gambatte_mix_frames_disabled">Disabled</string>
+    <string name="value_gambatte_mix_frames_disabled">Off</string>
     <string name="value_gambatte_mix_frames_mix">Light</string>
     <string name="value_gambatte_mix_frames_lcd_ghosting">Real screen (accurate)</string>
     <string name="value_gambatte_mix_frames_lcd_ghosting_fast">Real screen (fast)</string>
-    <string name="value_gambatte_gbc_color_correction_always">Enabled</string>
-    <string name="value_gambatte_gbc_color_correction_disabled">Disabled</string>
+    <string name="value_gambatte_gbc_color_correction_always">On</string>
+    <string name="value_gambatte_gbc_color_correction_disabled">Off</string>
 
-    <string name="value_mgba_interframe_blending_off">Disabled</string>
+    <string name="value_mgba_interframe_blending_off">Off</string>
     <string name="value_mgba_interframe_blending_mix">Light</string>
     <string name="value_mgba_interframe_blending_lcd_ghosting">Real screen (accurate)</string>
     <string name="value_mgba_interframe_blending_lcd_ghosting_fast">Real screen (fast)</string>
 
-    <string name="value_mgba_frameskip_disabled">Disabled</string>
+    <string name="value_mgba_frameskip_disabled">Off</string>
     <string name="value_mgba_frameskip_auto">Auto</string>
 
-    <string name="value_mgba_color_correction_off">Disabled</string>
-    <string name="value_mgba_color_correction_gba">Enabled</string>
+    <string name="value_mgba_color_correction_off">Off</string>
+    <string name="value_mgba_color_correction_gba">On</string>
 
-    <string name="value_stella_filter_disabled">Disabled</string>
-    <string name="value_stella_filter_composite">Composite</string>
+    <string name="value_stella_filter_disabled">Off</string>
+    <string name="value_stella_filter_composite">Composite (softest)</string>
     <string name="value_stella_filter_svideo">S-Video</string>
-    <string name="value_stella_filter_rgb">RGB</string>
+    <string name="value_stella_filter_rgb">RGB (sharpest)</string>
     <string name="value_stella_filter_badlyadjusted">Badly adjusted</string>
 
-    <string name="value_genesis_plus_gx_blargg_ntsc_filter_disabled">Disabled</string>
-    <string name="value_genesis_plus_gx_blargg_ntsc_filter_monochrome">Monochrome</string>
-    <string name="value_genesis_plus_gx_blargg_ntsc_filter_composite">Composite</string>
+    <string name="value_genesis_plus_gx_blargg_ntsc_filter_disabled">Off</string>
+    <string name="value_genesis_plus_gx_blargg_ntsc_filter_monochrome">Black and white</string>
+    <string name="value_genesis_plus_gx_blargg_ntsc_filter_composite">Composite (softest)</string>
     <string name="value_genesis_plus_gx_blargg_ntsc_filter_svideo">S-Video</string>
-    <string name="value_genesis_plus_gx_blargg_ntsc_filter_rgb">RGB</string>
+    <string name="value_genesis_plus_gx_blargg_ntsc_filter_rgb">RGB (sharpest)</string>
 
-    <string name="value_genesis_plus_gx_overscan_disabled">Disabled</string>
-    <string name="value_genesis_plus_gx_overscan_topbottom">Top/Bottom</string>
-    <string name="value_genesis_plus_gx_overscan_leftright">Left/Right</string>
-    <string name="value_genesis_plus_gx_overscan_full">Full</string>
+    <string name="value_genesis_plus_gx_overscan_disabled">Off</string>
+    <string name="value_genesis_plus_gx_overscan_topbottom">Top and bottom</string>
+    <string name="value_genesis_plus_gx_overscan_leftright">Sides</string>
+    <string name="value_genesis_plus_gx_overscan_full">All edges</string>
 
-    <string name="value_mupen64plus_cpucore_dynamicrecompiler">Dynamic recompiler</string>
-    <string name="value_mupen64plus_cpucore_pureinterpreter">Pure interpreter</string>
-    <string name="value_mupen64plus_cpucore_cachedinterpreter">Cached interpreter</string>
+    <string name="value_mupen64plus_cpucore_dynamicrecompiler">Fast (best)</string>
+    <string name="value_mupen64plus_cpucore_pureinterpreter">Slow (works with everything)</string>
+    <string name="value_mupen64plus_cpucore_cachedinterpreter">Medium</string>
 
     <string name="value_mupen64plus_bilinearmode_standard">Standard</string>
-    <string name="value_mupen64plus_bilinearmode_3point">3-Point</string>
+    <string name="value_mupen64plus_bilinearmode_3point">3-point (like a real N64)</string>
 
-    <string name="value_mupen64plus_mupen64plus_pak1_memory">Memory</string>
-    <string name="value_mupen64plus_mupen64plus_pak1_rumble">Rumble</string>
+    <string name="value_mupen64plus_mupen64plus_pak1_memory">Memory card</string>
+    <string name="value_mupen64plus_mupen64plus_pak1_rumble">Rumble pack</string>
     <string name="value_mupen64plus_mupen64plus_pak1_none">None</string>
 
     <string name="value_mupen64plus_mupen64plus_pak2_none">None</string>
-    <string name="value_mupen64plus_mupen64plus_pak2_rumble">Rumble</string>
+    <string name="value_mupen64plus_mupen64plus_pak2_rumble">Rumble pack</string>
 
     <string name="value_ds_screens_layout_single">Single screen (R2 swaps)</string>
-    <string name="value_melonds_screen_layout_topbottom">Top - Bottom</string>
-    <string name="value_melonds_screen_layout_leftright">Left - Right</string>
-    <string name="value_melonds_screen_layout_hybridtop">Hybrid Top</string>
-    <string name="value_melonds_screen_layout_hybridbottom">Hybrid Bottom</string>
+    <string name="value_melonds_screen_layout_topbottom">Top and bottom</string>
+    <string name="value_melonds_screen_layout_leftright">Side by side</string>
+    <string name="value_melonds_screen_layout_hybridtop">Top screen larger</string>
+    <string name="value_melonds_screen_layout_hybridbottom">Bottom screen larger</string>
     <string name="value_melonds_mic_input_microphone">Real microphone</string>
-    <string name="value_melonds_mic_input_blow">Simulate blow sounds</string>
+    <string name="value_melonds_mic_input_blow">Pretend blowing (no mic needed)</string>
 
-    <string name="value_citra_layout_option_topbottom">Top - Bottom</string>
-    <string name="value_citra_layout_option_sidebyside">Left - Right</string>
+    <string name="value_citra_layout_option_topbottom">Top and bottom</string>
+    <string name="value_citra_layout_option_sidebyside">Side by side</string>
 
-    <string name="value_desmume_screens_layout_topbottom">Top - Bottom</string>
-    <string name="value_desmume_screens_layout_leftright">Left - Right</string>
+    <string name="value_desmume_screens_layout_topbottom">Top and bottom</string>
+    <string name="value_desmume_screens_layout_leftright">Side by side</string>
 
-    <string name="value_ppsspp_cpu_core_jit">JIT</string>
-    <string name="value_ppsspp_cpu_core_irjit">IR JIT</string>
-    <string name="value_ppsspp_cpu_core_interpreter">Interpreter</string>
+    <string name="value_ppsspp_cpu_core_jit">Fast (best)</string>
+    <string name="value_ppsspp_cpu_core_irjit">Fast, works with more games</string>
+    <string name="value_ppsspp_cpu_core_interpreter">Slow (works with everything)</string>
 
-    <string name="value_wswan_rotate_display_landscape">Landscape</string>
-    <string name="value_wswan_rotate_display_portrait">Portrait</string>
+    <string name="value_wswan_rotate_display_landscape">Horizontal</string>
+    <string name="value_wswan_rotate_display_portrait">Vertical</string>
 
-    <string name="value_handy_rot_none">0</string>
-    <string name="value_handy_rot_90">90</string>
-    <string name="value_handy_rot_270">270</string>
+    <string name="value_handy_rot_none">None</string>
+    <string name="value_handy_rot_90">90°</string>
+    <string name="value_handy_rot_270">270°</string>
 
 </resources>

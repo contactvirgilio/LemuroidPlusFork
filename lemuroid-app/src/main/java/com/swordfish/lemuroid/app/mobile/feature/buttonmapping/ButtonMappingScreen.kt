@@ -37,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -165,8 +166,8 @@ fun ButtonMappingSettingsScreen(
             ) {
                 ShortcutChip(ButtonMapping.Shortcut.MENU, 26.dp)
                 Column(modifier = Modifier.padding(start = 12.dp)) {
-                    Text(text = "Shortcuts", fontSize = 14.sp, color = TEXT)
-                    Text(text = "Game menu, fast forward, save and load · all systems", fontSize = 11.sp, color = MUTED)
+                    Text(text = stringResource(com.swordfish.lemuroid.R.string.settings_title_shortcuts), fontSize = 14.sp, color = TEXT)
+                    Text(text = stringResource(com.swordfish.lemuroid.R.string.bm_shortcuts_line_text), fontSize = 11.sp, color = MUTED)
                 }
             }
         }
@@ -190,7 +191,7 @@ fun ButtonMappingSettingsScreen(
                     spec.buttons.filter { it.kind == Kind.ROUND && !it.dualShockOnly }.take(6).forEach { ButtonChip(it, size = 18.dp) }
                 }
                 Text(text = spec.name, fontSize = 13.sp, color = TEXT, modifier = Modifier.padding(top = 8.dp))
-                if (edited) Text(text = "edited", fontSize = 11.sp, color = TEAL)
+                if (edited) Text(text = stringResource(com.swordfish.lemuroid.R.string.bm_edited), fontSize = 11.sp, color = TEAL)
             }
         }
     }
@@ -353,14 +354,14 @@ fun ButtonMappingEditor(
                     },
         ) {
             Text(
-                text = "Map buttons · ${spec.name}",
+                text = stringResource(com.swordfish.lemuroid.R.string.bm_title, spec.name),
                 fontSize = 16.sp,
                 color = TEXT,
                 modifier = Modifier.fillMaxWidth().padding(16.dp, 12.dp, 16.dp, 4.dp),
             )
             Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 26.dp, vertical = 4.dp)) {
-                Text(text = "${spec.name} button", fontSize = 11.sp, color = MUTED, modifier = Modifier.weight(1f))
-                Text(text = "Your button", fontSize = 11.sp, color = MUTED)
+                Text(text = stringResource(com.swordfish.lemuroid.R.string.bm_system_button, spec.name), fontSize = 11.sp, color = MUTED, modifier = Modifier.weight(1f))
+                Text(text = stringResource(com.swordfish.lemuroid.R.string.bm_your_button), fontSize = 11.sp, color = MUTED)
             }
 
             Column(
@@ -401,7 +402,7 @@ fun ButtonMappingEditor(
                         }
                         Box(modifier = Modifier.weight(1f))
                         when {
-                            isListening -> Text(text = "Press a button… $secondsLeft", fontSize = 13.sp, color = GOLD)
+                            isListening -> Text(text = stringResource(com.swordfish.lemuroid.R.string.bm_press, secondsLeft), fontSize = 13.sp, color = GOLD)
                             sources.isEmpty() -> Text(text = "—", fontSize = 14.sp, color = MUTED)
                             else ->
                                 Text(
@@ -427,7 +428,7 @@ fun ButtonMappingEditor(
             }
 
             Row(modifier = Modifier.fillMaxWidth().padding(16.dp, 8.dp, 16.dp, 12.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                listOf("A" to "Change", "Y" to "Unbind", "X" to "Reset all", "B" to "Leave").forEach { (key, label) ->
+                listOf("A" to stringResource(com.swordfish.lemuroid.R.string.bm_key_change), "Y" to stringResource(com.swordfish.lemuroid.R.string.bm_key_clear), "X" to stringResource(com.swordfish.lemuroid.R.string.bm_key_reset_all), "B" to stringResource(com.swordfish.lemuroid.R.string.bm_key_back)).forEach { (key, label) ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(modifier = Modifier.border(1.dp, CHIP_GREY).padding(horizontal = 4.dp)) {
                             Text(text = key, fontSize = 11.sp, color = Color(0xFFC9C8D2))
@@ -446,12 +447,15 @@ fun ButtonMappingEditor(
                     modifier = Modifier.fillMaxWidth(0.8f).background(Color(0xFF111417)).border(1.dp, TILE_BORDER).padding(14.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    Text(text = "Save changes?", fontSize = 15.sp, color = TEXT, modifier = Modifier.padding(bottom = 4.dp))
+                    Text(text = stringResource(com.swordfish.lemuroid.R.string.bm_save_prompt), fontSize = 15.sp, color = TEXT, modifier = Modifier.padding(bottom = 4.dp))
+                    val saveSystemLabel = stringResource(com.swordfish.lemuroid.R.string.bm_save_system, spec.name)
+                    val saveGameLabel = stringResource(com.swordfish.lemuroid.R.string.bm_save_game)
+                    val discardLabel = stringResource(com.swordfish.lemuroid.R.string.bm_discard)
                     val options =
                         buildList {
-                            add("Save for ${spec.name}" to { saveSystem() })
-                            if (fileName != null) add("Save for this game" to { saveGame() })
-                            add("Discard" to { onDone() })
+                            add(saveSystemLabel to { saveSystem() })
+                            if (fileName != null) add(saveGameLabel to { saveGame() })
+                            add(discardLabel to { onDone() })
                         }
                     options.forEachIndexed { i, (label, action) ->
                         Box(
@@ -486,7 +490,7 @@ private fun ShortcutSection(
     onFocus: (ButtonMapping.Shortcut) -> Unit,
     onPick: (ButtonMapping.Shortcut) -> Unit,
 ) {
-    Text(text = "SHORTCUTS", fontSize = 11.sp, letterSpacing = 1.5.sp, color = AMBER, modifier = Modifier.padding(top = 12.dp, bottom = 2.dp, start = 2.dp))
+    Text(text = stringResource(com.swordfish.lemuroid.R.string.settings_title_shortcuts).uppercase(), fontSize = 11.sp, letterSpacing = 1.5.sp, color = AMBER, modifier = Modifier.padding(top = 12.dp, bottom = 2.dp, start = 2.dp))
     ButtonMapping.Shortcut.values().forEach { type ->
         val keys = shortcuts[type].orEmpty()
         val isListening = listening == type
@@ -505,11 +509,11 @@ private fun ShortcutSection(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             ShortcutChip(type, 26.dp)
-            Text(text = shortcutName(type), fontSize = 14.sp, color = TEXT, modifier = Modifier.padding(start = 10.dp).weight(1f))
+            Text(text = stringResource(shortcutName(type)), fontSize = 14.sp, color = TEXT, modifier = Modifier.padding(start = 10.dp).weight(1f))
             when {
                 isListening ->
                     Text(
-                        text = if (captured.isEmpty()) "Hold two buttons… $secondsLeft" else captured.joinToString(" + ") { ButtonMapping.keyName(it) },
+                        text = if (captured.isEmpty()) stringResource(com.swordfish.lemuroid.R.string.sc_hold_two, secondsLeft) else captured.joinToString(" + ") { ButtonMapping.keyName(it) },
                         fontSize = 13.sp,
                         color = GOLD,
                     )
@@ -522,10 +526,10 @@ private fun ShortcutSection(
 
 private fun shortcutName(type: ButtonMapping.Shortcut) =
     when (type) {
-        ButtonMapping.Shortcut.MENU -> "Game menu"
-        ButtonMapping.Shortcut.FAST_FORWARD -> "Fast forward"
-        ButtonMapping.Shortcut.SAVE_STATE -> "Save state"
-        ButtonMapping.Shortcut.LOAD_MENU -> "Load menu"
+        ButtonMapping.Shortcut.MENU -> com.swordfish.lemuroid.R.string.sc_menu
+        ButtonMapping.Shortcut.FAST_FORWARD -> com.swordfish.lemuroid.R.string.sc_fast_forward
+        ButtonMapping.Shortcut.SAVE_STATE -> com.swordfish.lemuroid.R.string.sc_quick_save
+        ButtonMapping.Shortcut.LOAD_MENU -> com.swordfish.lemuroid.R.string.sc_open_saves
     }
 
 /** Keys of a combo in small boxes: Select + R1. Select is listed first. */
@@ -646,8 +650,8 @@ fun ShortcutsEditor(
                     }
                     .padding(16.dp),
         ) {
-            Text(text = "Shortcuts · all systems", fontSize = 16.sp, color = TEXT, modifier = Modifier.padding(bottom = 4.dp))
-            Text(text = "Hold the buttons together. A system or a game can have its own in its button list.", fontSize = 11.sp, color = MUTED)
+            Text(text = stringResource(com.swordfish.lemuroid.R.string.sc_title), fontSize = 16.sp, color = TEXT, modifier = Modifier.padding(bottom = 4.dp))
+            Text(text = stringResource(com.swordfish.lemuroid.R.string.sc_hint), fontSize = 11.sp, color = MUTED)
             ShortcutSection(
                 shortcuts = shortcuts,
                 listening = listening,
@@ -665,13 +669,15 @@ fun ShortcutsEditor(
                     modifier = Modifier.fillMaxWidth(0.8f).background(Color(0xFF111417)).border(1.dp, TILE_BORDER).padding(14.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
-                    Text(text = "Save changes?", fontSize = 15.sp, color = TEXT, modifier = Modifier.padding(bottom = 4.dp))
+                    Text(text = stringResource(com.swordfish.lemuroid.R.string.bm_save_prompt), fontSize = 15.sp, color = TEXT, modifier = Modifier.padding(bottom = 4.dp))
+                    val saveAllLabel = stringResource(com.swordfish.lemuroid.R.string.sc_save_all)
+                    val discardLabel = stringResource(com.swordfish.lemuroid.R.string.bm_discard)
                     listOf(
-                        "Save for all systems" to {
+                        saveAllLabel to {
                             ButtonMapping.setShortcuts(context, ButtonMapping.GLOBAL_SHORTCUTS, shortcuts)
                             onDone()
                         },
-                        "Discard" to { onDone() },
+                        discardLabel to { onDone() },
                     ).forEachIndexed { i, (label, action) ->
                         Box(
                             modifier =
