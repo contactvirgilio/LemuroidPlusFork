@@ -448,7 +448,7 @@ class BaseGameScreenViewModel(
 
     fun getOverlayCards(): Flow<OverlayCard?> = overlayCardState
 
-    private val displayOptions = GameDisplayOptions(sharedPreferences, system.id)
+    private val displayOptions = GameDisplayOptions(sharedPreferences, system.id, game.id)
 
     // Null until the game view exists, or when an HD mode shader (not in the list) is active.
     private val filterState = MutableStateFlow<GameDisplayOptions.Filter?>(null)

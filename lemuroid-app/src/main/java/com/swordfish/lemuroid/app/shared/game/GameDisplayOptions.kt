@@ -15,9 +15,14 @@ import kotlin.math.min
  * Filter and scaling picked with the in-game buttons. Both are remembered per system, so a
  * filter chosen for SNES is used again the next time any SNES game starts.
  */
+/**
+ * Filter and scaling. Per game since 2026-11-23 (owner): a game you change keeps its own choice;
+ * games you haven't changed start from the system's choice saved before that.
+ */
 class GameDisplayOptions(
     private val sharedPreferences: SharedPreferences,
     private val systemId: SystemID,
+    private val gameId: Int? = null,
 ) {
     enum class Filter(
         @StringRes val labelRes: Int,
@@ -98,7 +103,7 @@ class GameDisplayOptions(
         }
 
     fun savedFilter(): Filter? {
-        val name = sharedPreferences.getString(key(FILTER_KEY), null) ?: return null
+        val name = saved(FILTER_KEY) ?: return null
         // The old CRT filter was removed (owner, 2026-11-19): Scanlines 25% replaces it.
         if (name == "CRT") return Filter.SCAN_25
         val filter = Filter.values().firstOrNull { it.name == name }
@@ -107,21 +112,29 @@ class GameDisplayOptions(
     }
 
     fun saveFilter(filter: Filter) {
-        sharedPreferences.edit().putString(key(FILTER_KEY), filter.name).apply()
+        sharedPreferences.edit().putString(saveKey(FILTER_KEY), filter.name).apply()
     }
 
     fun savedScaling(): Scaling {
-        val name = sharedPreferences.getString(key(SCALING_KEY), null)
+        val name = saved(SCALING_KEY)
         // "Integer -1" was removed (owner, 2026-11-18): it becomes Integer.
         if (name == "INTEGER_SMALLER") return Scaling.INTEGER
         return Scaling.values().firstOrNull { it.name == name } ?: Scaling.FIT
     }
 
     fun saveScaling(scaling: Scaling) {
-        sharedPreferences.edit().putString(key(SCALING_KEY), scaling.name).apply()
+        sharedPreferences.edit().putString(saveKey(SCALING_KEY), scaling.name).apply()
     }
 
     private fun key(base: String) = "${base}_${systemId.dbname}"
+
+    private fun gameKey(base: String) = gameId?.let { "${base}_game_$it" }
+
+    // This game's choice, else the system's.
+    private fun saved(base: String): String? =
+        gameKey(base)?.let { sharedPreferences.getString(it, null) } ?: sharedPreferences.getString(key(base), null)
+
+    private fun saveKey(base: String) = gameKey(base) ?: key(base)
 
     companion object {
         private const val FILTER_KEY = "pref_key_game_button_filter"
