@@ -60,13 +60,16 @@ fun CenterCard(
                 .padding(horizontal = 22.dp, vertical = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(
-            text = title.uppercase(),
-            color = CARD_TITLE,
-            fontSize = 11.sp,
-            letterSpacing = 1.2.sp,
-            textAlign = TextAlign.Center,
-        )
+        // No title: a one-line card (e.g. "Resuming").
+        if (title.isNotBlank()) {
+            Text(
+                text = title.uppercase(),
+                color = CARD_TITLE,
+                fontSize = 11.sp,
+                letterSpacing = 1.2.sp,
+                textAlign = TextAlign.Center,
+            )
+        }
         Row(verticalAlignment = Alignment.CenterVertically) {
             if (swatch != null) {
                 Box(

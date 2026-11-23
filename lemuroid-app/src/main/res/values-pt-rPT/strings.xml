@@ -304,7 +304,7 @@
     <string name="game_card_quick_save_saved">Guardado</string>
     <string name="game_card_quick_save_loaded">Carregado</string>
     <string name="game_card_auto_save_title">Gravação automática</string>
-    <string name="game_card_auto_save_resumed">Continuou onde parou</string>
+    <string name="game_card_auto_save_resumed">A retomar</string>
     <string name="game_card_wait_title">Aguarde</string>
     <string name="game_card_closing_previous">A guardar e fechar o outro jogo…</string>
     <string name="game_card_running_title">Jogo a correr</string>

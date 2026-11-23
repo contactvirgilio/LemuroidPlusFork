@@ -357,7 +357,7 @@
     <string name="game_card_quick_save_saved">Saved</string>
     <string name="game_card_quick_save_loaded">Loaded</string>
     <string name="game_card_auto_save_title">Auto save</string>
-    <string name="game_card_auto_save_resumed">Picked up where you left off</string>
+    <string name="game_card_auto_save_resumed">Resuming</string>
     <string name="game_card_wait_title">Please wait</string>
     <string name="game_card_closing_previous">Saving and closing the other game…</string>
     <string name="game_card_running_title">Game running</string>

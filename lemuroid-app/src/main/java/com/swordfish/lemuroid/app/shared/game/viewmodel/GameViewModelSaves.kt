@@ -124,10 +124,8 @@ class GameViewModelSaves(
         try {
             retroGameView.waitGLEvent<GLRetroView.GLRetroEvents.FrameRendered>()
             if (restoreQuickSave(saveState)) {
-                sideEffects.showCard(
-                    appContext.getString(R.string.game_card_auto_save_title),
-                    appContext.getString(R.string.game_card_auto_save_resumed),
-                )
+                // Just "Resuming" (owner, 2026-11-23).
+                sideEffects.showCard("", appContext.getString(R.string.game_card_auto_save_resumed))
             }
         } catch (e: Throwable) {
             Timber.e(e, "Error while loading auto-save")
