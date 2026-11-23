@@ -99,11 +99,9 @@ private fun mediaFor(game: Game): Media {
         SystemID.NES -> Media(R.drawable.media_nes, R.drawable.media_nes_label, true)
         SystemID.SNES -> Media(R.drawable.media_snes, R.drawable.media_snes_label, true)
         SystemID.GENESIS -> Media(R.drawable.media_genesis, R.drawable.media_genesis_label, true)
-        // No label (owner, 2026-11-23): the label area is plain shell, so colours paint it too.
-        // The labelled carts are kept in art/carts-with-labels.
-        SystemID.GB -> Media(R.drawable.media_gb, null, true)
-        SystemID.GBC -> Media(R.drawable.media_gbc, null, true)
-        SystemID.GBA -> Media(R.drawable.media_gba, null, true)
+        SystemID.GB -> Media(R.drawable.media_gb, R.drawable.media_gb_label, true)
+        SystemID.GBC -> Media(R.drawable.media_gbc, R.drawable.media_gbc_label, true)
+        SystemID.GBA -> Media(R.drawable.media_gba, R.drawable.media_gba_label, true)
         SystemID.N64 -> Media(R.drawable.media_n64, R.drawable.media_n64_label, true)
         SystemID.SMS -> Media(R.drawable.media_sms, null, true)
         SystemID.PSP -> Media(R.drawable.media_psp)
