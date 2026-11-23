@@ -383,4 +383,6 @@
     <string name="sc_save_all">Guardar para todos os sistemas</string>
     <string name="sc_hold_two">Mantenha dois botões premidos… %1$d</string>
     <string name="menu_gamepad_hint">A  Escolher        B  Voltar        ◀ ▶ ▲ ▼  Mover</string>
+    <string name="game_filter_sunlit">Luz do sol</string>
+    <string name="game_filter_lcd_sunlit">LCD + luz do sol</string>
 </resources>

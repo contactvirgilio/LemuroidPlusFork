@@ -462,7 +462,7 @@ class BaseGameScreenViewModel(
         val gameView = retroGameView.retroGameView ?: return
         val filters = displayOptions.filters()
         val next = filters[(filters.indexOf(filterState.value) + 1) % filters.size]
-        gameView.shader = next.shader
+        gameView.shader = next.shaderFor(system.id)
         filterState.value = next
         displayOptions.saveFilter(next)
         overlayCardState.value =
@@ -573,13 +573,13 @@ class BaseGameScreenViewModel(
             val gameView = retroGameView.retroGameViewFlow()
             val saved = displayOptions.savedFilter()
             if (saved != null) {
-                gameView.shader = saved.shader
+                gameView.shader = saved.shaderFor(system.id)
                 filterState.value = saved
             } else {
                 val fromSettings = GameDisplayOptions.Filter.fromShader(gameView.shader)
                 // No LCD outside GB/GBC/GBA: Sharp instead.
-                if (fromSettings == GameDisplayOptions.Filter.LCD && fromSettings !in displayOptions.filters()) {
-                    gameView.shader = GameDisplayOptions.Filter.SHARP.shader
+                if (fromSettings != null && fromSettings !in displayOptions.filters()) {
+                    gameView.shader = GameDisplayOptions.Filter.SHARP.shaderFor(system.id)
                     filterState.value = GameDisplayOptions.Filter.SHARP
                 } else {
                     filterState.value = fromSettings

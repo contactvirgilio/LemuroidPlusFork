@@ -262,10 +262,10 @@ index 2ec15cf..8119f8b 100644
 +
  }
 diff --git a/libretrodroid/src/main/cpp/shadermanager.cpp b/libretrodroid/src/main/cpp/shadermanager.cpp
-index b853a6a..e3fe3b0 100644
+index b853a6a..b611094 100644
 --- a/libretrodroid/src/main/cpp/shadermanager.cpp
 +++ b/libretrodroid/src/main/cpp/shadermanager.cpp
-@@ -125,6 +125,73 @@ const std::string ShaderManager::lcdShaderFragment =
+@@ -125,6 +125,189 @@ const std::string ShaderManager::lcdShaderFragment =
      "  gl_FragColor = vec4(mix(texel, mix(pixelLow, pixelHigh, mask), screenMaskStrength), 1.0);\n"
      "}\n";
  
@@ -336,13 +336,134 @@ index b853a6a..e3fe3b0 100644
 +    "  gl_FragColor = vec4(min(color, vec3(1.0)), 1.0);\n"
 +    "}\n";
 +
++// Lemuroid Plus: handheld LCD (Game Boy, Game Boy Color, GBA) and Sunlit.
++// GRID: every pixel gap is exactly one screen pixel wide (a screen pixel is a gap when a cell edge
++// falls inside it), so the grid looks the same at whole and uneven scales; it fades out below ~3x.
++// GAP_LIGHT: Game Boy style light-grey gaps (else darker gaps for colour screens). SOFT_X: Game Boy
++// Color style blend with the side neighbour near the cell's left and right edges. PIX_SHADOW: faint
++// Game Boy pixel shadow down-right. SUBPIX: faint RGB stripes inside each cell (GBA).
++// SUNLIT: the screen is lit from the front like an unlit Game Boy Color in sunlight: dark and
++// colourful pixels cast a soft shadow down-right onto a paper-coloured back layer, light pixels
++// look see-through. Own implementation, inspired by the Pixel Transparency and Harlequin shaders.
++const std::unordered_map<std::string, std::string> ShaderManager::handheldParams = {
++    { "GRID", "1" },
++    { "GAP_LIGHT", "0" },
++    { "SOFT_X_ON", "0" },
++    { "SOFT_X", "0.18" },
++    { "PIX_SHADOW_ON", "0" },
++    { "PIX_SHADOW", "0.22" },
++    { "SUBPIX_ON", "0" },
++    { "SUBPIX", "0.07" },
++    { "BOOST", "1.0" },
++    { "SUNLIT", "0" },
++    { "SUN_STRENGTH", "0.55" },
++    { "SUN_OFFSET", "0.38" },
++    { "SUN_BLUR", "0.35" },
++};
++
++const std::string ShaderManager::handheldFragment =
++    "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
++    "#define HIGHP highp\n"
++    "#else\n"
++    "#define HIGHP mediump\n"
++    "#endif\n"
++    "\n"
++    "precision mediump float;\n"
++    "uniform lowp sampler2D texture;\n"
++    "uniform HIGHP vec2 textureSize;\n"
++    "uniform mediump float screenDensity;\n"
++    "\n"
++    "varying HIGHP vec2 coords;\n"
++    "varying HIGHP vec2 screenCoords;\n"
++    "\n"
++    "lowp vec3 cell(HIGHP vec2 c) {\n"
++    "  return texture2D(texture, (floor(c) + 0.5) / textureSize).rgb;\n"
++    "}\n"
++    "\n"
++    "mediump float luma(lowp vec3 c) {\n"
++    "  return dot(c, vec3(0.299, 0.587, 0.114));\n"
++    "}\n"
++    "\n"
++    "#if SUNLIT\n"
++    "mediump float blocks(lowp vec3 c) {\n"
++    "  return clamp((1.0 - luma(c)) * 0.85 + (max(c.r, max(c.g, c.b)) - min(c.r, min(c.g, c.b))) * 0.35, 0.0, 1.0);\n"
++    "}\n"
++    "\n"
++    "mediump float spread(HIGHP float q, HIGHP float i) {\n"
++    "  return smoothstep(i - SUN_BLUR, i + SUN_BLUR, q) - smoothstep(i + 1.0 - SUN_BLUR, i + 1.0 + SUN_BLUR, q);\n"
++    "}\n"
++    "#endif\n"
++    "\n"
++    "void main() {\n"
++    "  HIGHP vec2 sc = screenCoords;\n"
++    "  mediump float px = 1.0 / screenDensity;\n"
++    "  mediump float fade = smoothstep(2.5, 3.5, screenDensity);\n"
++    "  lowp vec3 t = cell(sc);\n"
++    "  lowp vec3 color = t;\n"
++    "\n"
++    "#if GRID\n"
++    "  HIGHP vec2 f = fract(sc);\n"
++    "#if SOFT_X_ON\n"
++    "  lowp vec3 side = f.x < 0.5 ? cell(sc - vec2(1.0, 0.0)) : cell(sc + vec2(1.0, 0.0));\n"
++    "  mediump float e = clamp((abs(f.x - 0.5) - 0.5 + SOFT_X) / SOFT_X, 0.0, 1.0) * 0.5;\n"
++    "  t = mix(t, side, e * fade);\n"
++    "#endif\n"
++    "  HIGHP vec2 a = floor(sc - 0.5 * px + 0.0001);\n"
++    "  HIGHP vec2 b = floor(sc + 0.5 * px + 0.0001);\n"
++    "  bool gap = a.x != b.x || a.y != b.y;\n"
++    "  lowp vec3 c = t;\n"
++    "  if (gap) {\n"
++    "#if GAP_LIGHT\n"
++    "    c = mix(t, vec3(0.80, 0.81, 0.78), 0.28);\n"
++    "#else\n"
++    "    c = t * 0.80;\n"
++    "#endif\n"
++    "  }\n"
++    "#if PIX_SHADOW_ON\n"
++    "  mediump float d = clamp(luma(t) - luma(cell(sc - vec2(0.25))), 0.0, 1.0);\n"
++    "  c *= 1.0 - PIX_SHADOW * 1.6 * d;\n"
++    "#endif\n"
++    "#if SUBPIX_ON\n"
++    "  mediump float column = floor(f.x * 3.0);\n"
++    "  lowp vec3 m = vec3(1.0 - SUBPIX);\n"
++    "  if (column < 0.5) m.r = 1.0;\n"
++    "  else if (column < 1.5) m.g = 1.0;\n"
++    "  else m.b = 1.0;\n"
++    "  c *= m * (1.0 + 0.6 * SUBPIX);\n"
++    "#endif\n"
++    "  color = mix(t, c * BOOST, fade);\n"
++    "#endif\n"
++    "\n"
++    "#if SUNLIT\n"
++    "  HIGHP vec2 q = sc - vec2(SUN_OFFSET);\n"
++    "  HIGHP vec2 base = floor(q);\n"
++    "  mediump float shadow = 0.0;\n"
++    "  for (int j = -1; j <= 1; j++) {\n"
++    "    for (int i = -1; i <= 1; i++) {\n"
++    "      HIGHP vec2 n = base + vec2(float(i), float(j));\n"
++    "      shadow += blocks(cell(n)) * spread(q.x, n.x) * spread(q.y, n.y);\n"
++    "    }\n"
++    "  }\n"
++    "  mediump float see = luma(t);\n"
++    "  lowp vec3 lit = color * (1.0 - 0.10 * see) + vec3(0.95, 0.94, 0.88) * (0.10 * see);\n"
++    "  color = lit * (1.0 - SUN_STRENGTH * clamp(shadow, 0.0, 1.0) * (0.35 + 0.65 * see));\n"
++    "#endif\n"
++    "\n"
++    "  gl_FragColor = vec4(min(color, vec3(1.0)), 1.0);\n"
++    "}\n";
++
  const std::string ShaderManager::defaultSharpFragment =
      "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
      "#define HIGHP highp\n"
-@@ -1545,6 +1612,11 @@ ShaderManager::Chain ShaderManager::getShader(const ShaderManager::Config& confi
+@@ -1545,6 +1728,16 @@ ShaderManager::Chain ShaderManager::getShader(const ShaderManager::Config& confi
          return { { { defaultShaderVertex, defaultSharpFragment, true, 1.0 } }, true };
      }
  
++    case Type::SHADER_HANDHELD: {
++        std::string defines = buildDefines(handheldParams, config.params);
++        return { { { defines + defaultShaderVertex, defines + handheldFragment, true, 1.0 } }, true };
++    }
++
 +    case Type::SHADER_SCANLINES: {
 +        std::string defines = buildDefines(scanlinesParams, config.params);
 +        return { { { defines + defaultShaderVertex, defines + scanlinesFragment, true, 1.0 } }, true };
@@ -352,23 +473,26 @@ index b853a6a..e3fe3b0 100644
          std::string defines = buildDefines(cutUpscaleParams, config.params);
          return { { {
 diff --git a/libretrodroid/src/main/cpp/shadermanager.h b/libretrodroid/src/main/cpp/shadermanager.h
-index 4407e8b..19f2e3d 100644
+index 4407e8b..7783e67 100644
 --- a/libretrodroid/src/main/cpp/shadermanager.h
 +++ b/libretrodroid/src/main/cpp/shadermanager.h
-@@ -51,6 +51,7 @@ public:
+@@ -51,6 +51,8 @@ public:
          SHADER_UPSCALE_CUT = 4,
          SHADER_UPSCALE_CUT2 = 5,
          SHADER_UPSCALE_CUT3 = 6,
 +        SHADER_SCANLINES = 7,
++        SHADER_HANDHELD = 8,
      };
  
      struct Config {
-@@ -70,6 +71,9 @@ private:
+@@ -70,6 +72,11 @@ private:
      static const std::string crtShaderFragment;
      static const std::string lcdShaderFragment;
  
 +    static const std::unordered_map<std::string, std::string> scanlinesParams;
 +    static const std::string scanlinesFragment;
++    static const std::unordered_map<std::string, std::string> handheldParams;
++    static const std::string handheldFragment;
 +
      static const std::unordered_map<std::string, std::string> cutUpscaleParams;
      static const std::string cutUpscaleVertex;
@@ -460,7 +584,7 @@ index e567388..5f4fc9b 100644
  
      void updateForegroundVertices();
 diff --git a/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt b/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt
-index 7eb8602..80ce610 100644
+index 7eb8602..94f19d6 100644
 --- a/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt
 +++ b/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt
 @@ -71,6 +71,21 @@ class GLRetroView(
@@ -485,7 +609,7 @@ index 7eb8602..80ce610 100644
      private val openGLESVersion: Int
  
      private var isGameLoaded = false
-@@ -413,6 +428,15 @@ class GLRetroView(
+@@ -413,6 +428,27 @@ class GLRetroView(
              is ShaderConfig.CRT -> GLRetroShader(LibretroDroid.SHADER_CRT)
              is ShaderConfig.LCD -> GLRetroShader(LibretroDroid.SHADER_LCD)
              is ShaderConfig.Sharp -> GLRetroShader(LibretroDroid.SHADER_SHARP)
@@ -498,18 +622,39 @@ index 7eb8602..80ce610 100644
 +                    LibretroDroid.SHADER_SCANLINES_PARAM_MASK_STRENGTH to toParam(config.maskStrength),
 +                )
 +            )
++            is ShaderConfig.Handheld -> GLRetroShader(
++                LibretroDroid.SHADER_HANDHELD,
++                mapOf(
++                    LibretroDroid.SHADER_HANDHELD_PARAM_GRID to toParam(config.grid),
++                    LibretroDroid.SHADER_HANDHELD_PARAM_GAP_LIGHT to toParam(config.screen == 0),
++                    LibretroDroid.SHADER_HANDHELD_PARAM_PIX_SHADOW_ON to toParam(config.screen == 0 && !config.sunlit),
++                    LibretroDroid.SHADER_HANDHELD_PARAM_SOFT_X_ON to toParam(config.screen == 1),
++                    LibretroDroid.SHADER_HANDHELD_PARAM_SUBPIX_ON to toParam(config.screen == 2),
++                    LibretroDroid.SHADER_HANDHELD_PARAM_BOOST to toParam(if (config.screen == 0) 1.0f else 1.08f),
++                    LibretroDroid.SHADER_HANDHELD_PARAM_SUNLIT to toParam(config.sunlit),
++                )
++            )
              is ShaderConfig.CUT -> GLRetroShader(
                  LibretroDroid.SHADER_UPSCALE_CUT,
                  buildParams(
 diff --git a/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java b/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java
-index 50eafa1..1be98a3 100644
+index 50eafa1..8d595b9 100644
 --- a/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java
 +++ b/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java
-@@ -37,6 +37,12 @@ public class LibretroDroid {
+@@ -37,6 +37,21 @@ public class LibretroDroid {
      public static final int SHADER_UPSCALE_CUT = 4;
      public static final int SHADER_UPSCALE_CUT2 = 5;
      public static final int SHADER_UPSCALE_CUT3 = 6;
 +    public static final int SHADER_SCANLINES = 7;
++    public static final int SHADER_HANDHELD = 8;
++
++    public static final String SHADER_HANDHELD_PARAM_GRID = "GRID";
++    public static final String SHADER_HANDHELD_PARAM_GAP_LIGHT = "GAP_LIGHT";
++    public static final String SHADER_HANDHELD_PARAM_SOFT_X_ON = "SOFT_X_ON";
++    public static final String SHADER_HANDHELD_PARAM_PIX_SHADOW_ON = "PIX_SHADOW_ON";
++    public static final String SHADER_HANDHELD_PARAM_SUBPIX_ON = "SUBPIX_ON";
++    public static final String SHADER_HANDHELD_PARAM_BOOST = "BOOST";
++    public static final String SHADER_HANDHELD_PARAM_SUNLIT = "SUNLIT";
 +
 +    public static final String SHADER_SCANLINES_PARAM_STRENGTH = "SCAN_STRENGTH";
 +    public static final String SHADER_SCANLINES_PARAM_BOOST = "SCAN_BOOST";
@@ -518,7 +663,7 @@ index 50eafa1..1be98a3 100644
  
      public static final String SHADER_UPSCALE_CUT_PARAM_USE_DYNAMIC_BLEND = "USE_DYNAMIC_BLEND";
      public static final String SHADER_UPSCALE_CUT_PARAM_BLEND_MIN_CONTRAST_EDGE = "BLEND_MIN_CONTRAST_EDGE";
-@@ -139,6 +145,19 @@ public class LibretroDroid {
+@@ -139,6 +154,19 @@ public class LibretroDroid {
  
      public static native void refreshAspectRatio();
  
@@ -539,10 +684,10 @@ index 50eafa1..1be98a3 100644
      public static native void setControllerType(int port, int type);
  }
 diff --git a/libretrodroid/src/main/java/com/swordfish/libretrodroid/ShaderConfig.kt b/libretrodroid/src/main/java/com/swordfish/libretrodroid/ShaderConfig.kt
-index 5bf4514..cf891ec 100644
+index 5bf4514..1f422bd 100644
 --- a/libretrodroid/src/main/java/com/swordfish/libretrodroid/ShaderConfig.kt
 +++ b/libretrodroid/src/main/java/com/swordfish/libretrodroid/ShaderConfig.kt
-@@ -24,6 +24,14 @@ sealed interface ShaderConfig {
+@@ -24,6 +24,24 @@ sealed interface ShaderConfig {
      object LCD : ShaderConfig
      object Sharp : ShaderConfig
  
@@ -552,6 +697,16 @@ index 5bf4514..cf891ec 100644
 +        val boost: Float = 0.1f,
 +        val mask: Boolean = false,
 +        val maskStrength: Float = 0.2f,
++    ) : ShaderConfig
++
++    /**
++     * Lemuroid Plus: handheld LCD grid ([grid]) and/or Sunlit ([sunlit]). [screen] picks the look:
++     * 0 Game Boy (light gaps, pixel shadow), 1 Game Boy Color (softer sides), 2 GBA (RGB stripes).
++     */
++    data class Handheld(
++        val grid: Boolean = true,
++        val sunlit: Boolean = false,
++        val screen: Int = 0,
 +    ) : ShaderConfig
 +
      data class CUT(

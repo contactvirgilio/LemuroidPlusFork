@@ -21,11 +21,16 @@ class GameDisplayOptions(
 ) {
     enum class Filter(
         @StringRes val labelRes: Int,
-        val shader: ShaderConfig,
+        private val baseShader: ShaderConfig,
     ) {
         SHARP(R.string.game_filter_sharp, ShaderConfig.Sharp),
         SMOOTH(R.string.game_filter_smooth, ShaderConfig.Default),
-        LCD(R.string.game_filter_lcd, ShaderConfig.LCD),
+
+        // Handheld screens (2026-11-23): an even 1 px pixel grid with a look per system, and Sunlit
+        // (soft pixel shadows on a paper-like back layer, Game Boy and Game Boy Color only).
+        LCD(R.string.game_filter_lcd, ShaderConfig.Handheld(grid = true)),
+        SUNLIT(R.string.game_filter_sunlit, ShaderConfig.Handheld(grid = false, sunlit = true)),
+        LCD_SUNLIT(R.string.game_filter_lcd_sunlit, ShaderConfig.Handheld(grid = true, sunlit = true)),
 
         // CRT-style scanlines (soft beams); most even with integer scaling (Pixel-perfect).
         SCAN_25(R.string.game_filter_scan_25, ShaderConfig.Scanlines(strength = 0.35f, boost = 0.06f)),
@@ -34,9 +39,26 @@ class GameDisplayOptions(
         SCAN_MASK(R.string.game_filter_scan_mask, ShaderConfig.Scanlines(strength = 0.6f, boost = 0.18f, mask = true)),
         ;
 
+        /** The shader for this filter on a system (the handheld ones pick that system's screen look). */
+        fun shaderFor(systemId: SystemID): ShaderConfig =
+            when (val base = baseShader) {
+                is ShaderConfig.Handheld -> base.copy(screen = handheldScreen(systemId))
+                else -> base
+            }
+
         companion object {
             /** The button number for the filter chosen in Settings, or null for HD mode shaders. */
-            fun fromShader(shader: ShaderConfig): Filter? = values().firstOrNull { it.shader == shader }
+            fun fromShader(shader: ShaderConfig): Filter? =
+                when (shader) {
+                    is ShaderConfig.Handheld ->
+                        when {
+                            shader.grid && shader.sunlit -> LCD_SUNLIT
+                            shader.sunlit -> SUNLIT
+                            else -> LCD
+                        }
+                    ShaderConfig.LCD -> LCD
+                    else -> values().firstOrNull { it.baseShader == shader }
+                }
         }
     }
 
@@ -62,8 +84,18 @@ class GameDisplayOptions(
         STRETCH(R.string.game_scaling_stretch),
     }
 
-    /** The filters this system offers: LCD only for Game Boy, Game Boy Color and GBA (owner, 2026-11-22). */
-    fun filters(): List<Filter> = Filter.values().filter { it != Filter.LCD || hasLcd(systemId) }
+    /**
+     * The filters this system offers: LCD only for Game Boy, Game Boy Color and GBA (owner, 2026-11-22);
+     * Sunlit and LCD + Sunlit only for Game Boy and Game Boy Color (owner, 2026-11-23).
+     */
+    fun filters(): List<Filter> = Filter.values().filter { offers(it) }
+
+    private fun offers(filter: Filter): Boolean =
+        when (filter) {
+            Filter.LCD -> hasLcd(systemId)
+            Filter.SUNLIT, Filter.LCD_SUNLIT -> hasSunlit(systemId)
+            else -> true
+        }
 
     fun savedFilter(): Filter? {
         val name = sharedPreferences.getString(key(FILTER_KEY), null) ?: return null
@@ -71,7 +103,7 @@ class GameDisplayOptions(
         if (name == "CRT") return Filter.SCAN_25
         val filter = Filter.values().firstOrNull { it.name == name }
         // LCD saved earlier on a system that no longer offers it: Sharp instead.
-        return if (filter == Filter.LCD && !hasLcd(systemId)) Filter.SHARP else filter
+        return if (filter != null && !offers(filter)) Filter.SHARP else filter
     }
 
     fun saveFilter(filter: Filter) {
@@ -247,3 +279,14 @@ class GameDisplayOptions(
 
 /** Systems whose real screen was an LCD with a visible grid: only these get the LCD filter. */
 fun hasLcd(systemId: SystemID): Boolean = systemId == SystemID.GB || systemId == SystemID.GBC || systemId == SystemID.GBA
+
+/** Sunlit (soft pixel shadows) is offered for Game Boy and Game Boy Color only (owner, 2026-11-23). */
+fun hasSunlit(systemId: SystemID): Boolean = systemId == SystemID.GB || systemId == SystemID.GBC
+
+/** Which handheld screen look the LCD filter copies: 0 Game Boy, 1 Game Boy Color, 2 GBA. */
+fun handheldScreen(systemId: SystemID): Int =
+    when (systemId) {
+        SystemID.GBC -> 1
+        SystemID.GBA -> 2
+        else -> 0
+    }

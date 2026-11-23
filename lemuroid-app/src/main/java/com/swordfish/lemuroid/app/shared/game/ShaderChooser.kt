@@ -30,7 +30,7 @@ object ShaderChooser {
             else ->
                 when (screenFilter) {
                     "crt" -> SCANLINES
-                    "lcd" -> if (hasLcd(system.id)) ShaderConfig.LCD else ShaderConfig.Sharp
+                    "lcd" -> if (hasLcd(system.id)) handheldLcd(system.id) else ShaderConfig.Sharp
                     "smooth" -> ShaderConfig.Default
                     "sharp" -> ShaderConfig.Sharp
                     else -> getDefaultShaderForSystem(system)
@@ -39,14 +39,17 @@ object ShaderChooser {
     }
 
     // The old CRT filter was replaced by Scanlines 25% (also the automatic choice for TV consoles).
-    private val SCANLINES get() = GameDisplayOptions.Filter.SCAN_25.shader
+    private val SCANLINES get() = GameDisplayOptions.Filter.SCAN_25.shaderFor(SystemID.NES)
+
+    // The new handheld LCD with the system's own screen look.
+    private fun handheldLcd(systemId: SystemID) = GameDisplayOptions.Filter.LCD.shaderFor(systemId)
 
     // LCD only for GB/GBC/GBA (owner, 2026-11-22); other handhelds default to Sharp.
     private fun getDefaultShaderForSystem(system: GameSystem): ShaderConfig {
         return when (system.id) {
-            SystemID.GBA -> ShaderConfig.LCD
-            SystemID.GBC -> ShaderConfig.LCD
-            SystemID.GB -> ShaderConfig.LCD
+            SystemID.GBA -> handheldLcd(system.id)
+            SystemID.GBC -> handheldLcd(system.id)
+            SystemID.GB -> handheldLcd(system.id)
             SystemID.N64 -> SCANLINES
             SystemID.GENESIS -> SCANLINES
             SystemID.SEGACD -> SCANLINES
