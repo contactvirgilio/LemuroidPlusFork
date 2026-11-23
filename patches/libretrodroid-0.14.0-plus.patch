@@ -262,10 +262,10 @@ index 2ec15cf..8119f8b 100644
 +
  }
 diff --git a/libretrodroid/src/main/cpp/shadermanager.cpp b/libretrodroid/src/main/cpp/shadermanager.cpp
-index b853a6a..b611094 100644
+index b853a6a..93c374c 100644
 --- a/libretrodroid/src/main/cpp/shadermanager.cpp
 +++ b/libretrodroid/src/main/cpp/shadermanager.cpp
-@@ -125,6 +125,189 @@ const std::string ShaderManager::lcdShaderFragment =
+@@ -125,6 +125,192 @@ const std::string ShaderManager::lcdShaderFragment =
      "  gl_FragColor = vec4(mix(texel, mix(pixelLow, pixelHigh, mask), screenMaskStrength), 1.0);\n"
      "}\n";
  
@@ -372,6 +372,7 @@ index b853a6a..b611094 100644
 +    "uniform lowp sampler2D texture;\n"
 +    "uniform HIGHP vec2 textureSize;\n"
 +    "uniform mediump float screenDensity;\n"
++    "uniform mediump vec2 screenDensityXY;\n"
 +    "\n"
 +    "varying HIGHP vec2 coords;\n"
 +    "varying HIGHP vec2 screenCoords;\n"
@@ -396,8 +397,10 @@ index b853a6a..b611094 100644
 +    "\n"
 +    "void main() {\n"
 +    "  HIGHP vec2 sc = screenCoords;\n"
-+    "  mediump float px = 1.0 / screenDensity;\n"
-+    "  mediump float fade = smoothstep(2.5, 3.5, screenDensity);\n"
++    "  // Measured on the picture itself, per axis (Pixel-perfect can scale across and down differently).\n"
++    "  mediump vec2 density = max(screenDensityXY, vec2(1.0));\n"
++    "  mediump vec2 px = 1.0 / density;\n"
++    "  mediump float fade = smoothstep(2.5, 3.5, min(density.x, density.y));\n"
 +    "  lowp vec3 t = cell(sc);\n"
 +    "  lowp vec3 color = t;\n"
 +    "\n"
@@ -455,7 +458,7 @@ index b853a6a..b611094 100644
  const std::string ShaderManager::defaultSharpFragment =
      "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
      "#define HIGHP highp\n"
-@@ -1545,6 +1728,16 @@ ShaderManager::Chain ShaderManager::getShader(const ShaderManager::Config& confi
+@@ -1545,6 +1731,16 @@ ShaderManager::Chain ShaderManager::getShader(const ShaderManager::Config& confi
          return { { { defaultShaderVertex, defaultSharpFragment, true, 1.0 } }, true };
      }
  
@@ -498,10 +501,49 @@ index 4407e8b..7783e67 100644
      static const std::string cutUpscaleVertex;
      static const std::string cutUpscaleFragment;
 diff --git a/libretrodroid/src/main/cpp/video.cpp b/libretrodroid/src/main/cpp/video.cpp
-index a75dbaf..d3534bf 100644
+index a75dbaf..f444252 100644
 --- a/libretrodroid/src/main/cpp/video.cpp
 +++ b/libretrodroid/src/main/cpp/video.cpp
-@@ -316,4 +316,19 @@ void Video::updateAspectRatio(float aspectRatio) {
+@@ -131,6 +131,8 @@ void Video::updateProgram() {
+ 
+         shader.gScreenDensityHandle = glGetUniformLocation(shader.gProgram, "screenDensity");
+ 
++        shader.gScreenDensityXYHandle = glGetUniformLocation(shader.gProgram, "screenDensityXY");
++
+         shadersChain.push_back(shader);
+     });
+ 
+@@ -197,6 +199,11 @@ void Video::renderFrame() {
+ 
+         glUniform1f(shader.gScreenDensityHandle, getScreenDensity());
+ 
++        if (shader.gScreenDensityXYHandle != -1) {
++            auto densityXY = getScreenDensityXY();
++            glUniform2f(shader.gScreenDensityXYHandle, densityXY.first, densityXY.second);
++        }
++
+         glDrawArrays(GL_TRIANGLES, 0, 6);
+ 
+         glDisableVertexAttribArray(shader.gvPositionHandle);
+@@ -217,6 +224,17 @@ float Video::getScreenDensity() {
+     return std::min(videoLayout.getScreenWidth() / getTextureWidth(), videoLayout.getScreenHeight() / getTextureHeight());
+ }
+ 
++// Lemuroid Plus: the picture's real size on screen (Pixel-perfect and Integer can leave it smaller
++// than the screen, with different whole multiples across and down).
++std::pair<float, float> Video::getScreenDensityXY() {
++    auto& bounds = videoLayout.getRelativeForegroundBounds();
++    float width = std::abs(bounds[2] - bounds[0]) * videoLayout.getScreenWidth();
++    float height = std::abs(bounds[3] - bounds[1]) * videoLayout.getScreenHeight();
++    float textureWidth = std::max(getTextureWidth(), 1.0F);
++    float textureHeight = std::max(getTextureHeight(), 1.0F);
++    return { std::max(width / textureWidth, 1.0F), std::max(height / textureHeight, 1.0F) };
++}
++
+ float Video::getTextureWidth() {
+     return renderer->lastFrameSize.first;
+ }
+@@ -316,4 +334,19 @@ void Video::updateAspectRatio(float aspectRatio) {
      videoLayout.updateAspectRatio(aspectRatio);
  }
  
@@ -522,10 +564,19 @@ index a75dbaf..d3534bf 100644
 +
  } //namespace libretrodroid
 diff --git a/libretrodroid/src/main/cpp/video.h b/libretrodroid/src/main/cpp/video.h
-index 05bd6b6..2a99c72 100644
+index 05bd6b6..b1c423a 100644
 --- a/libretrodroid/src/main/cpp/video.h
 +++ b/libretrodroid/src/main/cpp/video.h
-@@ -68,6 +68,9 @@ public:
+@@ -50,6 +50,8 @@ public:
+         GLint gTextureHandle = 0;
+         GLint gPreviousPassTextureHandle = 0;
+         GLint gScreenDensityHandle = 0;
++        // Lemuroid Plus: screen pixels per game pixel on each axis, measured on the picture itself.
++        GLint gScreenDensityXYHandle = -1;
+         GLint gTextureSizeHandle = 0;
+     };
+ 
+@@ -68,6 +70,9 @@ public:
      VideoLayout& getLayout() { return videoLayout; }
  
      void updateAspectRatio(float aspectRatio);
@@ -535,6 +586,14 @@ index 05bd6b6..2a99c72 100644
      void updateScreenSize(unsigned screenWidth, unsigned screenHeight);
      void updateViewportSize(Rect viewportRect);
      void updateViewportAlignment(unsigned int viewportAlignment);
+@@ -91,6 +96,7 @@ private:
+     void updateProgram();
+ 
+     float getScreenDensity();
++    std::pair<float, float> getScreenDensityXY();
+     float getTextureWidth();
+     float getTextureHeight();
+ 
 diff --git a/libretrodroid/src/main/cpp/videolayout.cpp b/libretrodroid/src/main/cpp/videolayout.cpp
 index 8b89326..167223d 100644
 --- a/libretrodroid/src/main/cpp/videolayout.cpp
