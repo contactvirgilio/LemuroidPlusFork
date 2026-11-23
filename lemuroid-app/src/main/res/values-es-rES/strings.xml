@@ -387,4 +387,6 @@
     <string name="game_filter_lcd_sunlit">LCD + luz solar</string>
     <string name="menu_option_reduce_slowdown">Reducir ralentizaciones</string>
     <string name="game_overlay_loaded_title">Cargado de</string>
+    <string name="game_filter_sunlit_bright">Luz solar intensa</string>
+    <string name="game_filter_lcd_sunlit_bright">LCD + luz solar intensa</string>
 </resources>
