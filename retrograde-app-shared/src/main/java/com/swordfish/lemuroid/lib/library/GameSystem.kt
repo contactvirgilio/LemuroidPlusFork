@@ -143,6 +143,21 @@ data class GameSystem(
                                     0 to arrayListOf(ControllerConfigs.SNES),
                                     1 to arrayListOf(ControllerConfigs.SNES),
                                 ),
+                            // Reduce slowdown (owner, 2026-11-23): On = Snes9x "Light", slow cartridge
+                            // reads 8 -> 6 cycles, the same speed-up as the FastROM patches; Strong =
+                            // "Compatible" (most memory accesses faster, more likely to glitch).
+                            exposedSettings =
+                                listOf(
+                                    ExposedSetting(
+                                        "snes9x_overclock_cycles",
+                                        R.string.setting_reduce_slowdown,
+                                        arrayListOf(
+                                            ExposedSetting.Value("disabled", R.string.value_reduce_slowdown_off),
+                                            ExposedSetting.Value("light", R.string.value_reduce_slowdown_on),
+                                            ExposedSetting.Value("compatible", R.string.value_reduce_slowdown_strong),
+                                        ),
+                                    ),
+                                ),
                         ),
                         // More accurate, but much heavier than Snes9x. Selectable in Settings > Core selection.
                         SystemCoreConfig(
@@ -151,6 +166,20 @@ data class GameSystem(
                                 hashMapOf(
                                     0 to arrayListOf(ControllerConfigs.SNES),
                                     1 to arrayListOf(ControllerConfigs.SNES),
+                                ),
+                            // Reduce slowdown: bsnes has no FastROM-style setting, so a CPU overclock of
+                            // about the same gain (On 130%, Strong 150%).
+                            exposedSettings =
+                                listOf(
+                                    ExposedSetting(
+                                        "bsnes_cpu_overclock",
+                                        R.string.setting_reduce_slowdown,
+                                        arrayListOf(
+                                            ExposedSetting.Value("100", R.string.value_reduce_slowdown_off),
+                                            ExposedSetting.Value("130", R.string.value_reduce_slowdown_on),
+                                            ExposedSetting.Value("150", R.string.value_reduce_slowdown_strong),
+                                        ),
+                                    ),
                                 ),
                         ),
                     ),

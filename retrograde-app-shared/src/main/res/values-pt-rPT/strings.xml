@@ -117,4 +117,8 @@
     <string name="value_handy_rot_none">Nenhuma</string>
     <string name="value_handy_rot_90">90°</string>
     <string name="value_handy_rot_270">270°</string>
+    <string name="setting_reduce_slowdown">Reduzir lentidão</string>
+    <string name="value_reduce_slowdown_off">Desligado</string>
+    <string name="value_reduce_slowdown_on">Ligado</string>
+    <string name="value_reduce_slowdown_strong">Forte</string>
 </resources>

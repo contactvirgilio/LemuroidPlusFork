@@ -390,6 +390,8 @@ private val MENU_CORE_OPTIONS =
 private val MENU_OPTION_GROUPS =
     mapOf(
         "pcsx_rearmed_frameskip" to MenuGroup.PERFORMANCE,
+        "snes9x_overclock_cycles" to MenuGroup.PERFORMANCE,
+        "bsnes_cpu_overclock" to MenuGroup.PERFORMANCE,
         "ppsspp_frameskip" to MenuGroup.PERFORMANCE,
         "ppsspp_auto_frameskip" to MenuGroup.PERFORMANCE,
         "fbneo-frameskip" to MenuGroup.PERFORMANCE,

@@ -142,4 +142,8 @@
     <string name="value_handy_rot_90">90°</string>
     <string name="value_handy_rot_270">270°</string>
 
+    <string name="setting_reduce_slowdown">Reduce slowdown</string>
+    <string name="value_reduce_slowdown_off">Off</string>
+    <string name="value_reduce_slowdown_on">On</string>
+    <string name="value_reduce_slowdown_strong">Strong</string>
 </resources>
