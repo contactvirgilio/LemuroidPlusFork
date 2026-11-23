@@ -277,8 +277,20 @@ class BaseGameScreenViewModel(
     suspend fun loadSlot(index: Int) {
         if (loadingState.value) return
         withLoading {
-            saves.loadSlot(index)
+            if (saves.loadSlot(index)) showLoadedCard(index)
         }
+    }
+
+    /** The mirror of the "Saved to" card (owner, 2026-11-23): "Loaded from" / "Slot 3" or "Auto save". */
+    private suspend fun showLoadedCard(index: Int) {
+        val title = appContext.getString(R.string.game_overlay_loaded_title)
+        overlayCardState.value =
+            if (index == com.swordfish.lemuroid.app.shared.GameMenuContract.AUTO_SLOT) {
+                OverlayCard(title, appContext.getString(R.string.game_card_auto_save_title), 0, 0)
+            } else {
+                val slots = runCatching { statesManager.getSavedSlotsInfo(game, systemCoreConfig.coreID).size }.getOrDefault(4)
+                OverlayCard(title, appContext.getString(R.string.game_overlay_state_number, index + 1), index, slots)
+            }
     }
 
     fun saveQuickSave() {

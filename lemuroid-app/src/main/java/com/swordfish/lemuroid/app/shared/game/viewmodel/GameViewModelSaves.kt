@@ -57,7 +57,8 @@ class GameViewModelSaves(
         runCatching { takeScreenshotPreview(GameMenuContract.AUTO_SLOT) }
     }
 
-    suspend fun loadSlot(index: Int) {
+    /** True when the slot was loaded (failures show their own card). */
+    suspend fun loadSlot(index: Int): Boolean {
         try {
             val saveState =
                 if (index == GameMenuContract.AUTO_SLOT) {
@@ -77,7 +78,9 @@ class GameViewModelSaves(
                         appContext.getString(R.string.game_card_load_failed),
                     )
                 }
+                return loaded
             }
+            return false
         } catch (e: Throwable) {
             val errorMessageId =
                 when (e) {
@@ -88,6 +91,7 @@ class GameViewModelSaves(
                 appContext.getString(R.string.game_card_load_title),
                 appContext.getString(errorMessageId),
             )
+            return false
         }
     }
 

@@ -386,4 +386,5 @@
     <string name="game_filter_sunlit">Luz do sol</string>
     <string name="game_filter_lcd_sunlit">LCD + luz do sol</string>
     <string name="menu_option_reduce_slowdown">Reduzir lentidão</string>
+    <string name="game_overlay_loaded_title">Carregado de</string>
 </resources>

@@ -439,4 +439,5 @@
     <string name="game_filter_sunlit">Sunlit</string>
     <string name="game_filter_lcd_sunlit">LCD + Sunlit</string>
     <string name="menu_option_reduce_slowdown">Reduce slowdown</string>
+    <string name="game_overlay_loaded_title">Loaded from</string>
 </resources>
