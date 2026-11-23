@@ -47,7 +47,7 @@
     <string name="settings_gamepad_title_reset_bindings">Repor os botões originais</string>
     <string name="settings_title_open_cores_selection">Escolher emuladores</string>
     <string name="settings_description_open_cores_selection">Escolha o emulador (o programa que corre o jogo) de cada sistema.</string>
-    <string name="settings_core_selection_info">O primeiro emulador de cada sistema é o predefinido e corre quase todos os jogos. Os outros são opcionais:\n\n• NES – Mesen: o mais fiel à NES verdadeira.\n• SNES – bsnes: mais fiel do que o Snes9x, mas precisa de um aparelho mais potente.\n• Game Boy / Color – SameBoy: tão bom como o Gambatte, com cores mais bonitas.\n• Game Boy Advance – gpSP: muito mais leve do que o mGBA, para jogos que correm lentos.\n• Genesis / Mega Drive – PicoDrive: mais rápido do que o Genesis Plus GX.\n• PlayStation – SwanStation: mais fiel do que o PCSX ReARMed. Precisa de uma BIOS da PlayStation (um ficheiro da consola verdadeira) em Lemuroid/bios.\n• Nintendo DS – DeSmuME: só para gravações antigas do DeSmuME. O predefinido é o melonDS.\n\nO Paprium usa sempre o seu próprio emulador especial, seja qual for o escolhido para a Genesis.\n\nOs espaços de gravação só funcionam com o emulador que os criou. As gravações feitas dentro do próprio jogo funcionam sempre.</string>
+    <string name="settings_core_selection_info">O primeiro emulador de cada sistema é o predefinido e corre quase todos os jogos. Os outros são opcionais:\n\n• NES – Mesen: o mais fiel à NES verdadeira.\n• SNES – bsnes: mais fiel do que o Snes9x, mas precisa de um aparelho mais potente.\n• Game Boy / Color – SameBoy: tão bom como o Gambatte, com cores mais bonitas.\n• Game Boy Advance – gpSP: muito mais leve do que o mGBA, para jogos que correm lentos.\n• Genesis / Mega Drive – PicoDrive: mais rápido do que o Genesis Plus GX.\n• PlayStation – SwanStation: mais fiel do que o PCSX ReARMed. Precisa de uma BIOS da PlayStation (um ficheiro da consola verdadeira) em Lemuroid/bios.\n• Nintendo DS – DeSmuME: só para gravações antigas do DeSmuME. O predefinido é o melonDS.\n\nO Paprium usa sempre o seu próprio emulador especial, seja qual for o escolhido para a Genesis.\n\nOs estados só funcionam com o emulador que os criou. As gravações feitas dentro do próprio jogo funcionam sempre.</string>
     <string name="settings_title_display_bios_info">BIOS</string>
     <string name="settings_description_display_bios_info">Alguns sistemas precisam de uma BIOS: um ficheiro copiado da consola verdadeira. Coloque estes ficheiros na pasta Lemuroid/bios e toque em Procurar jogos.</string>
     <string name="settings_bios_category_detected">Encontradas</string>
@@ -67,7 +67,7 @@
     <string name="settings_title_enable_device_rumble">Vibrar o aparelho</string>
     <string name="settings_description_enable_device_rumble">Sem comando? O aparelho vibra em vez dele.</string>
     <string name="reset_settings_warning_message_title">Tem a certeza?</string>
-    <string name="reset_settings_warning_message_description">Isto volta a pôr todas as definições como estavam. As suas gravações e espaços de gravação ficam.</string>
+    <string name="reset_settings_warning_message_description">Isto volta a pôr todas as definições como estavam. As suas gravações e estados ficam.</string>
     <string name="settings_title_save_sync">Gravações na nuvem</string>
     <string name="settings_description_save_sync">Guarde as suas gravações online e mantenha-as iguais em todos os aparelhos.</string>
     <string name="settings_save_sync_refresh">Sincronizar agora</string>
@@ -77,7 +77,7 @@
     <string name="settings_save_sync_configure">Configurar %1$s</string>
     <string name="settings_save_sync_include_saves">Sincronizar gravações dos jogos</string>
     <string name="settings_save_sync_include_saves_description">%1$s no aparelho</string>
-    <string name="settings_save_sync_include_states">Sincronizar espaços de gravação</string>
+    <string name="settings_save_sync_include_states">Sincronizar estados</string>
     <string name="settings_save_sync_include_states_description">Prático, mas maior e menos fiável. Escolha que sistemas incluir.</string>
     <string name="game_context_menu_add_to_favorites">Adicionar aos favoritos</string>
     <string name="game_context_menu_remove_from_favorites">Remover dos favoritos</string>
@@ -98,7 +98,7 @@
     <string name="game_menu_restart">Reiniciar</string>
     <string name="game_menu_quit">Sair</string>
     <string name="game_menu_settings">Definições</string>
-    <string name="game_menu_state">Espaço %1$s</string>
+    <string name="game_menu_state">Estado %1$s</string>
     <string name="game_menu_state_empty">Vazio</string>
     <string name="game_menu_state_no_save">Ainda sem gravação</string>
     <string name="game_menu_change_disk_button">Mudar disco</string>
@@ -152,7 +152,7 @@
         &#8226; Os jogos de PlayStation também funcionam numa pasta PS, PS1 ou PlayStation.<br/>
         &#8226; Os jogos de arcada ficam comprimidos, numa pasta Arcade, MAME, FBNeo ou Neo Geo.<br/><br/>
         <b>A pasta Lemuroid</b><br/>
-        O Lemuroid cria esta pasta no seu aparelho. Lá dentro: saves (o seu progresso), states (espaços de gravação), bios (ficheiros extra de que alguns sistemas precisam, copiados da consola verdadeira) e artwork (as suas próprias imagens para os jogos, com o nome igual ao do ficheiro do jogo; ative Definições &#8594; Mostrar imagens).<br/><br/>
+        O Lemuroid cria esta pasta no seu aparelho. Lá dentro: saves (o seu progresso), states (estados guardados), bios (ficheiros extra de que alguns sistemas precisam, copiados da consola verdadeira) e artwork (as suas próprias imagens para os jogos, com o nome igual ao do ficheiro do jogo; ative Definições &#8594; Mostrar imagens).<br/><br/>
         <b>Jogos com mais de um disco</b><br/>
         Crie um pequeno ficheiro de texto terminado em .m3u com a lista dos ficheiros dos discos, um por linha, e coloque-o junto deles. O jogo aparece só uma vez. Mude de disco em Menu &#8594; Mudar disco.<br/><br/>
         <b>Truques úteis</b><br/>
@@ -195,7 +195,7 @@
     <string name="settings_title_show_artwork">Mostrar imagens</string>
     <string name="settings_description_show_artwork">Usa as suas próprias imagens da pasta Lemuroid/artwork nos jogos. Dê a cada imagem exatamente o mesmo nome do ficheiro do jogo, por exemplo Super Mario World (USA).png.</string>
     <string name="game_overlay_saved_title">Guardado em</string>
-    <string name="game_overlay_state_number">Espaço %1$d</string>
+    <string name="game_overlay_state_number">Estado %1$d</string>
     <string name="game_button_menu">Menu</string>
     <string name="title_activity">Atividade</string>
     <string name="activity_empty">Jogue um jogo e a sua atividade aparece aqui.</string>
@@ -259,7 +259,7 @@
     <string name="backup_import_confirm_message">As gravações da cópia substituem as que tiverem o mesmo nome. As suas outras gravações ficam.</string>
     <string name="backup_import_confirm_button">Importar</string>
     <string name="public_storage_dialog_title">Guardar as gravações numa pasta Lemuroid?</string>
-    <string name="public_storage_dialog_message">Permita o acesso aos seus ficheiros para que as gravações e os espaços de gravação fiquem na pasta \"%1$s\" do armazenamento principal, onde são fáceis de encontrar e copiar. As gravações existentes são mudadas para lá automaticamente.</string>
+    <string name="public_storage_dialog_message">Permita o acesso aos seus ficheiros para que as gravações e os estados fiquem na pasta \"%1$s\" do armazenamento principal, onde são fáceis de encontrar e copiar. As gravações existentes são mudadas para lá automaticamente.</string>
     <string name="public_storage_dialog_allow">Permitir</string>
     <string name="public_storage_dialog_not_now">Agora não</string>
     <string name="public_storage_dialog_dont_ask">Não voltar a perguntar</string>
@@ -299,8 +299,8 @@
     <string name="settings_game_style_tiles">Mosaicos</string>
     <string name="settings_game_style_media">Cartuchos</string>
     <string name="game_card_load_title">Carregar</string>
-    <string name="game_card_load_failed">Não é possível carregar este espaço</string>
-    <string name="game_card_load_incompatible">Este espaço foi gravado com outro emulador</string>
+    <string name="game_card_load_failed">Não é possível carregar este estado</string>
+    <string name="game_card_load_incompatible">Este estado foi gravado com outro emulador</string>
     <string name="game_card_quick_save_title">Gravação rápida</string>
     <string name="game_card_quick_save_saved">Guardado</string>
     <string name="game_card_quick_save_loaded">Carregado</string>

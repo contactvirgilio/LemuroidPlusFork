@@ -47,7 +47,7 @@
     <string name="settings_gamepad_title_reset_bindings">Restaurar los botones originales</string>
     <string name="settings_title_open_cores_selection">Elegir emuladores</string>
     <string name="settings_description_open_cores_selection">Elige el emulador (el programa que ejecuta el juego) de cada sistema.</string>
-    <string name="settings_core_selection_info">El primer emulador de cada sistema es el predeterminado y funciona con casi todos los juegos. Los demás son opcionales:\n\n• NES – Mesen: el más fiel a la NES real.\n• SNES – bsnes: más fiel que Snes9x, pero necesita un dispositivo más potente.\n• Game Boy / Color – SameBoy: tan bueno como Gambatte, con colores más bonitos.\n• Game Boy Advance – gpSP: mucho más ligero que mGBA, para juegos que van lentos.\n• Genesis / Mega Drive – PicoDrive: más rápido que Genesis Plus GX.\n• PlayStation – SwanStation: más fiel que PCSX ReARMed. Necesita una BIOS de PlayStation (un archivo de la consola real) en Lemuroid/bios.\n• Nintendo DS – DeSmuME: solo para partidas antiguas de DeSmuME. El predeterminado es melonDS.\n\nPaprium usa siempre su propio emulador especial, elijas el que elijas para Genesis.\n\nLas ranuras de guardado solo funcionan con el emulador que las creó. Las partidas guardadas dentro del propio juego funcionan siempre.</string>
+    <string name="settings_core_selection_info">El primer emulador de cada sistema es el predeterminado y funciona con casi todos los juegos. Los demás son opcionales:\n\n• NES – Mesen: el más fiel a la NES real.\n• SNES – bsnes: más fiel que Snes9x, pero necesita un dispositivo más potente.\n• Game Boy / Color – SameBoy: tan bueno como Gambatte, con colores más bonitos.\n• Game Boy Advance – gpSP: mucho más ligero que mGBA, para juegos que van lentos.\n• Genesis / Mega Drive – PicoDrive: más rápido que Genesis Plus GX.\n• PlayStation – SwanStation: más fiel que PCSX ReARMed. Necesita una BIOS de PlayStation (un archivo de la consola real) en Lemuroid/bios.\n• Nintendo DS – DeSmuME: solo para partidas antiguas de DeSmuME. El predeterminado es melonDS.\n\nPaprium usa siempre su propio emulador especial, elijas el que elijas para Genesis.\n\nLos estados solo funcionan con el emulador que los creó. Las partidas guardadas dentro del propio juego funcionan siempre.</string>
     <string name="settings_title_display_bios_info">BIOS</string>
     <string name="settings_description_display_bios_info">Algunos sistemas necesitan una BIOS: un archivo copiado de la consola real. Pon estos archivos en la carpeta Lemuroid/bios y toca Escanear juegos.</string>
     <string name="settings_bios_category_detected">Encontradas</string>
@@ -67,7 +67,7 @@
     <string name="settings_title_enable_device_rumble">Vibrar el dispositivo</string>
     <string name="settings_description_enable_device_rumble">¿Sin mando? Vibra el dispositivo en su lugar.</string>
     <string name="reset_settings_warning_message_title">¿Seguro?</string>
-    <string name="reset_settings_warning_message_description">Esto deja todos los ajustes como estaban. Tus partidas y ranuras de guardado se conservan.</string>
+    <string name="reset_settings_warning_message_description">Esto deja todos los ajustes como estaban. Tus partidas y estados se conservan.</string>
     <string name="settings_title_save_sync">Partidas en la nube</string>
     <string name="settings_description_save_sync">Guarda tus partidas en internet y mantenlas iguales en todos tus dispositivos.</string>
     <string name="settings_save_sync_refresh">Sincronizar ahora</string>
@@ -77,7 +77,7 @@
     <string name="settings_save_sync_configure">Configurar %1$s</string>
     <string name="settings_save_sync_include_saves">Sincronizar partidas de los juegos</string>
     <string name="settings_save_sync_include_saves_description">%1$s en el dispositivo</string>
-    <string name="settings_save_sync_include_states">Sincronizar ranuras de guardado</string>
+    <string name="settings_save_sync_include_states">Sincronizar estados</string>
     <string name="settings_save_sync_include_states_description">Práctico, pero ocupa más y es menos fiable. Elige qué sistemas incluir.</string>
     <string name="game_context_menu_add_to_favorites">Añadir a favoritos</string>
     <string name="game_context_menu_remove_from_favorites">Quitar de favoritos</string>
@@ -98,8 +98,8 @@
     <string name="game_menu_restart">Reiniciar</string>
     <string name="game_menu_quit">Salir</string>
     <string name="game_menu_settings">Ajustes</string>
-    <string name="game_menu_state">Ranura %1$s</string>
-    <string name="game_menu_state_empty">Vacía</string>
+    <string name="game_menu_state">Estado %1$s</string>
+    <string name="game_menu_state_empty">Vacío</string>
     <string name="game_menu_state_no_save">Aún no hay partida</string>
     <string name="game_menu_change_disk_button">Cambiar disco</string>
     <string name="game_menu_edit_touch_controls">Editar botones en pantalla</string>
@@ -152,7 +152,7 @@
         &#8226; Los juegos de PlayStation también funcionan en una carpeta PS, PS1 o PlayStation.<br/>
         &#8226; Los juegos de arcade se quedan comprimidos, en una carpeta Arcade, MAME, FBNeo o Neo Geo.<br/><br/>
         <b>La carpeta Lemuroid</b><br/>
-        Lemuroid crea esta carpeta en tu dispositivo. Dentro: saves (tu progreso), states (ranuras de guardado), bios (archivos extra que necesitan algunos sistemas, copiados de la consola real) y artwork (tus propias imágenes para los juegos, con el mismo nombre que el archivo del juego; activa Ajustes &#8594; Mostrar imágenes).<br/><br/>
+        Lemuroid crea esta carpeta en tu dispositivo. Dentro: saves (tu progreso), states (estados guardados), bios (archivos extra que necesitan algunos sistemas, copiados de la consola real) y artwork (tus propias imágenes para los juegos, con el mismo nombre que el archivo del juego; activa Ajustes &#8594; Mostrar imágenes).<br/><br/>
         <b>Juegos con más de un disco</b><br/>
         Crea un pequeño archivo de texto que termine en .m3u con la lista de los archivos de los discos, uno por línea, y ponlo junto a ellos. El juego aparece una sola vez. Cambia de disco en Menú &#8594; Cambiar disco.<br/><br/>
         <b>Trucos útiles</b><br/>
@@ -195,7 +195,7 @@
     <string name="settings_title_show_artwork">Mostrar imágenes</string>
     <string name="settings_description_show_artwork">Usa tus propias imágenes de la carpeta Lemuroid/artwork en los juegos. Ponle a cada imagen exactamente el mismo nombre que el archivo del juego, por ejemplo Super Mario World (USA).png.</string>
     <string name="game_overlay_saved_title">Guardado en</string>
-    <string name="game_overlay_state_number">Ranura %1$d</string>
+    <string name="game_overlay_state_number">Estado %1$d</string>
     <string name="game_button_menu">Menú</string>
     <string name="title_activity">Actividad</string>
     <string name="activity_empty">Juega a algo y tu actividad aparecerá aquí.</string>
@@ -259,7 +259,7 @@
     <string name="backup_import_confirm_message">Las partidas de la copia sustituirán a las que tengan el mismo nombre. Tus otras partidas se conservan.</string>
     <string name="backup_import_confirm_button">Importar</string>
     <string name="public_storage_dialog_title">¿Guardar las partidas en una carpeta Lemuroid?</string>
-    <string name="public_storage_dialog_message">Permite el acceso a tus archivos para que las partidas y las ranuras de guardado se guarden en la carpeta \"%1$s\" del almacenamiento principal, donde son fáciles de encontrar y copiar. Las partidas que ya tienes se mueven allí automáticamente.</string>
+    <string name="public_storage_dialog_message">Permite el acceso a tus archivos para que las partidas y los estados se guarden en la carpeta \"%1$s\" del almacenamiento principal, donde son fáciles de encontrar y copiar. Las partidas que ya tienes se mueven allí automáticamente.</string>
     <string name="public_storage_dialog_allow">Permitir</string>
     <string name="public_storage_dialog_not_now">Ahora no</string>
     <string name="public_storage_dialog_dont_ask">No volver a preguntar</string>
@@ -299,8 +299,8 @@
     <string name="settings_game_style_tiles">Mosaicos</string>
     <string name="settings_game_style_media">Cartuchos</string>
     <string name="game_card_load_title">Cargar</string>
-    <string name="game_card_load_failed">No se puede cargar esta ranura</string>
-    <string name="game_card_load_incompatible">Esta ranura se guardó con otro emulador</string>
+    <string name="game_card_load_failed">No se puede cargar este estado</string>
+    <string name="game_card_load_incompatible">Este estado se guardó con otro emulador</string>
     <string name="game_card_quick_save_title">Guardado rápido</string>
     <string name="game_card_quick_save_saved">Guardado</string>
     <string name="game_card_quick_save_loaded">Cargado</string>
