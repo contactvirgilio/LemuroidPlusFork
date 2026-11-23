@@ -159,14 +159,14 @@
         &#8226; Não vê os botões por cima do jogo? Toque na parte de cima do ecrã.<br/>
         &#8226; Som desligado? Carregue numa tecla de volume e o botão do som aparece.<br/>
         &#8226; Mantenha um jogo premido e escolha Recomeçar para jogar desde o início em vez de onde parou.<br/>
-        &#8226; As linhas de TV ficam mais certas com a escala Píxel perfeito.<br/><br/>
+        &#8226; Os filtros Scanlines ficam mais certos com a escala Píxel perfeito.<br/><br/>
         <b>Cópias de segurança</b><br/>
         Definições &#8594; Cópia de segurança junta tudo num ficheiro zip. Também traz gravações de outros emuladores (.sav / .srm).
     ]]></string>
     <string name="lemuroid_crash_disclamer">O emulador teve um problema e parou. Se continuar a acontecer, experimente:\n• Manter o jogo premido e escolher Recomeçar, para começar do zero em vez da gravação automática\n• Experimentar outro emulador em Definições → Escolher emuladores\n• Limpar a cache da app nas definições do Android\n\nSe nada ajudar, este jogo pode não funcionar com este emulador no seu aparelho.</string>
-    <string name="shader_filter_names_auto">Automático</string>
-    <string name="shader_filter_names_sharp">Nítido</string>
-    <string name="shader_filter_names_smooth">Suave</string>
+    <string name="shader_filter_names_auto">Auto</string>
+    <string name="shader_filter_names_sharp">Sharp</string>
+    <string name="shader_filter_names_smooth">Smooth</string>
     <string name="shader_filter_names_crt">CRT</string>
     <string name="shader_filter_names_lcd">LCD</string>
     <string name="viewport_alignment_names_top">Cima</string>
@@ -228,13 +228,13 @@
     <string name="game_overlay_ds_screen_bottom">Ecrã de baixo</string>
     <string name="game_overlay_ds_screen_off">O ecrã único está desligado (ligue-o no menu do jogo, em Ecrãs)</string>
     <string name="game_overlay_scaling_title">Escala %1$d</string>
-    <string name="game_filter_sharp">Nítido</string>
-    <string name="game_filter_smooth">Suave</string>
+    <string name="game_filter_sharp">Sharp</string>
+    <string name="game_filter_smooth">Smooth</string>
     <string name="game_filter_lcd">LCD</string>
-    <string name="game_filter_scan_25">Linhas de TV 25%</string>
-    <string name="game_filter_scan_50">Linhas de TV 50%</string>
-    <string name="game_filter_scan_75">Linhas de TV 75%</string>
-    <string name="game_filter_scan_mask">Linhas de TV + máscara</string>
+    <string name="game_filter_scan_25">Scanlines 25%</string>
+    <string name="game_filter_scan_50">Scanlines 50%</string>
+    <string name="game_filter_scan_75">Scanlines 75%</string>
+    <string name="game_filter_scan_mask">Scanlines + mask</string>
     <string name="game_scaling_fit">Ajustar</string>
     <string name="game_scaling_integer">Inteiro</string>
     <string name="game_scaling_pixel_perfect">Píxel perfeito</string>
@@ -285,13 +285,13 @@
     <string name="game_menu_immersive_mode">Fundo a condizer com o jogo</string>
     <string name="game_overlay_skin_title">Moldura %1$d de %2$d</string>
     <string name="game_skin_off">OLED</string>
-    <string name="game_skin_glow_plus">Brilho+</string>
-    <string name="game_skin_teal">Azul-petróleo</string>
-    <string name="game_skin_purple">Roxo</string>
-    <string name="game_skin_yellow">Amarelo</string>
-    <string name="game_skin_berry">Framboesa</string>
-    <string name="game_skin_light_grey">Cinzento-claro</string>
-    <string name="game_skin_dark_grey">Cinzento-escuro</string>
+    <string name="game_skin_glow_plus">Glow+</string>
+    <string name="game_skin_teal">Teal</string>
+    <string name="game_skin_purple">Purple</string>
+    <string name="game_skin_yellow">Yellow</string>
+    <string name="game_skin_berry">Berry</string>
+    <string name="game_skin_light_grey">Light grey</string>
+    <string name="game_skin_dark_grey">Dark grey</string>
     <string name="game_menu_on">Ligado</string>
     <string name="game_menu_off">Desligado</string>
     <string name="settings_title_game_style">Estilo</string>
@@ -383,10 +383,10 @@
     <string name="sc_save_all">Guardar para todos os sistemas</string>
     <string name="sc_hold_two">Mantenha dois botões premidos… %1$d</string>
     <string name="menu_gamepad_hint">A  Escolher        B  Voltar        ◀ ▶ ▲ ▼  Mover</string>
-    <string name="game_filter_sunlit">Luz do sol</string>
-    <string name="game_filter_lcd_sunlit">LCD + luz do sol</string>
+    <string name="game_filter_sunlit">Sunlit</string>
+    <string name="game_filter_lcd_sunlit">LCD + Sunlit</string>
     <string name="menu_option_reduce_slowdown">Reduzir lentidão</string>
     <string name="game_overlay_loaded_title">Carregado de</string>
-    <string name="game_filter_sunlit_bright">Luz do sol forte</string>
-    <string name="game_filter_lcd_sunlit_bright">LCD + luz do sol forte</string>
+    <string name="game_filter_sunlit_bright">Sunlit bright</string>
+    <string name="game_filter_lcd_sunlit_bright">LCD + Sunlit bright</string>
 </resources>
