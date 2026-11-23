@@ -86,6 +86,9 @@ class GameViewModelRetroGameView(
         return gameState.debounce(200)
     }
 
+    // For options remembered per game (CoreVariablesManager.PER_GAME_KEYS).
+    private var gameId: Int? = null
+
     suspend fun initialize(
         applicationContext: Context,
         game: Game,
@@ -93,6 +96,7 @@ class GameViewModelRetroGameView(
         gameLoader: GameLoader,
         requestLoadSave: Boolean,
     ) {
+        gameId = game.id
         val currentState = gameState.value
         if (currentState != GameState.Uninitialized) return
 
@@ -327,7 +331,7 @@ class GameViewModelRetroGameView(
     private suspend fun initializeCoreVariablesFlow() {
         try {
             waitRetroGameViewInitialized()
-            val options = coreVariablesManager.getOptionsForCore(system.id, systemCoreConfig)
+            val options = coreVariablesManager.getOptionsForCore(system.id, systemCoreConfig, gameId)
             updateCoreVariables(options)
         } catch (e: Exception) {
             Timber.e(e)

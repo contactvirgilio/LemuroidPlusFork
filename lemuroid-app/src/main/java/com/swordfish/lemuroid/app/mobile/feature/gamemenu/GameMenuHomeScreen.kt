@@ -286,11 +286,19 @@ private fun coreOptionEntries(gameMenuRequest: GameMenuActivity.GameMenuRequest)
         if (option.getKey() == SOLAR_SENSOR_KEY && !isBoktai) continue
         val values = option.getEntriesValues()
         if (values.isEmpty()) continue
-        val key = com.swordfish.lemuroid.lib.core.CoreVariablesManager.computeSharedPreferenceKey(option.getKey(), systemId)
+        // A few options are remembered for this game only (Reduce slowdown); the rest per system.
+        val perGame = option.getKey() in com.swordfish.lemuroid.lib.core.CoreVariablesManager.PER_GAME_KEYS
+        val key =
+            if (perGame) {
+                com.swordfish.lemuroid.lib.core.CoreVariablesManager.computeGameKey(option.getKey(), systemId, gameMenuRequest.game.id)
+            } else {
+                com.swordfish.lemuroid.lib.core.CoreVariablesManager.computeSharedPreferenceKey(option.getKey(), systemId)
+            }
         val isSwitch = values.toSet() == com.swordfish.lemuroid.app.shared.coreoptions.CoreOptionsPreferenceHelper.BOOLEAN_SET
         val names = option.getEntries(context)
         var current by remember(key) {
-            mutableStateOf(option.getCurrentValue().takeIf { it in values } ?: values.first())
+            val saved = if (perGame) prefs.getString(key, null) else option.getCurrentValue()
+            mutableStateOf(saved?.takeIf { it in values } ?: values.first())
         }
         val label = stringResource(plainName)
         result +=
