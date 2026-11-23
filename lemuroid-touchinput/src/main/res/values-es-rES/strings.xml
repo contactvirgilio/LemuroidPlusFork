@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="touch_customize_button_done">Listo</string>
-    <string name="touch_customize_button_reset">Reiniciar</string>
-    <string name="touch_customize_info">Arrastra y pellizca los controles para cambiar la posición y el tamaño</string>
+    <string name="touch_customize_button_done">Hecho</string>
+    <string name="touch_customize_button_reset">Restaurar</string>
+    <string name="touch_customize_info">Arrastra los botones para moverlos. Pellizca para cambiar su tamaño.</string>
 </resources>
