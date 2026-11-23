@@ -262,10 +262,10 @@ index 2ec15cf..8119f8b 100644
 +
  }
 diff --git a/libretrodroid/src/main/cpp/shadermanager.cpp b/libretrodroid/src/main/cpp/shadermanager.cpp
-index b853a6a..93c374c 100644
+index b853a6a..8dc1b12 100644
 --- a/libretrodroid/src/main/cpp/shadermanager.cpp
 +++ b/libretrodroid/src/main/cpp/shadermanager.cpp
-@@ -125,6 +125,192 @@ const std::string ShaderManager::lcdShaderFragment =
+@@ -125,6 +125,203 @@ const std::string ShaderManager::lcdShaderFragment =
      "  gl_FragColor = vec4(mix(texel, mix(pixelLow, pixelHigh, mask), screenMaskStrength), 1.0);\n"
      "}\n";
  
@@ -362,6 +362,10 @@ index b853a6a..93c374c 100644
 +};
 +
 +const std::string ShaderManager::handheldFragment =
++    "#ifdef GL_OES_standard_derivatives\n"
++    "#extension GL_OES_standard_derivatives : enable\n"
++    "#endif\n"
++    "\n"
 +    "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
 +    "#define HIGHP highp\n"
 +    "#else\n"
@@ -397,9 +401,14 @@ index b853a6a..93c374c 100644
 +    "\n"
 +    "void main() {\n"
 +    "  HIGHP vec2 sc = screenCoords;\n"
-+    "  // Measured on the picture itself, per axis (Pixel-perfect can scale across and down differently).\n"
-+    "  mediump vec2 density = max(screenDensityXY, vec2(1.0));\n"
-+    "  mediump vec2 px = 1.0 / density;\n"
++    "  // Size of one screen pixel in game pixels, per axis. Measured by the GPU when it can (exact for\n"
++    "  // every scaling mode); otherwise from the picture size worked out by the app.\n"
++    "#ifdef GL_OES_standard_derivatives\n"
++    "  mediump vec2 px = max(vec2(abs(dFdx(sc.x)), abs(dFdy(sc.y))), vec2(0.0001));\n"
++    "#else\n"
++    "  mediump vec2 px = 1.0 / max(screenDensityXY, vec2(1.0));\n"
++    "#endif\n"
++    "  mediump vec2 density = 1.0 / px;\n"
 +    "  mediump float fade = smoothstep(2.5, 3.5, min(density.x, density.y));\n"
 +    "  lowp vec3 t = cell(sc);\n"
 +    "  lowp vec3 color = t;\n"
@@ -411,8 +420,10 @@ index b853a6a..93c374c 100644
 +    "  mediump float e = clamp((abs(f.x - 0.5) - 0.5 + SOFT_X) / SOFT_X, 0.0, 1.0) * 0.5;\n"
 +    "  t = mix(t, side, e * fade);\n"
 +    "#endif\n"
-+    "  HIGHP vec2 a = floor(sc - 0.5 * px + 0.0001);\n"
-+    "  HIGHP vec2 b = floor(sc + 0.5 * px + 0.0001);\n"
++    "  // The last screen pixel of each game pixel is the gap: the next screen pixel over (or down) lands\n"
++    "  // in another game pixel. Exactly one line per edge at any scale.\n"
++    "  HIGHP vec2 a = floor(sc + 0.01 * px);\n"
++    "  HIGHP vec2 b = floor(sc + 1.01 * px);\n"
 +    "  bool gap = a.x != b.x || a.y != b.y;\n"
 +    "  lowp vec3 c = t;\n"
 +    "  if (gap) {\n"
@@ -458,7 +469,7 @@ index b853a6a..93c374c 100644
  const std::string ShaderManager::defaultSharpFragment =
      "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
      "#define HIGHP highp\n"
-@@ -1545,6 +1731,16 @@ ShaderManager::Chain ShaderManager::getShader(const ShaderManager::Config& confi
+@@ -1545,6 +1742,16 @@ ShaderManager::Chain ShaderManager::getShader(const ShaderManager::Config& confi
          return { { { defaultShaderVertex, defaultSharpFragment, true, 1.0 } }, true };
      }
  
