@@ -7,11 +7,13 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.drawscope.drawOutline
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.ui.graphics.Outline
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -156,6 +158,17 @@ fun Modifier.pulsingSelection(shape: Shape = RoundedCornerShape(12.dp)): Modifie
         val tint = SelectionStyle.color
         drawWithContent {
             drawContent()
-            drawOutline(shape.createOutline(size, layoutDirection, this), tint, alpha = pulse)
+            when (val outline = shape.createOutline(size, layoutDirection, this)) {
+                is Outline.Rectangle -> drawRect(tint, outline.rect.topLeft, outline.rect.size, alpha = pulse)
+                is Outline.Rounded ->
+                    drawRoundRect(
+                        tint,
+                        Offset(outline.roundRect.left, outline.roundRect.top),
+                        androidx.compose.ui.geometry.Size(outline.roundRect.width, outline.roundRect.height),
+                        outline.roundRect.topLeftCornerRadius,
+                        alpha = pulse,
+                    )
+                is Outline.Generic -> drawPath(outline.path, tint, alpha = pulse)
+            }
         }
     }
