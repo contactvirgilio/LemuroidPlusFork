@@ -321,7 +321,7 @@ index dc8e5a9..4f748d1 100644
  
  }
 diff --git a/libretrodroid/src/main/cpp/shadermanager.cpp b/libretrodroid/src/main/cpp/shadermanager.cpp
-index b853a6a..45eb4c2 100644
+index b853a6a..363598e 100644
 --- a/libretrodroid/src/main/cpp/shadermanager.cpp
 +++ b/libretrodroid/src/main/cpp/shadermanager.cpp
 @@ -125,6 +125,254 @@ const std::string ShaderManager::lcdShaderFragment =
@@ -548,7 +548,7 @@ index b853a6a..45eb4c2 100644
 +    "#if SUN_BRIGHT\n"
 +    "  // Sunlit bright: mid and dark colours lifted (whites stay white), a lighter shadow.\n"
 +    "  color = pow(color, vec3(0.80));\n"
-+    "  mediump float strength = SUN_STRENGTH * 0.76;\n"
++    "  mediump float strength = SUN_STRENGTH * 0.91;\n"
 +    "#else\n"
 +    "  mediump float strength = SUN_STRENGTH;\n"
 +    "#endif\n"
