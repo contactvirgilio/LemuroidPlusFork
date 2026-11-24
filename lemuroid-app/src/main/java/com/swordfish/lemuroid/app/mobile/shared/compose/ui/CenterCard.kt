@@ -35,7 +35,7 @@ import kotlinx.coroutines.delay
 
 private val CARD_BACKGROUND = Color(0xFF0A0C0E).copy(alpha = 0.82f)
 private val CARD_TITLE = Color(0xFF9AA4AD)
-private val CARD_ACCENT = Color(0xFFFFC107)
+private val CARD_ACCENT: Color get() = SelectionStyle.color
 
 /**
  * The card in the middle of the screen: small title, big value and, when there are several
