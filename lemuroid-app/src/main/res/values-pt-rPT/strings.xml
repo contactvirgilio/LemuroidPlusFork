@@ -384,7 +384,6 @@
     <string name="sc_hold_two">Mantenha dois botões premidos… %1$d</string>
     <string name="menu_gamepad_hint">A  Escolher        B  Voltar        ◀ ▶ ▲ ▼  Mover</string>
     <string name="game_filter_sunlit">Sunlit</string>
-    <string name="game_filter_sunlit_rainbow">Sunlit rainbow</string>
     <string name="game_filter_scan_sunlit_bright">Scanlines 25% + Sunlit bright</string>
     <string name="menu_option_reduce_slowdown">Reduzir lentidão</string>
     <string name="game_overlay_loaded_title">Carregado de</string>

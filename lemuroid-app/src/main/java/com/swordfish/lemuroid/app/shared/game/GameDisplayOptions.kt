@@ -35,9 +35,8 @@ class GameDisplayOptions(
         // (soft pixel shadows on a paper-like back layer, Game Boy and Game Boy Color only).
         LCD(R.string.game_filter_lcd, ShaderConfig.Handheld(grid = true)),
         // Sunlit (2026-11-24): light pixels turn see-through over a grey-beige backing, with soft shadows
-        // (inspired by Pixel Transparency). Sunlit rainbow adds a faint rainbow sheen.
+        // (inspired by Pixel Transparency).
         SUNLIT(R.string.game_filter_sunlit, ShaderConfig.Handheld(grid = false, transparent = true)),
-        SUNLIT_RAINBOW(R.string.game_filter_sunlit_rainbow, ShaderConfig.Handheld(grid = false, transparent = true, rainbow = true)),
         SUNLIT_BRIGHT(R.string.game_filter_sunlit_bright, ShaderConfig.Handheld(grid = false, sunlit = true, bright = true)),
         LCD_SUNLIT_BRIGHT(R.string.game_filter_lcd_sunlit_bright, ShaderConfig.Handheld(grid = true, sunlit = true, bright = true)),
         SCAN_SUNLIT_BRIGHT(R.string.game_filter_scan_sunlit_bright, ShaderConfig.Handheld(grid = false, sunlit = true, bright = true, scan = 0.35f)),
@@ -65,7 +64,6 @@ class GameDisplayOptions(
                             shader.scan > 0f -> SCAN_SUNLIT_BRIGHT
                             shader.grid && shader.sunlit && shader.bright -> LCD_SUNLIT_BRIGHT
                             shader.sunlit && shader.bright -> SUNLIT_BRIGHT
-                            shader.transparent && shader.rainbow -> SUNLIT_RAINBOW
                             shader.transparent -> SUNLIT
                             else -> LCD
                         }
@@ -106,7 +104,7 @@ class GameDisplayOptions(
     private fun offers(filter: Filter): Boolean =
         when (filter) {
             Filter.LCD -> hasLcd(systemId)
-            Filter.SUNLIT, Filter.SUNLIT_RAINBOW, Filter.SUNLIT_BRIGHT, Filter.LCD_SUNLIT_BRIGHT, Filter.SCAN_SUNLIT_BRIGHT -> hasSunlit(systemId)
+            Filter.SUNLIT, Filter.SUNLIT_BRIGHT, Filter.LCD_SUNLIT_BRIGHT, Filter.SCAN_SUNLIT_BRIGHT -> hasSunlit(systemId)
             else -> true
         }
 
