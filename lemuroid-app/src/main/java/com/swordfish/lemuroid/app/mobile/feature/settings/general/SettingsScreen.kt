@@ -317,6 +317,7 @@ private fun LibraryLookSettings() {
             title = { Text(text = stringResource(id = R.string.settings_title_navigation_sounds)) },
             subtitle = { Text(text = stringResource(id = R.string.settings_description_navigation_sounds)) },
         )
+        SelectionColorPicker()
     }
 }
 

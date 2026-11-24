@@ -7,6 +7,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.pulsingSelection
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -49,7 +50,8 @@ object MenuColors {
     val Card = Color(0xFF0A0C0E).copy(alpha = 0.82f)
     val Tile = Color(0xFF1E2226)
     val TileBorder = Color(0x26FFFFFF)
-    val Gold = Color(0xFFFFC107)
+    /** The selection colour chosen in Settings (pink by default); named Gold from when it was gold. */
+    val Gold: Color get() = com.swordfish.lemuroid.app.mobile.shared.compose.ui.SelectionStyle.color
     val Title = Color(0xFF9AA4AD)
     val Label = Color(0xFFC8CDD2)
 }
@@ -150,10 +152,8 @@ fun MenuTile(
                         Modifier
                     },
                 )
-                .border(
-                    if (focused) BorderStroke(3.dp, MenuColors.Gold) else BorderStroke(1.dp, MenuColors.TileBorder),
-                    shape,
-                )
+                .border(BorderStroke(1.dp, MenuColors.TileBorder), shape)
+                .then(if (focused) Modifier.pulsingSelection(shape) else Modifier)
                 .clickable(enabled = enabled, interactionSource = interaction, indication = null, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {

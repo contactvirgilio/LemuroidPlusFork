@@ -388,4 +388,6 @@
     <string name="game_overlay_loaded_title">Cargado de</string>
     <string name="game_filter_sunlit_bright">Sunlit bright</string>
     <string name="game_filter_lcd_sunlit_bright">LCD + Sunlit bright</string>
+    <string name="settings_title_selection_color">Color de selección</string>
+    <string name="settings_description_selection_color">El color que muestra qué elemento está seleccionado.</string>
 </resources>

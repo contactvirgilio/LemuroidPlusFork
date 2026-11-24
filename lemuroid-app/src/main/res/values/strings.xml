@@ -441,4 +441,6 @@
     <string name="game_overlay_loaded_title">Loaded from</string>
     <string name="game_filter_sunlit_bright">Sunlit bright</string>
     <string name="game_filter_lcd_sunlit_bright">LCD + Sunlit bright</string>
+    <string name="settings_title_selection_color">Selection colour</string>
+    <string name="settings_description_selection_color">The colour that shows which item is selected.</string>
 </resources>

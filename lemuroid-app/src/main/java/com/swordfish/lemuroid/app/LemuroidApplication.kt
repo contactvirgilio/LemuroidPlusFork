@@ -24,6 +24,7 @@ class LemuroidApplication : DaggerApplication(), HasWorkerInjector {
         super.onCreate()
         // Lemuroid Plus: write a crash log file if anything crashes (costs nothing otherwise).
         com.swordfish.lemuroid.app.shared.CrashLog.install(this)
+        com.swordfish.lemuroid.app.mobile.shared.compose.ui.SelectionStyle.load(this)
 
         val initializeComponent =
             if (isMainProcess()) {
