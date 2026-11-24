@@ -60,7 +60,6 @@ object SelectionStyle {
             "Gold" to Color(0xFFFFC107),
             "Red" to Color(0xFFF05A5A),
             "Orange" to Color(0xFFFF9632),
-            "White" to Color(0xFFEBEBF0),
             "Violet" to Color(0xFF965AE6),
         )
 
