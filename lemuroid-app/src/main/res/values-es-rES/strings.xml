@@ -233,7 +233,6 @@
     <string name="game_filter_lcd">LCD</string>
     <string name="game_filter_scan_25">Scanlines 25%</string>
     <string name="game_filter_scan_50">Scanlines 50%</string>
-    <string name="game_filter_scan_75">Scanlines 75%</string>
     <string name="game_filter_scan_mask">Scanlines + mask</string>
     <string name="game_scaling_fit">Ajustar</string>
     <string name="game_scaling_integer">Entero</string>
@@ -384,7 +383,7 @@
     <string name="sc_hold_two">Mantén pulsados dos botones… %1$d</string>
     <string name="menu_gamepad_hint">A  Elegir        B  Atrás        ◀ ▶ ▲ ▼  Moverse</string>
     <string name="game_filter_sunlit">Sunlit</string>
-    <string name="game_filter_scan_sunlit_bright">Scanlines 25% + Sunlit bright</string>
+    <string name="game_filter_scan_sunlit_bright">Sunlit + Scanlines</string>
     <string name="menu_option_reduce_slowdown">Reducir ralentizaciones</string>
     <string name="game_overlay_loaded_title">Cargado de</string>
     <string name="game_filter_sunlit_bright">Sunlit bright</string>
