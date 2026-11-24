@@ -321,10 +321,10 @@ index dc8e5a9..4f748d1 100644
  
  }
 diff --git a/libretrodroid/src/main/cpp/shadermanager.cpp b/libretrodroid/src/main/cpp/shadermanager.cpp
-index b853a6a..c3cf89f 100644
+index b853a6a..45eb4c2 100644
 --- a/libretrodroid/src/main/cpp/shadermanager.cpp
 +++ b/libretrodroid/src/main/cpp/shadermanager.cpp
-@@ -125,6 +125,214 @@ const std::string ShaderManager::lcdShaderFragment =
+@@ -125,6 +125,254 @@ const std::string ShaderManager::lcdShaderFragment =
      "  gl_FragColor = vec4(mix(texel, mix(pixelLow, pixelHigh, mask), screenMaskStrength), 1.0);\n"
      "}\n";
  
@@ -419,6 +419,11 @@ index b853a6a..c3cf89f 100644
 +    { "SUN_OFFSET", "0.38" },
 +    { "SUN_BLUR", "0.35" },
 +    { "SUN_BRIGHT", "0" },
++    { "TRANSP", "0" },
++    { "RAINBOW", "0" },
++    { "SCAN_ON", "0" },
++    { "SCAN", "0.35" },
++    { "SCAN_BOOST", "0.06" },
 +};
 +
 +const std::string ShaderManager::handheldFragment =
@@ -449,7 +454,7 @@ index b853a6a..c3cf89f 100644
 +    "  return dot(c, vec3(0.299, 0.587, 0.114));\n"
 +    "}\n"
 +    "\n"
-+    "#if SUNLIT\n"
++    "#if SUNLIT || TRANSP\n"
 +    "mediump float blocks(lowp vec3 c) {\n"
 +    "  return clamp((1.0 - luma(c)) * 0.85 + (max(c.r, max(c.g, c.b)) - min(c.r, min(c.g, c.b))) * 0.35, 0.0, 1.0);\n"
 +    "}\n"
@@ -508,7 +513,7 @@ index b853a6a..c3cf89f 100644
 +    "  color = mix(t, c * BOOST, fade);\n"
 +    "#endif\n"
 +    "\n"
-+    "#if SUNLIT\n"
++    "#if SUNLIT || TRANSP\n"
 +    "  HIGHP vec2 q = sc - vec2(SUN_OFFSET);\n"
 +    "  HIGHP vec2 base = floor(q);\n"
 +    "  mediump float shadow = 0.0;\n"
@@ -518,6 +523,28 @@ index b853a6a..c3cf89f 100644
 +    "      shadow += blocks(cell(n)) * spread(q.x, n.x) * spread(q.y, n.y);\n"
 +    "    }\n"
 +    "  }\n"
++    "#if TRANSP\n"
++    "  // Sunlit (pixel transparency): light pixels turn see-through and show a grey-beige backing, dark\n"
++    "  // pixels cast a soft shadow onto it. Own implementation, inspired by Pixel Transparency (M. Akins).\n"
++    "  mediump float tl = dot(t, vec3(0.2126, 0.7152, 0.0722));\n"
++    "  mediump float alpha = clamp(0.20 * tl * 2.665, 0.0, 1.0);\n"
++    "  lowp vec3 back = vec3(0.47, 0.48, 0.43);\n"
++    "#if RAINBOW\n"
++    "  mediump float u = (sc.x / textureSize.x * 0.9 + sc.y / textureSize.y * 0.6) * 1.8;\n"
++    "  lowp vec3 rb = vec3(cos(6.2831853 * u), cos(6.2831853 * (u + 0.33)), cos(6.2831853 * (u + 0.66)));\n"
++    "  rb *= rb;\n"
++    "  rb /= max(max(rb.r, rb.g), rb.b);\n"
++    "  back *= 0.82 + 0.18 * rb;\n"
++    "  lowp vec3 tint = t * t * rb;\n"
++    "  tint /= max(max(tint.r, tint.g), max(tint.b, 0.001));\n"
++    "  mediump float tk = 0.15 * (0.03 + 0.97 * tl);\n"
++    "#endif\n"
++    "  color = color * (1.0 - alpha) + back * 1.25 * alpha;\n"
++    "#if RAINBOW\n"
++    "  color *= 1.0 - tk + tk * tint;\n"
++    "#endif\n"
++    "  color *= 1.0 - 0.60 * clamp(shadow, 0.0, 1.0);\n"
++    "#else\n"
 +    "#if SUN_BRIGHT\n"
 +    "  // Sunlit bright: mid and dark colours lifted (whites stay white), a lighter shadow.\n"
 +    "  color = pow(color, vec3(0.80));\n"
@@ -532,6 +559,19 @@ index b853a6a..c3cf89f 100644
 +    "  color *= 1.04;\n"
 +    "#endif\n"
 +    "#endif\n"
++    "#endif\n"
++    "#if SCAN_ON\n"
++    "  mediump float sw = mix(0.14, 0.28, luma(t));\n"
++    "  mediump float sdy = px.y / 3.0;\n"
++    "  mediump float prof = 0.0;\n"
++    "  for (int k = -1; k <= 1; k++) {\n"
++    "    mediump float sd = fract(sc.y + float(k) * sdy) - 0.5;\n"
++    "    prof += exp(-(sd * sd) / (2.0 * sw * sw));\n"
++    "  }\n"
++    "  prof /= 3.0;\n"
++    "  mediump float sf = smoothstep(1.5, 2.5, density.y);\n"
++    "  color *= mix(1.0, prof, SCAN * sf) * (1.0 + SCAN_BOOST * sf);\n"
++    "#endif\n"
 +    "\n"
 +    "  gl_FragColor = vec4(min(color, vec3(1.0)), 1.0);\n"
 +    "}\n";
@@ -539,7 +579,7 @@ index b853a6a..c3cf89f 100644
  const std::string ShaderManager::defaultSharpFragment =
      "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
      "#define HIGHP highp\n"
-@@ -1545,6 +1753,16 @@ ShaderManager::Chain ShaderManager::getShader(const ShaderManager::Config& confi
+@@ -1545,6 +1793,16 @@ ShaderManager::Chain ShaderManager::getShader(const ShaderManager::Config& confi
          return { { { defaultShaderVertex, defaultSharpFragment, true, 1.0 } }, true };
      }
  
@@ -806,7 +846,7 @@ index e567388..8b715d2 100644
  
      void updateForegroundVertices();
 diff --git a/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt b/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt
-index 7eb8602..0a4e3f7 100644
+index 7eb8602..3446cae 100644
 --- a/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt
 +++ b/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt
 @@ -71,6 +71,21 @@ class GLRetroView(
@@ -868,7 +908,7 @@ index 7eb8602..0a4e3f7 100644
      override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
          val mappedKey = GamepadsManager.getGamepadKeyEvent(keyCode)
          val port = (event?.device?.controllerNumber ?: 0) - 1
-@@ -413,6 +458,28 @@ class GLRetroView(
+@@ -413,6 +458,32 @@ class GLRetroView(
              is ShaderConfig.CRT -> GLRetroShader(LibretroDroid.SHADER_CRT)
              is ShaderConfig.LCD -> GLRetroShader(LibretroDroid.SHADER_LCD)
              is ShaderConfig.Sharp -> GLRetroShader(LibretroDroid.SHADER_SHARP)
@@ -886,22 +926,26 @@ index 7eb8602..0a4e3f7 100644
 +                mapOf(
 +                    LibretroDroid.SHADER_HANDHELD_PARAM_GRID to toParam(config.grid),
 +                    LibretroDroid.SHADER_HANDHELD_PARAM_GAP_LIGHT to toParam(config.screen == 0),
-+                    LibretroDroid.SHADER_HANDHELD_PARAM_PIX_SHADOW_ON to toParam(config.screen == 0 && !config.sunlit),
++                    LibretroDroid.SHADER_HANDHELD_PARAM_PIX_SHADOW_ON to toParam(config.screen == 0 && !config.sunlit && !config.transparent),
 +                    LibretroDroid.SHADER_HANDHELD_PARAM_SOFT_X_ON to toParam(config.screen == 1),
 +                    LibretroDroid.SHADER_HANDHELD_PARAM_SUBPIX_ON to toParam(config.screen == 2),
 +                    LibretroDroid.SHADER_HANDHELD_PARAM_BOOST to toParam(if (config.screen == 0) 1.0f else 1.08f),
 +                    LibretroDroid.SHADER_HANDHELD_PARAM_SUNLIT to toParam(config.sunlit),
 +                    LibretroDroid.SHADER_HANDHELD_PARAM_SUN_BRIGHT to toParam(config.bright),
++                    LibretroDroid.SHADER_HANDHELD_PARAM_TRANSP to toParam(config.transparent),
++                    LibretroDroid.SHADER_HANDHELD_PARAM_RAINBOW to toParam(config.rainbow),
++                    LibretroDroid.SHADER_HANDHELD_PARAM_SCAN to toParam(config.scan),
++                    LibretroDroid.SHADER_HANDHELD_PARAM_SCAN_ON to toParam(config.scan > 0f),
 +                )
 +            )
              is ShaderConfig.CUT -> GLRetroShader(
                  LibretroDroid.SHADER_UPSCALE_CUT,
                  buildParams(
 diff --git a/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java b/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java
-index 50eafa1..cf49ceb 100644
+index 50eafa1..900f89f 100644
 --- a/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java
 +++ b/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java
-@@ -37,6 +37,22 @@ public class LibretroDroid {
+@@ -37,6 +37,26 @@ public class LibretroDroid {
      public static final int SHADER_UPSCALE_CUT = 4;
      public static final int SHADER_UPSCALE_CUT2 = 5;
      public static final int SHADER_UPSCALE_CUT3 = 6;
@@ -916,6 +960,10 @@ index 50eafa1..cf49ceb 100644
 +    public static final String SHADER_HANDHELD_PARAM_BOOST = "BOOST";
 +    public static final String SHADER_HANDHELD_PARAM_SUNLIT = "SUNLIT";
 +    public static final String SHADER_HANDHELD_PARAM_SUN_BRIGHT = "SUN_BRIGHT";
++    public static final String SHADER_HANDHELD_PARAM_TRANSP = "TRANSP";
++    public static final String SHADER_HANDHELD_PARAM_RAINBOW = "RAINBOW";
++    public static final String SHADER_HANDHELD_PARAM_SCAN = "SCAN";
++    public static final String SHADER_HANDHELD_PARAM_SCAN_ON = "SCAN_ON";
 +
 +    public static final String SHADER_SCANLINES_PARAM_STRENGTH = "SCAN_STRENGTH";
 +    public static final String SHADER_SCANLINES_PARAM_BOOST = "SCAN_BOOST";
@@ -924,7 +972,7 @@ index 50eafa1..cf49ceb 100644
  
      public static final String SHADER_UPSCALE_CUT_PARAM_USE_DYNAMIC_BLEND = "USE_DYNAMIC_BLEND";
      public static final String SHADER_UPSCALE_CUT_PARAM_BLEND_MIN_CONTRAST_EDGE = "BLEND_MIN_CONTRAST_EDGE";
-@@ -139,6 +155,22 @@ public class LibretroDroid {
+@@ -139,6 +159,22 @@ public class LibretroDroid {
  
      public static native void refreshAspectRatio();
  
@@ -948,10 +996,10 @@ index 50eafa1..cf49ceb 100644
      public static native void setControllerType(int port, int type);
  }
 diff --git a/libretrodroid/src/main/java/com/swordfish/libretrodroid/ShaderConfig.kt b/libretrodroid/src/main/java/com/swordfish/libretrodroid/ShaderConfig.kt
-index 5bf4514..68b09f6 100644
+index 5bf4514..f150fa0 100644
 --- a/libretrodroid/src/main/java/com/swordfish/libretrodroid/ShaderConfig.kt
 +++ b/libretrodroid/src/main/java/com/swordfish/libretrodroid/ShaderConfig.kt
-@@ -24,6 +24,26 @@ sealed interface ShaderConfig {
+@@ -24,6 +24,31 @@ sealed interface ShaderConfig {
      object LCD : ShaderConfig
      object Sharp : ShaderConfig
  
@@ -973,6 +1021,11 @@ index 5bf4514..68b09f6 100644
 +        val screen: Int = 0,
 +        // Sunlit bright: lifted colours and a lighter shadow.
 +        val bright: Boolean = false,
++        // Sunlit (pixel transparency): light pixels see-through over a backing, soft shadows; [rainbow]
++        // adds a faint rainbow sheen. [scan] > 0 adds scanlines of that strength.
++        val transparent: Boolean = false,
++        val rainbow: Boolean = false,
++        val scan: Float = 0f,
 +    ) : ShaderConfig
 +
      data class CUT(

@@ -34,10 +34,13 @@ class GameDisplayOptions(
         // Handheld screens (2026-11-23): an even 1 px pixel grid with a look per system, and Sunlit
         // (soft pixel shadows on a paper-like back layer, Game Boy and Game Boy Color only).
         LCD(R.string.game_filter_lcd, ShaderConfig.Handheld(grid = true)),
-        SUNLIT(R.string.game_filter_sunlit, ShaderConfig.Handheld(grid = false, sunlit = true)),
+        // Sunlit (2026-11-24): light pixels turn see-through over a grey-beige backing, with soft shadows
+        // (inspired by Pixel Transparency). Sunlit rainbow adds a faint rainbow sheen.
+        SUNLIT(R.string.game_filter_sunlit, ShaderConfig.Handheld(grid = false, transparent = true)),
+        SUNLIT_RAINBOW(R.string.game_filter_sunlit_rainbow, ShaderConfig.Handheld(grid = false, transparent = true, rainbow = true)),
         SUNLIT_BRIGHT(R.string.game_filter_sunlit_bright, ShaderConfig.Handheld(grid = false, sunlit = true, bright = true)),
-        LCD_SUNLIT(R.string.game_filter_lcd_sunlit, ShaderConfig.Handheld(grid = true, sunlit = true)),
         LCD_SUNLIT_BRIGHT(R.string.game_filter_lcd_sunlit_bright, ShaderConfig.Handheld(grid = true, sunlit = true, bright = true)),
+        SCAN_SUNLIT_BRIGHT(R.string.game_filter_scan_sunlit_bright, ShaderConfig.Handheld(grid = false, sunlit = true, bright = true, scan = 0.35f)),
 
         // CRT-style scanlines (soft beams); most even with integer scaling (Pixel-perfect).
         SCAN_25(R.string.game_filter_scan_25, ShaderConfig.Scanlines(strength = 0.35f, boost = 0.06f)),
@@ -59,10 +62,11 @@ class GameDisplayOptions(
                 when (shader) {
                     is ShaderConfig.Handheld ->
                         when {
+                            shader.scan > 0f -> SCAN_SUNLIT_BRIGHT
                             shader.grid && shader.sunlit && shader.bright -> LCD_SUNLIT_BRIGHT
-                            shader.grid && shader.sunlit -> LCD_SUNLIT
                             shader.sunlit && shader.bright -> SUNLIT_BRIGHT
-                            shader.sunlit -> SUNLIT
+                            shader.transparent && shader.rainbow -> SUNLIT_RAINBOW
+                            shader.transparent -> SUNLIT
                             else -> LCD
                         }
                     ShaderConfig.LCD -> LCD
@@ -102,7 +106,7 @@ class GameDisplayOptions(
     private fun offers(filter: Filter): Boolean =
         when (filter) {
             Filter.LCD -> hasLcd(systemId)
-            Filter.SUNLIT, Filter.SUNLIT_BRIGHT, Filter.LCD_SUNLIT, Filter.LCD_SUNLIT_BRIGHT -> hasSunlit(systemId)
+            Filter.SUNLIT, Filter.SUNLIT_RAINBOW, Filter.SUNLIT_BRIGHT, Filter.LCD_SUNLIT_BRIGHT, Filter.SCAN_SUNLIT_BRIGHT -> hasSunlit(systemId)
             else -> true
         }
 
