@@ -40,6 +40,7 @@ class HomeViewModel(
 ) : ViewModel() {
     companion object {
         const val CAROUSEL_MAX_ITEMS = 12
+        const val DISCOVER_MAX_ITEMS = 5
         const val DEBOUNCE_TIME = 100L
     }
 
@@ -169,7 +170,7 @@ class HomeViewModel(
         combine(retrogradeDb.gameDao().selectDiscoveryCandidates(), currentDay()) { candidates, day ->
             candidates to day
         }.map { (candidates, day) ->
-            val ids = discoverPicker.pick(candidates, CAROUSEL_MAX_ITEMS, day)
+            val ids = discoverPicker.pick(candidates, DISCOVER_MAX_ITEMS, day)
             val games = retrogradeDb.gameDao().selectByIds(ids).associateBy { it.id }
             ids.mapNotNull { games[it] }
         }
