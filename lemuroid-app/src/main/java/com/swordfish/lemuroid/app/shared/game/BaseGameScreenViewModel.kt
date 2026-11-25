@@ -555,11 +555,21 @@ class BaseGameScreenViewModel(
 
     fun getScaling(): StateFlow<GameDisplayOptions.Scaling> = scalingState
 
+    /**
+     * True when Fine integer gives exactly the Pixel-perfect picture for this game on this screen
+     * (often GBA on the Retroid Pocket Classic). Then only Pixel perfect is offered (owner, 2026-11-25).
+     */
+    @Volatile
+    private var fineSameAsPixelPerfect = false
+
+    private fun offeredScalings(): List<GameDisplayOptions.Scaling> =
+        if (fineSameAsPixelPerfect) scalingModes - GameDisplayOptions.Scaling.FINE_INTEGER else scalingModes
+
     /** Position of a scaling mode among the ones offered here, from 1 (shown on the shortcut). */
-    fun scalingNumber(scaling: GameDisplayOptions.Scaling): Int = scalingModes.indexOf(scaling) + 1
+    fun scalingNumber(scaling: GameDisplayOptions.Scaling): Int = offeredScalings().indexOf(scaling).coerceAtLeast(0) + 1
 
     fun cycleScaling() {
-        val modes = scalingModes
+        val modes = offeredScalings()
         val next = modes[(modes.indexOf(scalingState.value) + 1) % modes.size]
         scalingState.value = next
         displayOptions.saveScaling(next)
@@ -579,17 +589,33 @@ class BaseGameScreenViewModel(
         viewWidth: Float,
         viewHeight: Float,
         area: android.graphics.RectF,
-    ) = GameDisplayOptions.computeViewport(
-        scaling,
-        scalingProfile,
-        alignment,
-        viewWidth,
-        viewHeight,
-        area.left,
-        area.top,
-        area.right,
-        area.bottom,
-    )
+    ): android.graphics.RectF {
+        fun viewport(mode: GameDisplayOptions.Scaling) =
+            GameDisplayOptions.computeViewport(
+                mode,
+                scalingProfile,
+                alignment,
+                viewWidth,
+                viewHeight,
+                area.left,
+                area.top,
+                area.right,
+                area.bottom,
+            )
+        val fine = viewport(GameDisplayOptions.Scaling.FINE_INTEGER)
+        val perfect = viewport(GameDisplayOptions.Scaling.PIXEL_PERFECT)
+        val same =
+            scalingProfile?.baseWidth != null &&
+                kotlin.math.abs(fine.width() - perfect.width()) * viewWidth < 1.5f &&
+                kotlin.math.abs(fine.height() - perfect.height()) * viewHeight < 1.5f
+        if (same != fineSameAsPixelPerfect) fineSameAsPixelPerfect = same
+        if (same && scaling == GameDisplayOptions.Scaling.FINE_INTEGER) {
+            // Shown as Pixel perfect (identical picture); not saved, another screen may differ.
+            viewModelScope.launch { scalingState.value = GameDisplayOptions.Scaling.PIXEL_PERFECT }
+            return perfect
+        }
+        return viewport(scaling)
+    }
 
     init {
         // Applies the filter remembered for this system (or reads the one from Settings) once the
