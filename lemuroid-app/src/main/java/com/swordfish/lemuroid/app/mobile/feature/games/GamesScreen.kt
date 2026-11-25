@@ -38,11 +38,7 @@ fun GamesScreen(
 
     when (rememberGamesViewMode()) {
         GamesViewMode.LIST ->
-            if (rememberScreenshotStyle()) {
-                ScreenshotGamesList(modifier, games, onGameClick, onGameLongClick, onGameFavoriteToggle)
-            } else {
-                GamesList(modifier, games, onGameClick, onGameLongClick, onGameFavoriteToggle)
-            }
+            GamesList(modifier, games, onGameClick, onGameLongClick, onGameFavoriteToggle)
         GamesViewMode.GRID_SMALL ->
             GamesGrid(modifier, games, SMALL_TILE_SIZE, onGameClick, onGameLongClick)
         GamesViewMode.GRID_LARGE ->

@@ -217,9 +217,9 @@ private fun GamesViewModeButtons() {
             Triple(GamesViewMode.CAROUSEL, Icons.Outlined.ViewCarousel, R.string.games_view_carousel),
         )
 
-    // Screenshots style: List and one Grid only.
-    val screenshots = com.swordfish.lemuroid.app.shared.screenshots.rememberScreenshotStyle()
-    options.filter { !(screenshots && (it.first == GamesViewMode.CAROUSEL || it.first == GamesViewMode.GRID_SMALL)) }.forEach { (mode, icon, labelId) ->
+    // Screenshots style: one grid, no layout buttons.
+    if (com.swordfish.lemuroid.app.shared.screenshots.rememberScreenshotStyle()) return
+    options.forEach { (mode, icon, labelId) ->
         val selected = mode == currentMode
         IconButton(onClick = { GamesViewModeStore.set(context, mode) }) {
             Icon(
