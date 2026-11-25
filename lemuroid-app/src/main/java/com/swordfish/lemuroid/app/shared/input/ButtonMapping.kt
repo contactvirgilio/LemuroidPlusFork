@@ -178,7 +178,7 @@ object ButtonMapping {
 
     // ---- Shortcuts (2026-11-22): button combos for the game menu, fast forward, save, load menu.
 
-    enum class Shortcut { MENU, FAST_FORWARD, SAVE_STATE, LOAD_MENU }
+    enum class Shortcut { MENU, FAST_FORWARD, SAVE_STATE, LOAD_MENU, SCREENSHOT }
 
     /** Defaults: hold Select and press another button. */
     val DEFAULT_SHORTCUTS: Map<Shortcut, Set<Int>> =
@@ -187,6 +187,7 @@ object ButtonMapping {
             Shortcut.FAST_FORWARD to setOf(KeyEvent.KEYCODE_BUTTON_SELECT, KeyEvent.KEYCODE_BUTTON_R2),
             Shortcut.SAVE_STATE to setOf(KeyEvent.KEYCODE_BUTTON_SELECT, KeyEvent.KEYCODE_BUTTON_R1),
             Shortcut.LOAD_MENU to setOf(KeyEvent.KEYCODE_BUTTON_SELECT, KeyEvent.KEYCODE_BUTTON_L1),
+            Shortcut.SCREENSHOT to setOf(KeyEvent.KEYCODE_BUTTON_SELECT, KeyEvent.KEYCODE_BUTTON_L2),
         )
 
     const val GLOBAL_SHORTCUTS = "sc:all"

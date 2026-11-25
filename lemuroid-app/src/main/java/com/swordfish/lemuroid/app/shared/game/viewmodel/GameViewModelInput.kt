@@ -365,6 +365,10 @@ class GameViewModelInput(
                                 sideEffects.showMenu(tilt, this, openLoad = true)
                                 return@safeCollect
                             }
+                            com.swordfish.lemuroid.app.shared.input.ButtonMapping.Shortcut.SCREENSHOT -> {
+                                sideEffects.takeScreenshot()
+                                return@safeCollect
+                            }
                             null -> Unit
                         }
                     }

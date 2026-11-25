@@ -284,6 +284,7 @@ class BaseGameScreenViewModel(
     /** Saves the game's picture to Lemuroid/Screenshots and shows "Screenshot saved". */
     suspend fun takeScreenshot() {
         val ok = saves.saveScreenshot()
+        if (ok) screenshotFlashes.value++
         overlayCardState.value =
             OverlayCard(
                 appContext.getString(R.string.game_overlay_screenshot_title),
@@ -790,6 +791,11 @@ class BaseGameScreenViewModel(
     private var gameResumed = false
 
     private val autoSaveFlashes = MutableStateFlow(0)
+
+    /** Counts screenshots taken; the game screen flashes white on each (visual confirmation). */
+    private val screenshotFlashes = MutableStateFlow(0)
+
+    fun getScreenshotFlashes(): StateFlow<Int> = screenshotFlashes
 
     fun getAutoSaveFlashes(): StateFlow<Int> = autoSaveFlashes
 

@@ -283,6 +283,7 @@ abstract class BaseGameActivity : ImmersiveActivity() {
                         )
                     }
                     is GameViewModelSideEffects.UiEffect.SaveToNextSlot -> baseGameScreenViewModel.quickSaveToNextSlot()
+                    is GameViewModelSideEffects.UiEffect.TakeScreenshot -> GlobalScope.launch { baseGameScreenViewModel.takeScreenshot() }
                     is GameViewModelSideEffects.UiEffect.ShowCard -> baseGameScreenViewModel.showCard(it.title, it.value)
                     is GameViewModelSideEffects.UiEffect.SuccessfulFinish -> performSuccessfulActivityFinish()
                     is GameViewModelSideEffects.UiEffect.FailureFinish -> performErrorFinish(it.message)

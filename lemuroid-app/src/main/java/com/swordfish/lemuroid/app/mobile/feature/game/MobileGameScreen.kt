@@ -341,6 +341,7 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                 modifier = Modifier.align(Alignment.Center),
                 viewModel = viewModel,
             )
+            ScreenshotFlash(viewModel)
         }
 
         if (isLoading) {
@@ -578,6 +579,21 @@ private fun ImmersiveButton(viewModel: BaseGameScreenViewModel) {
                 )
             }
         }
+    }
+}
+
+/** A camera flash over the whole screen when a screenshot is saved (owner, 2026-11-25). */
+@Composable
+private fun ScreenshotFlash(viewModel: BaseGameScreenViewModel) {
+    val flashes = viewModel.getScreenshotFlashes().collectAsState().value
+    val alpha = remember { androidx.compose.animation.core.Animatable(0f) }
+    LaunchedEffect(flashes) {
+        if (flashes == 0) return@LaunchedEffect
+        alpha.snapTo(0.7f)
+        alpha.animateTo(0f, tween(450, easing = FastOutSlowInEasing))
+    }
+    if (alpha.value > 0f) {
+        Box(modifier = Modifier.fillMaxSize().background(Color.White.copy(alpha = alpha.value)))
     }
 }
 

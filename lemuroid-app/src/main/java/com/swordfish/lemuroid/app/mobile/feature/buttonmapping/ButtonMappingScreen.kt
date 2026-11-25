@@ -31,6 +31,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
+import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -530,6 +531,7 @@ private fun shortcutName(type: ButtonMapping.Shortcut) =
         ButtonMapping.Shortcut.FAST_FORWARD -> com.swordfish.lemuroid.R.string.sc_fast_forward
         ButtonMapping.Shortcut.SAVE_STATE -> com.swordfish.lemuroid.R.string.sc_quick_save
         ButtonMapping.Shortcut.LOAD_MENU -> com.swordfish.lemuroid.R.string.sc_open_saves
+        ButtonMapping.Shortcut.SCREENSHOT -> com.swordfish.lemuroid.R.string.game_menu_screenshot
     }
 
 /** Keys of a combo in small boxes: Select + R1. Select is listed first. */
@@ -577,6 +579,8 @@ private fun ShortcutChip(
                     tint = ink,
                     modifier = iconModifier,
                 )
+            ButtonMapping.Shortcut.SCREENSHOT ->
+                androidx.compose.material3.Icon(androidx.compose.material.icons.Icons.Outlined.PhotoCamera, contentDescription = null, tint = ink, modifier = iconModifier)
         }
     }
 }

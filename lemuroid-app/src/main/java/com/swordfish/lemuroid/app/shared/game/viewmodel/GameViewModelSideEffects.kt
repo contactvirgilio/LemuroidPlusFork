@@ -20,6 +20,8 @@ class GameViewModelSideEffects(private val scope: CoroutineScope) {
 
         data object SaveToNextSlot : UiEffect
 
+        data object TakeScreenshot : UiEffect
+
         data class ShowCard(val title: String, val value: String) : UiEffect
 
         data object SuccessfulFinish : UiEffect
@@ -93,6 +95,14 @@ class GameViewModelSideEffects(private val scope: CoroutineScope) {
         scope.launch {
             withContext(Dispatchers.Main) {
                 uiEffects.emit(UiEffect.SaveQuickSave)
+            }
+        }
+    }
+
+    fun takeScreenshot() {
+        scope.launch {
+            withContext(Dispatchers.Main) {
+                uiEffects.emit(UiEffect.TakeScreenshot)
             }
         }
     }
