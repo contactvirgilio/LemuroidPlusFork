@@ -855,8 +855,8 @@ private const val OVERLAY_CARD_MILLIS = 1200L
 
 private val FAST_FORWARD_ACTIVE_COLOR: Color get() = com.swordfish.lemuroid.app.mobile.shared.compose.ui.SelectionStyle.color
 
-/** The grid button while the shortcuts are out (yellow means a toggle is on, so not yellow). */
-private val GRID_OPEN_COLOR = Color(0xFF5DCAA5)
+/** The grid button while the shortcuts are out (follows the selection colour, same as the toggles). */
+private val GRID_OPEN_COLOR: Color get() = com.swordfish.lemuroid.app.mobile.shared.compose.ui.SelectionStyle.color
 
 @Composable
 private fun PadContainer(modifier: Modifier = Modifier) {
