@@ -150,34 +150,44 @@ private fun ChoiceCard(
  */
 @Composable
 fun LibraryLookPicker(
-    cartridges: Boolean,
+    style: Int,
     pastel: Boolean,
     layout: GamesViewMode,
-    onCartridges: (Boolean) -> Unit,
+    onStyle: (Int) -> Unit,
     onPastel: (Boolean) -> Unit,
     onLayout: (GamesViewMode) -> Unit,
 ) {
     val colors = SystemTileColors.previewColors(pastel, PREVIEW_SYSTEMS).map { Color(it) }
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
-        LibraryPreview(cartridges, colors, layout)
+        val shownLayout = if (style == 2 && layout == GamesViewMode.CAROUSEL) GamesViewMode.GRID_LARGE else layout
+        LibraryPreview(style, colors, shownLayout)
 
         PickerRow(
             title = stringResource(R.string.settings_title_game_style),
-            options = listOf(stringResource(R.string.settings_game_style_tiles), stringResource(R.string.settings_game_style_media)),
-            selected = if (cartridges) 1 else 0,
-            onPick = { onCartridges(it == 1) },
-        )
-        val layouts = listOf(GamesViewMode.LIST, GamesViewMode.GRID_SMALL, GamesViewMode.GRID_LARGE, GamesViewMode.CAROUSEL)
-        PickerRow(
-            title = stringResource(R.string.settings_title_layout),
             options =
                 listOf(
-                    stringResource(R.string.games_view_list),
-                    stringResource(R.string.games_view_grid_small),
-                    stringResource(R.string.games_view_grid_large),
-                    stringResource(R.string.games_view_carousel),
+                    stringResource(R.string.settings_game_style_tiles),
+                    stringResource(R.string.settings_game_style_media),
+                    stringResource(R.string.settings_game_style_screenshots),
                 ),
-            selected = layouts.indexOf(layout).coerceAtLeast(0),
+            selected = style,
+            onPick = onStyle,
+        )
+        // The Screenshots style has grid and list only, no carousel (owner, 2026-11-25).
+        val layouts =
+            listOf(GamesViewMode.LIST, GamesViewMode.GRID_SMALL, GamesViewMode.GRID_LARGE, GamesViewMode.CAROUSEL)
+                .filter { !(style == 2 && it == GamesViewMode.CAROUSEL) }
+        val layoutNames =
+            mapOf(
+                GamesViewMode.LIST to stringResource(R.string.games_view_list),
+                GamesViewMode.GRID_SMALL to stringResource(R.string.games_view_grid_small),
+                GamesViewMode.GRID_LARGE to stringResource(R.string.games_view_grid_large),
+                GamesViewMode.CAROUSEL to stringResource(R.string.games_view_carousel),
+            )
+        PickerRow(
+            title = stringResource(R.string.settings_title_layout),
+            options = layouts.map { layoutNames.getValue(it) },
+            selected = layouts.indexOf(shownLayout).coerceAtLeast(0),
             onPick = { onLayout(layouts[it]) },
         )
         PickerRow(
@@ -229,7 +239,7 @@ private fun PickerRow(
 /** A small live picture of the library with the current choices. */
 @Composable
 private fun LibraryPreview(
-    cartridges: Boolean,
+    style: Int,
     colors: List<Color>,
     layout: GamesViewMode,
 ) {
@@ -239,7 +249,9 @@ private fun LibraryPreview(
         size: androidx.compose.ui.unit.Dp,
         alpha: Float = 1f,
     ) {
-        if (cartridges) {
+        if (style == 2) {
+            Box(modifier = Modifier.size(width = size, height = size * 0.75f).alpha(alpha).background(colors[index % colors.size]))
+        } else if (style == 1) {
             val res = listOf(R.drawable.media_snes, R.drawable.media_gba, R.drawable.media_genesis, R.drawable.media_psx, R.drawable.media_gb, R.drawable.media_n64)
             Image(
                 painter = painterResource(res[index % res.size]),

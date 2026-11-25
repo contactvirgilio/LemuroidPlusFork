@@ -215,7 +215,9 @@ private fun GamesViewModeButtons() {
             Triple(GamesViewMode.CAROUSEL, Icons.Outlined.ViewCarousel, R.string.games_view_carousel),
         )
 
-    options.forEach { (mode, icon, labelId) ->
+    // No carousel in the Screenshots style.
+    val screenshots = com.swordfish.lemuroid.app.shared.screenshots.rememberScreenshotStyle()
+    options.filter { !(screenshots && it.first == GamesViewMode.CAROUSEL) }.forEach { (mode, icon, labelId) ->
         val selected = mode == currentMode
         IconButton(onClick = { GamesViewModeStore.set(context, mode) }) {
             Icon(

@@ -197,8 +197,22 @@ class GameViewModelSaves(
      * Save picture from the game's own pixels, enlarged with crisp square pixels (whole-number
      * enlargement, then a smooth shrink to the preview size) and the system's screen shape.
      */
-    private fun sharpPreview(frame: Bitmap): Bitmap {
-        val sizeInDp = StatesPreviewManager.PREVIEW_SIZE_DP
+    /**
+     * "Take screenshot": the game's own picture (no filter), crisp and in the system's screen shape,
+     * saved as Lemuroid/Screenshots/<ROM name>.png over the previous one. False if it failed.
+     */
+    suspend fun saveScreenshot(): Boolean {
+        val frame = (if (rawFrameFits()) runCatching { captureRawFrame() }.getOrNull() else null) ?: lastRawFrame ?: return false
+        return withContext(Dispatchers.IO) {
+            val picture = sharpPreview(frame, SCREENSHOT_SIZE_DP)
+            com.swordfish.lemuroid.app.shared.screenshots.ScreenshotManager.saveScreenshot(appContext, game, picture)
+        }
+    }
+
+    private fun sharpPreview(
+        frame: Bitmap,
+        sizeInDp: Float = StatesPreviewManager.PREVIEW_SIZE_DP,
+    ): Bitmap {
         val previewSize = GraphicsUtils.convertDpToPixel(sizeInDp, appContext).roundToInt().coerceAtLeast(16)
         val aspect =
             GamePreviewCropper.aspectRatioFor(system.id)
@@ -328,4 +342,7 @@ class GameViewModelSaves(
 
 private const val SCREENSHOT_ATTEMPTS = 4
 private const val RAW_FRAME_TIMEOUT_MILLIS = 600L
+
+/** Size of the long side of a screenshot (big enough for the large picture in the List layout). */
+private const val SCREENSHOT_SIZE_DP = 360f
 private const val SCREENSHOT_RETRY_MILLIS = 150L

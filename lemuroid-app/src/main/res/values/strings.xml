@@ -196,7 +196,7 @@
         &#8226; PlayStation games also work in a PS, PS1 or PlayStation folder.<br/>
         &#8226; Arcade games stay zipped, in an Arcade, MAME, FBNeo or Neo Geo folder.<br/><br/>
         <b>The Lemuroid folder</b><br/>
-        Lemuroid makes this folder on your phone. Inside: saves (your progress), states (save slots), bios (extra files some systems need, copied from the real console) and artwork (your own pictures for game tiles, named exactly like the game file; turn on Settings &#8594; Show artwork).<br/><br/>
+        Lemuroid makes this folder on your phone. Inside: saves (your progress), states (save slots), bios (extra files some systems need, copied from the real console) and Screenshots (pictures you take in a game with Take screenshot; the Screenshots style shows them).<br/><br/>
         <b>Games with more than one disc</b><br/>
         Make a small text file ending in .m3u that lists the disc files, one per line, and put it next to them. The game then shows once. Change discs with Menu &#8594; Change disc.<br/><br/>
         <b>Handy tricks</b><br/>
@@ -243,8 +243,6 @@
     <string name="settings_title_hidden_apps">Hidden apps</string>
     <string name="settings_description_hidden_apps">Pick which apps show in the Apps tab. You can also press and hold an app to hide it.</string>
     <string name="settings_description_hidden_apps_screen">Apps that are switched off don\'t appear in the Apps tab. They stay installed.</string>
-    <string name="settings_title_show_artwork">Show artwork</string>
-    <string name="settings_description_show_artwork">Uses your own pictures from the Lemuroid/artwork folder as game tiles. Name each picture exactly like its game file, for example Super Mario World (USA).png.</string>
     <string name="game_overlay_saved_title">Saved to</string>
     <string name="game_overlay_state_number">Slot %1$d</string>
     <string name="game_button_menu">Menu</string>
@@ -443,4 +441,11 @@
     <string name="game_filter_lcd_sunlit_bright">LCD + Sunlit bright</string>
     <string name="settings_title_selection_color">Selection colour</string>
     <string name="settings_description_selection_color">The colour that shows which item is selected.</string>
+    <string name="settings_game_style_screenshots">Screenshots</string>
+    <string name="game_menu_screenshot">Take screenshot</string>
+    <string name="game_overlay_screenshot_title">Screenshot</string>
+    <string name="game_overlay_screenshot_saved">Saved</string>
+    <string name="game_overlay_screenshot_failed">Couldn\'t save</string>
+    <string name="settings_title_screenshot_button">Screenshot button</string>
+    <string name="settings_description_screenshot_button">Shows a camera button with the other buttons on the game screen. It saves a picture of the game.</string>
 </resources>

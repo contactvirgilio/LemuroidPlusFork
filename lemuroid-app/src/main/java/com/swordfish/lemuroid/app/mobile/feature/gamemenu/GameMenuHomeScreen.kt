@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material3.Icon
+import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -98,6 +99,22 @@ fun GameMenuHomeScreen(
             label = restart,
             icon = drawableIcon(R.drawable.ic_menu_restart, restart),
             onClick = { onResult { putExtra(GameMenuContract.RESULT_RESET, true) } },
+        )
+
+    // Saves the game's picture to Lemuroid/Screenshots (owner, 2026-11-25), replacing the last one.
+    val screenshot = stringResource(id = R.string.game_menu_screenshot)
+    entries +=
+        MenuEntry(
+            label = screenshot,
+            icon = { tint ->
+                Icon(
+                    androidx.compose.material.icons.Icons.Outlined.PhotoCamera,
+                    contentDescription = screenshot,
+                    tint = tint,
+                    modifier = Modifier.size(28.dp),
+                )
+            },
+            onClick = { onResult { putExtra(GameMenuContract.RESULT_SCREENSHOT, true) } },
         )
 
     val quit = stringResource(id = R.string.game_menu_quit)

@@ -42,3 +42,14 @@ fun FavoriteToggle(
         )
     }
 }
+
+/** A small filled heart shown before a favourite's name (Screenshots style). */
+@Composable
+fun FavoriteHeart(modifier: Modifier = Modifier) {
+    Icon(
+        Icons.Default.Favorite,
+        contentDescription = stringResource(R.string.favorites),
+        tint = FAVORITE_HEART_COLOR,
+        modifier = modifier.size(16.dp),
+    )
+}

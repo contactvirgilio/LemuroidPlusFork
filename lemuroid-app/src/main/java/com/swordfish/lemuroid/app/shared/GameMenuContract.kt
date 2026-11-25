@@ -18,6 +18,7 @@ object GameMenuContract {
     const val EXTRA_IMMERSIVE_MODE = "EXTRA_IMMERSIVE_MODE"
 
     const val RESULT_RESET = "RESULT_RESET"
+    const val RESULT_SCREENSHOT = "RESULT_SCREENSHOT"
     const val RESULT_SAVE = "RESULT_SAVE"
     const val RESULT_LOAD = "RESULT_LOAD"
 

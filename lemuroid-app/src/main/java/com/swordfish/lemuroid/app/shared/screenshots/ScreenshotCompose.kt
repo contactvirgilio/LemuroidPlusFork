@@ -1,4 +1,4 @@
-package com.swordfish.lemuroid.app.shared.artwork
+package com.swordfish.lemuroid.app.shared.screenshots
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -15,10 +15,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * The "Show artwork" setting, watched once for the whole app. Every game tile reads it, so they
+ * The Screenshots style setting, watched once for the whole app. Every game tile reads it, so they
  * share this instead of each one registering its own listener.
  */
-private object ShowArtworkSetting {
+private object ScreenshotStyleSetting {
     var enabled by mutableStateOf(false)
         private set
 
@@ -27,43 +27,51 @@ private object ShowArtworkSetting {
     fun ensureWatching(context: Context) {
         if (listener != null) return
         val appContext = context.applicationContext
-        enabled = ArtworkManager.isEnabled(appContext)
+        enabled = ScreenshotManager.isEnabled(appContext)
         val created =
             SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-                if (key == ArtworkManager.SHOW_ARTWORK_KEY) enabled = ArtworkManager.isEnabled(appContext)
+                if (key == ScreenshotManager.STYLE_KEY) enabled = ScreenshotManager.isEnabled(appContext)
             }
         // Kept in a field: preferences only hold listeners weakly.
         listener = created
-        ArtworkManager.preferences(appContext).registerOnSharedPreferenceChangeListener(created)
+        ScreenshotManager.preferences(appContext).registerOnSharedPreferenceChangeListener(created)
     }
 }
 
-/** Follows the "Show artwork" setting, updating when it changes. */
+/** Follows the Screenshots style setting, updating when it changes. */
 @Composable
-fun rememberShowArtwork(): Boolean {
+fun rememberScreenshotStyle(): Boolean {
     val context = LocalContext.current
-    remember { ShowArtworkSetting.ensureWatching(context) }
-    return ShowArtworkSetting.enabled
+    remember { ScreenshotStyleSetting.ensureWatching(context) }
+    return ScreenshotStyleSetting.enabled
 }
 
-/** The game's artwork when "Show artwork" is on and an image exists, otherwise null. */
+/** The game's screenshot in the Screenshots style when one exists, otherwise null. */
 @Composable
-fun rememberGameArtwork(game: Game): Bitmap? {
+fun rememberGameScreenshot(game: Game): Bitmap? {
     val context = LocalContext.current
-    val enabled = rememberShowArtwork()
+    val enabled = rememberScreenshotStyle()
     // An image that is already loaded shows at once (no colour flash while scrolling); the
     // background check below still runs and corrects it if the file changed.
     val initial =
-        remember(game.id, game.fileName, enabled) {
-            if (enabled) ArtworkManager.peekArtwork(game) else null
+        remember(game.id, game.fileName, enabled, ScreenshotManager.version) {
+            if (enabled) ScreenshotManager.peekScreenshot(game) else null
         }
-    val artwork by produceState(initialValue = initial, game.id, game.fileName, enabled) {
+    val artwork by produceState(initialValue = initial, game.id, game.fileName, enabled, ScreenshotManager.version) {
         value =
             if (enabled) {
-                withContext(Dispatchers.IO) { ArtworkManager.loadArtwork(context.applicationContext, game) }
+                withContext(Dispatchers.IO) { ScreenshotManager.loadScreenshot(context.applicationContext, game) }
             } else {
                 null
             }
     }
     return artwork
+}
+
+/** Turns the Screenshots style on or off (it excludes the Cartridges style). */
+fun setScreenshotStyle(
+    context: Context,
+    on: Boolean,
+) {
+    ScreenshotManager.preferences(context.applicationContext).edit().putBoolean(ScreenshotManager.STYLE_KEY, on).apply()
 }

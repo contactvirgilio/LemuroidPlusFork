@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
-import com.swordfish.lemuroid.app.shared.artwork.rememberGameArtwork
+import com.swordfish.lemuroid.app.shared.screenshots.rememberScreenshotStyle
 import com.swordfish.lemuroid.app.shared.tiles.GameTileUtils
 import com.swordfish.lemuroid.app.shared.tiles.SystemTileColors
 import com.swordfish.lemuroid.lib.library.db.entity.Game
@@ -20,7 +20,6 @@ fun LemuroidSmallGameImage(
     modifier: Modifier = Modifier,
     game: Game,
 ) {
-    val artwork = rememberGameArtwork(game)
     val imageModifier =
         modifier
             .fillMaxWidth()
@@ -32,16 +31,8 @@ fun LemuroidSmallGameImage(
         return
     }
 
-    if (artwork != null) {
-        // Artwork fills the tile, keeping its proportions; whatever doesn't fit is trimmed evenly.
-        val bitmap = remember(artwork) { artwork.asImageBitmap() }
-        Image(
-            bitmap = bitmap,
-            contentDescription = game.displayName(),
-            modifier = imageModifier,
-            contentScale = ContentScale.Crop,
-            alignment = Alignment.Center,
-        )
+    if (rememberScreenshotStyle()) {
+        ScreenshotPicture(modifier = imageModifier, game = game)
         return
     }
 

@@ -202,6 +202,8 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
 
     override fun onResume() {
         super.onResume()
+        // Screenshots taken in the game (another process) show up when the library comes back.
+        com.swordfish.lemuroid.app.shared.screenshots.ScreenshotManager.refresh()
         SystemTileColors.refresh(SharedPreferencesHelper.getSharedPreferences(applicationContext))
         // First launch after a reinstall: bring back the settings kept in Lemuroid/settings as soon
         // as "All files access" is allowed, then reload so they take effect.

@@ -36,7 +36,7 @@ import com.swordfish.lemuroid.app.mobile.feature.main.MainRoute
 import com.swordfish.lemuroid.app.mobile.feature.main.VERTICAL_BAR_KEY
 import com.swordfish.lemuroid.app.mobile.feature.main.navigateToRoute
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.MediaViewSetting
-import com.swordfish.lemuroid.app.shared.artwork.ArtworkManager
+import com.swordfish.lemuroid.app.shared.screenshots.ScreenshotManager
 import com.swordfish.lemuroid.app.shared.game.GameShortcutsSetting
 import com.swordfish.lemuroid.app.shared.game.GameShellSkin
 import com.swordfish.lemuroid.app.shared.game.PadSkinSetting
@@ -256,6 +256,11 @@ private fun InGameLookSettings() {
     ) {
         val nestedShortcuts = booleanPreferenceState(GameShortcutsSetting.KEY, GameShortcutsSetting.defaultNested(LocalContext.current))
         ShortcutsPicker(nested = nestedShortcuts.value, onPick = { nestedShortcuts.value = it })
+        LemuroidSettingsSwitch(
+            state = booleanPreferenceState(ScreenshotManager.BUTTON_KEY, true),
+            title = { Text(text = stringResource(id = R.string.settings_title_screenshot_button)) },
+            subtitle = { Text(text = stringResource(id = R.string.settings_description_screenshot_button)) },
+        )
         val shellSkins = booleanPreferenceState(GameShellSkin.SETTING_KEY, false)
         LemuroidSettingsSwitch(
             state = shellSkins,
@@ -287,14 +292,17 @@ private fun LibraryLookSettings() {
         val pastel = booleanPreferenceState(SystemTileColors.PASTEL_PREF_KEY, false)
         val context = LocalContext.current
         val cartridges = booleanPreferenceState(MediaViewSetting.KEY, false)
+        val screenshots = booleanPreferenceState(ScreenshotManager.STYLE_KEY, false)
         val layout by GamesViewModeStore.get(context).collectAsState()
         LibraryLookPicker(
-            cartridges = cartridges.value,
+            style = if (cartridges.value) 1 else if (screenshots.value) 2 else 0,
             pastel = pastel.value,
             layout = layout,
-            onCartridges = {
-                cartridges.value = it
-                MediaViewSetting.set(context, it)
+            onStyle = {
+                // Tiles, Cartridges or Screenshots (owner, 2026-11-25).
+                cartridges.value = it == 1
+                MediaViewSetting.set(context, it == 1)
+                screenshots.value = it == 2
             },
             onPastel = {
                 pastel.value = it
@@ -307,11 +315,6 @@ private fun LibraryLookSettings() {
             },
         )
         // HD mode is hidden (owner, 2026-11-19): the in-game Filter shortcut covers the look.
-        LemuroidSettingsSwitch(
-            state = booleanPreferenceState(ArtworkManager.SHOW_ARTWORK_KEY, false),
-            title = { Text(text = stringResource(id = R.string.settings_title_show_artwork)) },
-            subtitle = { Text(text = stringResource(id = R.string.settings_description_show_artwork)) },
-        )
         LemuroidSettingsSwitch(
             state = booleanPreferenceState(NavigationSounds.ENABLED_KEY, true),
             title = { Text(text = stringResource(id = R.string.settings_title_navigation_sounds)) },

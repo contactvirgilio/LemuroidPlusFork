@@ -41,7 +41,6 @@ import com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper
 /**
  * "Cartridge view": instead of a colored tile, each game is drawn as a picture of its system's
  * media (cartridge, disc, arcade board...). The game's name stays under it, like on any tile.
- * Artwork is not used in this view.
  */
 object MediaViewSetting {
     const val KEY = "pref_key_media_view"

@@ -466,6 +466,13 @@ abstract class BaseGameActivity : ImmersiveActivity() {
                     baseGameScreenViewModel.reset()
                 }
             }
+            if (data?.getBooleanExtra(GameMenuContract.RESULT_SCREENSHOT, false) == true) {
+                GlobalScope.launch {
+                    // Let the game come back on screen first, so the picture is current.
+                    kotlinx.coroutines.delay(400)
+                    baseGameScreenViewModel.takeScreenshot()
+                }
+            }
             if (data?.hasExtra(GameMenuContract.RESULT_SAVE) == true) {
                 GlobalScope.launch {
                     baseGameScreenViewModel.saveSlotFromMenu(data.getIntExtra(GameMenuContract.RESULT_SAVE, 0))

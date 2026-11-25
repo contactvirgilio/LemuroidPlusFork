@@ -281,6 +281,18 @@ class BaseGameScreenViewModel(
         }
     }
 
+    /** Saves the game's picture to Lemuroid/Screenshots and shows "Screenshot saved". */
+    suspend fun takeScreenshot() {
+        val ok = saves.saveScreenshot()
+        overlayCardState.value =
+            OverlayCard(
+                appContext.getString(R.string.game_overlay_screenshot_title),
+                appContext.getString(if (ok) R.string.game_overlay_screenshot_saved else R.string.game_overlay_screenshot_failed),
+                0,
+                0,
+            )
+    }
+
     /** The mirror of the "Saved to" card (owner, 2026-11-23): "Loaded from" / "Slot 3" or "Auto save". */
     private suspend fun showLoadedCard(index: Int) {
         val title = appContext.getString(R.string.game_overlay_loaded_title)

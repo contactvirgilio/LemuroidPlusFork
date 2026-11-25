@@ -152,7 +152,7 @@
         &#8226; Os jogos de PlayStation também funcionam numa pasta PS, PS1 ou PlayStation.<br/>
         &#8226; Os jogos de arcada ficam comprimidos, numa pasta Arcade, MAME, FBNeo ou Neo Geo.<br/><br/>
         <b>A pasta Lemuroid</b><br/>
-        O Lemuroid cria esta pasta no seu aparelho. Lá dentro: saves (o seu progresso), states (estados guardados), bios (ficheiros extra de que alguns sistemas precisam, copiados da consola verdadeira) e artwork (as suas próprias imagens para os jogos, com o nome igual ao do ficheiro do jogo; ative Definições &#8594; Mostrar imagens).<br/><br/>
+        O Lemuroid cria esta pasta no seu aparelho. Lá dentro: saves (o seu progresso), states (estados guardados), bios (ficheiros extra de que alguns sistemas precisam, copiados da consola verdadeira) e Screenshots (as imagens que tira num jogo com Tirar captura; o estilo Capturas mostra-as).<br/><br/>
         <b>Jogos com mais de um disco</b><br/>
         Crie um pequeno ficheiro de texto terminado em .m3u com a lista dos ficheiros dos discos, um por linha, e coloque-o junto deles. O jogo aparece só uma vez. Mude de disco em Menu &#8594; Mudar disco.<br/><br/>
         <b>Truques úteis</b><br/>
@@ -192,8 +192,6 @@
     <string name="settings_title_hidden_apps">Apps ocultas</string>
     <string name="settings_description_hidden_apps">Escolha que apps aparecem no separador Apps. Também pode manter uma app premida para a ocultar.</string>
     <string name="settings_description_hidden_apps_screen">As apps desligadas não aparecem no separador Apps. Continuam instaladas.</string>
-    <string name="settings_title_show_artwork">Mostrar imagens</string>
-    <string name="settings_description_show_artwork">Usa as suas próprias imagens da pasta Lemuroid/artwork nos jogos. Dê a cada imagem exatamente o mesmo nome do ficheiro do jogo, por exemplo Super Mario World (USA).png.</string>
     <string name="game_overlay_saved_title">Guardado em</string>
     <string name="game_overlay_state_number">Estado %1$d</string>
     <string name="game_button_menu">Menu</string>
@@ -390,4 +388,11 @@
     <string name="game_filter_lcd_sunlit_bright">LCD + Sunlit bright</string>
     <string name="settings_title_selection_color">Cor da seleção</string>
     <string name="settings_description_selection_color">A cor que mostra qual item está selecionado.</string>
+    <string name="settings_game_style_screenshots">Capturas</string>
+    <string name="game_menu_screenshot">Tirar captura</string>
+    <string name="game_overlay_screenshot_title">Captura</string>
+    <string name="game_overlay_screenshot_saved">Guardada</string>
+    <string name="game_overlay_screenshot_failed">Não foi possível guardar</string>
+    <string name="settings_title_screenshot_button">Botão de captura</string>
+    <string name="settings_description_screenshot_button">Mostra um botão de câmara com os outros botões no ecrã do jogo. Guarda uma imagem do jogo.</string>
 </resources>

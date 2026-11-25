@@ -51,6 +51,10 @@ object GamesViewModeStore {
 fun rememberGamesViewMode(): GamesViewMode {
     val context = LocalContext.current
     val mode by GamesViewModeStore.get(context).collectAsState()
-    // Chosen in Settings > Library look (and on phones also in the top bar).
+    // Chosen in Settings > Library look (and on phones also in the top bar). The Screenshots style
+    // has no carousel (owner, 2026-11-25): a saved carousel shows as the large grid there.
+    if (mode == GamesViewMode.CAROUSEL && com.swordfish.lemuroid.app.shared.screenshots.rememberScreenshotStyle()) {
+        return GamesViewMode.GRID_LARGE
+    }
     return mode
 }

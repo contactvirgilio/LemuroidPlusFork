@@ -18,6 +18,7 @@ import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LemuroidEmptyView
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LemuroidGameCard
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LemuroidGameListRow
 import com.swordfish.lemuroid.lib.library.db.entity.Game
+import com.swordfish.lemuroid.app.shared.screenshots.rememberScreenshotStyle
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -37,7 +38,11 @@ fun GamesScreen(
 
     when (rememberGamesViewMode()) {
         GamesViewMode.LIST ->
-            GamesList(modifier, games, onGameClick, onGameLongClick, onGameFavoriteToggle)
+            if (rememberScreenshotStyle()) {
+                ScreenshotGamesList(modifier, games, onGameClick, onGameLongClick, onGameFavoriteToggle)
+            } else {
+                GamesList(modifier, games, onGameClick, onGameLongClick, onGameFavoriteToggle)
+            }
         GamesViewMode.GRID_SMALL ->
             GamesGrid(modifier, games, SMALL_TILE_SIZE, onGameClick, onGameLongClick)
         GamesViewMode.GRID_LARGE ->
