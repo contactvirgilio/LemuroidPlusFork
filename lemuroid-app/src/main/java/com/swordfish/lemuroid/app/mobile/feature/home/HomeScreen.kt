@@ -110,7 +110,7 @@ private fun HomeScreen(
     LazyVerticalGrid(
         modifier = modifier.fillMaxSize(),
         state = gridState,
-        columns = GridCells.Adaptive(tileSize),
+        columns = com.swordfish.lemuroid.app.mobile.feature.games.rememberLibraryGridCells(tileSize),
         contentPadding = PaddingValues(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),

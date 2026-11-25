@@ -33,7 +33,7 @@ fun FavoritesScreen(
     LazyVerticalGrid(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
-        columns = GridCells.Adaptive(rememberHomeTileSize().size),
+        columns = com.swordfish.lemuroid.app.mobile.feature.games.rememberLibraryGridCells(rememberHomeTileSize().size),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {

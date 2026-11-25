@@ -54,3 +54,30 @@ fun rememberHomeTileSize(): HomeTileSize {
     // The vertical layout has only the small tiles, with no buttons to change them.
     return if (rememberVerticalBar()) HomeTileSize.SMALL else size
 }
+
+/**
+ * Columns for Home, Favorites and the games grid. In the Screenshots style there is one big grid
+ * (at most 3 per row, owner 2026-11-25); otherwise the chosen tile size decides.
+ */
+@Composable
+fun rememberLibraryGridCells(normalSize: androidx.compose.ui.unit.Dp): androidx.compose.foundation.lazy.grid.GridCells =
+    if (com.swordfish.lemuroid.app.shared.screenshots.rememberScreenshotStyle()) {
+        ScreenshotGridCells
+    } else {
+        androidx.compose.foundation.lazy.grid.GridCells.Adaptive(normalSize)
+    }
+
+/** As many 170 dp columns as fit, between 1 and 3. */
+object ScreenshotGridCells : androidx.compose.foundation.lazy.grid.GridCells {
+    override fun androidx.compose.ui.unit.Density.calculateCrossAxisCellSizes(
+        availableSize: Int,
+        spacing: Int,
+    ): List<Int> {
+        val min = 170.dp.roundToPx()
+        val count = ((availableSize + spacing) / (min + spacing)).coerceIn(1, 3)
+        val total = availableSize - spacing * (count - 1)
+        val cell = total / count
+        val extra = total % count
+        return List(count) { cell + if (it < extra) 1 else 0 }
+    }
+}

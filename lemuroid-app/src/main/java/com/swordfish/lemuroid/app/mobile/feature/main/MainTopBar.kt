@@ -175,6 +175,8 @@ fun LemuroidTopBarActions(
 internal fun HomeTileSizeButtons() {
     val context = LocalContext.current
     val currentSize = rememberHomeTileSize()
+    // Screenshots style: one grid only, so no size buttons.
+    if (com.swordfish.lemuroid.app.shared.screenshots.rememberScreenshotStyle()) return
 
     val options =
         listOf(

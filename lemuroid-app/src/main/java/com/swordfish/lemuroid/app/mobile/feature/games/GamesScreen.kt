@@ -126,11 +126,10 @@ private fun ScreenshotGamesGrid(
     onGameClick: (Game) -> Unit,
     onGameLongClick: (Game) -> Unit,
 ) {
-    androidx.compose.foundation.layout.BoxWithConstraints(modifier = modifier.fillMaxSize()) {
-        val columns = (maxWidth / SCREENSHOT_MIN_TILE).toInt().coerceIn(1, 3)
+    run {
         LazyVerticalGrid(
-            modifier = Modifier.fillMaxSize(),
-            columns = GridCells.Fixed(columns),
+            modifier = modifier.fillMaxSize(),
+            columns = ScreenshotGridCells,
             contentPadding = PaddingValues(12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -148,4 +147,3 @@ private fun ScreenshotGamesGrid(
     }
 }
 
-private val SCREENSHOT_MIN_TILE = 170.dp
