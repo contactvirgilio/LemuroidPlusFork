@@ -32,7 +32,7 @@ class DiscoverPicker(context: Context) {
                     .orEmpty()
             // Reuse today's picks unless games were removed or the library grew from empty.
             if (saved.isNotEmpty() && saved.all { it in existingIds } && saved.size >= minOf(count, candidates.size)) {
-                return saved
+                return saved.take(count)
             }
         }
 
