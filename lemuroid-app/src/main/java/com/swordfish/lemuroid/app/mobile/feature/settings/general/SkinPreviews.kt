@@ -159,7 +159,7 @@ fun LibraryLookPicker(
 ) {
     val colors = SystemTileColors.previewColors(pastel, PREVIEW_SYSTEMS).map { Color(it) }
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
-        val shownLayout = if (style == 2 && layout == GamesViewMode.CAROUSEL) GamesViewMode.GRID_LARGE else layout
+        val shownLayout = if (style == 2 && layout != GamesViewMode.LIST) GamesViewMode.GRID_LARGE else layout
         LibraryPreview(style, colors, shownLayout)
 
         PickerRow(
@@ -173,15 +173,15 @@ fun LibraryLookPicker(
             selected = style,
             onPick = onStyle,
         )
-        // The Screenshots style has grid and list only, no carousel (owner, 2026-11-25).
+        // The Screenshots style has List and one big Grid only (owner, 2026-11-25).
         val layouts =
             listOf(GamesViewMode.LIST, GamesViewMode.GRID_SMALL, GamesViewMode.GRID_LARGE, GamesViewMode.CAROUSEL)
-                .filter { !(style == 2 && it == GamesViewMode.CAROUSEL) }
+                .filter { !(style == 2 && (it == GamesViewMode.CAROUSEL || it == GamesViewMode.GRID_SMALL)) }
         val layoutNames =
             mapOf(
                 GamesViewMode.LIST to stringResource(R.string.games_view_list),
                 GamesViewMode.GRID_SMALL to stringResource(R.string.games_view_grid_small),
-                GamesViewMode.GRID_LARGE to stringResource(R.string.games_view_grid_large),
+                GamesViewMode.GRID_LARGE to stringResource(if (style == 2) R.string.games_view_grid else R.string.games_view_grid_large),
                 GamesViewMode.CAROUSEL to stringResource(R.string.games_view_carousel),
             )
         PickerRow(
@@ -288,7 +288,11 @@ private fun LibraryPreview(
                     repeat(2) { row -> Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) { repeat(6) { Item(row * 6 + it, 38.dp) } } }
                 }
             GamesViewMode.GRID_LARGE ->
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) { repeat(4) { Item(it, 64.dp) } }
+                if (style == 2) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) { repeat(3) { Item(it, 96.dp) } }
+                } else {
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) { repeat(4) { Item(it, 64.dp) } }
+                }
             GamesViewMode.CAROUSEL ->
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                     Item(0, 52.dp, 0.4f)

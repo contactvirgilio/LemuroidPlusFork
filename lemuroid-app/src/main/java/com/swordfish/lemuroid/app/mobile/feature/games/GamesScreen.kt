@@ -46,7 +46,11 @@ fun GamesScreen(
         GamesViewMode.GRID_SMALL ->
             GamesGrid(modifier, games, SMALL_TILE_SIZE, onGameClick, onGameLongClick)
         GamesViewMode.GRID_LARGE ->
-            GamesGrid(modifier, games, LARGE_TILE_SIZE, onGameClick, onGameLongClick)
+            if (rememberScreenshotStyle()) {
+                ScreenshotGamesGrid(modifier, games, onGameClick, onGameLongClick)
+            } else {
+                GamesGrid(modifier, games, LARGE_TILE_SIZE, onGameClick, onGameLongClick)
+            }
         GamesViewMode.CAROUSEL ->
             GameCarousel(
                 modifier = modifier.fillMaxSize().wrapContentHeight(),
@@ -113,3 +117,35 @@ private fun GamesGrid(
         }
     }
 }
+
+/** Screenshots style grid: bigger than the large grid, at most 3 per row (owner, 2026-11-25). */
+@Composable
+private fun ScreenshotGamesGrid(
+    modifier: Modifier,
+    games: LazyPagingItems<Game>,
+    onGameClick: (Game) -> Unit,
+    onGameLongClick: (Game) -> Unit,
+) {
+    androidx.compose.foundation.layout.BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        val columns = (maxWidth / SCREENSHOT_MIN_TILE).toInt().coerceIn(1, 3)
+        LazyVerticalGrid(
+            modifier = Modifier.fillMaxSize(),
+            columns = GridCells.Fixed(columns),
+            contentPadding = PaddingValues(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            items(games.itemCount, key = { games.peek(it)?.id ?: it }) { index ->
+                val game = games[index] ?: return@items
+                LemuroidGameCard(
+                    modifier = Modifier.animateItem(),
+                    game = game,
+                    onClick = { onGameClick(game) },
+                    onLongClick = { onGameLongClick(game) },
+                )
+            }
+        }
+    }
+}
+
+private val SCREENSHOT_MIN_TILE = 170.dp
