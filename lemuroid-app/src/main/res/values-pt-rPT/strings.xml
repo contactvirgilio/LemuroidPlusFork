@@ -393,6 +393,4 @@
     <string name="game_overlay_screenshot_title">Captura</string>
     <string name="game_overlay_screenshot_saved">Guardada</string>
     <string name="game_overlay_screenshot_failed">Não foi possível guardar</string>
-    <string name="settings_title_screenshot_button">Botão de captura</string>
-    <string name="settings_description_screenshot_button">Mostra um botão de câmara com os outros botões no ecrã do jogo. Guarda uma imagem do jogo.</string>
 </resources>

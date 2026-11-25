@@ -256,11 +256,6 @@ private fun InGameLookSettings() {
     ) {
         val nestedShortcuts = booleanPreferenceState(GameShortcutsSetting.KEY, GameShortcutsSetting.defaultNested(LocalContext.current))
         ShortcutsPicker(nested = nestedShortcuts.value, onPick = { nestedShortcuts.value = it })
-        LemuroidSettingsSwitch(
-            state = booleanPreferenceState(ScreenshotManager.BUTTON_KEY, true),
-            title = { Text(text = stringResource(id = R.string.settings_title_screenshot_button)) },
-            subtitle = { Text(text = stringResource(id = R.string.settings_description_screenshot_button)) },
-        )
         val shellSkins = booleanPreferenceState(GameShellSkin.SETTING_KEY, false)
         LemuroidSettingsSwitch(
             state = shellSkins,

@@ -446,6 +446,4 @@
     <string name="game_overlay_screenshot_title">Screenshot</string>
     <string name="game_overlay_screenshot_saved">Saved</string>
     <string name="game_overlay_screenshot_failed">Couldn\'t save</string>
-    <string name="settings_title_screenshot_button">Screenshot button</string>
-    <string name="settings_description_screenshot_button">Shows a camera button with the other buttons on the game screen. It saves a picture of the game.</string>
 </resources>

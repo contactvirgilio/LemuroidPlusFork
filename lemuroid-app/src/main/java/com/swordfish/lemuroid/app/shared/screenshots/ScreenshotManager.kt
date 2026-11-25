@@ -27,8 +27,6 @@ import java.util.concurrent.ConcurrentHashMap
 object ScreenshotManager {
     /** The Screenshots style (third style next to Tiles and Cartridges). */
     const val STYLE_KEY = "pref_key_screenshot_style"
-    /** The camera shortcut in the game (on by default). */
-    const val BUTTON_KEY = "pref_key_screenshot_button"
     const val FOLDER_NAME = "Screenshots"
 
     private val IMAGE_EXTENSIONS = setOf("png", "jpg", "jpeg", "webp")
@@ -58,8 +56,6 @@ object ScreenshotManager {
     fun peekScreenshot(game: Game): Bitmap? = lastKeys[gameKey(game)]?.let { cache.get(it) }
 
     fun isEnabled(context: Context): Boolean = preferences(context).getBoolean(STYLE_KEY, false)
-
-    fun isButtonEnabled(context: Context): Boolean = preferences(context).getBoolean(BUTTON_KEY, true)
 
     fun preferences(context: Context): SharedPreferences = SharedPreferencesHelper.getSharedPreferences(context)
 

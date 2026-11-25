@@ -52,7 +52,6 @@ import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material.icons.filled.RotateLeft
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.BlurOn
-import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -539,9 +538,6 @@ private fun ShortcutButtons(viewModel: BaseGameScreenViewModel) {
     if (viewModel.isFastForwardSupported()) {
         FastForwardButton(viewModel)
     }
-    if (screenshotButtonOn()) {
-        ScreenshotButton(viewModel)
-    }
     // Sound: next to the menu, where it also pops out alone on a volume key while muted.
     MuteButton(viewModel)
     MenuButton(viewModel)
@@ -594,28 +590,6 @@ private fun ScreenshotFlash(viewModel: BaseGameScreenViewModel) {
     }
     if (alpha.value > 0f) {
         Box(modifier = Modifier.fillMaxSize().background(Color.White.copy(alpha = alpha.value)))
-    }
-}
-
-/** "Screenshot button on screen" setting (on by default). */
-@Composable
-private fun screenshotButtonOn(): Boolean {
-    val context = androidx.compose.ui.platform.LocalContext.current
-    return remember { com.swordfish.lemuroid.app.shared.screenshots.ScreenshotManager.isButtonEnabled(context) }
-}
-
-/** Saves the game's picture to Lemuroid/Screenshots (the Screenshots style shows it). */
-@Composable
-private fun ScreenshotButton(viewModel: BaseGameScreenViewModel) {
-    val label = stringResource(com.swordfish.lemuroid.R.string.game_menu_screenshot)
-    val scope = androidx.compose.runtime.rememberCoroutineScope()
-    OverlayButton(active = false, label = label, onClick = { scope.launch { viewModel.takeScreenshot() } }) {
-        Icon(
-            modifier = Modifier.size(LocalOverlayButtonSize.current * 0.5f),
-            imageVector = Icons.Outlined.PhotoCamera,
-            contentDescription = label,
-            tint = Color.White,
-        )
     }
 }
 
