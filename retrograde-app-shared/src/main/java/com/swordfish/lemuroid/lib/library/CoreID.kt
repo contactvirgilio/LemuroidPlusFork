@@ -143,6 +143,13 @@ enum class CoreID(
         "Citra",
         "libcitra_libretro_android.so",
     ),
+
+    /** Azahar (maintained Citra successor), from its GitHub release; default for 3DS (owner, 2026-11-26). */
+    AZAHAR(
+        "azahar",
+        "Azahar",
+        "libazahar_libretro_android.so",
+    ),
     DOSBOX_PURE(
         "dosbox_pure",
         "DosBox Pure",

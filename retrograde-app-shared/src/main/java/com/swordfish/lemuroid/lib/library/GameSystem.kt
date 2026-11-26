@@ -1357,6 +1357,33 @@ data class GameSystem(
                     R.string.game_system_title_3ds,
                     R.string.game_system_abbr_3ds,
                     listOf(
+                        // Azahar first, so it is the default; Citra stays as the other choice.
+                        // Same option keys as Citra (citra_*); values come from the core itself.
+                        SystemCoreConfig(
+                            CoreID.AZAHAR,
+                            controllerConfigs =
+                                hashMapOf(
+                                    0 to arrayListOf(ControllerConfigs.NINTENDO_3DS),
+                                ),
+                            exposedSettings =
+                                listOf(
+                                    ExposedSetting(
+                                        "citra_layout_option",
+                                        R.string.setting_citra_layout_option,
+                                    ),
+                                    ExposedSetting(
+                                        "citra_resolution_factor",
+                                        R.string.setting_citra_resolution_factor,
+                                    ),
+                                    ExposedSetting(
+                                        "citra_shaders_accurate_mul",
+                                        R.string.setting_citra_use_acc_mul,
+                                    ),
+                                ),
+                            statesSupported = false,
+                            supportsLibretroVFS = true,
+                            supportedOnlyArchitectures = setOf("arm64-v8a"),
+                        ),
                         SystemCoreConfig(
                             CoreID.CITRA,
                             controllerConfigs =
