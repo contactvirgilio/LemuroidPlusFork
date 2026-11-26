@@ -1380,7 +1380,8 @@ data class GameSystem(
                                         R.string.setting_citra_use_acc_mul,
                                     ),
                                 ),
-                            statesSupported = false,
+                            // Azahar supports save states (owner wants them on, 2026-11-26).
+                            statesSupported = true,
                             supportsLibretroVFS = true,
                             supportedOnlyArchitectures = setOf("arm64-v8a"),
                         ),
