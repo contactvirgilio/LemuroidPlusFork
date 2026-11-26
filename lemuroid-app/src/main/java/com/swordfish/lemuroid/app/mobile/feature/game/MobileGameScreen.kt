@@ -150,7 +150,8 @@ fun MobileGameScreen(viewModel: BaseGameScreenViewModel) {
                                 val downAt = android.os.SystemClock.uptimeMillis()
                                 touchScope.launch {
                                     delay(TOUCH_CONTROL_CHECK_MILLIS)
-                                    if (viewModel.lastTouchControlInputAt < downAt) screenTouches++
+                                    // A tap on a shortcut lights only that shortcut (OverlayButton), not the row.
+                                    if (viewModel.lastTouchControlInputAt < downAt && ShortcutPress.lastAt < downAt) screenTouches++
                                 }
                             }
                         }
@@ -723,14 +724,42 @@ private fun OverlayButton(
     onClick: () -> Unit,
     content: @Composable () -> Unit,
 ) {
+    // Tapped directly: only this shortcut lights up for a while, the others stay faded (owner, 2026-11-26).
+    val interaction = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    var lit by remember { mutableIntStateOf(0) }
+    LaunchedEffect(interaction) {
+        interaction.interactions.collect {
+            if (it is androidx.compose.foundation.interaction.PressInteraction.Press) {
+                ShortcutPress.lastAt = android.os.SystemClock.uptimeMillis()
+                lit++
+            }
+        }
+    }
+    var litNow by remember { mutableStateOf(false) }
+    LaunchedEffect(lit) {
+        if (lit == 0) return@LaunchedEffect
+        litNow = true
+        delay(OVERLAY_BUTTONS_IDLE_MILLIS)
+        litNow = false
+    }
+    val own by animateFloatAsState(
+        targetValue = if (litNow) 1f else 0f,
+        animationSpec = tween(durationMillis = OVERLAY_BUTTONS_FADE_MILLIS),
+        label = "shortcutOwnAlpha",
+    )
     Box(
         modifier =
             Modifier
                 .size(LocalOverlayButtonSize.current)
-                .alpha(LocalOverlayAlpha.current)
+                .alpha(maxOf(LocalOverlayAlpha.current, own))
                 .clip(CircleShape)
                 .background(Color.Black)
-                .clickable(onClickLabel = label, onClick = onClick),
+                .clickable(
+                    interactionSource = interaction,
+                    indication = androidx.compose.foundation.LocalIndication.current,
+                    onClickLabel = label,
+                    onClick = onClick,
+                ),
         contentAlignment = Alignment.Center,
     ) {
         content()
@@ -851,6 +880,12 @@ private val LocalOverlayAlpha = compositionLocalOf { 1f }
 
 /** Colour of the save shortcut while it flashes after a timed auto-save; null when not flashing. */
 private val LocalSaveFlash = compositionLocalOf<Color?> { null }
+
+/** When a shortcut was last pressed, so that tap doesn't also wake the whole row. */
+private object ShortcutPress {
+    @Volatile
+    var lastAt = 0L
+}
 
 /** Touches only wake the shortcuts in this top part of the screen (owner: about the top 30%). */
 private const val TOUCH_WAKE_TOP_FRACTION = 0.30f
