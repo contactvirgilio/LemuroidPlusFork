@@ -281,7 +281,8 @@ private fun coreOptionEntries(gameMenuRequest: GameMenuActivity.GameMenuRequest)
                             com.swordfish.lemuroid.app.shared.game.DsSingleScreen.Layout.SIDE_BY_SIDE -> R.string.game_menu_ds_screens_side
                         },
                     ),
-                active = layout != com.swordfish.lemuroid.app.shared.game.DsSingleScreen.Layout.BOTH,
+                // A choice, not on/off: always in the selection colour (owner, 2026-11-26).
+                active = true,
                 icon = { tint ->
                     Icon(Icons.Outlined.Splitscreen, contentDescription = label, tint = tint, modifier = Modifier.size(28.dp))
                 },
@@ -322,7 +323,8 @@ private fun coreOptionEntries(gameMenuRequest: GameMenuActivity.GameMenuRequest)
             MenuEntry(
                 label = label,
                 sublabel = if (isSwitch) (if (current == "enabled") on else off) else plainValue(current, names.getOrNull(values.indexOf(current)), on, off),
-                active = if (isSwitch) current == "enabled" else current != values.first(),
+                // Lists with an "off" value (Reduce slowdown) still look off when off; other choices always coloured.
+                active = if (isSwitch) current == "enabled" else current != "disabled",
                 icon = { tint ->
                     Icon(Icons.Outlined.Tune, contentDescription = label, tint = tint, modifier = Modifier.size(28.dp))
                 },
@@ -361,7 +363,7 @@ private fun coreOptionEntries(gameMenuRequest: GameMenuActivity.GameMenuRequest)
             MenuEntry(
                 label = label,
                 sublabel = names.getOrNull(configs.indexOfFirst { it.name == current }),
-                active = current != configs.first().name,
+                active = true,
                 icon = { tint ->
                     Icon(Icons.Outlined.SportsEsports, contentDescription = label, tint = tint, modifier = Modifier.size(28.dp))
                 },
