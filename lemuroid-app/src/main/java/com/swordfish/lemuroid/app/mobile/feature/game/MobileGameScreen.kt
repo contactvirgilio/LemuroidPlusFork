@@ -778,7 +778,8 @@ private fun StatesButtonBody(
             viewModel.quickSaveToNextSlot()
             scope.launch {
                 pressTint.snapTo(FAST_FORWARD_ACTIVE_COLOR)
-                pressTint.animateTo(Color.White, tween(SAVE_PRESS_FADE_MILLIS, easing = FastOutSlowInEasing))
+                // Stays lit a moment before fading (owner, 2026-11-26).
+                pressTint.animateTo(Color.White, tween(SAVE_PRESS_FADE_MILLIS, delayMillis = SAVE_PRESS_HOLD_MILLIS, easing = FastOutSlowInEasing))
             }
         },
     ) {
@@ -855,6 +856,8 @@ private val LocalSaveFlash = compositionLocalOf<Color?> { null }
 private const val TOUCH_WAKE_TOP_FRACTION = 0.30f
 private const val NEST_GLIDE_MILLIS = 320
 private const val SAVE_PRESS_FADE_MILLIS = 700
+
+private const val SAVE_PRESS_HOLD_MILLIS = 500
 private const val NEST_FADE_MILLIS = 220
 
 // Padding around the shortcut row (8 dp each side) plus a little room.
