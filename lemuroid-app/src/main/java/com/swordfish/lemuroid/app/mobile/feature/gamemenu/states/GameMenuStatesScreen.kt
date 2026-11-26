@@ -20,6 +20,9 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -178,7 +181,11 @@ fun GameMenuStatesScreen(
             val byWidth = (maxWidth - 44.dp - gap) / 2
             val byHeight = ((maxHeight - 24.dp - gap) / 2 - SLOT_TEXT_HEIGHT) * aspect
             val slotWidth = minOf(byWidth, byHeight).coerceAtLeast(96.dp)
+            val gridState = rememberLazyGridState()
+            val gridScope = rememberCoroutineScope()
+            Box {
             LazyVerticalGrid(
+                state = gridState,
                 modifier = Modifier.width(slotWidth * 2 + gap + 44.dp).wrapContentHeight(),
                 columns = GridCells.Fixed(2),
                 contentPadding = PaddingValues(start = 22.dp, end = 22.dp, top = 8.dp, bottom = 16.dp),
@@ -194,6 +201,62 @@ fun GameMenuStatesScreen(
                     )
                 }
             }
+            // Like the sideways row (owner, 2026-11-26): a fade and a black arrow at the bottom while
+            // more slots are below, and at the top once scrolled down. Touch only; each tap moves a row.
+            if (gridState.canScrollForward) {
+                VerticalScrollHint(
+                    modifier = Modifier.align(Alignment.BottomCenter).width(slotWidth * 2 + gap + 44.dp),
+                    down = true,
+                    onClick = { gridScope.launch { gridState.animateScrollToItem(gridState.firstVisibleItemIndex + 2) } },
+                )
+            }
+            if (gridState.canScrollBackward) {
+                VerticalScrollHint(
+                    modifier = Modifier.align(Alignment.TopCenter).width(slotWidth * 2 + gap + 44.dp),
+                    down = false,
+                    onClick = {
+                        gridScope.launch { gridState.animateScrollToItem((gridState.firstVisibleItemIndex - 2).coerceAtLeast(0)) }
+                    },
+                )
+            }
+            }
+        }
+    }
+}
+
+@Composable
+private fun VerticalScrollHint(
+    modifier: Modifier,
+    down: Boolean,
+    onClick: () -> Unit,
+) {
+    Box(modifier = modifier.height(64.dp), contentAlignment = if (down) Alignment.BottomCenter else Alignment.TopCenter) {
+        Box(
+            modifier =
+                Modifier
+                    .matchParentSize()
+                    .background(
+                        Brush.verticalGradient(
+                            if (down) listOf(Color.Transparent, MenuColors.Card) else listOf(MenuColors.Card, Color.Transparent),
+                        ),
+                    ),
+        )
+        Box(
+            modifier =
+                Modifier
+                    .padding(vertical = 8.dp)
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(Color.Black)
+                    .focusProperties { canFocus = false }
+                    .clickable(onClick = onClick),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = if (down) Icons.Filled.KeyboardArrowDown else Icons.Filled.KeyboardArrowUp,
+                contentDescription = null,
+                tint = Color.White,
+            )
         }
     }
 }
