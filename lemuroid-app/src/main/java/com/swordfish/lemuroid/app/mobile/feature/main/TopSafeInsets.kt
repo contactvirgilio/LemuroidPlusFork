@@ -26,7 +26,7 @@ fun topSafeInsets(): WindowInsets {
     val hasCutout =
         remember(view) {
             val displayCutout = if (Build.VERSION.SDK_INT >= 31) view.display?.cutout else null
-            displayCutout != null || (Build.VERSION.SDK_INT >= 23 && view.rootWindowInsets?.displayCutout != null)
+            displayCutout != null || (Build.VERSION.SDK_INT >= 28 && view.rootWindowInsets?.displayCutout != null)
         }
     val base =
         WindowInsets.systemBars
