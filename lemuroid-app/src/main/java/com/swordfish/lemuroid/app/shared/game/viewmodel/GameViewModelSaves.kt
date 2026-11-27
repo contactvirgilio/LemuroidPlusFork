@@ -199,12 +199,26 @@ class GameViewModelSaves(
      */
     /**
      * "Take screenshot": the game's own picture (no filter), crisp and in the system's screen shape,
-     * saved as Lemuroid/Screenshots/<ROM name>.png over the previous one. False if it failed.
+     * saved as Lemuroid/Screenshots/<ROM name> [SYSTEM].png over the previous one. False if it failed.
      */
     suspend fun saveScreenshot(): Boolean {
-        val frame = (if (rawFrameFits()) runCatching { captureRawFrame() }.getOrNull() else null) ?: lastRawFrame ?: return false
+        val isDs = system.id == com.swordfish.lemuroid.lib.library.SystemID.NDS
+        // DS: the game's own picture always has both screens, so it is used (and cut) even in one-screen mode.
+        val frame = (if (rawFrameFits() || isDs) runCatching { captureRawFrame() }.getOrNull() else null) ?: lastRawFrame ?: return false
         return withContext(Dispatchers.IO) {
-            val picture = sharpPreview(frame, SCREENSHOT_SIZE_DP)
+            val picture =
+                if (isDs) {
+                    // Top screen only (owner, 2026-11-27): upper half when stacked, left half side by side.
+                    val top =
+                        if (frame.height >= frame.width) {
+                            Bitmap.createBitmap(frame, 0, 0, frame.width, frame.height / 2)
+                        } else {
+                            Bitmap.createBitmap(frame, 0, 0, frame.width / 2, frame.height)
+                        }
+                    sharpPreview(top, SCREENSHOT_SIZE_DP, aspectOverride = 4f / 3f)
+                } else {
+                    sharpPreview(frame, SCREENSHOT_SIZE_DP)
+                }
             com.swordfish.lemuroid.app.shared.screenshots.ScreenshotManager.saveScreenshot(appContext, game, picture)
         }
     }
@@ -212,10 +226,12 @@ class GameViewModelSaves(
     private fun sharpPreview(
         frame: Bitmap,
         sizeInDp: Float = StatesPreviewManager.PREVIEW_SIZE_DP,
+        aspectOverride: Float? = null,
     ): Bitmap {
         val previewSize = GraphicsUtils.convertDpToPixel(sizeInDp, appContext).roundToInt().coerceAtLeast(16)
         val aspect =
-            GamePreviewCropper.aspectRatioFor(system.id)
+            aspectOverride
+                ?: GamePreviewCropper.aspectRatioFor(system.id)
                 ?: if (frame.width >= frame.height) 4f / 3f else 3f / 4f
         val width: Int
         val height: Int

@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Game screenshots from one folder, Lemuroid/Screenshots, one picture per game (owner, 2026-11-25:
- * replaces the old "Show artwork"). "Take screenshot" in the game writes "<ROM file name>.png" here,
+ * replaces the old "Show artwork"). "Take screenshot" in the game writes "<ROM file name> [SYSTEM].png" here,
  * replacing the previous one. Shown as the game's picture in the Screenshots style.
  *
  * An image matches a game by ROM file name without extension ("Super Mario World (USA).png" for
@@ -80,7 +80,7 @@ object ScreenshotManager {
         bitmap: Bitmap,
     ): Boolean {
         val folder = getScreenshotsFolder(context) ?: return false
-        val base = game.fileName.substringBeforeLast('.')
+        val base = fileNameFor(game)
         val target = File(folder, "$base.png")
         val temp = File(folder, ".$base.tmp")
         return runCatching {
@@ -91,6 +91,9 @@ object ScreenshotManager {
             temp.renameTo(target)
         }.onFailure { Timber.e(it, "Cannot save screenshot") }.getOrDefault(false)
     }
+
+    /** "<ROM file name without extension> [SYSTEM]", e.g. "Tetris [GB]". */
+    fun fileNameFor(game: Game): String = "${game.fileName.substringBeforeLast('.')} [${game.systemId.uppercase(Locale.ROOT)}]"
 
     /** Bumped when the library comes back on screen, so tiles pick up screenshots taken in the game. */
     var version by androidx.compose.runtime.mutableIntStateOf(0)
@@ -133,8 +136,10 @@ object ScreenshotManager {
     private fun candidateNames(game: Game): List<String> {
         // Only the exact ROM file name: screenshots are always saved under it. Matching titles too
         // (left from artwork) showed one game's screenshot on another with the same title.
+        // "<ROM name> [SYSTEM]" (owner, 2026-11-27: the same ROM name on two systems no longer
+        // shares a picture); the plain ROM name is still read for screenshots taken before.
         val fileBase = game.fileName.substringBeforeLast('.')
-        return listOf(normalize(fileBase)).filter { it.isNotEmpty() }
+        return listOf(normalize(fileNameFor(game)), normalize(fileBase)).filter { it.isNotEmpty() }.distinct()
     }
 
     private fun normalize(name: String): String = name.trim().lowercase(Locale.ROOT)
