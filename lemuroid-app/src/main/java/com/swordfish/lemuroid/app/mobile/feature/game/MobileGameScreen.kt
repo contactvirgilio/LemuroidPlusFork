@@ -393,6 +393,14 @@ private fun GameOverlayButtons(
         open = false
         peekMute = false
     }
+    // The open grid folds a while after it opens or after the last shortcut tap. Taps on shortcuts
+    // don't count as screen touches (they light only themselves), so this keeps the grid from
+    // staying open for good, e.g. after turning fast forward on and off (owner, 2026-11-27).
+    LaunchedEffect(open, ShortcutPress.taps) {
+        if (!open) return@LaunchedEffect
+        delay(OVERLAY_BUTTONS_IDLE_MILLIS)
+        open = false
+    }
     val alpha by animateFloatAsState(
         targetValue = if (awake) 1f else OVERLAY_BUTTONS_DIMMED_ALPHA,
         animationSpec = tween(durationMillis = OVERLAY_BUTTONS_FADE_MILLIS),
@@ -731,6 +739,7 @@ private fun OverlayButton(
         interaction.interactions.collect {
             if (it is androidx.compose.foundation.interaction.PressInteraction.Press) {
                 ShortcutPress.lastAt = android.os.SystemClock.uptimeMillis()
+                ShortcutPress.taps++
                 lit++
             }
         }
@@ -885,6 +894,9 @@ private val LocalSaveFlash = compositionLocalOf<Color?> { null }
 private object ShortcutPress {
     @Volatile
     var lastAt = 0L
+
+    /** Counts shortcut taps, so the open grid stays while they are used. */
+    var taps by mutableIntStateOf(0)
 }
 
 /** Touches only wake the shortcuts in this top part of the screen (owner: about the top 30%). */
