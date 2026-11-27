@@ -1,0 +1,166 @@
+name: Lint (bug hunt, not a build)
+
+# Builds a downloadable APK on every push to main and when run by hand from the Actions tab.
+# Publishing a GitHub Release (e.g. tag v1.0) builds the APK and attaches it to that release.
+on:
+  push:
+    branches: [ bughunt-lint ]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build release APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # Every core is packed into the APK, so nothing is downloaded on the device.
+      # The default Lemuroid cores come from the lemuroid-cores submodule; the extra cores below
+      # are not part of it and are fetched from the official libretro build server.
+      - name: Add extra cores and PPSSPP assets
+        run: |
+          set -euo pipefail
+          JNI=lemuroid-app/src/bundle/jniLibs/arm64-v8a
+          mkdir -p "$JNI" lemuroid-app/src/bundle/assets
+          for core in bsnes gpsp picodrive; do
+            url="https://buildbot.libretro.com/nightly/android/latest/arm64-v8a/${core}_libretro_android.so.zip"
+            echo "Downloading $url"
+            curl -fsSL --retry 3 -o "/tmp/${core}.zip" "$url"
+            unzip -o -q "/tmp/${core}.zip" -d "/tmp/${core}"
+            so=$(find "/tmp/${core}" -name '*.so' | head -n 1)
+            test -n "$so"
+            cp "$so" "$JNI/lib${core}_libretro_android.so"
+          done
+          # Azahar (3DS) is not on the build server: it comes from Azahar's own release (pinned).
+          AZ=2126.2
+          curl -fsSL --retry 3 -o /tmp/azahar.zip "https://github.com/azahar-emu/azahar/releases/download/${AZ}/azahar-libretro-android-arm64-v8a-${AZ}.zip"
+          unzip -o -q /tmp/azahar.zip -d /tmp/azahar
+          so=$(find /tmp/azahar -name '*.so' | head -n 1)
+          test -n "$so"
+          cp "$so" "$JNI/libazahar_libretro_android.so"
+          cp lemuroid-cores/assets/ppsspp.zip lemuroid-app/src/bundle/assets/ppsspp.zip
+          ls -l "$JNI" lemuroid-app/src/bundle/assets
+
+      # Mesen is built from source: it uses its emulator object in the callback setters, which
+      # LibretroDroid calls before retro_init, so the game crashed as soon as it loaded.
+      # patches/mesen-callback-order.patch keeps the callbacks until retro_init has run.
+      - name: Build the Mesen core
+        run: |
+          set -euo pipefail
+          SRC=/tmp/mesen
+          git clone --quiet https://github.com/libretro/Mesen "$SRC"
+          git -C "$SRC" checkout --quiet 0102910c39ad1a62bc3f784466f3f67ca9eae335
+          git -C "$SRC" apply "$GITHUB_WORKSPACE/patches/mesen-callback-order.patch"
+          NDK="${ANDROID_NDK_LATEST_HOME:-$ANDROID_NDK_HOME}"
+          (cd "$SRC/Libretro/jni" && "$NDK/ndk-build" -j"$(nproc)" APP_ABI=arm64-v8a APP_PLATFORM=android-21)
+          so=$(find "$SRC/Libretro" -path '*arm64-v8a*' -name 'libretro.so' -not -path '*/obj/*' | head -n 1)
+          test -n "$so"
+          cp "$so" lemuroid-app/src/bundle/jniLibs/arm64-v8a/libmesen_libretro_android.so
+
+      # SwanStation is built from source: it registers its disk control callbacks from a local
+      # variable, and LibretroDroid keeps that pointer, so asking for the current disc (state saves,
+      # opening the menu, quitting) read freed memory and closed the game. The patch makes the
+      # callback structs static.
+      - name: Build the SwanStation core
+        run: |
+          set -euo pipefail
+          SRC=/tmp/swanstation
+          git clone --quiet https://github.com/libretro/swanstation "$SRC"
+          git -C "$SRC" checkout --quiet 631f0fb31b809e0f889d7c551fe695788e39c1d3
+          F="$SRC/src/libretro/libretro_host_interface.cpp"
+          sed -i 's|^  retro_disk_control_callback cb = {|  static retro_disk_control_callback cb = {|' "$F"
+          sed -i 's|^    retro_disk_control_ext_callback ext_cb = {|    static retro_disk_control_ext_callback ext_cb = {|' "$F"
+          grep -q '^  static retro_disk_control_callback cb = {' "$F"
+          grep -q '^    static retro_disk_control_ext_callback ext_cb = {' "$F"
+          NDK="${ANDROID_NDK_LATEST_HOME:-$ANDROID_NDK_HOME}"
+          cmake -S "$SRC" -B "$SRC/build-android" -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_TOOLCHAIN_FILE="$NDK/build/cmake/android.toolchain.cmake" \
+            -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-24
+          cmake --build "$SRC/build-android" -j"$(nproc)"
+          so=$(find "$SRC/build-android" -name 'swanstation_libretro*.so' | head -n 1)
+          test -n "$so"
+          cp "$so" lemuroid-app/src/bundle/jniLibs/arm64-v8a/libswanstation_libretro_android.so
+
+      # SameBoy is built from source: without a target sample rate from the frontend it outputs
+      # audio at ~2 MHz, which overflows LibretroDroid's audio buffer and closes the game.
+      # The patch fixes its output at 48 kHz. Its boot ROMs are assembled with RGBDS.
+      - name: Build the SameBoy core
+        run: |
+          set -euo pipefail
+          command -v hexdump >/dev/null || sudo apt-get install -y bsdextrautils
+          mkdir -p /tmp/rgbds
+          curl -fsSL --retry 3 -o /tmp/rgbds.tar.xz https://github.com/gbdev/rgbds/releases/download/v0.9.4/rgbds-linux-x86_64.tar.xz
+          tar -xf /tmp/rgbds.tar.xz -C /tmp/rgbds
+          SRC=/tmp/sameboy
+          git clone --quiet https://github.com/LIJI32/SameBoy "$SRC"
+          git -C "$SRC" checkout --quiet 19a7b14cfb10bb20b0f931b3d77359c11f866e17
+          sed -i 's|GB_set_sample_rate(&gameboy\[i\], GB_get_clock_rate(&gameboy\[i\]) / 2);|GB_set_sample_rate(\&gameboy[i], 48000);|' "$SRC/libretro/libretro.c"
+          grep -q 'GB_set_sample_rate(&gameboy\[i\], 48000);' "$SRC/libretro/libretro.c"
+          make -C "$SRC" bootroms RGBDS=/tmp/rgbds/
+          NDK="${ANDROID_NDK_LATEST_HOME:-$ANDROID_NDK_HOME}"
+          (cd "$SRC/libretro/jni" && "$NDK/ndk-build" -j"$(nproc)" \
+            APP_ABI=arm64-v8a APP_PLATFORM=android-21 BOOTROMS_DIR=build/bin/BootROMs)
+          so=$(find "$SRC/libretro" -path '*arm64-v8a*' -name 'libretro.so' -not -path '*/obj/*' | head -n 1)
+          test -n "$so"
+          cp "$so" lemuroid-app/src/bundle/jniLibs/arm64-v8a/libsameboy_libretro_android.so
+
+      # Genesis Plus GX PUNCHiUM by pav1388: Genesis Plus GX (July 2025) with support for Paprium's
+      # cartridge chip, built from a pinned commit. Lemuroid Plus uses it only for Paprium.
+      - name: Build the Paprium core
+        run: |
+          set -euo pipefail
+          SRC=/tmp/gpgx-paprium
+          git clone --quiet https://github.com/pav1388/Genesis-Plus-GX-PUNCHiUM "$SRC"
+          git -C "$SRC" checkout --quiet 3849f3d3432df1d6320574e73695dd379ecef2b3
+          NDK="${ANDROID_NDK_LATEST_HOME:-$ANDROID_NDK_HOME}"
+          (cd "$SRC/libretro/jni" && "$NDK/ndk-build" -j"$(nproc)" \
+            APP_ABI=arm64-v8a APP_PLATFORM=android-21 \
+            APP_CFLAGS="-Wno-error=implicit-function-declaration -Wno-error=int-conversion -Wno-error=incompatible-function-pointer-types -Wno-error=incompatible-pointer-types")
+          so=$(find "$SRC/libretro" -path '*arm64-v8a*' -name 'libretro.so' -not -path '*/obj/*' | head -n 1)
+          test -n "$so"
+          cp "$so" lemuroid-app/src/bundle/jniLibs/arm64-v8a/libgenesis_plus_gx_paprium_libretro_android.so
+          ls -l lemuroid-app/src/bundle/jniLibs/arm64-v8a/
+
+      # LibretroDroid (the video/audio/input library) is built from source with a small patch:
+      # patches/libretrodroid-0.14.0-plus.patch adds "stretch to fill" and a live immersive-mode
+      # switch. It is published to the local Maven repo, which the app build reads first.
+      - name: Build patched LibretroDroid
+        run: |
+          set -euo pipefail
+          SRC=/tmp/libretrodroid
+          git clone --quiet --branch 0.14.0 --depth 1 --recurse-submodules --shallow-submodules \
+            https://github.com/Swordfish90/LibretroDroid "$SRC"
+          git -C "$SRC" apply "$GITHUB_WORKSPACE/patches/libretrodroid-0.14.0-plus.patch"
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "cmake;3.22.1" > /dev/null || true
+          cd "$SRC"
+          chmod +x gradlew
+          ./gradlew --no-daemon -q :libretrodroid:publishReleasePublicationToMavenLocal
+          ls ~/.m2/repository/com/swordfish/libretrodroid/*
+
+      - name: Lint
+        continue-on-error: true
+        run: ./gradlew --continue :lemuroid-app:lintFreeBundleRelease
+
+      - name: Upload lint report
+        uses: actions/upload-artifact@v6
+        with:
+          name: lint-report
+          path: |
+            lemuroid-app/build/reports/lint-results*.xml
+            lemuroid-app/build/intermediates/lint_intermediate_text_report/**/*.txt
+          if-no-files-found: warn
