@@ -335,12 +335,7 @@ class BaseGameScreenViewModel(
 
     fun isFastForwardSupported(): Boolean = system.fastForwardSupport
 
-    // One shared flow: a new one per call restarted collectAsState at "off" on every redraw, so the
-    // nested fast-forward button blinked out and back and could get stuck (owner, 2026-11-27).
-    private val fastForwardEnabled: StateFlow<Boolean> =
-        fastForwardSpeedState.map { it > 1 }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
-
-    fun isFastForwardEnabled(): StateFlow<Boolean> = fastForwardEnabled
+    fun isFastForwardEnabled(): Flow<Boolean> = fastForwardSpeedState.map { it > 1 }
 
     fun toggleFastForward() {
         val currentIndex = FAST_FORWARD_SPEEDS.indexOf(fastForwardSpeedState.value)
