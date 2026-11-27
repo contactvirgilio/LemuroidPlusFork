@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.itemKey
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LemuroidEmptyView
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LemuroidGameCard
@@ -52,7 +53,7 @@ fun GamesScreen(
                 modifier = modifier.fillMaxSize().wrapContentHeight(),
                 count = games.itemCount,
                 gameAt = { games[it] },
-                key = { games.peek(it)?.id ?: it },
+                key = games.itemKey { it.id },
                 onClick = onGameClick,
                 onLongClick = onGameLongClick,
             )
@@ -72,12 +73,11 @@ private fun GamesList(
     onGameFavoriteToggle: (Game, Boolean) -> Unit,
 ) {
     LazyColumn(modifier = modifier.fillMaxSize()) {
-        items(games.itemCount, key = { games[it]?.id ?: it }) { index ->
+        items(games.itemCount, key = games.itemKey { it.id }) { index ->
             val game = games[index] ?: return@items
 
             LemuroidGameListRow(
-                modifier = Modifier.animateItem(),
-                game = game,
+                                game = game,
                 onClick = { onGameClick(game) },
                 onLongClick = { onGameLongClick(game) },
                 onFavoriteToggle = { isFavorite -> onGameFavoriteToggle(game, isFavorite) },
@@ -101,12 +101,11 @@ private fun GamesGrid(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        items(games.itemCount, key = { games[it]?.id ?: it }) { index ->
+        items(games.itemCount, key = games.itemKey { it.id }) { index ->
             val game = games[index] ?: return@items
 
             LemuroidGameCard(
-                modifier = Modifier.animateItem(),
-                game = game,
+                                game = game,
                 onClick = { onGameClick(game) },
                 onLongClick = { onGameLongClick(game) },
             )
@@ -130,11 +129,10 @@ private fun ScreenshotGamesGrid(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            items(games.itemCount, key = { games.peek(it)?.id ?: it }) { index ->
+            items(games.itemCount, key = games.itemKey { it.id }) { index ->
                 val game = games[index] ?: return@items
                 LemuroidGameCard(
-                    modifier = Modifier.animateItem(),
-                    game = game,
+                                        game = game,
                     onClick = { onGameClick(game) },
                     onLongClick = { onGameLongClick(game) },
                 )

@@ -1,5 +1,6 @@
 package com.swordfish.lemuroid.app.mobile.feature.favorites
 
+import androidx.paging.compose.itemKey
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -37,11 +38,10 @@ fun FavoritesScreen(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        items(games.itemCount, key = { games[it]?.id ?: it }) { index ->
+        items(games.itemCount, key = games.itemKey { it.id }) { index ->
             val game = games[index] ?: return@items
             LemuroidGameCard(
-                modifier = Modifier.animateItem(),
-                game = game,
+                                game = game,
                 onClick = { onGameClick(game) },
                 onLongClick = { onGameLongClick(game) },
             )

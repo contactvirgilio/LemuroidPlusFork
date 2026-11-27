@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.itemKey
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.swordfish.lemuroid.R
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.LemuroidEmptyView
@@ -84,12 +85,11 @@ private fun SearchResultsView(
     onGameFavoriteToggle: (Game, Boolean) -> Unit,
 ) {
     LazyColumn(modifier = modifier) {
-        items(games.itemCount, key = { games[it]?.id ?: it }) { index ->
+        items(games.itemCount, key = games.itemKey { it.id }) { index ->
             val game = games[index] ?: return@items
 
             LemuroidGameListRow(
-                modifier = Modifier.animateItem(),
-                game = game,
+                                game = game,
                 onClick = { onGameClick(game) },
                 onLongClick = { onGameLongClick(game) },
                 onFavoriteToggle = { isFavorite ->
