@@ -479,7 +479,7 @@ private fun GameOverlayButtons(
             }
         }
         // Fast forward on: its button stays out next to the grid until turned off.
-        val fastForwardOn = viewModel.isFastForwardEnabled().collectAsState(false).value
+        val fastForwardOn = viewModel.isFastForwardEnabled().collectAsState().value
         AnimatedVisibility(
             visible = fastForwardOn && !open,
             enter = popIn,
@@ -840,7 +840,7 @@ private fun MuteButton(viewModel: BaseGameScreenViewModel) {
 /** Turns fast forward (2x) on and off; yellow while on. */
 @Composable
 private fun FastForwardButton(viewModel: BaseGameScreenViewModel) {
-    val enabled = viewModel.isFastForwardEnabled().collectAsState(false).value
+    val enabled = viewModel.isFastForwardEnabled().collectAsState().value
     val label = stringResource(com.swordfish.lemuroid.R.string.game_menu_fast_forward)
 
     // While on it doesn't fade with the others: it stays solid until turned off (eased both ways).
