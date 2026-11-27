@@ -15,6 +15,9 @@ android {
         // Keep versionCode increasing (never lower it) so updates install over existing installs.
         versionName = "1.1"
         applicationId = "com.swordfish.lemuroid"
+        // Only the fully translated languages (owner, 2026-11-27): English, European Portuguese and
+        // Spain Spanish. Phones in any other language get English throughout instead of a mix.
+        resourceConfigurations += listOf("en", "pt-rPT", "es-rES")
     }
     flavorDimensions += listOf("opensource", "cores")
 
