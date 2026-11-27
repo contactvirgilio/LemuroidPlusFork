@@ -156,6 +156,11 @@ jobs:
         continue-on-error: true
         run: ./gradlew --continue :lemuroid-app:lintFreeBundleRelease
 
+      - name: Print lint findings
+        run: |
+          f=$(find lemuroid-app/build -name 'lint-results-*.txt' | head -n 1)
+          grep -E ": (Error|Warning): " "$f" | sed 's|.*/src/main/||' || true
+
       - name: Upload lint report
         uses: actions/upload-artifact@v6
         with:
