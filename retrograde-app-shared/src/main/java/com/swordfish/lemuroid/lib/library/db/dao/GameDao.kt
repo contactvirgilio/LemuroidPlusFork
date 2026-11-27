@@ -83,6 +83,10 @@ interface GameDao {
     @Query("SELECT * FROM games ORDER BY COALESCE(customName, title) ASC")
     suspend fun selectAll(): List<Game>
 
+    /** Every game, for "All systems". */
+    @Query("SELECT * FROM games ORDER BY COALESCE(customName, title) ASC, id DESC")
+    fun selectAllPaged(): PagingSource<Int, Game>
+
     @Query("SELECT DISTINCT systemId FROM games ORDER BY systemId ASC")
     suspend fun selectSystems(): List<String>
 

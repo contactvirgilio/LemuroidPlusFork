@@ -68,6 +68,7 @@ import com.swordfish.lemuroid.app.mobile.feature.settings.general.SettingsViewMo
 import com.swordfish.lemuroid.app.mobile.feature.settings.inputdevices.InputDevicesSettingsScreen
 import com.swordfish.lemuroid.app.mobile.feature.settings.inputdevices.InputDevicesSettingsViewModel
 import com.swordfish.lemuroid.app.mobile.feature.shortcuts.ShortcutsGenerator
+import com.swordfish.lemuroid.app.mobile.feature.systems.ALL_SYSTEMS_ID
 import com.swordfish.lemuroid.app.mobile.feature.systems.MetaSystemsScreen
 import com.swordfish.lemuroid.app.mobile.feature.systems.MetaSystemsViewModel
 import com.swordfish.lemuroid.app.mobile.shared.compose.ui.AppTheme
@@ -384,7 +385,7 @@ class MainActivity : RetrogradeComponentActivity(), BusyActivity {
                                     factory =
                                         GamesViewModel.Factory(
                                             retrogradeDb,
-                                            MetaSystemID.valueOf(metaSystemId!!),
+                                            metaSystemId?.takeIf { it != ALL_SYSTEMS_ID }?.let { MetaSystemID.valueOf(it) },
                                         ),
                                 ),
                             onGameClick = onGameClick,

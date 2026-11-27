@@ -446,4 +446,5 @@
     <string name="game_overlay_screenshot_title">Screenshot</string>
     <string name="game_overlay_screenshot_saved">Saved</string>
     <string name="game_overlay_screenshot_failed">Couldn\'t save</string>
+    <string name="title_all_systems">All systems</string>
 </resources>

@@ -26,6 +26,7 @@ fun MetaSystemsScreen(
         modifier = modifier,
         metaSystems = metaSystems.value,
         onSystemClicked = { navController.navigate("systems/${it.metaSystem.name}") },
+        onAllSystemsClicked = { navController.navigate("systems/$ALL_SYSTEMS_ID") },
     )
 }
 
@@ -34,6 +35,7 @@ private fun MetaSystemsScreen(
     modifier: Modifier = Modifier,
     metaSystems: List<MetaSystemInfo>,
     onSystemClicked: (MetaSystemInfo) -> Unit,
+    onAllSystemsClicked: () -> Unit,
 ) {
     if (metaSystems.isEmpty()) {
         LemuroidEmptyView()
@@ -49,6 +51,12 @@ private fun MetaSystemsScreen(
         horizontalArrangement = Arrangement.spacedBy(if (vertical) 12.dp else 16.dp),
         verticalArrangement = Arrangement.spacedBy(if (vertical) 12.dp else 16.dp),
     ) {
+        // "All systems" first, when there is more than one system (owner, 2026-11-27).
+        if (metaSystems.size > 1) {
+            item(key = ALL_SYSTEMS_ID) {
+                AllSystemsCard(modifier = Modifier.animateItem(), systems = metaSystems, onClick = onAllSystemsClicked)
+            }
+        }
         items(metaSystems.size, key = { metaSystems[it].metaSystem }) { index ->
             val system = metaSystems[index]
             LemuroidSystemCard(

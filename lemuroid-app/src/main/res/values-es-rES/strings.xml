@@ -393,4 +393,5 @@
     <string name="game_overlay_screenshot_title">Captura</string>
     <string name="game_overlay_screenshot_saved">Guardada</string>
     <string name="game_overlay_screenshot_failed">No se pudo guardar</string>
+    <string name="title_all_systems">Todos los sistemas</string>
 </resources>
