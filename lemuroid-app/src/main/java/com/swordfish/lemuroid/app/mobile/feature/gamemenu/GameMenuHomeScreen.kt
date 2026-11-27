@@ -323,8 +323,16 @@ private fun coreOptionEntries(gameMenuRequest: GameMenuActivity.GameMenuRequest)
             MenuEntry(
                 label = label,
                 sublabel = if (isSwitch) (if (current == "enabled") on else off) else plainValue(current, names.getOrNull(values.indexOf(current)), on, off),
-                // Lists with an "off" value (Reduce slowdown) still look off when off; other choices always coloured.
-                active = if (isSwitch) current == "enabled" else current != "disabled",
+                // Choices are always coloured, except a value that means off (e.g. Reduce slowdown "Off",
+                // whatever the core calls it: "disabled", or bsnes' "100") (owner, 2026-11-27).
+                active =
+                    if (isSwitch) {
+                        current == "enabled"
+                    } else {
+                        val shownName = names.getOrNull(values.indexOf(current))
+                        plainValue(current, shownName, on, off) != off && !shownName.equals(off, ignoreCase = true) &&
+                            !shownName.equals("off", ignoreCase = true)
+                    },
                 icon = { tint ->
                     Icon(Icons.Outlined.Tune, contentDescription = label, tint = tint, modifier = Modifier.size(28.dp))
                 },
