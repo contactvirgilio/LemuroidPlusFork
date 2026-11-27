@@ -664,7 +664,8 @@ class BaseGameScreenViewModel(
      * Runs in the background without the loading state, so the game screen and its buttons stay put.
      */
     fun quickSaveToNextSlot() {
-        if (loadingState.value || quickSaveInProgress) return
+        // The Select+R1 combo also lands here on systems without save states (bug hunt 2026-11-27).
+        if (!areStatesSupported() || loadingState.value || quickSaveInProgress) return
         quickSaveInProgress = true
         viewModelScope.launch {
             try {
@@ -674,7 +675,8 @@ class BaseGameScreenViewModel(
                     slots.indexOfFirst { !it.exists }
                         .takeIf { it >= 0 }
                         ?: slots.indices.minBy { slots[it].date }
-                saves.saveSlot(index)
+                // Only claim "Saved" when something was saved.
+                if (!saves.saveSlot(index)) return@launch
                 // Same card as filter/scaling: "Saved to" / "State 3", with the slot highlighted.
                 overlayCardState.value =
                     OverlayCard(

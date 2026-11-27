@@ -43,13 +43,14 @@ class GameViewModelSaves(
         val autoSave: SaveState?,
     )
 
-    suspend fun saveSlot(index: Int) {
-        getCurrentSaveState()?.let {
-            statesManager.setSlotSave(game, it, systemCoreConfig.coreID, index)
-            runCatching {
-                takeScreenshotPreview(index)
-            }
+    /** False when the core gave no state (nothing was saved). */
+    suspend fun saveSlot(index: Int): Boolean {
+        val state = getCurrentSaveState() ?: return false
+        statesManager.setSlotSave(game, state, systemCoreConfig.coreID, index)
+        runCatching {
+            takeScreenshotPreview(index)
         }
+        return true
     }
 
     /** Picture for the auto-save (shown in the Load menu); only while the game is on screen. */
