@@ -72,7 +72,9 @@ object SelectionStyle {
         name =
             androidx.preference.PreferenceManager
                 .getDefaultSharedPreferences(context)
-                .getString(KEY, DEFAULT) ?: DEFAULT
+                .getString(KEY, DEFAULT)
+                // A colour that was removed (White) falls back to Pink, so the picker shows a choice.
+                ?.takeIf { saved -> options.any { it.first == saved } } ?: DEFAULT
     }
 
     fun set(context: android.content.Context, newName: String) {

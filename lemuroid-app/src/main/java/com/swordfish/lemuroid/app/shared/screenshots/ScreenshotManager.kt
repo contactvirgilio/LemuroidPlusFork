@@ -131,17 +131,10 @@ object ScreenshotManager {
     }
 
     private fun candidateNames(game: Game): List<String> {
+        // Only the exact ROM file name: screenshots are always saved under it. Matching titles too
+        // (left from artwork) showed one game's screenshot on another with the same title.
         val fileBase = game.fileName.substringBeforeLast('.')
-        return listOfNotNull(
-            fileBase,
-            game.customName,
-            game.title,
-            Game.cleanTitle(game.title),
-            Game.cleanTitle(fileBase),
-        )
-            .map { normalize(it) }
-            .filter { it.isNotEmpty() }
-            .distinct()
+        return listOf(normalize(fileBase)).filter { it.isNotEmpty() }
     }
 
     private fun normalize(name: String): String = name.trim().lowercase(Locale.ROOT)
