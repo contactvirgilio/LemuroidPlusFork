@@ -42,11 +42,11 @@ import kotlin.random.Random
 const val ALL_SYSTEMS_ID = "ALL"
 
 /** How often the three system tiles on the card change. */
-private const val RESHUFFLE_MILLIS = 60 * 60 * 1000L
+private const val RESHUFFLE_MILLIS = 12 * 60 * 60 * 1000L
 
 /**
  * "All systems" (owner, 2026-11-27): three fanned tiles of systems that have games, picked at
- * random and changed every hour. Opens every game in one list.
+ * random and changed every 12 hours. Opens every game in one list.
  */
 @Composable
 fun AllSystemsCard(
@@ -55,7 +55,7 @@ fun AllSystemsCard(
     onClick: () -> Unit,
 ) {
     val context = LocalContext.current
-    // The current hour; ticks over while the screen stays open.
+    // The current 12-hour period; ticks over while the screen stays open.
     val period by produceState(System.currentTimeMillis() / RESHUFFLE_MILLIS) {
         while (true) {
             delay(RESHUFFLE_MILLIS - System.currentTimeMillis() % RESHUFFLE_MILLIS + 50)
