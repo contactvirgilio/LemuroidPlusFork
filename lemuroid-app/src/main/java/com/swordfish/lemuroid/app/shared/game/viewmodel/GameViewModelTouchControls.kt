@@ -52,10 +52,28 @@ class GameViewModelTouchControls(
 
     private var loadingMenuJob: Job? = null
 
+    private var baseTouchControlId: TouchControllerID? = null
+
+    /**
+     * Arcade game using 1 to 4 buttons (from the names the core reported): show only those on the
+     * touch pad (owner, 2026-11-28). Games with more, or that report nothing, keep the full pad.
+     */
+    fun useArcadeButtons(keys: List<Int>) {
+        com.swordfish.touchinput.radial.layouts.ArcadeTouchButtons.keys = keys
+        baseTouchControlId?.let { touchControlId.value = arcadeOverride(it) }
+    }
+
+    private fun arcadeOverride(id: TouchControllerID): TouchControllerID {
+        val keys = com.swordfish.touchinput.radial.layouts.ArcadeTouchButtons.keys
+        val arcade = id == TouchControllerID.ARCADE_4 || id == TouchControllerID.ARCADE_6
+        return if (arcade && keys.size in 1..4) TouchControllerID.ARCADE_CUSTOM else id
+    }
+
     override fun onCreate(owner: LifecycleOwner) {
         owner.launchOnState(Lifecycle.State.CREATED) {
             getTouchControllerConfig().safeCollect {
-                touchControlId.value = it.touchControllerID
+                baseTouchControlId = it.touchControllerID
+                touchControlId.value = arcadeOverride(it.touchControllerID)
             }
         }
         owner.launchOnState(Lifecycle.State.CREATED) {

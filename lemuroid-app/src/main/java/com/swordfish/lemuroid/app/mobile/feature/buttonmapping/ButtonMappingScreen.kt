@@ -227,9 +227,15 @@ fun ButtonMappingEditor(
     val root = remember { FocusRequester() }
     val firstRow = remember { FocusRequester() }
     val dualShock = remember { systemId != "psx" || ButtonMapping.psxDualShock(context) }
-    val rows = remember { spec.buttons.filter { !it.dualShockOnly || dualShock } + DPAD_ROWS }
     // Arcade games only: the game's own name for each button (e.g. "Jump"), next to the usual chip.
     val gameNames = remember { if (ButtonMapping.showsButtonNames(systemId)) ButtonMapping.buttonNames(context, fileName) else emptyMap() }
+    // When the game reported its buttons, the ones it doesn't use are hidden (owner, 2026-11-28).
+    val rows =
+        remember {
+            spec.buttons
+                .filter { !it.dualShockOnly || dualShock }
+                .filter { gameNames.isEmpty() || it.key in gameNames } + DPAD_ROWS
+        }
     val yours = ButtonMapping.MAPPABLE
     val savedShortcuts = remember { ButtonMapping.effectiveShortcuts(context, systemId, fileName) }
     var shortcuts by remember { mutableStateOf(savedShortcuts) }

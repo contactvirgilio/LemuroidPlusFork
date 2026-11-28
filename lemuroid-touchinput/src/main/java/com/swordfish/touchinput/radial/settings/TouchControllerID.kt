@@ -72,6 +72,8 @@ enum class TouchControllerID {
     GG,
     ARCADE_4,
     ARCADE_6,
+    // Arcade game that uses 1 to 4 buttons: only those are shown (owner, 2026-11-28).
+    ARCADE_CUSTOM,
     LYNX,
     ATARI7800,
     PCE,
@@ -196,6 +198,12 @@ enum class TouchControllerID {
                     Config(
                         { modifier, settings -> Arcade6Left(modifier, settings) },
                         { modifier, settings -> Arcade6Right(modifier, settings) },
+                    )
+
+                ARCADE_CUSTOM ->
+                    Config(
+                        { modifier, settings -> Arcade4Left(modifier, settings) },
+                        { modifier, settings -> com.swordfish.touchinput.radial.layouts.ArcadeCustomRight(modifier, settings) },
                     )
 
                 LYNX ->

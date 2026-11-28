@@ -201,7 +201,7 @@ class BaseGameScreenViewModel(
             val state = if (rebuild) stash?.autoSave else gameData.quickSaveData
             state?.let { saves.restoreAutoSaveAsync(it) }
         }
-        viewModelScope.launch { saves.captureButtonNames() }
+        viewModelScope.launch { saves.captureButtonNames { keys -> touchControls.useArcadeButtons(keys) } }
         return result
     }
 

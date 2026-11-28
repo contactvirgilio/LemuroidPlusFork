@@ -124,9 +124,11 @@ class GameViewModelSaves(
      * Arcade games: keep the game's own button names (e.g. "Attack", "Jump") for the button mapping
      * list. Read once the first frame is drawn, when the core has reported them.
      */
-    suspend fun captureButtonNames() {
+    suspend fun captureButtonNames(onButtons: (List<Int>) -> Unit) {
         val mappingId = com.swordfish.lemuroid.app.shared.input.ButtonMapping
         if (!mappingId.showsButtonNames(system.id.dbname)) return
+        // Names from an earlier run: the pad is reduced straight away.
+        mappingId.buttonNames(appContext, game.fileName).takeIf { it.isNotEmpty() }?.let { onButtons(mappingId.usedFireButtons(it)) }
         runCatching {
             retroGameView.waitGLEvent<GLRetroView.GLRetroEvents.FrameRendered>()
             val view = retroGameView.retroGameView ?: return
@@ -138,7 +140,10 @@ class GameViewModelSaves(
                         val clean = name.replace(Regex("^(P1|Player ?1)\\s+", RegexOption.IGNORE_CASE), "").trim()
                         if (clean.isEmpty()) null else key to clean
                     }.toMap()
-            if (names.isNotEmpty()) mappingId.saveButtonNames(appContext, game.fileName, names)
+            if (names.isNotEmpty()) {
+                mappingId.saveButtonNames(appContext, game.fileName, names)
+                onButtons(mappingId.usedFireButtons(names))
+            }
         }.onFailure { Timber.e(it, "Cannot read button names") }
     }
 

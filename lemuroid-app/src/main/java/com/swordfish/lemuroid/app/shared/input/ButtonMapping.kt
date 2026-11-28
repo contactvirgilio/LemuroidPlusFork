@@ -335,4 +335,19 @@ object ButtonMapping {
             14 to KeyEvent.KEYCODE_BUTTON_THUMBL,
             15 to KeyEvent.KEYCODE_BUTTON_THUMBR,
         )
+
+    /** Fire buttons in pad order; the game's used ones (from its names) make the reduced arcade pad. */
+    private val ARCADE_FIRE_ORDER =
+        listOf(
+            KeyEvent.KEYCODE_BUTTON_A,
+            KeyEvent.KEYCODE_BUTTON_B,
+            KeyEvent.KEYCODE_BUTTON_Y,
+            KeyEvent.KEYCODE_BUTTON_X,
+            KeyEvent.KEYCODE_BUTTON_L1,
+            KeyEvent.KEYCODE_BUTTON_R1,
+            KeyEvent.KEYCODE_BUTTON_L2,
+            KeyEvent.KEYCODE_BUTTON_R2,
+        )
+
+    fun usedFireButtons(names: Map<Int, String>): List<Int> = ARCADE_FIRE_ORDER.filter { it in names }
 }
