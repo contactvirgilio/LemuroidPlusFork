@@ -1,19 +1,58 @@
 # Neo Geo button names per game (A|B|C|D, empty = not used).
-# From controls.xml (SirPoonga, Howard Casto; extra games by Texacate, AndyHazz), with fixes.
+# Owner's list (2026-11-28) first; others from controls.xml (SirPoonga, Howard Casto; extras by Texacate, AndyHazz).
+2020bb|Bat/Pitch/Throw/Special|Run/Lead off/Steal/Check Runner|Bunt|Time out
+2020bba|Bat/Pitch/Throw/Special|Run/Lead off/Steal/Check Runner|Bunt|Time out
+2020bbcd|Bat/Pitch/Throw/Special|Run/Lead off/Steal/Check Runner|Bunt|Time out
+2020bbh|Bat/Pitch/Throw/Special|Run/Lead off/Steal/Check Runner|Bunt|Time out
+3countb|Punch|Kick|Jump|Fall
+3countba|Punch|Kick|Jump|Fall
+alpham2|Missiles/Lasers/Confirm|Attack|Armor Menu|
+alpham2p|Missiles/Lasers/Confirm|Attack|Armor Menu|
+androdun|Shoot|Bomb|Switch Weapon|
 aodk|Punch|Kick|Jump|
-aof|Punch|Kick|Strong Attack|Taunt
-aof2|Punch|Kick|Attack|Taunt
-aof2a|Punch|Kick|Attack|Taunt
-aof2bh|Punch|Kick|Attack|Taunt
-aof2bhs|Punch|Kick|Attack|Taunt
-aof3|Punch|Kick|Blow Away Attack|Taunt
-aof3bh|Punch|Kick|Blow Away Attack|Taunt
-aof3k|Punch|Kick|Blow Away Attack|Taunt
-aofbr|Punch|Kick|Strong Attack|Taunt
+aof|Punch|Kick|Combo/Throw|Taunt
+aof2|Punch|Kick|Throw|Taunt
+aof2a|Punch|Kick|Throw|Taunt
+aof2bh|Punch|Kick|Throw|Taunt
+aof2bhs|Punch|Kick|Throw|Taunt
+aof3|Punch|Kick|Blowback|Taunt
+aof3bh|Punch|Kick|Blowback|Taunt
+aof3k|Punch|Kick|Blowback|Taunt
+aofbr|Punch|Kick|Combo/Throw|Taunt
+bakatono|Select/Discard|Pon|Chi|Kan/Reach
+bangbead|Throw/Return|Lob/Special||
+bangbedp|Throw/Return|Lob/Special||
+bjourney|Attack|Jump|Change Size|
+bjourneyh|Attack|Jump|Change Size|
+blazstar|Shoot/Charge|Rapid Shot/Charge Break||
+blazstarcm|Shoot/Charge|Rapid Shot/Charge Break||
+breakers|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+breakrev|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+breakrevbh|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+brkrevext|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+brkrevjq|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+bstars|Pitch/Bat/Throw to Base|Advance/Run to Base|Bunt|Time out
+bstars2|Pitch/Bat/Throw to Base|Advance/Run to Base|Bunt|Time out
+bstarsh|Pitch/Bat/Throw to Base|Advance/Run to Base|Bunt|Time out
+burningf|Punch|Jump|Kick|
+burningfh|Punch|Jump|Kick|
+burningfp|Punch|Jump|Kick|
+burningfpa|Punch|Jump|Kick|
+burningfpb|Punch|Jump|Kick|
+cakefght|Shot|Bomb||
+crsword|Sword|Magic||
 ct2k3sa|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 ct2k3sp|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 cthd2003|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 cthd2k3a|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+ctomaday|Left Punch|Right Punch|Formation Charge|
+cyberlip|Shoot|Jump|Select Weapon|
+doubldsp|Light Attack|Medium Attack|Hard Attack|Extra Attack
+doubledp|Light Attack|Medium Attack|Hard Attack|Extra Attack
+doubledr|Light Attack|Medium Attack|Hard Attack|Extra Attack
+doubledrbh|Light Attack|Medium Attack|Hard Attack|Extra Attack
+doubledt|Light Attack|Medium Attack|Hard Attack|Extra Attack
+eightman|Punch/Kick|Jump|8 Man Bomber/Super Death Blow|
 fatfursp|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 fatfurspa|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 fatfury1|Punch|Kick|Throw|
@@ -21,13 +60,20 @@ fatfury2|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 fatfury2a|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 fatfury3|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 fatfury3a|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+fbfrenzy|Kick Power/Speed Boost|Pass A/Switch|Pass B|Pass C
 ffurspbs|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 ffurspbt|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 ffury1bs|Punch|Kick|Throw|
 ffury2es|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 ffury3bs|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 ffury3eh|Weak Punch|Weak Kick|Strong Punch|Strong Kick
-fswords|Light Slash|Medium Slash|Strong Slash|Kick
+fightfev|Weak Punch|Weak Kick|Strong Punch/Taunt|Strong Kick
+fightfeva|Weak Punch|Weak Kick|Strong Punch/Taunt|Strong Kick
+flipshot|Throw/Return|Dash/Special|Stop/Hold|
+fswords|Weak Slash|Medium Slash|Strong Slash|Kick
+galaxyfg|Light Attack|Medium Attack|Strong Attack|Taunt
+galaxyfg03|Light Attack|Medium Attack|Strong Attack|Taunt
+ganryu|Attack|Jump|Chain|
 garou|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 garoubl|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 garoubs|Weak Punch|Weak Kick|Strong Punch|Strong Kick
@@ -36,11 +82,20 @@ garouha|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 garoujq|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 garoup|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 ghostlop|Orange|Blue||
-gpilots|Shoot|Special Weapon||
-gpilotsh|Shoot|Special Weapon||
-gpilotsp|Shoot|Special Weapon||
-karnovr|Light Punch|Heavy Punch|Light Kick|Heavy Kick
-karnovre|Light Punch|Heavy Punch|Light Kick|Heavy Kick
+goalx3|Shoot/Slide|Pass/Tackle|Short Kick|
+gowcaiet|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+gowcaizr|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+gpilots|Attack|Special Weapon||
+gpilotsh|Attack|Special Weapon||
+gpilotsp|Attack|Special Weapon||
+gururin|Rotate Left 90°|Rotate Right 90°||
+irrmaze|Boost/Speed|Brake/Slow||
+joyjoy|Rotate Left|Rotate Right||
+kabukijq|Light Punch|Medium Punch|Light Kick|Medium Kick
+kabukikl|Light Punch|Medium Punch|Light Kick|Medium Kick
+kabukiklb|Light Punch|Medium Punch|Light Kick|Medium Kick
+karnovr|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+karnovre|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 kf10thep|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 kf10thuo|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 kf10thup|Weak Punch|Weak Kick|Strong Punch|Strong Kick
@@ -66,13 +121,14 @@ kf2k2ps2re|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 kf2k3bl|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 kf2k3bla|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 kf2k3p2s|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k3pcb|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 kf2k3pl|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 kf2k3ps2|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 kf2k3upl|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 kf2k4pls|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 kf2k5uni|Weak Punch|Weak Kick|Strong Punch|Strong Kick
-kizuna|Punch|Kick|Weapon|Tag
-kizuna4p|Punch|Kick|Weapon|Tag
+kizuna|Weak Punch|Weak Kick|Block|Tag Out
+kizuna4p|Weak Punch|Weak Kick|Block|Tag Out
 kof10th|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 kof10thd|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 kof2000|Weak Punch|Weak Kick|Strong Punch|Strong Kick
@@ -205,208 +261,315 @@ kof99sr|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 kof99t|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 kog|Weak Punch|Weak Kick|Strong Punch|Strong Kick
 kogplus|Weak Punch|Weak Kick|Strong Punch|Strong Kick
-kotm|Punch|Kick|Jump|
+kotm|Punch|Kick|Run|
 kotm2|Punch|Kick|Jump|
 kotm2a|Punch|Kick|Jump|
 kotm2p|Punch|Kick|Jump|
-kotmh|Punch|Kick|Jump|
-lastblad|Weak Slash|Strong Slash|Weak Kick|Repel
-lastblada|Weak Slash|Strong Slash|Weak Kick|Repel
-lastbladh|Weak Slash|Strong Slash|Weak Kick|Repel
-lastbldi|Weak Slash|Strong Slash|Weak Kick|Repel
-lastbldp|Weak Slash|Strong Slash|Weak Kick|Repel
-lastblsp|Weak Slash|Strong Slash|Weak Kick|Repel
-lastsold|Weak Slash|Strong Slash|Weak Kick|Repel
-lbowling|Bowl|||
-lresort|Fire|Adjust Pod Movement||
-lresortp|Fire|Adjust Pod Movement||
-magdrop3|Top|Throw|Lower|
-magdrop3bh|Top|Throw|Lower|
-magdrop3te|Top|Throw|Lower|
-ms21v2|Fire|Jump|Grenade|
-ms31v2|Fire|Jump|Grenade|
-ms3dbpls|Fire|Jump|Grenade|
-ms41v2|Fire|Jump|Grenade|
-ms4plus|Fire|Jump|Grenade|
-ms51v2|Fire|Jump|Grenade|
-ms5esr|Fire|Jump|Grenade|
-ms5plus|Fire|Jump|Grenade|
-ms5plush|Fire|Jump|Grenade|
-ms5sgf|Fire|Jump|Grenade|
-mslug|Fire|Jump|Grenade|
-mslug1v2|Fire|Jump|Grenade|
-mslug2|Fire|Jump|Grenade|
-mslug2ct|Fire|Jump|Grenade|
-mslug2dd|Fire|Jump|Grenade|
-mslug2dg|Fire|Jump|Grenade|
-mslug2eg|Fire|Jump|Grenade|
-mslug2fm|Fire|Jump|Grenade|
-mslug2p|Fire|Jump|Grenade|
-mslug2r|Fire|Jump|Grenade|
-mslug2t|Fire|Jump|Grenade|
-mslug2unity|Fire|Jump|Grenade|
-mslug3|Fire|Jump|Grenade|
-mslug3a|Fire|Jump|Grenade|
-mslug3b6|Fire|Jump|Grenade|
-mslug3c|Fire|Jump|Grenade|
-mslug3cq|Fire|Jump|Grenade|
-mslug3cqi|Fire|Jump|Grenade|
-mslug3cqt|Fire|Jump|Grenade|
-mslug3cqz|Fire|Jump|Grenade|
-mslug3dd|Fire|Jump|Grenade|
-mslug3eb|Fire|Jump|Grenade|
-mslug3fd|Fire|Jump|Grenade|
-mslug3g|Fire|Jump|Grenade|
-mslug3gw|Fire|Jump|Grenade|
-mslug3h|Fire|Jump|Grenade|
-mslug3i|Fire|Jump|Grenade|
-mslug3ki|Fire|Jump|Grenade|
-mslug3lw|Fire|Jump|Grenade|
-mslug3ps|Fire|Jump|Grenade|
-mslug3sc|Fire|Jump|Grenade|
-mslug3sd|Fire|Jump|Grenade|
-mslug3se|Fire|Jump|Grenade|
-mslug3unity|Fire|Jump|Grenade|
-mslug3v|Fire|Jump|Grenade|
-mslug3zh|Fire|Jump|Grenade|
-mslug4|Fire|Jump|Grenade|
-mslug4a|Fire|Jump|Grenade|
-mslug4ar|Fire|Jump|Grenade|
-mslug4c|Fire|Jump|Grenade|
-mslug4cqi|Fire|Jump|Grenade|
-mslug4dd|Fire|Jump|Grenade|
-mslug4dg|Fire|Jump|Grenade|
-mslug4fd|Fire|Jump|Grenade|
-mslug4h|Fire|Jump|Grenade|
-mslug4ki|Fire|Jump|Grenade|
-mslug4lq|Fire|Jump|Grenade|
-mslug4lw|Fire|Jump|Grenade|
-mslug4q|Fire|Jump|Grenade|
-mslug4unity|Fire|Jump|Grenade|
-mslug5|Fire|Jump|Grenade|
-mslug5ae|Fire|Jump|Grenade|
-mslug5ar|Fire|Jump|Grenade|
-mslug5b|Fire|Jump|Grenade|
-mslug5b2|Fire|Jump|Grenade|
-mslug5bs|Fire|Jump|Grenade|
-mslug5c|Fire|Jump|Grenade|
-mslug5cqi|Fire|Jump|Grenade|
-mslug5db|Fire|Jump|Grenade|
-mslug5dd|Fire|Jump|Grenade|
-mslug5dg|Fire|Jump|Grenade|
-mslug5es|Fire|Jump|Grenade|
-mslug5ex|Fire|Jump|Grenade|
-mslug5f|Fire|Jump|Grenade|
-mslug5fd|Fire|Jump|Grenade|
-mslug5h|Fire|Jump|Grenade|
-mslug5ki|Fire|Jump|Grenade|
-mslug5mg|Fire|Jump|Grenade|
-mslug5nd|Fire|Jump|Grenade|
-mslug5sc|Fire|Jump|Grenade|
-mslug5sg|Fire|Jump|Grenade|
-mslug5unity|Fire|Jump|Grenade|
-mslug5w|Fire|Jump|Grenade|
-mslug5x|Fire|Jump|Grenade|
-mslug5zh|Fire|Jump|Grenade|
-mslugdg|Fire|Jump|Grenade|
-mslugdyf2|Fire|Jump|Grenade|
-mslugfc1|Fire|Jump|Grenade|
-mslugfc2|Fire|Jump|Grenade|
-mslugfs|Fire|Jump|Grenade|
-mslugqy|Fire|Jump|Grenade|
-mslugunity|Fire|Jump|Grenade|
-mslugx|Fire|Jump|Grenade|
-mslugx2r|Fire|Jump|Grenade|
-mslugxc1|Fire|Jump|Grenade|
-mslugxc2|Fire|Jump|Grenade|
-mslugxcq|Fire|Jump|Grenade|
-mslugxcqi|Fire|Jump|Grenade|
-mslugxdd|Fire|Jump|Grenade|
-mslugxdg|Fire|Jump|Grenade|
-mslugxeb|Fire|Jump|Grenade|
-mslugxif|Fire|Jump|Grenade|
-mslugxlb|Fire|Jump|Grenade|
-mslugxsc|Fire|Jump|Grenade|
-mslugxsv|Fire|Jump|Grenade|
-mslugxunity|Fire|Jump|Grenade|
-mslugxxb|Fire|Jump|Grenade|
-mslugxxr|Fire|Jump|Grenade|
-msqyfc1|Fire|Jump|Grenade|
-msx1v2|Fire|Jump|Grenade|
-msx2r1v2|Fire|Jump|Grenade|
-msx2reb|Fire|Jump|Grenade|
-msxsrf|Fire|Jump|Grenade|
-nam1975|Machine Gun|Grenade|Run/Flip|
-neocup98|Shoot/Low Pass/Slide|High Pass/Rough Play-Tackle|Short Pass/Action Player Shift|
-ninjamas|Weak Punch/Slash|Strong Punch/Slash|Weak Kick|Strong Kick
-ninjamasha|Weak Punch/Slash|Strong Punch/Slash|Weak Kick|Strong Kick
-pbobbl2n|Fire|||
-pbobblen|Fire|||
-pbobblenb|Fire|||
-pulstar|Fire|Drone Control||
-pulstara|Fire|Drone Control||
-pulstarae|Fire|Drone Control||
-puzzledp|Shoot|||
-rbff1|Punch|Kick|Special|Line Change
-rbff1a|Punch|Kick|Special|Line Change
-rbff1k|Punch|Kick|Special|Line Change
-rbff1ka|Punch|Kick|Special|Line Change
-rbff2|Punch|Kick|Special|Line Change
-rbff2bs|Punch|Kick|Special|Line Change
-rbff2h|Punch|Kick|Special|Line Change
-rbff2k|Punch|Kick|Special|Line Change
-rbffspbs|Punch|Kick|Special|Line Change
-rbffspec|Punch|Kick|Special|Line Change
-rbffspeck|Punch|Kick|Special|Line Change
+kotmh|Punch|Kick|Run|
+lans2004|Attack|Weapon|Jump|
+lastbd2b|Weak Slash|Strong Slash|Kick|Repel
+lastbd2e|Weak Slash|Strong Slash|Kick|Repel
+lastbd2i|Weak Slash|Strong Slash|Kick|Repel
+lastbd2p|Weak Slash|Strong Slash|Kick|Repel
+lastbd2t|Weak Slash|Strong Slash|Kick|Repel
+lastblad|Weak Slash|Strong Slash|Kick|Repel
+lastblada|Weak Slash|Strong Slash|Kick|Repel
+lastbladh|Weak Slash|Strong Slash|Kick|Repel
+lastbld2|Weak Slash|Strong Slash|Kick|Repel
+lastbldi|Weak Slash|Strong Slash|Kick|Repel
+lastbldp|Weak Slash|Strong Slash|Kick|Repel
+lastblsp|Weak Slash|Strong Slash|Kick|Repel
+lastsold|Weak Slash|Strong Slash|Kick|Repel
+lbowling|Set Gauge/Throw|||
+legendos|Left Jab|Right Straight|Duck/Dodge|
+lresort|Shoot|Set Unit||
+lresortp|Shoot|Set Unit||
+magdrop2|Pull Down|Throw Back||
+magdrop3|Pull Down|Throw Back|Push Up|
+magdrop3bh|Pull Down|Throw Back|Push Up|
+magdrop3te|Pull Down|Throw Back|Push Up|
+maglord|Attack|Jump||
+maglordacfh|Attack|Jump||
+maglordfacfh|Attack|Jump||
+maglordh|Attack|Jump||
+mahretsu|Select/Discard|Pon|Chi|Kan/Reach
+marukodq|Answer A|Answer B|Answer C|Answer D
+matrim|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+matrimbh|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+matrimbl|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+miexchng|Pull Coin|Throw Coin|Push Up|
+minasan|Select/Confirm|Cancel/Menu||
+moshougi|Select/Place|Cancel|Menu|
+ms21v2|Shoot|Jump|Grenades|
+ms31v2|Shoot|Jump|Grenades|
+ms3dbpls|Shoot|Jump|Grenades|
+ms41v2|Shoot|Jump|Grenades|
+ms4plus|Shoot|Jump|Grenades|
+ms51v2|Shoot|Jump|Grenades|
+ms5esr|Shoot|Jump|Grenades|
+ms5pcb|Shoot|Jump|Grenades|
+ms5plus|Shoot|Jump|Grenades|
+ms5plush|Shoot|Jump|Grenades|
+ms5sgf|Shoot|Jump|Grenades|
+mslug|Shoot|Jump|Grenades|
+mslug1v2|Shoot|Jump|Grenades|
+mslug2|Shoot|Jump|Grenades|
+mslug2ct|Shoot|Jump|Grenades|
+mslug2dd|Shoot|Jump|Grenades|
+mslug2dg|Shoot|Jump|Grenades|
+mslug2eg|Shoot|Jump|Grenades|
+mslug2fm|Shoot|Jump|Grenades|
+mslug2p|Shoot|Jump|Grenades|
+mslug2r|Shoot|Jump|Grenades|
+mslug2t|Shoot|Jump|Grenades|
+mslug2unity|Shoot|Jump|Grenades|
+mslug3|Shoot|Jump|Grenades|
+mslug3a|Shoot|Jump|Grenades|
+mslug3b6|Shoot|Jump|Grenades|
+mslug3c|Shoot|Jump|Grenades|
+mslug3cq|Shoot|Jump|Grenades|
+mslug3cqi|Shoot|Jump|Grenades|
+mslug3cqt|Shoot|Jump|Grenades|
+mslug3cqz|Shoot|Jump|Grenades|
+mslug3dd|Shoot|Jump|Grenades|
+mslug3eb|Shoot|Jump|Grenades|
+mslug3fd|Shoot|Jump|Grenades|
+mslug3g|Shoot|Jump|Grenades|
+mslug3gw|Shoot|Jump|Grenades|
+mslug3h|Shoot|Jump|Grenades|
+mslug3i|Shoot|Jump|Grenades|
+mslug3ki|Shoot|Jump|Grenades|
+mslug3lw|Shoot|Jump|Grenades|
+mslug3ps|Shoot|Jump|Grenades|
+mslug3sc|Shoot|Jump|Grenades|
+mslug3sd|Shoot|Jump|Grenades|
+mslug3se|Shoot|Jump|Grenades|
+mslug3unity|Shoot|Jump|Grenades|
+mslug3v|Shoot|Jump|Grenades|
+mslug3zh|Shoot|Jump|Grenades|
+mslug4|Shoot|Jump|Grenades|
+mslug4a|Shoot|Jump|Grenades|
+mslug4ar|Shoot|Jump|Grenades|
+mslug4c|Shoot|Jump|Grenades|
+mslug4cqi|Shoot|Jump|Grenades|
+mslug4dd|Shoot|Jump|Grenades|
+mslug4dg|Shoot|Jump|Grenades|
+mslug4fd|Shoot|Jump|Grenades|
+mslug4h|Shoot|Jump|Grenades|
+mslug4ki|Shoot|Jump|Grenades|
+mslug4lq|Shoot|Jump|Grenades|
+mslug4lw|Shoot|Jump|Grenades|
+mslug4q|Shoot|Jump|Grenades|
+mslug4unity|Shoot|Jump|Grenades|
+mslug5|Shoot|Jump|Grenades|
+mslug5ae|Shoot|Jump|Grenades|
+mslug5ar|Shoot|Jump|Grenades|
+mslug5b|Shoot|Jump|Grenades|
+mslug5b2|Shoot|Jump|Grenades|
+mslug5bs|Shoot|Jump|Grenades|
+mslug5c|Shoot|Jump|Grenades|
+mslug5cqi|Shoot|Jump|Grenades|
+mslug5db|Shoot|Jump|Grenades|
+mslug5dd|Shoot|Jump|Grenades|
+mslug5dg|Shoot|Jump|Grenades|
+mslug5es|Shoot|Jump|Grenades|
+mslug5ex|Shoot|Jump|Grenades|
+mslug5f|Shoot|Jump|Grenades|
+mslug5fd|Shoot|Jump|Grenades|
+mslug5h|Shoot|Jump|Grenades|
+mslug5ki|Shoot|Jump|Grenades|
+mslug5mg|Shoot|Jump|Grenades|
+mslug5nd|Shoot|Jump|Grenades|
+mslug5sc|Shoot|Jump|Grenades|
+mslug5sg|Shoot|Jump|Grenades|
+mslug5unity|Shoot|Jump|Grenades|
+mslug5w|Shoot|Jump|Grenades|
+mslug5x|Shoot|Jump|Grenades|
+mslug5zh|Shoot|Jump|Grenades|
+mslugdg|Shoot|Jump|Grenades|
+mslugdyf2|Shoot|Jump|Grenades|
+mslugfc1|Shoot|Jump|Grenades|
+mslugfc2|Shoot|Jump|Grenades|
+mslugfs|Shoot|Jump|Grenades|
+mslugqy|Shoot|Jump|Grenades|
+mslugunity|Shoot|Jump|Grenades|
+mslugx|Shoot|Jump|Grenades|
+mslugx2r|Shoot|Jump|Grenades|
+mslugxc1|Shoot|Jump|Grenades|
+mslugxc2|Shoot|Jump|Grenades|
+mslugxcq|Shoot|Jump|Grenades|
+mslugxcqi|Shoot|Jump|Grenades|
+mslugxdd|Shoot|Jump|Grenades|
+mslugxdg|Shoot|Jump|Grenades|
+mslugxeb|Shoot|Jump|Grenades|
+mslugxif|Shoot|Jump|Grenades|
+mslugxlb|Shoot|Jump|Grenades|
+mslugxsc|Shoot|Jump|Grenades|
+mslugxsv|Shoot|Jump|Grenades|
+mslugxunity|Shoot|Jump|Grenades|
+mslugxxb|Shoot|Jump|Grenades|
+mslugxxr|Shoot|Jump|Grenades|
+msqyfc1|Shoot|Jump|Grenades|
+msx1v2|Shoot|Jump|Grenades|
+msx2r1v2|Shoot|Jump|Grenades|
+msx2reb|Shoot|Jump|Grenades|
+msxsrf|Shoot|Jump|Grenades|
+mutnat|Punch/Kick|Jump||
+nam1975|Shoot|Special Weapon|Evade|
+ncombat|Attack/Magic|Jump|Special Move|
+ncombath|Attack/Magic|Jump|Special Move|
+ncommand|Shot|Somersault|Ninja Powers|
+neobombe|Place Bomb|Detonate/Special||
+neocup98|Shot/Low Pass/Slide|High Pass/Tackle|Short Pass/Change Player|
+neodrift|Accelerate|Brake||
+neomrdo|Shoot|||
+ninjamas|Weak Attack|Strong Attack|Kick|Draw/Sheathe Weapon
+ninjamasha|Weak Attack|Strong Attack|Kick|Draw/Sheathe Weapon
+nitd|Fireball|Jump||
+nitdbl|Fireball|Jump||
+overtop|Accelerate|Brake|Shift/Horn|
+panicbom|Rotate Pieces|||
+pbobbl2n|Shoot|||
+pbobblen|Shoot|||
+pbobblenb|Shoot|||
+pgoal|Shoot/Trap|Pass/Intercept|Tricky Play/Change Player|Save
+pnyaa|Rotate Left|Rotate Right|Trigger|
+pnyaaa|Rotate Left|Rotate Right|Trigger|
+popbounc|Shoot|||
+preisle2|Guns|Bombs||
+pspikes2|Serve/Spike|||
+pulstar|Shoot/Option|Barrier On/Off||
+pulstara|Shoot/Option|Barrier On/Off||
+pulstarae|Shoot/Option|Barrier On/Off||
+puzzldpr|Fire Ball|||
+puzzledp|Fire Ball|||
+quizdai2|Answer A|Answer B|Answer C|Answer D
+quizdais|Answer A|Answer B|Answer C|Answer D
+quizdaisk|Answer A|Answer B|Answer C|Answer D
+quizkof|Answer A|Answer B|Answer C|Answer D
+quizkofk|Answer A|Answer B|Answer C|Answer D
+ragnagrd|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+rallych|Accelerate|Brake||
+rbff1|Punch|Kick|Strong Attack|Plane Shift
+rbff1a|Punch|Kick|Strong Attack|Plane Shift
+rbff1k|Punch|Kick|Strong Attack|Plane Shift
+rbff1ka|Punch|Kick|Strong Attack|Plane Shift
+rbff2|Punch|Kick|Super Power Attack|Sway Move
+rbff2bs|Punch|Kick|Super Power Attack|Sway Move
+rbff2h|Punch|Kick|Super Power Attack|Sway Move
+rbff2k|Punch|Kick|Super Power Attack|Sway Move
+rbffspbs|Punch|Kick|Super Power Attack|Sway Move
+rbffspec|Punch|Kick|Super Power Attack|Sway Move
+rbffspeck|Punch|Kick|Super Power Attack|Sway Move
 ridhero|Accelerate|Brake|Turbo|
 ridheroh|Accelerate|Brake|Turbo|
-roboarmy|Attack|Jump|Special|
-roboarmya|Attack|Jump|Special|
-s1945p|Fire|Bomb||
-samsh2jq|Light Slash|Medium Slash|Light Kick|Medium Kick
-samsh2sp|Light Slash|Medium Slash|Light Kick|Medium Kick
-samsh3bs|Light Slash|Medium Slash|Strong Slash|Kick
+roboarmy|Punch/Dash|Jump|Attack|
+roboarmya|Punch/Dash|Jump|Attack|
+rotd|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+rotdbr|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+rotddh|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+rotdh|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+s1945p|Shoot|Support Attack||
+samsh2jq|Weak Slash|Strong Slash|Weak Kick|Strong Kick
+samsh2sp|Weak Slash|Strong Slash|Weak Kick|Strong Kick
+samsh3bs|Weak Slash|Medium Slash|Strong Slash|Kick
 samsh4bs|Weak Slash|Medium Slash|Strong Slash|Kick
 samsh4sp|Weak Slash|Medium Slash|Strong Slash|Kick
-samsho|Light Slash/Hard Slash|Medium Slash/Hard Slash|Light Kick/Hard Kick|Medium Kick/Hard Kick
-samsho2|Light Slash|Medium Slash|Light Kick|Medium Kick
-samsho2k|Light Slash|Medium Slash|Light Kick|Medium Kick
-samsho2ka|Light Slash|Medium Slash|Light Kick|Medium Kick
-samsho2pe|Light Slash|Medium Slash|Light Kick|Medium Kick
-samsho2t|Light Slash|Medium Slash|Light Kick|Medium Kick
-samsho3|Light Slash|Medium Slash|Strong Slash|Kick
-samsho3en|Light Slash|Medium Slash|Strong Slash|Kick
-samsho3h|Light Slash|Medium Slash|Strong Slash|Kick
+samsh5bs|Weak Slash|Medium Slash|Strong Slash|Kick
+samsh5fd|Weak Slash|Medium Slash|Strong Slash|Kick
+samsh5fe|Weak Slash|Medium Slash|Strong Slash|Kick
+samsh5pf|Weak Slash|Medium Slash|Strong Slash|Kick
+samsh5sp|Weak Slash|Medium Slash|Strong Slash|Kick
+samsh5sph|Weak Slash|Medium Slash|Strong Slash|Kick
+samsh5spho|Weak Slash|Medium Slash|Strong Slash|Kick
+samsho|Weak Slash|Strong Slash|Weak Kick|Strong Kick
+samsho2|Weak Slash|Strong Slash|Weak Kick|Strong Kick
+samsho2k|Weak Slash|Strong Slash|Weak Kick|Strong Kick
+samsho2ka|Weak Slash|Strong Slash|Weak Kick|Strong Kick
+samsho2pe|Weak Slash|Strong Slash|Weak Kick|Strong Kick
+samsho2t|Weak Slash|Strong Slash|Weak Kick|Strong Kick
+samsho3|Weak Slash|Medium Slash|Strong Slash|Kick
+samsho3en|Weak Slash|Medium Slash|Strong Slash|Kick
+samsho3h|Weak Slash|Medium Slash|Strong Slash|Kick
 samsho4|Weak Slash|Medium Slash|Strong Slash|Kick
 samsho4k|Weak Slash|Medium Slash|Strong Slash|Kick
-samshoa|Light Slash/Hard Slash|Medium Slash/Hard Slash|Light Kick/Hard Kick|Medium Kick/Hard Kick
-samshobs|Light Slash/Hard Slash|Medium Slash/Hard Slash|Light Kick/Hard Kick|Medium Kick/Hard Kick
-samshoh|Light Slash/Hard Slash|Medium Slash/Hard Slash|Light Kick/Hard Kick|Medium Kick/Hard Kick
-savagere|Punch|Kick|Weapon Attack|3D Attack
-savagereb|Punch|Kick|Weapon Attack|3D Attack
-savagerp|Punch|Kick|Weapon Attack|3D Attack
-sengoku|Attack|Special Attack|Change Character|
-sengoku2|Attack|Special Attack|Change Character|
-sengoku2rb|Attack|Special Attack|Change Character|
-sengokuh|Attack|Special Attack|Change Character|
-socbrawl|Shoot/Punch|Pass/Jump||
-socbrawlh|Shoot/Punch|Pass/Jump||
-sonicwi2|Fire|Bomb||
-sonicwi3|Fire|Bomb||
-spinmast|Fire|Jump|Super Attack|
-ssho2emb|Light Slash|Medium Slash|Light Kick|Medium Kick
+samsho5|Weak Slash|Medium Slash|Strong Slash|Kick
+samsho5a|Weak Slash|Medium Slash|Strong Slash|Kick
+samsho5b|Weak Slash|Medium Slash|Strong Slash|Kick
+samsho5h|Weak Slash|Medium Slash|Strong Slash|Kick
+samsho5x|Weak Slash|Medium Slash|Strong Slash|Kick
+samshoa|Weak Slash|Strong Slash|Weak Kick|Strong Kick
+samshobs|Weak Slash|Strong Slash|Weak Kick|Strong Kick
+samshoh|Weak Slash|Strong Slash|Weak Kick|Strong Kick
+savagere|Punch|Kick|Attack|3D Attack
+savagereb|Punch|Kick|Attack|3D Attack
+savagerp|Punch|Kick|Attack|3D Attack
+sdodgeb|Shoot|Pass|Jump|Feint/Taunt
+sdodgebh|Shoot|Pass|Jump|Feint/Taunt
+sengk3eb|Weapon Attack|Martial Arts|Jump|Special
+sengk3fd|Weapon Attack|Martial Arts|Jump|Special
+sengk3fs|Weapon Attack|Martial Arts|Jump|Special
+sengok3i|Weapon Attack|Martial Arts|Jump|Special
+sengoku|Attack|Jump|Change Character|
+sengoku2|Attack|Strong Attack|Jump|Change Character
+sengoku2rb|Attack|Strong Attack|Jump|Change Character
+sengoku3|Weapon Attack|Martial Arts|Jump|Special
+sengoku3a|Weapon Attack|Martial Arts|Jump|Special
+sengoku3s|Weapon Attack|Martial Arts|Jump|Special
+sengokuh|Attack|Jump|Change Character|
+shocktr2|Attack|Weapon|Jump|
+shocktro|Attack|Evade|Special|Change Player
+shocktroa|Attack|Evade|Special|Change Player
+socbrawl|Kick/Slide|Pass/Head||
+socbrawlh|Kick/Slide|Pass/Head||
+sonicwi2|Shoot|Special Weapon||
+sonicwi3|Shoot|Special Weapons||
+spinmast|Attack|Jump|Bomb|
+ss5spfd|Weak Slash|Medium Slash|Strong Slash|Kick
+ssho2emb|Weak Slash|Strong Slash|Weak Kick|Strong Kick
 ssideki|Shoot/Slide|Pass/Tackle||
-ssideki3|Shoot/Low Pass/Sliding Tackle|High Pass/Rough Play/Tackle|Short Pass/Select Main Player|
-ssideki4|Shoot/Low Pass/Sliding|High Pass/Rough Play|Short Pass/Action Player Shift|
+ssideki2|Shoot/Pass/Slide|High Pass/Tackle|Short Kick/Change Player|
+ssideki3|Shoot/Pass/Slide|High Pass/Tackle|Short Kick/Change Player|
+ssideki4|Shoot/Low Pass/Slide|High Pass/Tackle|Short Pass/Change Player|
+stakwin|Reins|Whip||
+stakwin2|Reins|Whip|Go" Sign System|
 strhoop|Jump/Block/Shoot/Dunk|Cut Off/Steal/Pass||
-superspy|Attack|Guard|Change Weapon|
-tophuntr|Punch|Jump|Change Planes|
-tophuntrh|Punch|Jump|Change Planes|
-viewpoin|Fire|Smart Bomb||
-viewpoinp|Fire|Smart Bomb||
+superspy|Attack|Attack/Cut Words|Select Weapons|
+svc|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+svcboot|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+svcfd|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+svcpcb|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+svcpcba|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+svcplus|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+svcplusa|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+svcsplse|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+svcsplus|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+tophuntr|Attack|Jump|Change Planes|
+tophuntrh|Attack|Jump|Change Planes|
+tpgolf|Shot/Club Select|Club Select/Mode||Display Score Card
+trally|Accelerate|Brake||
+turfmast|Shoot/Putt|Hook|Slice|
+turfmastplus|Shoot/Putt|Hook|Slice|
+turfmastsc|Shoot/Putt|Hook|Slice|
+twinspri|Shot|Bomb||
+twsoc96|Short Pass/Slide Tackle|Long Shot/Player Select|Long Pass|
+viewpoin|Shoot|Bomb||
+viewpoinp|Shoot|Bomb||
+wakuw7jq|Weak Punch|Strong Punch|Weak Kick|Strong Kick
+wakuwak7|Weak Punch|Strong Punch|Weak Kick|Strong Kick
+wakuwak7bh|Weak Punch|Strong Punch|Weak Kick|Strong Kick
+wh1|Punch|Kick|Throw|
+wh1h|Punch|Kick|Throw|
+wh1ha|Punch|Kick|Throw|
+wh2|Punch|Kick|Throw|
+wh2es|Punch|Kick|Throw|
+wh2h|Punch|Kick|Throw|
 wh2j|Punch|Kick|Taunt|
 wh2ja|Punch|Kick|Taunt|
 wh2jes|Punch|Kick|Taunt|
-whp|Weak/Strong Punch|Medium/Strong Punch|Weak/Strong Kick|Medium/Strong Kick
-whpjq|Weak/Strong Punch|Medium/Strong Punch|Weak/Strong Kick|Medium/Strong Kick
-zedblade|Shoot|Bomb||
+whp|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+whpjq|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+wjammeb|Throw/Catch|Lob||
+wjammers|Throw/Catch|Lob||
+zedblade|Shoot|Bomber||
+zupapa|Attack|Jump||
