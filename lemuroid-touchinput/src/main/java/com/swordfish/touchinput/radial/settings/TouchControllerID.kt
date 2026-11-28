@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.swordfish.touchinput.radial.layouts.Arcade4Left
 import com.swordfish.touchinput.radial.layouts.Arcade4Right
+import com.swordfish.touchinput.radial.layouts.ArcadeCustomRight
 import com.swordfish.touchinput.radial.layouts.Arcade6Left
 import com.swordfish.touchinput.radial.layouts.Arcade6Right
 import com.swordfish.touchinput.radial.layouts.Atari2600Left
@@ -203,7 +204,7 @@ enum class TouchControllerID {
                 ARCADE_CUSTOM ->
                     Config(
                         { modifier, settings -> Arcade4Left(modifier, settings) },
-                        { modifier, settings -> com.swordfish.touchinput.radial.layouts.ArcadeCustomRight(modifier, settings) },
+                        { modifier, settings -> ArcadeCustomRight(modifier, settings) },
                     )
 
                 LYNX ->
