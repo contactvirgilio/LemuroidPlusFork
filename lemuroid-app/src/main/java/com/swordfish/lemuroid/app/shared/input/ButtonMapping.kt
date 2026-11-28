@@ -286,4 +286,53 @@ object ButtonMapping {
         private var shortcutsStamp = -2L
         private var shortcutsCache: Map<Shortcut, Set<Int>> = DEFAULT_SHORTCUTS
     }
+
+    /** Arcade cores (incl. Neo Geo / CPS2 on FBNeo): the only ones whose button names we show (owner, 2026-11-28). */
+    private val NAMED_BUTTON_SYSTEMS = setOf("fbneo", "mame2003plus", "neogeo", "cps2")
+
+    fun showsButtonNames(systemId: String): Boolean = systemId in NAMED_BUTTON_SYSTEMS
+
+    private fun buttonNamesKey(fileName: String) = "button_names_$fileName"
+
+    /** Saves the game's own button names (Android key code to name), reported by the core when the game runs. */
+    fun saveButtonNames(
+        context: Context,
+        fileName: String,
+        names: Map<Int, String>,
+    ) {
+        val text = names.entries.joinToString("\n") { "${it.key}\t${it.value}" }
+        com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper.getSharedPreferences(context)
+            .edit().putString(buttonNamesKey(fileName), text).apply()
+    }
+
+    fun buttonNames(
+        context: Context,
+        fileName: String?,
+    ): Map<Int, String> {
+        if (fileName == null) return emptyMap()
+        val text =
+            com.swordfish.lemuroid.lib.preferences.SharedPreferencesHelper.getSharedPreferences(context)
+                .getString(buttonNamesKey(fileName), null) ?: return emptyMap()
+        return text.lines().mapNotNull { line ->
+            val key = line.substringBefore('\t').toIntOrNull() ?: return@mapNotNull null
+            key to line.substringAfter('\t')
+        }.toMap()
+    }
+
+    /** RetroPad button id (libretro) to the Android key code our mapping list uses. */
+    val RETROPAD_TO_KEYCODE =
+        mapOf(
+            0 to KeyEvent.KEYCODE_BUTTON_B,
+            1 to KeyEvent.KEYCODE_BUTTON_Y,
+            2 to KeyEvent.KEYCODE_BUTTON_SELECT,
+            3 to KeyEvent.KEYCODE_BUTTON_START,
+            8 to KeyEvent.KEYCODE_BUTTON_A,
+            9 to KeyEvent.KEYCODE_BUTTON_X,
+            10 to KeyEvent.KEYCODE_BUTTON_L1,
+            11 to KeyEvent.KEYCODE_BUTTON_R1,
+            12 to KeyEvent.KEYCODE_BUTTON_L2,
+            13 to KeyEvent.KEYCODE_BUTTON_R2,
+            14 to KeyEvent.KEYCODE_BUTTON_THUMBL,
+            15 to KeyEvent.KEYCODE_BUTTON_THUMBR,
+        )
 }

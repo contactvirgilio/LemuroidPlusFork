@@ -228,6 +228,8 @@ fun ButtonMappingEditor(
     val firstRow = remember { FocusRequester() }
     val dualShock = remember { systemId != "psx" || ButtonMapping.psxDualShock(context) }
     val rows = remember { spec.buttons.filter { !it.dualShockOnly || dualShock } + DPAD_ROWS }
+    // Arcade games only: the game's own name for each button (e.g. "Jump"), next to the usual chip.
+    val gameNames = remember { if (ButtonMapping.showsButtonNames(systemId)) ButtonMapping.buttonNames(context, fileName) else emptyMap() }
     val yours = ButtonMapping.MAPPABLE
     val savedShortcuts = remember { ButtonMapping.effectiveShortcuts(context, systemId, fileName) }
     var shortcuts by remember { mutableStateOf(savedShortcuts) }
@@ -398,7 +400,10 @@ fun ButtonMappingEditor(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         ButtonChip(button, size = 26.dp)
-                        if (button.note != null) {
+                        val gameName = gameNames[button.key]
+                        if (gameName != null) {
+                            Text(text = gameName, fontSize = 13.sp, color = TEXT, modifier = Modifier.padding(start = 10.dp))
+                        } else if (button.note != null) {
                             Text(text = button.note, fontSize = 11.sp, color = MUTED, modifier = Modifier.padding(start = 10.dp))
                         }
                         Box(modifier = Modifier.weight(1f))

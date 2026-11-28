@@ -120,6 +120,28 @@ class GameViewModelSaves(
         }
     }
 
+    /**
+     * Arcade games: keep the game's own button names (e.g. "Attack", "Jump") for the button mapping
+     * list. Read once the first frame is drawn, when the core has reported them.
+     */
+    suspend fun captureButtonNames() {
+        val mappingId = com.swordfish.lemuroid.app.shared.input.ButtonMapping
+        if (!mappingId.showsButtonNames(system.id.dbname)) return
+        runCatching {
+            retroGameView.waitGLEvent<GLRetroView.GLRetroEvents.FrameRendered>()
+            val view = retroGameView.retroGameView ?: return
+            val names =
+                view.getInputDescriptors()
+                    .mapNotNull { (id, name) ->
+                        val key = mappingId.RETROPAD_TO_KEYCODE[id] ?: return@mapNotNull null
+                        // "P1 Attack" / "Player 1 Attack" -> "Attack".
+                        val clean = name.replace(Regex("^(P1|Player ?1)\\s+", RegexOption.IGNORE_CASE), "").trim()
+                        if (clean.isEmpty()) null else key to clean
+                    }.toMap()
+            if (names.isNotEmpty()) mappingId.saveButtonNames(appContext, game.fileName, names)
+        }.onFailure { Timber.e(it, "Cannot read button names") }
+    }
+
     // On some cores unserialize fails with no reason. So we need to try multiple times.
     suspend fun restoreAutoSaveAsync(saveState: SaveState) {
         // PPSSPP and Mupen64 initialize some state while rendering the first frame, so we have to wait before restoring

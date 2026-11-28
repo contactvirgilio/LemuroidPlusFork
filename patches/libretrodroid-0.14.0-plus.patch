@@ -1,3 +1,65 @@
+diff --git a/libretrodroid/src/main/cpp/environment.cpp b/libretrodroid/src/main/cpp/environment.cpp
+index 941de81..c4f38b0 100644
+--- a/libretrodroid/src/main/cpp/environment.cpp
++++ b/libretrodroid/src/main/cpp/environment.cpp
+@@ -47,6 +47,7 @@ void Environment::deinitialize() {
+     hw_context_destroy = nullptr;
+ 
+     retro_disk_control_callback = nullptr;
++    inputDescriptors.clear();
+ 
+     savesDirectory = std::string();
+     systemDirectory = std::string();
+@@ -236,9 +237,18 @@ bool Environment::handle_callback_environment(unsigned cmd, void *data) {
+             return true;
+         }
+ 
+-        case RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS:
++        case RETRO_ENVIRONMENT_SET_INPUT_DESCRIPTORS: {
++            // Lemuroid Plus: keep the game's own button names (player 1 pad) for the mapping list.
+             LOGD("Called SET_INPUT_DESCRIPTORS");
+-            return false;
++            inputDescriptors.clear();
++            auto* descriptor = static_cast<const struct retro_input_descriptor*>(data);
++            for (; descriptor != nullptr && descriptor->description != nullptr; descriptor++) {
++                if (descriptor->port == 0 && descriptor->device == RETRO_DEVICE_JOYPAD) {
++                    inputDescriptors.emplace_back(descriptor->id, std::string(descriptor->description));
++                }
++            }
++            return true;
++        }
+ 
+         case RETRO_ENVIRONMENT_GET_VARIABLE:
+             LOGD("Called RETRO_ENVIRONMENT_GET_VARIABLE");
+@@ -480,3 +490,7 @@ void Environment::setEnableVirtualFileSystem(bool value) {
+ void Environment::setEnableMicrophone(bool value) {
+     this->enableMicrophone = value;
+ }
++
++const std::vector<std::pair<unsigned, std::string>> &Environment::getInputDescriptors() const {
++    return inputDescriptors;
++}
+diff --git a/libretrodroid/src/main/cpp/environment.h b/libretrodroid/src/main/cpp/environment.h
+index 9f4a06c..200e7fc 100644
+--- a/libretrodroid/src/main/cpp/environment.h
++++ b/libretrodroid/src/main/cpp/environment.h
+@@ -106,6 +106,8 @@ public:
+ 
+     const std::vector<struct Variable> getVariables() const;
+ 
++    const std::vector<std::pair<unsigned, std::string>> &getInputDescriptors() const;
++
+     const std::vector<std::vector<struct Controller>> &getControllers() const;
+ 
+ private:
+@@ -148,6 +150,7 @@ private:
+     bool dirtyVariables = false;
+ 
+     std::vector<std::vector<struct Controller>> controllers;
++    std::vector<std::pair<unsigned, std::string>> inputDescriptors;
+ };
+ 
+ struct Variable {
 diff --git a/libretrodroid/src/main/cpp/immersivemode.cpp b/libretrodroid/src/main/cpp/immersivemode.cpp
 index af92350..f998f0b 100644
 --- a/libretrodroid/src/main/cpp/immersivemode.cpp
@@ -212,10 +274,33 @@ index b507aee..fd610ba 100644
  
      std::mutex coreLock;
 diff --git a/libretrodroid/src/main/cpp/libretrodroidjni.cpp b/libretrodroid/src/main/cpp/libretrodroidjni.cpp
-index 2ec15cf..eff491d 100644
+index 2ec15cf..1c7898a 100644
 --- a/libretrodroid/src/main/cpp/libretrodroidjni.cpp
 +++ b/libretrodroid/src/main/cpp/libretrodroidjni.cpp
-@@ -599,6 +599,49 @@ JNIEXPORT void JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_setViewpor
+@@ -85,6 +85,22 @@ JNIEXPORT void JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_updateVari
+     Environment::getInstance().updateVariable(v.key, v.value);
+ }
+ 
++JNIEXPORT jobjectArray JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_getInputDescriptors(
++    JNIEnv* env,
++    jclass obj
++) {
++    auto& descriptors = Environment::getInstance().getInputDescriptors();
++    jclass stringClass = env->FindClass("java/lang/String");
++    jobjectArray result = env->NewObjectArray(descriptors.size(), stringClass, nullptr);
++    for (int i = 0; i < descriptors.size(); i++) {
++        std::string entry = std::to_string(descriptors[i].first) + "|" + descriptors[i].second;
++        jstring value = env->NewStringUTF(entry.c_str());
++        env->SetObjectArrayElement(result, i, value);
++        env->DeleteLocalRef(value);
++    }
++    return result;
++}
++
+ JNIEXPORT jobjectArray JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_getVariables(
+     JNIEnv* env,
+     jclass obj
+@@ -599,6 +615,49 @@ JNIEXPORT void JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_setViewpor
      LibretroDroid::getInstance().setViewportAlignment(viewportAlignment);
  }
  
@@ -265,7 +350,7 @@ index 2ec15cf..eff491d 100644
  JNIEXPORT void JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_refreshAspectRatio(
      JNIEnv* env,
      jclass obj
-@@ -608,4 +651,21 @@ JNIEXPORT void JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_refreshAsp
+@@ -608,4 +667,21 @@ JNIEXPORT void JNICALL Java_com_swordfish_libretrodroid_LibretroDroid_refreshAsp
  
  }
  
@@ -846,7 +931,7 @@ index e567388..8b715d2 100644
  
      void updateForegroundVertices();
 diff --git a/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt b/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt
-index 7eb8602..3446cae 100644
+index 7eb8602..cac9e04 100644
 --- a/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt
 +++ b/libretrodroid/src/main/java/com/swordfish/libretrodroid/GLRetroView.kt
 @@ -71,6 +71,21 @@ class GLRetroView(
@@ -871,7 +956,22 @@ index 7eb8602..3446cae 100644
      private val openGLESVersion: Int
  
      private var isGameLoaded = false
-@@ -247,6 +262,36 @@ class GLRetroView(
+@@ -220,6 +235,14 @@ class GLRetroView(
+         return LibretroDroid.getVariables()
+     }
+ 
++    /** RetroPad button id to the game's own name for it, when the core reports one. */
++    fun getInputDescriptors(): Map<Int, String> =
++        LibretroDroid.getInputDescriptors()
++            .mapNotNull { entry ->
++                val id = entry.substringBefore('|').toIntOrNull() ?: return@mapNotNull null
++                id to entry.substringAfter('|')
++            }.toMap()
++
+     fun updateVariables(vararg variables: Variable) {
+         variables.forEach {
+             LibretroDroid.updateVariable(it)
+@@ -247,6 +270,36 @@ class GLRetroView(
          }
      }
  
@@ -908,7 +1008,7 @@ index 7eb8602..3446cae 100644
      override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
          val mappedKey = GamepadsManager.getGamepadKeyEvent(keyCode)
          val port = (event?.device?.controllerNumber ?: 0) - 1
-@@ -413,6 +458,32 @@ class GLRetroView(
+@@ -413,6 +466,32 @@ class GLRetroView(
              is ShaderConfig.CRT -> GLRetroShader(LibretroDroid.SHADER_CRT)
              is ShaderConfig.LCD -> GLRetroShader(LibretroDroid.SHADER_LCD)
              is ShaderConfig.Sharp -> GLRetroShader(LibretroDroid.SHADER_SHARP)
@@ -942,7 +1042,7 @@ index 7eb8602..3446cae 100644
                  LibretroDroid.SHADER_UPSCALE_CUT,
                  buildParams(
 diff --git a/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java b/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java
-index 50eafa1..900f89f 100644
+index 50eafa1..54aa62a 100644
 --- a/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java
 +++ b/libretrodroid/src/main/java/com/swordfish/libretrodroid/LibretroDroid.java
 @@ -37,6 +37,26 @@ public class LibretroDroid {
@@ -972,7 +1072,16 @@ index 50eafa1..900f89f 100644
  
      public static final String SHADER_UPSCALE_CUT_PARAM_USE_DYNAMIC_BLEND = "USE_DYNAMIC_BLEND";
      public static final String SHADER_UPSCALE_CUT_PARAM_BLEND_MIN_CONTRAST_EDGE = "BLEND_MIN_CONTRAST_EDGE";
-@@ -139,6 +159,22 @@ public class LibretroDroid {
+@@ -127,6 +147,8 @@ public class LibretroDroid {
+ 
+     public static native void updateVariable(Variable variable);
+     public static native Variable[] getVariables();
++    /** The game's own button names for player 1, as "retropadId|name" (Lemuroid Plus). */
++    public static native String[] getInputDescriptors();
+ 
+     public static native int availableDisks();
+     public static native int currentDisk();
+@@ -139,6 +161,22 @@ public class LibretroDroid {
  
      public static native void refreshAspectRatio();
  
