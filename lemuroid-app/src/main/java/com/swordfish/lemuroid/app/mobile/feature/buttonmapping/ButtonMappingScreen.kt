@@ -234,7 +234,10 @@ fun ButtonMappingEditor(
         remember {
             spec.buttons
                 .filter { !it.dualShockOnly || dualShock }
-                .filter { gameNames.isEmpty() || it.key in gameNames } + DPAD_ROWS
+                .filter {
+                    gameNames.isEmpty() || it.key in gameNames ||
+                        it.key == KeyEvent.KEYCODE_BUTTON_SELECT || it.key == KeyEvent.KEYCODE_BUTTON_START
+                } + DPAD_ROWS
         }
     val yours = ButtonMapping.MAPPABLE
     val savedShortcuts = remember { ButtonMapping.effectiveShortcuts(context, systemId, fileName) }
@@ -406,7 +409,7 @@ fun ButtonMappingEditor(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         ButtonChip(button, size = 26.dp)
-                        val gameName = gameNames[button.key]
+                        val gameName = gameNames[button.key]?.takeIf { button.key != KeyEvent.KEYCODE_BUTTON_SELECT && button.key != KeyEvent.KEYCODE_BUTTON_START }
                         if (gameName != null) {
                             Text(text = gameName, fontSize = 13.sp, color = TEXT, modifier = Modifier.padding(start = 10.dp))
                         } else if (button.note != null) {
@@ -783,7 +786,7 @@ private fun ButtonChip(
         // Start and Select: just their name, no pill (owner, 2026-11-22). Other pills: tall enough
         // for the text to sit in the middle, the same width so they line up.
         Kind.PILL ->
-            if (button.label == "Start" || button.label == "Select") {
+            if (!button.alwaysPill && (button.label == "Start" || button.label == "Select")) {
                 Box(modifier = Modifier.height(size).widthIn(min = size * 2.3f), contentAlignment = Alignment.CenterStart) {
                     Text(text = button.label.uppercase(), color = Color(0xFFC9C8D2), maxLines = 1, style = centredText(12.sp))
                 }
@@ -833,6 +836,8 @@ data class ButtonSpec(
     val note: String? = null,
     // PlayStation L3/R3: only on the DualShock.
     val dualShockOnly: Boolean = false,
+    // Arcade Coin/Start: a real button, so a pill even for "Start" (owner, 2026-11-28).
+    val alwaysPill: Boolean = false,
 )
 
 data class ControllerSpec(
@@ -872,6 +877,9 @@ object ControllerSpecs {
     private fun round(label: String, key: Int, color: Long? = null, note: String? = null) = ButtonSpec(label, key, Kind.ROUND, color = color, note = note)
 
     private fun pill(label: String, key: Int) = ButtonSpec(label, key, Kind.PILL)
+
+    /** Arcade cabinets' Coin and Start: both real buttons. */
+    private val arcadeCoinStart = listOf(ButtonSpec("Coin", SELECT, Kind.PILL, alwaysPill = true), ButtonSpec("Start", START, Kind.PILL, alwaysPill = true))
 
     private fun startSelect(start: String = "Start", select: String? = "Select") = listOfNotNull(select?.let { pill(it, SELECT) }, pill(start, START))
 
@@ -936,7 +944,7 @@ object ControllerSpecs {
             ControllerSpec(
                 "Neo Geo",
                 listOf("neogeo"),
-                listOf(round("A", B, RED), round("B", A, YELLOW), round("C", Y, GREEN), round("D", X, BLUE), pill("Coin", SELECT), pill("Start", START)),
+                listOf(round("A", B, RED), round("B", A, YELLOW), round("C", Y, GREEN), round("D", X, BLUE)) + arcadeCoinStart,
             ),
             ControllerSpec(
                 "CPS2",
@@ -948,14 +956,12 @@ object ControllerSpecs {
                     round("4", B, BLUE, "Light kick"),
                     round("5", A, BLUE, "Medium kick"),
                     round("6", R1, BLUE, "Heavy kick"),
-                    pill("Coin", SELECT),
-                    pill("Start", START),
-                ),
+                ) + arcadeCoinStart,
             ),
             ControllerSpec(
                 "Arcade",
                 listOf("fbneo", "mame2003plus"),
-                listOf(round("1", B), round("2", A), round("3", Y), round("4", X), round("5", L1), round("6", R1), pill("Coin", SELECT), pill("Start", START)),
+                listOf(round("1", B), round("2", A), round("3", Y), round("4", X), round("5", L1), round("6", R1)) + arcadeCoinStart,
             ),
         )
 
