@@ -140,9 +140,10 @@ class GameViewModelSaves(
                         val clean = name.replace(Regex("^(P1|Player ?1)\\s+", RegexOption.IGNORE_CASE), "").trim()
                         if (clean.isEmpty()) null else key to clean
                     }.toMap()
-            if (names.isNotEmpty()) {
-                mappingId.saveButtonNames(appContext, game.fileName, names)
-                onButtons(mappingId.usedFireButtons(names))
+            val named = mappingId.applyNeoGeoTable(appContext, game.fileName, names)
+            if (named.isNotEmpty()) {
+                mappingId.saveButtonNames(appContext, game.fileName, named)
+                onButtons(mappingId.usedFireButtons(named))
             }
         }.onFailure { Timber.e(it, "Cannot read button names") }
     }

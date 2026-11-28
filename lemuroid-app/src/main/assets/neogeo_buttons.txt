@@ -1,0 +1,412 @@
+# Neo Geo button names per game (A|B|C|D, empty = not used).
+# From controls.xml (SirPoonga, Howard Casto; extra games by Texacate, AndyHazz), with fixes.
+aodk|Punch|Kick|Jump|
+aof|Punch|Kick|Strong Attack|Taunt
+aof2|Punch|Kick|Attack|Taunt
+aof2a|Punch|Kick|Attack|Taunt
+aof2bh|Punch|Kick|Attack|Taunt
+aof2bhs|Punch|Kick|Attack|Taunt
+aof3|Punch|Kick|Blow Away Attack|Taunt
+aof3bh|Punch|Kick|Blow Away Attack|Taunt
+aof3k|Punch|Kick|Blow Away Attack|Taunt
+aofbr|Punch|Kick|Strong Attack|Taunt
+ct2k3sa|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+ct2k3sp|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+cthd2003|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+cthd2k3a|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+fatfursp|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+fatfurspa|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+fatfury1|Punch|Kick|Throw|
+fatfury2|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+fatfury2a|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+fatfury3|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+fatfury3a|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+ffurspbs|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+ffurspbt|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+ffury1bs|Punch|Kick|Throw|
+ffury2es|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+ffury3bs|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+ffury3eh|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+fswords|Light Slash|Medium Slash|Strong Slash|Kick
+garou|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+garoubl|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+garoubs|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+garouh|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+garouha|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+garoujq|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+garoup|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+ghostlop|Orange|Blue||
+gpilots|Shoot|Special Weapon||
+gpilotsh|Shoot|Special Weapon||
+gpilotsp|Shoot|Special Weapon||
+karnovr|Light Punch|Heavy Punch|Light Kick|Heavy Kick
+karnovre|Light Punch|Heavy Punch|Light Kick|Heavy Kick
+kf10thep|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf10thuo|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf10thup|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k1bh|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k1pkz|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k1pla|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k1pls|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k1ult|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k23rd|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k2mix|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k2mp|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k2mp2|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k2mp3|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k2mpl|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k2p17|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k2pl|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k2pla|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k2plb|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k2plc|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k2plh|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k2pls|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k2ps2re|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k3bl|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k3bla|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k3p2s|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k3pl|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k3ps2|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k3upl|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k4pls|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kf2k5uni|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kizuna|Punch|Kick|Weapon|Tag
+kizuna4p|Punch|Kick|Weapon|Tag
+kof10th|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof10thd|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2000|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2000bc|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2000n|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2000t|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2001|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2001h|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2002|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2002b|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2002m|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2002t|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2003|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2003h|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2003t|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2k1bs|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2k1fd|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2k1rp|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2k1ru|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2k2br|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2k2fd|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2k2jq|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2k2ly|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2k2omg|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2k2omg8|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2k2omg9|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2k2omg9b|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2k2ru|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2k2ts|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2k3br|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2k3fd|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2k4se|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2kfd|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2kotc|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2kpls|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2kps2|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2ksp|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof2kxxx|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof94|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof94br|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof94bs|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof94nr2|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof94rz|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof94te|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof94tea|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof95|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof95a|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof95b|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof95bs|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof95h|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof95jq|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof95sp|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof95sr3|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof95t|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof96|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof96a|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof96ae|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof96cn|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof96ep|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof96h|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof96pls|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof96r|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof96rp|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof96rss|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97ae|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97ae230625|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97bs|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97bt|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97cb|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97cbt|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97ce|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97cn|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97eb|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97evf|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97evn|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97h|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97inv|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97k|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97m|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97oro|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97pla|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97plc|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97plh|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97pls|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97pm|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97ps|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97rc|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97rm|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97sp|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97st|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97t|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97ts|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97ubp|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof97xt|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof98|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof98a|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof98ae|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof98bc2k2|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof98bc2nd|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof98bsc|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof98cb|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof98cp|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof98eck|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof98evo|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof98h|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof98k|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof98ka|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof98mix|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof98pfe|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof98plc|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof98rat|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof98ult|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof99|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof99ae|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof99cb|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof99e|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof99eur|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof99fd|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof99h|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof99jh|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof99jq|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof99k|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof99ka|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof99p|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof99pls|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof99rp|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof99sk|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof99sr|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kof99t|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kog|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kogplus|Weak Punch|Weak Kick|Strong Punch|Strong Kick
+kotm|Punch|Kick|Jump|
+kotm2|Punch|Kick|Jump|
+kotm2a|Punch|Kick|Jump|
+kotm2p|Punch|Kick|Jump|
+kotmh|Punch|Kick|Jump|
+lastblad|Weak Slash|Strong Slash|Weak Kick|Repel
+lastblada|Weak Slash|Strong Slash|Weak Kick|Repel
+lastbladh|Weak Slash|Strong Slash|Weak Kick|Repel
+lastbldi|Weak Slash|Strong Slash|Weak Kick|Repel
+lastbldp|Weak Slash|Strong Slash|Weak Kick|Repel
+lastblsp|Weak Slash|Strong Slash|Weak Kick|Repel
+lastsold|Weak Slash|Strong Slash|Weak Kick|Repel
+lbowling|Bowl|||
+lresort|Fire|Adjust Pod Movement||
+lresortp|Fire|Adjust Pod Movement||
+magdrop3|Top|Throw|Lower|
+magdrop3bh|Top|Throw|Lower|
+magdrop3te|Top|Throw|Lower|
+ms21v2|Fire|Jump|Grenade|
+ms31v2|Fire|Jump|Grenade|
+ms3dbpls|Fire|Jump|Grenade|
+ms41v2|Fire|Jump|Grenade|
+ms4plus|Fire|Jump|Grenade|
+ms51v2|Fire|Jump|Grenade|
+ms5esr|Fire|Jump|Grenade|
+ms5plus|Fire|Jump|Grenade|
+ms5plush|Fire|Jump|Grenade|
+ms5sgf|Fire|Jump|Grenade|
+mslug|Fire|Jump|Grenade|
+mslug1v2|Fire|Jump|Grenade|
+mslug2|Fire|Jump|Grenade|
+mslug2ct|Fire|Jump|Grenade|
+mslug2dd|Fire|Jump|Grenade|
+mslug2dg|Fire|Jump|Grenade|
+mslug2eg|Fire|Jump|Grenade|
+mslug2fm|Fire|Jump|Grenade|
+mslug2p|Fire|Jump|Grenade|
+mslug2r|Fire|Jump|Grenade|
+mslug2t|Fire|Jump|Grenade|
+mslug2unity|Fire|Jump|Grenade|
+mslug3|Fire|Jump|Grenade|
+mslug3a|Fire|Jump|Grenade|
+mslug3b6|Fire|Jump|Grenade|
+mslug3c|Fire|Jump|Grenade|
+mslug3cq|Fire|Jump|Grenade|
+mslug3cqi|Fire|Jump|Grenade|
+mslug3cqt|Fire|Jump|Grenade|
+mslug3cqz|Fire|Jump|Grenade|
+mslug3dd|Fire|Jump|Grenade|
+mslug3eb|Fire|Jump|Grenade|
+mslug3fd|Fire|Jump|Grenade|
+mslug3g|Fire|Jump|Grenade|
+mslug3gw|Fire|Jump|Grenade|
+mslug3h|Fire|Jump|Grenade|
+mslug3i|Fire|Jump|Grenade|
+mslug3ki|Fire|Jump|Grenade|
+mslug3lw|Fire|Jump|Grenade|
+mslug3ps|Fire|Jump|Grenade|
+mslug3sc|Fire|Jump|Grenade|
+mslug3sd|Fire|Jump|Grenade|
+mslug3se|Fire|Jump|Grenade|
+mslug3unity|Fire|Jump|Grenade|
+mslug3v|Fire|Jump|Grenade|
+mslug3zh|Fire|Jump|Grenade|
+mslug4|Fire|Jump|Grenade|
+mslug4a|Fire|Jump|Grenade|
+mslug4ar|Fire|Jump|Grenade|
+mslug4c|Fire|Jump|Grenade|
+mslug4cqi|Fire|Jump|Grenade|
+mslug4dd|Fire|Jump|Grenade|
+mslug4dg|Fire|Jump|Grenade|
+mslug4fd|Fire|Jump|Grenade|
+mslug4h|Fire|Jump|Grenade|
+mslug4ki|Fire|Jump|Grenade|
+mslug4lq|Fire|Jump|Grenade|
+mslug4lw|Fire|Jump|Grenade|
+mslug4q|Fire|Jump|Grenade|
+mslug4unity|Fire|Jump|Grenade|
+mslug5|Fire|Jump|Grenade|
+mslug5ae|Fire|Jump|Grenade|
+mslug5ar|Fire|Jump|Grenade|
+mslug5b|Fire|Jump|Grenade|
+mslug5b2|Fire|Jump|Grenade|
+mslug5bs|Fire|Jump|Grenade|
+mslug5c|Fire|Jump|Grenade|
+mslug5cqi|Fire|Jump|Grenade|
+mslug5db|Fire|Jump|Grenade|
+mslug5dd|Fire|Jump|Grenade|
+mslug5dg|Fire|Jump|Grenade|
+mslug5es|Fire|Jump|Grenade|
+mslug5ex|Fire|Jump|Grenade|
+mslug5f|Fire|Jump|Grenade|
+mslug5fd|Fire|Jump|Grenade|
+mslug5h|Fire|Jump|Grenade|
+mslug5ki|Fire|Jump|Grenade|
+mslug5mg|Fire|Jump|Grenade|
+mslug5nd|Fire|Jump|Grenade|
+mslug5sc|Fire|Jump|Grenade|
+mslug5sg|Fire|Jump|Grenade|
+mslug5unity|Fire|Jump|Grenade|
+mslug5w|Fire|Jump|Grenade|
+mslug5x|Fire|Jump|Grenade|
+mslug5zh|Fire|Jump|Grenade|
+mslugdg|Fire|Jump|Grenade|
+mslugdyf2|Fire|Jump|Grenade|
+mslugfc1|Fire|Jump|Grenade|
+mslugfc2|Fire|Jump|Grenade|
+mslugfs|Fire|Jump|Grenade|
+mslugqy|Fire|Jump|Grenade|
+mslugunity|Fire|Jump|Grenade|
+mslugx|Fire|Jump|Grenade|
+mslugx2r|Fire|Jump|Grenade|
+mslugxc1|Fire|Jump|Grenade|
+mslugxc2|Fire|Jump|Grenade|
+mslugxcq|Fire|Jump|Grenade|
+mslugxcqi|Fire|Jump|Grenade|
+mslugxdd|Fire|Jump|Grenade|
+mslugxdg|Fire|Jump|Grenade|
+mslugxeb|Fire|Jump|Grenade|
+mslugxif|Fire|Jump|Grenade|
+mslugxlb|Fire|Jump|Grenade|
+mslugxsc|Fire|Jump|Grenade|
+mslugxsv|Fire|Jump|Grenade|
+mslugxunity|Fire|Jump|Grenade|
+mslugxxb|Fire|Jump|Grenade|
+mslugxxr|Fire|Jump|Grenade|
+msqyfc1|Fire|Jump|Grenade|
+msx1v2|Fire|Jump|Grenade|
+msx2r1v2|Fire|Jump|Grenade|
+msx2reb|Fire|Jump|Grenade|
+msxsrf|Fire|Jump|Grenade|
+nam1975|Machine Gun|Grenade|Run/Flip|
+neocup98|Shoot/Low Pass/Slide|High Pass/Rough Play-Tackle|Short Pass/Action Player Shift|
+ninjamas|Weak Punch/Slash|Strong Punch/Slash|Weak Kick|Strong Kick
+ninjamasha|Weak Punch/Slash|Strong Punch/Slash|Weak Kick|Strong Kick
+pbobbl2n|Fire|||
+pbobblen|Fire|||
+pbobblenb|Fire|||
+pulstar|Fire|Drone Control||
+pulstara|Fire|Drone Control||
+pulstarae|Fire|Drone Control||
+puzzledp|Shoot|||
+rbff1|Punch|Kick|Special|Line Change
+rbff1a|Punch|Kick|Special|Line Change
+rbff1k|Punch|Kick|Special|Line Change
+rbff1ka|Punch|Kick|Special|Line Change
+rbff2|Punch|Kick|Special|Line Change
+rbff2bs|Punch|Kick|Special|Line Change
+rbff2h|Punch|Kick|Special|Line Change
+rbff2k|Punch|Kick|Special|Line Change
+rbffspbs|Punch|Kick|Special|Line Change
+rbffspec|Punch|Kick|Special|Line Change
+rbffspeck|Punch|Kick|Special|Line Change
+ridhero|Accelerate|Brake|Turbo|
+ridheroh|Accelerate|Brake|Turbo|
+roboarmy|Attack|Jump|Special|
+roboarmya|Attack|Jump|Special|
+s1945p|Fire|Bomb||
+samsh2jq|Light Slash|Medium Slash|Light Kick|Medium Kick
+samsh2sp|Light Slash|Medium Slash|Light Kick|Medium Kick
+samsh3bs|Light Slash|Medium Slash|Strong Slash|Kick
+samsh4bs|Weak Slash|Medium Slash|Strong Slash|Kick
+samsh4sp|Weak Slash|Medium Slash|Strong Slash|Kick
+samsho|Light Slash/Hard Slash|Medium Slash/Hard Slash|Light Kick/Hard Kick|Medium Kick/Hard Kick
+samsho2|Light Slash|Medium Slash|Light Kick|Medium Kick
+samsho2k|Light Slash|Medium Slash|Light Kick|Medium Kick
+samsho2ka|Light Slash|Medium Slash|Light Kick|Medium Kick
+samsho2pe|Light Slash|Medium Slash|Light Kick|Medium Kick
+samsho2t|Light Slash|Medium Slash|Light Kick|Medium Kick
+samsho3|Light Slash|Medium Slash|Strong Slash|Kick
+samsho3en|Light Slash|Medium Slash|Strong Slash|Kick
+samsho3h|Light Slash|Medium Slash|Strong Slash|Kick
+samsho4|Weak Slash|Medium Slash|Strong Slash|Kick
+samsho4k|Weak Slash|Medium Slash|Strong Slash|Kick
+samshoa|Light Slash/Hard Slash|Medium Slash/Hard Slash|Light Kick/Hard Kick|Medium Kick/Hard Kick
+samshobs|Light Slash/Hard Slash|Medium Slash/Hard Slash|Light Kick/Hard Kick|Medium Kick/Hard Kick
+samshoh|Light Slash/Hard Slash|Medium Slash/Hard Slash|Light Kick/Hard Kick|Medium Kick/Hard Kick
+savagere|Punch|Kick|Weapon Attack|3D Attack
+savagereb|Punch|Kick|Weapon Attack|3D Attack
+savagerp|Punch|Kick|Weapon Attack|3D Attack
+sengoku|Attack|Special Attack|Change Character|
+sengoku2|Attack|Special Attack|Change Character|
+sengoku2rb|Attack|Special Attack|Change Character|
+sengokuh|Attack|Special Attack|Change Character|
+socbrawl|Shoot/Punch|Pass/Jump||
+socbrawlh|Shoot/Punch|Pass/Jump||
+sonicwi2|Fire|Bomb||
+sonicwi3|Fire|Bomb||
+spinmast|Fire|Jump|Super Attack|
+ssho2emb|Light Slash|Medium Slash|Light Kick|Medium Kick
+ssideki|Shoot/Slide|Pass/Tackle||
+ssideki3|Shoot/Low Pass/Sliding Tackle|High Pass/Rough Play/Tackle|Short Pass/Select Main Player|
+ssideki4|Shoot/Low Pass/Sliding|High Pass/Rough Play|Short Pass/Action Player Shift|
+strhoop|Jump/Block/Shoot/Dunk|Cut Off/Steal/Pass||
+superspy|Attack|Guard|Change Weapon|
+tophuntr|Punch|Jump|Change Planes|
+tophuntrh|Punch|Jump|Change Planes|
+viewpoin|Fire|Smart Bomb||
+viewpoinp|Fire|Smart Bomb||
+wh2j|Punch|Kick|Taunt|
+wh2ja|Punch|Kick|Taunt|
+wh2jes|Punch|Kick|Taunt|
+whp|Weak/Strong Punch|Medium/Strong Punch|Weak/Strong Kick|Medium/Strong Kick
+whpjq|Weak/Strong Punch|Medium/Strong Punch|Weak/Strong Kick|Medium/Strong Kick
+zedblade|Shoot|Bomb||

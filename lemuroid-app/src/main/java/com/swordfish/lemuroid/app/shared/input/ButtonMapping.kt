@@ -350,4 +350,32 @@ object ButtonMapping {
         )
 
     fun usedFireButtons(names: Map<Int, String>): List<Int> = ARCADE_FIRE_ORDER.filter { it in names }
+
+    /**
+     * Neo Geo games all report "Button A" to "D" whatever they use. Our own table (assets/neogeo_buttons.txt,
+     * from the community controls.xml with fixes) gives each game's real names and drops the unused ones
+     * (owner, 2026-11-28). Games not in the table keep A to D.
+     */
+    fun applyNeoGeoTable(
+        context: Context,
+        fileName: String,
+        names: Map<Int, String>,
+    ): Map<Int, String> {
+        val letters = listOf("Button A", "Button B", "Button C", "Button D")
+        if (names.values.none { it in letters }) return names
+        val rom = fileName.substringBeforeLast('.').lowercase()
+        val entry =
+            runCatching {
+                context.assets.open("neogeo_buttons.txt").bufferedReader().useLines { lines ->
+                    lines.firstOrNull { !it.startsWith("#") && it.substringBefore('|') == rom }
+                }
+            }.getOrNull() ?: return names
+        val labels = entry.split('|').drop(1)
+        return names.mapNotNull { (key, name) ->
+            val index = letters.indexOf(name)
+            if (index < 0) return@mapNotNull key to name
+            val label = labels.getOrNull(index).orEmpty()
+            if (label.isEmpty()) null else key to label
+        }.toMap()
+    }
 }
