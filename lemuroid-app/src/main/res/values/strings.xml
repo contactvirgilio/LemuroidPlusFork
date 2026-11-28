@@ -447,4 +447,9 @@
     <string name="game_overlay_screenshot_saved">Saved</string>
     <string name="game_overlay_screenshot_failed">Couldn\'t save</string>
     <string name="title_all_systems">All systems</string>
+    <string name="bm_section_face">Face buttons</string>
+    <string name="bm_section_shoulders">Shoulders and more</string>
+    <string name="bm_section_start">Start and Select</string>
+    <string name="bm_section_dpad">D-pad</string>
+    <string name="bm_changed_legend">changed from default</string>
 </resources>

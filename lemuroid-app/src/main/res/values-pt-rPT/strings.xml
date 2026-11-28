@@ -394,4 +394,9 @@
     <string name="game_overlay_screenshot_saved">Guardada</string>
     <string name="game_overlay_screenshot_failed">Não foi possível guardar</string>
     <string name="title_all_systems">Todos os sistemas</string>
+    <string name="bm_section_face">Botões principais</string>
+    <string name="bm_section_shoulders">Gatilhos e outros</string>
+    <string name="bm_section_start">Start e Select</string>
+    <string name="bm_section_dpad">Direcional</string>
+    <string name="bm_changed_legend">alterado do padrão</string>
 </resources>

@@ -4,6 +4,9 @@ import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.foundation.layout.widthIn
+import com.swordfish.lemuroid.app.mobile.shared.compose.ui.SelectionStyle
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.draw.clip
 import android.view.KeyEvent
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
@@ -371,10 +374,6 @@ fun ButtonMappingEditor(
                 color = TEXT,
                 modifier = Modifier.fillMaxWidth().padding(16.dp, 12.dp, 16.dp, 4.dp),
             )
-            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 26.dp, vertical = 4.dp)) {
-                Text(text = stringResource(com.swordfish.lemuroid.R.string.bm_system_button, spec.name), fontSize = 11.sp, color = MUTED, modifier = Modifier.weight(1f))
-                Text(text = stringResource(com.swordfish.lemuroid.R.string.bm_your_button), fontSize = 11.sp, color = MUTED)
-            }
 
             Column(
                 modifier =
@@ -383,9 +382,23 @@ fun ButtonMappingEditor(
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState())
                         .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
+                // Grouped under small headings (owner, 2026-11-28: prettier mapping screen).
+                val accent = SelectionStyle.color
+                var lastSection = -1
                 rows.forEachIndexed { index, button ->
+                    val section = sectionOf(button)
+                    if (section != lastSection) {
+                        lastSection = section
+                        Text(
+                            text = stringResource(SECTION_TITLES[section]).uppercase(),
+                            fontSize = 10.sp,
+                            color = MUTED,
+                            letterSpacing = 1.sp,
+                            modifier = Modifier.padding(start = 6.dp, top = if (index == 0) 2.dp else 8.dp, bottom = 0.dp),
+                        )
+                    }
                     val sources = sourcesOf(button.key)
                     val isListening = listening == button.key
                     val isDefault = sources == listOf(button.key) || (sources.isEmpty() && ButtonMapping.defaults(systemId)[button.key] == ButtonMapping.UNBOUND)
@@ -393,9 +406,10 @@ fun ButtonMappingEditor(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .height(42.dp)
+                                .height(48.dp)
+                                .clip(RoundedCornerShape(14.dp))
                                 .background(TILE)
-                                .border(1.dp, if (isListening) GOLD else TILE_BORDER)
+                                .then(if (isListening) Modifier.border(2.dp, accent, RoundedCornerShape(14.dp)) else Modifier)
                                 .then(if (index == 0) Modifier.focusRequester(firstRow) else Modifier)
                                 .onFocusChanged {
                                     if (it.isFocused) {
@@ -403,9 +417,9 @@ fun ButtonMappingEditor(
                                         focusedShortcut = null
                                     }
                                 }
-                                .focusHighlight(shape = RectangleShape, zoom = 1f)
+                                .focusHighlight(shape = RoundedCornerShape(14.dp), zoom = 1f)
                                 .clickable { listening = button.key }
-                                .padding(horizontal = 10.dp),
+                                .padding(horizontal = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         ButtonChip(button, size = 26.dp)
@@ -416,15 +430,18 @@ fun ButtonMappingEditor(
                             Text(text = button.note, fontSize = 11.sp, color = MUTED, modifier = Modifier.padding(start = 10.dp))
                         }
                         Box(modifier = Modifier.weight(1f))
+                        // Changed from the default: a small dot in the selection colour.
+                        if (!isDefault && !isListening) {
+                            Box(modifier = Modifier.size(7.dp).clip(CircleShape).background(accent))
+                        }
+                        Text(text = "→", fontSize = 15.sp, color = MUTED, modifier = Modifier.padding(horizontal = 14.dp))
                         when {
-                            isListening -> Text(text = stringResource(com.swordfish.lemuroid.R.string.bm_press, secondsLeft), fontSize = 13.sp, color = GOLD)
-                            sources.isEmpty() -> Text(text = "—", fontSize = 14.sp, color = MUTED)
+                            isListening -> Text(text = stringResource(com.swordfish.lemuroid.R.string.bm_press, secondsLeft), fontSize = 13.sp, color = accent)
+                            sources.isEmpty() -> KeyCap("—")
                             else ->
-                                Text(
-                                    text = sources.joinToString(", ") { ButtonMapping.keyName(it) },
-                                    fontSize = 14.sp,
-                                    color = if (isDefault) Color(0xFFC9C8D2) else TEAL,
-                                )
+                                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    sources.forEach { KeyCap(ButtonMapping.keyName(it)) }
+                                }
                         }
                     }
                 }
@@ -442,15 +459,38 @@ fun ButtonMappingEditor(
                 )
             }
 
-            Row(modifier = Modifier.fillMaxWidth().padding(16.dp, 8.dp, 16.dp, 12.dp), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                listOf("A" to stringResource(com.swordfish.lemuroid.R.string.bm_key_change), "Y" to stringResource(com.swordfish.lemuroid.R.string.bm_key_clear), "X" to stringResource(com.swordfish.lemuroid.R.string.bm_key_reset_all), "B" to stringResource(com.swordfish.lemuroid.R.string.bm_key_back)).forEach { (key, label) ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(modifier = Modifier.border(1.dp, CHIP_GREY).padding(horizontal = 4.dp)) {
-                            Text(text = key, fontSize = 11.sp, color = Color(0xFFC9C8D2))
+            // Keys bar in the selection colour; the "changed" note stays on the dark background (owner, 2026-11-28).
+            val accent = SelectionStyle.color
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(16.dp, 8.dp, 16.dp, 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Row(
+                    modifier =
+                        Modifier
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(lerp(Color(0xFF0C0D10), accent, 0.28f))
+                            .padding(horizontal = 10.dp, vertical = 6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    listOf(
+                        "A" to stringResource(com.swordfish.lemuroid.R.string.bm_key_change),
+                        "Y" to stringResource(com.swordfish.lemuroid.R.string.bm_key_clear),
+                        "X" to stringResource(com.swordfish.lemuroid.R.string.bm_key_reset_all),
+                        "B" to stringResource(com.swordfish.lemuroid.R.string.bm_key_back),
+                    ).forEach { (key, label) ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(modifier = Modifier.size(20.dp).clip(CircleShape).background(accent), contentAlignment = Alignment.Center) {
+                                Text(text = key, fontSize = 11.sp, color = lerp(accent, Color.Black, 0.75f), fontWeight = FontWeight.Bold)
+                            }
+                            Text(text = label, fontSize = 12.sp, color = lerp(Color.White, accent, 0.12f), modifier = Modifier.padding(start = 6.dp))
                         }
-                        Text(text = " $label", fontSize = 11.sp, color = MUTED)
                     }
                 }
+                Box(modifier = Modifier.weight(1f))
+                Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(accent))
+                Text(text = stringResource(com.swordfish.lemuroid.R.string.bm_changed_legend), fontSize = 11.sp, color = MUTED, modifier = Modifier.padding(start = 6.dp))
             }
         }
 
@@ -505,7 +545,7 @@ private fun ShortcutSection(
     onFocus: (ButtonMapping.Shortcut) -> Unit,
     onPick: (ButtonMapping.Shortcut) -> Unit,
 ) {
-    Text(text = stringResource(com.swordfish.lemuroid.R.string.settings_title_shortcuts).uppercase(), fontSize = 11.sp, letterSpacing = 1.5.sp, color = AMBER, modifier = Modifier.padding(top = 12.dp, bottom = 2.dp, start = 2.dp))
+    Text(text = stringResource(com.swordfish.lemuroid.R.string.settings_title_shortcuts).uppercase(), fontSize = 10.sp, letterSpacing = 1.sp, color = MUTED, modifier = Modifier.padding(top = 8.dp, start = 6.dp))
     ButtonMapping.Shortcut.values().forEach { type ->
         val keys = shortcuts[type].orEmpty()
         val isListening = listening == type
@@ -514,13 +554,14 @@ private fun ShortcutSection(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .height(42.dp)
+                    .height(48.dp)
+                    .clip(RoundedCornerShape(14.dp))
                     .background(TILE)
-                    .border(1.dp, if (isListening) GOLD else TILE_BORDER)
+                    .then(if (isListening) Modifier.border(2.dp, SelectionStyle.color, RoundedCornerShape(14.dp)) else Modifier)
                     .onFocusChanged { if (it.isFocused) onFocus(type) }
-                    .focusHighlight(shape = RectangleShape, zoom = 1f)
+                    .focusHighlight(shape = RoundedCornerShape(14.dp), zoom = 1f)
                     .clickable { onPick(type) }
-                    .padding(horizontal = 10.dp),
+                    .padding(horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             ShortcutChip(type, 26.dp)
@@ -530,9 +571,9 @@ private fun ShortcutSection(
                     Text(
                         text = if (captured.isEmpty()) stringResource(com.swordfish.lemuroid.R.string.sc_hold_two, secondsLeft) else captured.joinToString(" + ") { ButtonMapping.keyName(it) },
                         fontSize = 13.sp,
-                        color = GOLD,
+                        color = SelectionStyle.color,
                     )
-                keys.isEmpty() -> Text(text = "—", fontSize = 14.sp, color = MUTED)
+                keys.isEmpty() -> KeyCap("—")
                 else -> Combo(keys, if (isDefault) Color(0xFFC9C8D2) else TEAL)
             }
         }
@@ -822,6 +863,41 @@ private fun centredText(size: androidx.compose.ui.unit.TextUnit) =
     )
 
 enum class Kind { ROUND, PILL, DPAD }
+
+/** Section of a button in the list: face buttons, shoulders and extras, Start/Select/Coin, D-pad. */
+private fun sectionOf(button: ButtonSpec): Int =
+    when {
+        button.kind == Kind.DPAD -> 3
+        button.key == KeyEvent.KEYCODE_BUTTON_START || button.key == KeyEvent.KEYCODE_BUTTON_SELECT -> 2
+        button.kind == Kind.ROUND -> 0
+        else -> 1
+    }
+
+private val SECTION_TITLES =
+    listOf(
+        com.swordfish.lemuroid.R.string.bm_section_face,
+        com.swordfish.lemuroid.R.string.bm_section_shoulders,
+        com.swordfish.lemuroid.R.string.bm_section_start,
+        com.swordfish.lemuroid.R.string.bm_section_dpad,
+    )
+
+/** Your controller's button, drawn as a key cap. */
+@Composable
+private fun KeyCap(label: String) {
+    Box(
+        modifier =
+            Modifier
+                .height(30.dp)
+                .widthIn(min = 34.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color(0xFF2C2F37))
+                .border(1.dp, Color(0xFF464A54), RoundedCornerShape(8.dp))
+                .padding(horizontal = 8.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(text = label, fontSize = 13.sp, color = TEXT, fontWeight = FontWeight.Bold, maxLines = 1)
+    }
+}
 
 /**
  * A button of a system: its name, the RetroPad key the core reads for it, how it's drawn, and its
